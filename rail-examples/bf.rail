@@ -1,0 +1,96 @@
+Brainfuck interpreter in Rail, by Michael Tolly.
+Takes stdin in the form of "program!input".
+$ 'main'
+ -{read program}{main loop}#
+
+reads a string terminated by an exclamation mark '!' character
+$ 'read program'
+ \                           /-(char)p-\
+  -[]--i(!char!)-(char)[!]q-<          |
+     /                       \-#       |
+     |                                 |
+     \---------------------------------/
+
+initialize memory, then pop chars off the program string and execute them
+$ 'main loop'
+ \
+  -n(!left!)-0(!cell!)-n(!right!)-n(!brackets!)-\
+                                                |
+   /--------------------------------------------/------------\
+   |                                                         |
+   |           /-1c{swap}(!ch!)-\                            |
+ /-\-{dup}z0q-<                 |                            |
+ |             \-#              |                            /
+ |                              |              /-(ch)[\]\]q-<
+ | /----------------------------/             /              \-{drop}-(brackets)~{swap}(!brackets!)---------\
+ | |                                         /                                                              |
+ | |                           /-(ch)[\[\]q-<            /-{dup}-[\[\]{swap}p-(brackets){swap}:(!brackets!)-\
+ | |                          /              \-(cell)0q-<                                                   |
+ | |             /--(ch)[,]q-<     /-\                   \-{bracket skip}-\                                 |
+ | |             |            \-e-<  |                                    |                                 |
+ | |             /                 \ \-i{ord}[256]r(!cell!)-\             |                                 |
+ | | /-(ch)[.]q-<                  |                        |             |                                 |
+ | | |           \-(cell){chr}o-\  |    /-------------------/-------------/---------------------------------/-----------------------\
+ | | |                          |  |    |                                                                                           |
+ | | \--------------------------+--+----+--------------\                                                                            |
+ | |                            |  |    |              |                                                                            |
+ \-+----------------------------/--/----/              /                                                                            |
+ | |                                       /-(ch)[<]q-<                                                   /-(left)~(!cell!)(!left!)-/
+ | |                                      /            \-(right)(cell):(!right!)----------------(left)nq-<                          |
+ | |                                     /                                                                \                         |
+ | |                         /-(ch)[>]q-<                                   /-(right)~(!cell!)(!right!)-\  \-0(!cell!)--------------/
+ | |                        /            \-(left)(cell):(!left!)-(right)nq-<                            |
+ | |            /-(ch)[-]q-<                                                \-0(!cell!)-\ /-------------/
+ | |           /            \-(cell)[255]a[256]r(!cell!)-\                               |
+ | \-(ch)[+]q-<                                          |                               |
+ |             \-(cell)1a[256]r(!cell!)-\                |                               |
+ |                                      |                |                               |
+ \--------------------------------------/----------------/-------------------------------/
+
+drop the prefix of the string up to (and including) the first unmatched ']'
+$ 'bracket skip'
+ \
+  \-0(!n!)-\
+           |                                  /--------------------\
+ /---------/                                 /                     |
+ |                             /-(ch)[\]\]q-<         /-(n)1s(!n!)-\
+ \                            /              \-(n)0q-<             |
+  -1c{swap}(!ch!)-(ch)[\[\]q-<                        \-#          |
+ /                            \-(n)1a(!n!)-\                       |
+ |                                         |                       |
+ \-----------------------------------------/-----------------------/
+
+utility functions:
+
+$ 'dup'
+ -(!x!)(x)(x)#
+
+$ 'swap'
+ -(!x!)(!y!)(x)(y)#
+
+$ 'drop'
+ -(!x!)#
+
+a 126-char long string, from ascii char 1 (SOH) to 126 (~)
+$ 'ascii'
+ \
+  -[\11\\22\\33\\44\\55\\66\\a\\b\\t\\n\\v\\f\\r\\1441\\1551\\1661\\1771\\1881\\1991\\2002\\2112\\2222\\2332\\2442\\2552\\2662\\2772\\2882\\2992\\3003\\3113\ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\\]\^_`abcdefghijklmnopqrstuvwxyz{|}~]#
+
+replaces a number with its ASCII character
+$ 'chr'
+ \                                    /-1c{swap}{drop}-(n)1s(!n!)-\
+  \                          /-(n)1q-<                            |
+   -(!n!)-{ascii}--{dup}z0q-<         \-1c{drop}-#                |
+                 /           \                                    |
+                 |            \-[chr: out of range]b              |
+                 |                                                |
+                 \------------------------------------------------/
+
+replaces an ASCII character with its codepoint
+$ 'ord'                                              /-(n)1a(!n!)-\
+ \                                 /-1c{swap}-(ch)q-<             |
+  -1(!n!)-(!ch!){ascii}--{dup}z0q-<                  \-{drop}(n)# |
+                       /           \                              |
+                       |            \-[ord: out of range]b        |
+                       |                                          |
+                       \------------------------------------------/
