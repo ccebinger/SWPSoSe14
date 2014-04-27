@@ -26,16 +26,16 @@ MainWindow::MainWindow(QWidget *parent) :
     setCurrentPath(QString());
     setModified(false);
 
-    connect(ui->ui_sourcePlainTextEdit, &QPlainTextEdit::cursorPositionChanged, this, &MainWindow::cursorPositionChanged);
-    connect(ui->ui_sourcePlainTextEdit, &QPlainTextEdit::textChanged, this, &MainWindow::textChanged);
-    connect(ui->ui_newFileAction, &QAction::triggered, this, &MainWindow::newFile);
-    connect(ui->ui_openFileAction, &QAction::triggered, this, &MainWindow::openFile);
-    connect(ui->ui_saveFileAction, &QAction::triggered, this, &MainWindow::saveFile);
-    connect(ui->ui_saveAsAction, &QAction::triggered, this, &MainWindow::saveFileAs);
-    connect(ui->ui_quitAction, &QAction::triggered, this, &MainWindow::close);
+    connect(ui->ui_sourcePlainTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
+    connect(ui->ui_sourcePlainTextEdit, SIGNAL(textChanged()), this, SLOT(textChanged()));
+    connect(ui->ui_newFileAction, SIGNAL(triggered()), this, SLOT(newFile()));
+    connect(ui->ui_openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
+    connect(ui->ui_saveFileAction, SIGNAL(triggered()), this, SLOT(saveFile()));
+    connect(ui->ui_saveAsAction, SIGNAL(triggered()), this, SLOT(saveFileAs()));
+    connect(ui->ui_quitAction, SIGNAL(triggered()), this, SLOT(close()));
 
-    connect(ui->ui_setInterpreterAction, &QAction::triggered, this, &MainWindow::setInterpreter);
-    connect(ui->ui_runInterpreterAction, &QAction::triggered, this, &MainWindow::runInterpreter);
+    connect(ui->ui_setInterpreterAction, SIGNAL(triggered()), this, SLOT(setInterpreter()));
+    connect(ui->ui_runInterpreterAction, SIGNAL(triggered()), this, SLOT(runInterpreter()));
 }
 
 MainWindow::~MainWindow()
