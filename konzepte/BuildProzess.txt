@@ -1,0 +1,14 @@
+
+ u. a. Continous Builds
+
+cf. im Wurzelverzeichnis das Makefile.
+
+Bei jedem Push ins zentrale github-Repo wird bei *drone.io* ein Trigger
+ausgelöst, welcher dafür Sorge trägt, dass $ make fu-rail ausgeführt wird.
+
+
+
+TODO
+
+Leider werden die Notifications via Email von drone.io über SUCCESS/FAIL noch
+nicht an korrekt an die Empfänger unserer Mailinglist übermittelt. :)  
