@@ -1,0 +1,5 @@
+ID;Command;Adjazenz
+0;pushConst(1);1
+1;pushConst(1);2
+2;add();3
+3;out();
