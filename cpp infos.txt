@@ -1,0 +1,20 @@
+Compiler:
+Linux: GCC
+Windows: MinGW oder VM+Linux+GCC (würde ich raten)
+
+Standard:
+C++11 (muss man beim Kompilieren entsprechend angeben)
+
+Libraries:
+Hier wirds schwer, wenn man Windows und Linux mischen möchte. Prinzipiell würde ich erstmal davon abraten und sagen, dass wir uns auf die Nutzung der STL beschränken
+
+IDEs:
+Eclipse mit CDE
+
+Gute Seite, um STL-Funktionen nachzuschlagen:
+http://www.cplusplus.com/
+
+Das Tutorial, dass ich in der Sitzung angesprochen hatte ist ein Buch und kostet prinzipiell Geld (gibts aber sicherlich auch anderweitig *hust*)
+- Bjarne Stroustrup- The C++ Programming Language (4th Edition)
+- http://www.cplusplus.com/doc/tutorial/
+- 
