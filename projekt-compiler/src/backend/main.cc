@@ -15,6 +15,7 @@
  * 0 bei Erfolg.
  * 1 bei Fehler in Kommandozeilenparametern.
  * 2 falls die Ein- oder Ausgabedateien nicht geöffnet werden können (s. -i/-o).
+ * 3 bei Übersetzungsfehler.
  * 99 bei einem unbekannten Fehler.
  */
 int main(int argc, char** argv) {
@@ -58,14 +59,11 @@ int main(int argc, char** argv) {
 	}
 
 	/* Bytecode generieren */
-	Backend::Status status = Backend::generate(*in, *out);
+	Backend::Status status = Backend::Generate(*in, *out);
 	/* Erfolg prüfen */
-	switch (status) {
-	case Backend::Status::SUCCESS:
-		return 0;
-		// TODO handle other cases. Once they are there.
-	default:
-		return 99;
+	if (status != Backend::Status::SUCCESS) {
+		std::cerr << Backend::ErrorMessage(status) << std::endl;
+		return 3;
 	}
 }
 
