@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>832</width>
+    <height>545</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Rail Editor</string>
+  </property>
+  <widget class="QWidget" name="ui_centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,1">
+    <item>
+     <widget class="QGroupBox" name="ui_sourceGroupBox">
+      <property name="title">
+       <string>Source</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QPlainTextEdit" name="ui_sourcePlainTextEdit">
+         <property name="lineWrapMode">
+          <enum>QPlainTextEdit::NoWrap</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="ui_ioHorizontalLayout">
+         <item>
+          <spacer name="ui_sourceSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="ui_rowLabel">
+           <property name="text">
+            <string>Row</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="ui_rowValueLabel">
+           <property name="text">
+            <string>1</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="ui_columnLabel">
+           <property name="text">
+            <string>Column</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="ui_columnValueLabel">
+           <property name="text">
+            <string>1</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="ui_ioGroupBox">
+      <property name="title">
+       <string>I/O</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="ui_inputLabel">
+         <property name="text">
+          <string>Input</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="ui_inputPlainTextEdit">
+         <property name="lineWrapMode">
+          <enum>QPlainTextEdit::NoWrap</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="ui_outpuLabel">
+         <property name="text">
+          <string>Output</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="ui_outputPlainTextEdit">
+         <property name="lineWrapMode">
+          <enum>QPlainTextEdit::NoWrap</enum>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="ui_menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>832</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="ui_menuMenu">
+    <property name="title">
+     <string>&amp;Menu</string>
+    </property>
+    <addaction name="ui_newFileAction"/>
+    <addaction name="ui_openFileAction"/>
+    <addaction name="ui_saveFileAction"/>
+    <addaction name="ui_saveAsAction"/>
+    <addaction name="separator"/>
+    <addaction name="ui_quitAction"/>
+   </widget>
+   <widget class="QMenu" name="ui_editMenu">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="ui_setInterpreterAction"/>
+    <addaction name="ui_runInterpreterAction"/>
+   </widget>
+   <addaction name="ui_menuMenu"/>
+   <addaction name="ui_editMenu"/>
+  </widget>
+  <widget class="QStatusBar" name="ui_statusbar"/>
+  <action name="ui_newFileAction">
+   <property name="text">
+    <string>&amp;New File</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="ui_openFileAction">
+   <property name="text">
+    <string>&amp;Open File</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="ui_saveFileAction">
+   <property name="text">
+    <string>&amp;Save File</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="ui_quitAction">
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q, Alt+X</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="ui_saveAsAction">
+   <property name="text">
+    <string>Save &amp;As</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="ui_setInterpreterAction">
+   <property name="text">
+    <string>Set I&amp;nterpter Location</string>
+   </property>
+  </action>
+  <action name="ui_runInterpreterAction">
+   <property name="text">
+    <string>&amp;Run Interpreter</string>
+   </property>
+  </action>
+  <action name="ui_setInputFileAction">
+   <property name="text">
+    <string>Set &amp;Input File</string>
+   </property>
+  </action>
+  <action name="ui_setOutputFileAction">
+   <property name="text">
+    <string>Set &amp;Output File</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
