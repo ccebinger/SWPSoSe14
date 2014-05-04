@@ -31,7 +31,7 @@ private:
 
 
 private slots:
-    void cursorPositionChanged();
+    void cursorPositionChanged(int x, int y);
     void textChanged();
     void newFile();
     void openFile();

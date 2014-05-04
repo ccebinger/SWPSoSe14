@@ -19,15 +19,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QFont f("unexistent");
     f.setStyleHint(QFont::Monospace);
-    ui->ui_sourcePlainTextEdit->setFont(f);
     ui->ui_inputPlainTextEdit->setFont(f);
     ui->ui_outputPlainTextEdit->setFont(f);
 
     setCurrentPath(QString());
     setModified(false);
 
-    connect(ui->ui_sourcePlainTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
-    connect(ui->ui_sourcePlainTextEdit, SIGNAL(textChanged()), this, SLOT(textChanged()));
+    connect(ui->ui_sourceEditTableWidget, SIGNAL(cursorPositionChanged(int,int)), this, SLOT(cursorPositionChanged(int,int)));
+    connect(ui->ui_sourceEditTableWidget, SIGNAL(textChanged()), this, SLOT(textChanged()));
     connect(ui->ui_newFileAction, SIGNAL(triggered()), this, SLOT(newFile()));
     connect(ui->ui_openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
     connect(ui->ui_saveFileAction, SIGNAL(triggered()), this, SLOT(saveFile()));
@@ -88,11 +87,10 @@ void MainWindow::closeEvent(QCloseEvent *closeEvent)
     }
 }
 
-void MainWindow::cursorPositionChanged()
+void MainWindow::cursorPositionChanged(int x, int y)
 {
-    QTextCursor c = ui->ui_sourcePlainTextEdit->textCursor();
-    ui->ui_rowValueLabel->setText(QString::number(c.blockNumber() + 1));
-    ui->ui_columnValueLabel->setText(QString::number(c.columnNumber() + 1));
+    ui->ui_rowValueLabel->setText(QString::number(x + 1));
+    ui->ui_columnValueLabel->setText(QString::number(y + 1));
 }
 
 void MainWindow::textChanged()
@@ -151,7 +149,7 @@ void MainWindow::save(QString filePath)
         return;
     }
     QTextStream out(&file);
-    out << ui->ui_sourcePlainTextEdit->toPlainText();
+    out << ui->ui_sourceEditTableWidget->toPlainText();
     file.close();
     setModified(false);
     setCurrentPath(filePath);
@@ -170,19 +168,13 @@ void MainWindow::openFile()
         {
             QString filePath = openDialog.selectedFiles().first();
             QFile file(filePath);
-            QString line;
             if(file.open(QIODevice::ReadOnly | QIODevice::Text))
             {
                 setCurrentPath(filePath);
-                ui->ui_sourcePlainTextEdit->clear();
+                ui->ui_sourceEditTableWidget->clear();
                 ui->ui_inputPlainTextEdit->clear();
                 ui->ui_outputPlainTextEdit->clear();
-                QTextStream stream(&file);
-                while(!stream.atEnd())
-                {
-                    line = stream.readLine();
-                    ui->ui_sourcePlainTextEdit->setPlainText(ui->ui_sourcePlainTextEdit->toPlainText()+line+"\n");
-                }
+                ui->ui_sourceEditTableWidget->setPlainText(file.readAll());
                 setModified(false);
             }
             file.close();
@@ -194,7 +186,7 @@ void MainWindow::newFile()
 {
     if(saveChanges())
     {
-        ui->ui_sourcePlainTextEdit->clear();
+        ui->ui_sourceEditTableWidget->clear();
         ui->ui_inputPlainTextEdit->clear();
         ui->ui_outputPlainTextEdit->clear();
         setModified(false);
@@ -241,7 +233,7 @@ void MainWindow::runInterpreter()
         if(source.open(QIODevice::WriteOnly | QIODevice::Text))
         {
             QTextStream out(&source);
-            out << ui->ui_sourcePlainTextEdit->toPlainText();
+            out << ui->ui_sourceEditTableWidget->toPlainText();
             source.close();
         }
         else
