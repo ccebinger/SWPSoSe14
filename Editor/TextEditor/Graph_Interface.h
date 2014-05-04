@@ -4,7 +4,8 @@
 //Nur diese Klasse verwenden um auf die Interne Repräsentation zuzugreifen
 #include "Point.h"
 
-class Graph_Interface{
+class Graph_Interface
+{
 
 private:
     Point *root, *tmp;
