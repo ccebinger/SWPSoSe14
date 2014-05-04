@@ -17,7 +17,9 @@ SOURCES += main.cpp\
     EditTableWidget.cpp
 
 HEADERS  += mainwindow.h \
-    EditTableWidget.h
+    EditTableWidget.h \
+    Point.h \
+    Graph_Interface.h
 
 FORMS    += mainwindow.ui
 
