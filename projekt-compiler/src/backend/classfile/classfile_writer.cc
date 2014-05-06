@@ -1,7 +1,8 @@
 #include "classfile_writer.h"
 
-ClassfileWriter::ClassfileWriter(ClassfileVersion version, std::ostream& out) :
-		out_(out), version_(version) {
+ClassfileWriter::ClassfileWriter(ClassfileVersion version,
+		const ConstantPool& constantPool, std::ostream& out) :
+		out_(out), version_(version), constant_pool_(constantPool) {
 }
 
 ClassfileWriter::~ClassfileWriter() {

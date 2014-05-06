@@ -10,5 +10,6 @@ ConstantPool::~ConstantPool() {
 }
 
 void ConstantPool::Write(std::ostream& stream) {
+	(void) stream;
 	// TODO
 }
