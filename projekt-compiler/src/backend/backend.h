@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#include "../common/ast/ast.h"
+
 /**
  * Die Klasse stellt statische Methoden für das Übersetzen des Graphen in
  * Target-Code zur Verfügung.
@@ -27,6 +29,12 @@ public:
 	 */
 	static Backend::Status Generate(std::istream& graphIn,
 			std::ostream& codeOut);
+
+	/**
+	 * Übersetzt den Graphen aus graph in Target-Code, der auf codeOut
+	 * geschrieben wird. Gibt je nach Ergebnis einen Backend::Status zurück.
+	 */
+	static Backend::Status Generate(const Graph& graph, std::ostream& codeOut);
 
 	/**
 	 * Gibt eine beschreibende Fehlernachricht zu einem Backend::Status
