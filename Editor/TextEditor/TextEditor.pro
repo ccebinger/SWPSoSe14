@@ -13,8 +13,15 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    EditTableWidget.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    EditTableWidget.h \
+    Point.h \
+    Graph_Interface.h
 
 FORMS    += mainwindow.ui
+
+RESOURCES += \
+    resources.qrc
