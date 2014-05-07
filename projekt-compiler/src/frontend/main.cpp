@@ -2,6 +2,7 @@
 #include <vector>
 #include "Csv_io.h"
 #include <string>
+#include "adjacency_list.h"
 
 int main()
 {

@@ -1,8 +1,12 @@
 #ifndef ADJACENCY_LIST_H
 #define ADJACENCY_LIST_H
 
+#include <fstream>
 #include <string>
 #include <vector>
+#include <sstream>
+#include <iterator>
+#include <iostream>
 
 enum Command_Type
 {
@@ -27,9 +31,12 @@ struct Node {
 class Adjacency_list {
 private:
 	typedef std::vector<Node*> NODES;
+	typedef const std::string& str;
+
 	NODES nodes;
 public:
 
+	Adjacency_list() {};
 	Adjacency_list(Node* start) 
 	{
 		nodes.push_back(start);
@@ -54,11 +61,35 @@ public:
 		}
 	}
 
-	//Serilize(Ostream &out)
-	//Deserilize()
+	//void serialize(std::ostream &out);
+
+	void deserialize(str file, char delimiter) 
+	{
+	  std::ifstream infile(file);
+	  std::string line;
+	  std::getline(infile, line); //TABLE HEADER
+	  while(std::getline(infile, line))
+	  {
+	  	Node n;
+	    std::stringstream lineStream(line);
+	    std::string cell;
+	    if (std::getline(lineStream, cell, delimiter)) // id
+	 		n.id = std::stoi(cell);
+	 	// if (std::getline(lineStream, cell, delimiter)) // arg
+	 		// n.command = getCommand(cell);
+	 	// if (std::getline(lineStream, cell, delimiter)) // adj
+	 		//todo
+	  }
+	  infile.close();
+	}
+
+
+
 	virtual NODES::iterator begin() {return nodes.begin();}
 
 	virtual std::size_t nodeCount() {return nodes.size();}
+private:
+	Command getCommand(str cmd);
 };
 
 #endif /* ADJACENCY_LIST_H */
