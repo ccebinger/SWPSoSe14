@@ -1,7 +1,9 @@
 #ifndef CLASSFILE_WRITER_H_
 #define CLASSFILE_WRITER_H_
 
+#include <array>
 #include <iostream>
+#include <map>
 
 #include "constant_pool.h"
 
@@ -35,6 +37,13 @@ public:
 	void WriteClassfile();
 
 private:
+	/**
+	 * Die Magic Number aller .class-Dateien.
+	 */
+	static const char kMagicNumber[];
+
+	static std::map<ClassfileVersion, const std::array<const char, 4>> kVersionNumbers;
+
 	/**
 	 * Der Ausgabestream auf den wir die Datei schreiben.
 	 */
