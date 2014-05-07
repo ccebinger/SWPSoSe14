@@ -4,7 +4,14 @@
 #include <string>
 
 struct Command {
-	std::string arg;enum type;
+	enum Type {
+		PUSH_CONST,
+		OUTPUT
+		// TODO others...
+	};
+
+	Command::Type type;
+	std::string arg;
 };
 
 struct Node {
@@ -16,13 +23,14 @@ struct Node {
 
 class Graph {
 public:
-	virtual ~Graph() = 0;
-	virtual void addNode(Node *node) = 0;
-	virtual void addEdge(Node *source, Node *dist, bool path) = 0;
-	//Serilize(Ostream &out)
-	//Deserilize()
-	virtual Node *start() = 0;
-	virtual std::size_t nodeCount() = 0;
+	static Graph* deserialize(std::istream& in);
+
+	virtual ~Graph();
+	void addNode(Node *node);
+	void addEdge(Node *source, Node *dist, bool path);
+	void serialize(std::ostream& out);
+	Node *start();
+	std::size_t nodeCount();
 };
 
 #endif /* AST_H_ */
