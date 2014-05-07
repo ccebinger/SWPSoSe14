@@ -60,6 +60,12 @@ private:
 	const ConstantPool& constant_pool_;
 
 	/**
+	 * Konstante zum Schreiben für nicht verwendete Elemente in der Class-Datei.
+	 * Vorerst für Interface und Field - wird daher auf den Wert 0x0000 gesetzt.
+	 */
+	static const char kNotRequired[];
+
+	/**
 	 * Schreibt 0xCAFEBABE.
 	 */
 	void WriteMagicNumber();

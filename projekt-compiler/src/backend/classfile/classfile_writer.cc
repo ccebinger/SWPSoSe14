@@ -5,6 +5,7 @@
 #include <map>
 
 const char ClassfileWriter::kMagicNumber[] { '\xCA', '\xFE', '\xBA', '\xBE' };
+const char ClassfileWriter::kNotRequired[] { '\x00', '\x00' };
 
 std::map<ClassfileWriter::ClassfileVersion, const std::array<const char, 4>> ClassfileWriter::kVersionNumbers {
 		{ ClassfileWriter::ClassfileVersion::JAVA_7, { '\x00', '\x00', '\x00',
@@ -57,11 +58,11 @@ void ClassfileWriter::WriteSuperClassName() {
 }
 
 void ClassfileWriter::WriteInterfaces() {
-	// TODO
+	out_.write(kNotRequired, sizeof(kNotRequired));
 }
 
 void ClassfileWriter::WriteFields() {
-	// TODO
+	out_.write(kNotRequired, sizeof(kNotRequired));
 }
 
 void ClassfileWriter::WriteMethods() {
