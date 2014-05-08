@@ -45,15 +45,24 @@ void RailFunction::setData(int offsetX, int offsetY, char c) {
 }
 
 void RailFunction::printRails() {
+	bool needNewLine;
+
 	for(int y=0; y<MAX_LINES_PER_FUNCTION; y++) {
+		needNewLine = false;
+
 		for(int x=0; x<MAX_CHARS_PER_LINE; x++) {
 			char currentData = getData(x,y);
 			if(currentData != 0) {
 				cout << currentData;
+				needNewLine = true;
 			}
 		}
-		cout << "\n";
+		if(needNewLine) {
+			cout << "\n";
+		}
 	}
+
+	cout << "\n===========================================\n";
 }
 
 //the vector which holds all rail functions
@@ -73,7 +82,7 @@ int main(int argc, char* argv[]) {
 	ifstream fin;
 	fin.open(argv[1]); // open a file
 	if (!fin.good()) {
-		cout << "file not found";
+		cout << "file not found: " << argv[1];
 		return -1; // exit if file not found
 	}
 
@@ -154,9 +163,9 @@ int main(int argc, char* argv[]) {
 	allRailFunctions.push_back(r);
 
 	//debug: print all functions and rails
-	/*
+
 	for(unsigned i=0; i<allRailFunctions.size(); i++) {
 		cout << "function " << allRailFunctions[i].getName() << ":\n\n";
 		allRailFunctions[i].printRails();
-	}*/
+	}
 }
