@@ -15,8 +15,6 @@ set(CMAKE_CXX_FLAGS "-g -Wall -std=c++11")
 SET(CLASS_FILE_WRITER_CC
   ../../backend/classfile/classfile_writer.cc
   ../../backend/classfile/constant_pool.cc
-  #../../backend/backend.cc
-  #../../frontend/adjacency_list.cpp
   classfile_writer_test.cc
 )
 
