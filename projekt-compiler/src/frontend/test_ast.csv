@@ -1,5 +1,11 @@
-ID;Command;Adjazenz
-0;pushConst(1);1
-1;pushConst(1);2
-2;add();3
-3;out();
+[main]
+1;1;2
+2;2;3
+3;a;4
+4;{Hello};5
+5;o;6
+6;#;0
+
+[Hello]
+1;['Hello'];2
+2;#;0
