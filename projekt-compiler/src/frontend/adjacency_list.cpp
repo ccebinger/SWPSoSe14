@@ -1,8 +1,8 @@
 #include "adjacency_list.h"
 
-Adjacency_list::Adjacency_list() {}
+Adjacency_list::Adjacency_list(Adjacency_list::str name) : graph_name(name) {}
 
-Adjacency_list::Adjacency_list(Node* start)
+Adjacency_list::Adjacency_list(Adjacency_list::str name, Node* start) : graph_name(name)
 {
   nodes.push_back(start);
 }
@@ -35,7 +35,10 @@ void Adjacency_list::addEdge(Node *source, Node *dist, bool path) {
   }
 }
 
-//void serialize(std::ostream &out);
+void Adjacency_list::serialize(std::ostream &out)
+{
+  //TODO
+}
 
 void Adjacency_list::deserialize(Adjacency_list::str file, char delimiter)
 {
@@ -44,11 +47,11 @@ void Adjacency_list::deserialize(Adjacency_list::str file, char delimiter)
   std::getline(infile, line); //TABLE HEADER
   while(std::getline(infile, line))
   {
-    Node n;
-    std::stringstream lineStream(line);
-    std::string cell;
-    if (std::getline(lineStream, cell, delimiter)) // id
-    n.id = std::stoi(cell);
+    //Node n;
+    //std::stringstream lineStream(line);
+    //std::string cell;
+    //if (std::getline(lineStream, cell, delimiter)) // id
+    //n.id = std::stoi(cell);
   // if (std::getline(lineStream, cell, delimiter)) // arg
     // n.command = getCommand(cell);
   // if (std::getline(lineStream, cell, delimiter)) // adj
@@ -76,7 +79,20 @@ Adjacency_list::NODES::iterator Adjacency_list::begin()
   return nodes.begin();
 }
 
-std::size_t Adjacency_list::nodeCount()
+std::size_t Adjacency_list::nodeCount() const
 {
   return nodes.size();
+}
+
+std::string Adjacency_list::name() const
+{
+  return graph_name;
+}
+
+Node* Adjacency_list::start()
+{
+  if (nodeCount() > 0)
+    return nodes.at(0);
+  else
+    throw -1;
 }

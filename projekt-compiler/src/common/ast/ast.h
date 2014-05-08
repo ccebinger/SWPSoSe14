@@ -2,16 +2,17 @@
 #define AST_H_
 
 #include <string>
+#include <vector>
 
 struct Command {
 	enum Type {
-		PUSH_CONST,
-		OUTPUT
+		PUSH_CONST, OUTPUT,
+		ADD, SUB, MULT, DIV
 		// TODO others...
 	};
 
 	Command::Type type;
-	std::string arg;
+	std::string* arg;
 };
 
 struct Node {
@@ -34,8 +35,14 @@ public:
 	virtual void serialize(std::ostream& out) = 0;
 	virtual void deserialize(const std::string& file, char delimiter) = 0;
 	virtual Node *start() = 0;
-	virtual std::size_t nodeCount() = 0;
+	virtual std::size_t nodeCount() const = 0 ;
 	virtual Node* find(int id) = 0;
+	/**
+	 * Returns the name of the graph.
+	 * The name of the graph is equal to the name of the function.
+	 * (Each function has his own graph)
+   */
+	virtual std::string name() const = 0;
 };
 
 #endif /* AST_H_ */
