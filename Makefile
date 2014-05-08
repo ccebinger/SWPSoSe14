@@ -4,7 +4,7 @@
 all: rail
 
 fu-rail: projekt-compiler/src/backend/main.cc  
-	g++ -o fu-rail projekt-compiler/src/backend/main.cc
+	g++ -o fu-rail projekt-compiler/src/backend/main.cc -Iprojekt-compiler/src
 
 rail: rail-interpreter/src/*.cpp
 	g++ -o rail rail-interpreter/src/*.cpp  
