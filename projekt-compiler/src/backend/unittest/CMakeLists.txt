@@ -19,3 +19,15 @@ SET(CLASS_FILE_WRITER_CC
 )
 
 add_executable(classfileWriterTest ${CLASS_FILE_WRITER_CC} )
+
+#-----------------------------------------------------------------------
+# classfile_writer_test
+#-----------------------------------------------------------------------
+# .cxx sources
+SET(CONSTANT_POOL_CC
+  ../../backend/classfile/classfile_writer.cc
+  ../../backend/classfile/constant_pool.cc
+  constant_pool_test.cc
+)
+
+add_executable(constantPoolTest ${CONSTANT_POOL_CC} )
