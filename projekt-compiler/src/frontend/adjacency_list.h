@@ -23,12 +23,10 @@ class Adjacency_list : Graph {
   virtual void addNode(Node *node);
   virtual void addEdge(Node *source, Node *dist, bool path);
   //void serialize(std::ostream &out);
-
-  void deserialize(str file, char delimiter);
-
+  virtual void deserialize(str file, char delimiter);
   virtual NODES::iterator begin();
-
   virtual std::size_t nodeCount();
+  virtual Node* find(int id);
  private:
   Command getCommand(str cmd);
 };

@@ -35,6 +35,7 @@ public:
 	virtual void deserialize(const std::string& file, char delimiter) = 0;
 	virtual Node *start() = 0;
 	virtual std::size_t nodeCount() = 0;
+	virtual Node* find(int id) = 0;
 };
 
 #endif /* AST_H_ */
