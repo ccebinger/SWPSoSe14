@@ -19,52 +19,52 @@
  * 99 bei einem unbekannten Fehler.
  */
 int main(int argc, char** argv) {
-	/* Ein-/Ausgabestreams nach Argumenten setzen */
-	std::ifstream inFile;
-	std::ofstream outFile;
+  /* Ein-/Ausgabestreams nach Argumenten setzen */
+  std::ifstream inFile;
+  std::ofstream outFile;
 
-	std::istream* in = &std::cin;
-	std::ostream* out = &std::cout;
+  std::istream* in = &std::cin;
+  std::ostream* out = &std::cout;
 
-	for (int i = 1; i != argc; ++i) {
-		std::string current(argv[i]);
-		if (current == "-i") {
-			if (i == argc-1) {
-				std::cerr << "Fehler im -i Parameter, bitte Manual lesen." << std::endl;
-				return 1;
-			} else {
-				inFile.open(argv[++i]);
-				if(inFile.fail()) {
-					std::cerr << "Fehler: Eingabedatei kann nicht geöffnet werden" << std::endl;
-					return 2;
-				}
-				in = &inFile;
-			}
-		} else if (current == "-o") {
-			if (i == argc-1) {
-				std::cerr << "Fehler im -o Parameter, bitte Manual lesen." << std::endl;
-				return 1;
-			} else {
-				outFile.open(argv[++i]);
-				if(outFile.fail()) {
-					std::cerr << "Fehler: Ausgabedatei kann nicht geöffnet werden" << std::endl;
-					return 2;
-				}
-				out = &outFile;
-			}
-		} else {
-			std::cerr << "Fehler, unbekannter Parameter, bitte Manual lesen." << std::endl;
-			return 1;
-		}
-	}
+  for (int i = 1; i != argc; ++i) {
+    std::string current(argv[i]);
+    if (current == "-i") {
+      if (i == argc-1) {
+        std::cerr << "Fehler im -i Parameter, bitte Manual lesen." << std::endl;
+        return 1;
+      } else {
+        inFile.open(argv[++i]);
+        if (inFile.fail()) {
+          std::cerr << "Fehler: Eingabedatei kann nicht geöffnet werden" << std::endl;
+          return 2;
+        }
+        in = &inFile;
+      }
+    } else if (current == "-o") {
+      if (i == argc-1) {
+        std::cerr << "Fehler im -o Parameter, bitte Manual lesen." << std::endl;
+        return 1;
+      } else {
+        outFile.open(argv[++i]);
+        if (outFile.fail()) {
+          std::cerr << "Fehler: Ausgabedatei kann nicht geöffnet werden" << std::endl;
+          return 2;
+        }
+        out = &outFile;
+      }
+    } else {
+      std::cerr << "Fehler, unbekannter Parameter, bitte Manual lesen." << std::endl;
+      return 1;
+    }
+  }
 
-	/* Bytecode generieren */
-	Backend::Status status = Backend::Generate(*in, *out);
-	/* Erfolg prüfen */
-	if (status != Backend::Status::SUCCESS) {
-		std::cerr << Backend::ErrorMessage(status) << std::endl;
-		return 3;
-	}
+  /* Bytecode generieren */
+  Backend::Status status = Backend::Generate(*in, *out);
+  /* Erfolg prüfen */
+  if (status != Backend::Status::SUCCESS) {
+    std::cerr << Backend::ErrorMessage(status) << std::endl;
+    return 3;
+  }
 }
 
-#endif // STANDALONE_BACKEND
+#endif  // STANDALONE_BACKEND
