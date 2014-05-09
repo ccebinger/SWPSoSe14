@@ -15,12 +15,12 @@ struct Command {
 	};
 
 	Command::Type type;
-	std::string* arg;
+	std::string arg;
 };
 
 struct Node {
 
-  Node() {std::cout<<"default ctor" << std::endl;}
+  Node() {}
   Node(const Node& n)
   {
     id = n.id;
@@ -37,7 +37,6 @@ struct Node {
   }
   ~Node()
   {
-    std::cout << "destructor" << id << std::endl;
     successor1.reset();
     successor1.reset();
   }

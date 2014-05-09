@@ -49,7 +49,7 @@ Command getCommand(std::string& cmd)
     pos = cmd.find("]");
     cmd.erase(pos, 1); //remove ]
   }
-  c.arg = &cmd;
+  c.arg = cmd;
   return c;
 }
 
@@ -123,7 +123,7 @@ void des(const std::string& file, char delimiter)
           }
 
           std::cout << "Node: " << n->id
-                    << " Cmd Type:" << n->command.type << " Arg: " << *n->command.arg
+                    << " Cmd Type:" << n->command.type << " Arg: " << n->command.arg
                     << " Succ 1: " << n->successor1->id
                     << std::endl;
           adj.addNode(n);
