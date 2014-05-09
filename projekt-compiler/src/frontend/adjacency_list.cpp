@@ -2,7 +2,7 @@
 
 Adjacency_list::Adjacency_list(Adjacency_list::str name) : graph_name(name) {}
 
-Adjacency_list::Adjacency_list(Adjacency_list::str name, Node* start) : graph_name(name)
+Adjacency_list::Adjacency_list(Adjacency_list::str name, std::shared_ptr<Node> start) : graph_name(name)
 {
   nodes.push_back(start);
 }
@@ -10,16 +10,16 @@ Adjacency_list::Adjacency_list(Adjacency_list::str name, Node* start) : graph_na
 Adjacency_list::~Adjacency_list()
 {
   for (size_t i = 0; i < nodes.size(); i++)
-    delete nodes.at(i);
+    nodes.at(i).reset();
   nodes.clear();
 }
 
-void Adjacency_list::addNode(Node *node)
+void Adjacency_list::addNode(std::shared_ptr<Node> node)
 {
   nodes.push_back(node);
 }
 
-void Adjacency_list::addEdge(Node *source, Node *dist, bool path) {
+void Adjacency_list::addEdge(std::shared_ptr<Node> source, std::shared_ptr<Node> dist, bool path) {
   for (size_t i = 0; i < nodes.size(); i++) {
     if ((*nodes.at(i)) == (*source))
     {
@@ -60,10 +60,10 @@ void Adjacency_list::deserialize(Adjacency_list::str file, char delimiter)
   infile.close();
 }
 
-Node* Adjacency_list::find(int id)
+std::shared_ptr<Node> Adjacency_list::find(int id) const
 {
   bool found = false;
-  Node* node;
+  std::shared_ptr<Node> node;
   for (size_t i = 0; i < nodeCount() && !found; i++) {
     if (nodes.at(i)->id == id) {
       found = true;
@@ -89,7 +89,7 @@ std::string Adjacency_list::name() const
   return graph_name;
 }
 
-Node* Adjacency_list::start()
+std::shared_ptr<Node> Adjacency_list::start()
 {
   if (nodeCount() > 0)
     return nodes.at(0);
