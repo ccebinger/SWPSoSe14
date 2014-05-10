@@ -140,6 +140,7 @@ Command Graphs::getCommand(std::string& cmd)
   if (std::regex_match(cmd.begin(), cmd.end(), regex_push))
   {
     c.type = Command::Type::PUSH_CONST;
+    //std::cout << "PUSH CONST: " << Command::Type::PUSH_CONST;
   }
   else if (std::regex_match(cmd.begin(), cmd.end(), regex_add))
   {

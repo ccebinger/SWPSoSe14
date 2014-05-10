@@ -16,13 +16,10 @@ void checkVec(std::vector<std::string> result)
   }
 }
 
-int main()
+int unmarshallGraph(const std::string& file, char delimiter)
 {
-  Csv_io csv;
-  std::vector<std::string> result = csv.deserialize("src/frontend/test_ast.csv", ';');
-  checkVec(result);
   Graphs graphs;
-  graphs.unmarshall("src/frontend/test_ast.csv", ';');
+  graphs.unmarshall(file, delimiter);
   std::cout << "Size: " << graphs.size() << std::endl;
 
   for (Graphs::Graph_map::iterator it = graphs.begin(); it != graphs.end(); it++)
@@ -30,14 +27,28 @@ int main()
     std::cout << it->first << it->second << std::endl;
   }
 
-  std::shared_ptr<Graph> g = graphs.find("[Hello]");
+  std::shared_ptr<Graph> g = graphs.find("[main]");
   if (g == nullptr)
     return -9;
 
   std::cout << "Name: " << g->name() << "Size: " << g->nodeCount() << std::endl;
-  std::shared_ptr<Node> n = g->start();
+  std::shared_ptr<Node>  n = g->start();
   printNode(n);
-  csv.serialize(result, "test2.csv", ',', 3);
+
+  g = graphs.find("[Hello]");
+  if (g == nullptr)
+    return -9;
+
+  std::cout << "Name: " << g->name() << "Size: " << g->nodeCount() << std::endl;
+  n = g->start();
+  printNode(n);
+}
+
+int main()
+{
+  unmarshallGraph("src/frontend/test_ast.csv", ';');
+  std::cout << std::endl << std::endl;
+  unmarshallGraph("src/frontend/test2.csv", ';');
   return 0;
 }
 
