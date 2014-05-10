@@ -1,6 +1,8 @@
 #include "adjacency_list.h"
 
-Adjacency_list::Adjacency_list(Adjacency_list::str name) : graph_name(name) {}
+Adjacency_list::Adjacency_list(Adjacency_list::str name) : graph_name(name)
+{
+}
 
 Adjacency_list::Adjacency_list(Adjacency_list::str name, std::shared_ptr<Node> start) : graph_name(name)
 {
@@ -38,26 +40,6 @@ void Adjacency_list::addEdge(std::shared_ptr<Node> source, std::shared_ptr<Node>
 void Adjacency_list::serialize(std::ostream &out)
 {
   //TODO
-}
-
-void Adjacency_list::deserialize(Adjacency_list::str file, char delimiter)
-{
-  std::ifstream infile(file);
-  std::string line;
-  std::getline(infile, line); //TABLE HEADER
-  while(std::getline(infile, line))
-  {
-    //Node n;
-    //std::stringstream lineStream(line);
-    //std::string cell;
-    //if (std::getline(lineStream, cell, delimiter)) // id
-    //n.id = std::stoi(cell);
-  // if (std::getline(lineStream, cell, delimiter)) // arg
-    // n.command = getCommand(cell);
-  // if (std::getline(lineStream, cell, delimiter)) // adj
-    //todo
-  }
-  infile.close();
 }
 
 std::shared_ptr<Node> Adjacency_list::find(int id) const
