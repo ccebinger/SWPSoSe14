@@ -1,0 +1,34 @@
+Nachdem so viele bei uns Probleme mit Eclipse CDT und C++11 haben, hier eine kleine Anleitung.
+Bedenkt: Mit MinGW werdet ihr wahrscheinlich nicht glücklich (evtl mit mingw-w64? hab ich nicht getestet). Nehmt lieber eine VM+Ubuntu
+
+Tutorial für CDT Eclipse mit C++11:
+
+Getestet mit
+- Ubuntu 14.04 + GCC 4.8
+- Win 8.1 + MinGW (neuste)
+
+1. Schritt: -std=c++11 an 2 Stellen anhängen
+	Project properties -> C/C++ Build -> Settings -> Tool Settings:
+		-> GCC C++ Compiler --> Miscellaneous -> Other Flags --> -std=c++11 anhängen
+		-> GCC C++ Linker --> Miscellaneous -> Other Flags --> -std=c++11 anhängen
+
+2. Schritt: 2 Symbols hinzufügen
+	Project properties -> C/C++ General -> Paths and Symbols -> Symbols -> GNU C++ -> Add...
+	1. Symbol: 
+		Name: __GXX_EXPERIMENTAL_CXX0X__
+		Value: leer lassen
+	2. Symbol:
+		Name: __cplusplus
+		Value: 201103L
+	-> Apply
+
+3. Schritt: 
+	Window -> Preferences -> C/C++ -> Build -> Settings:
+	Auswählen: CDT GCC Build-in Compiler Settings [Shared]
+	Unten in der Zeile "Command to get compiler specs:" vor "${INPUTS}" muss -std=c++11 eingefügt werden
+	Meine Zeile sieht so aus: ${COMMAND} ${FLAGS} -E -P -v -dD  -std=c++11 "${INPUTS}"
+
+4. Schritt:
+	Project -> Clean
+	Project -> C/C++ Index neu erzeugen
+	evtl Eclipse neustarten (bei mir gings ohne)
