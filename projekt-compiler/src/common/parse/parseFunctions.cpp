@@ -69,7 +69,7 @@ void RailFunction::printRails() {
 vector<RailFunction> allRailFunctions;
 
 
-int main(int argc, char* argv[]) {
+int oldParseFunctionMain(int argc, char* argv[]) {
 	if(argc < 2) {
 		cout << "Please pass the rail file path as argument!";
 		return -1;
@@ -169,3 +169,4 @@ int main(int argc, char* argv[]) {
 		allRailFunctions[i].printRails();
 	}
 }
+

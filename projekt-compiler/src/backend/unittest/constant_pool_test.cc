@@ -17,7 +17,7 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include "../classfile/classfile_writer.h"
 #include <sstream>
 
-int main(int argc, char** argv) {
+int oldMainConstantPoolTest(int argc, char** argv) {
   ConstantPool cp;
   std::ostringstream os;
   ClassfileWriter cs(ClassfileWriter::ClassfileVersion::JAVA_7,

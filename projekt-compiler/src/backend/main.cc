@@ -18,7 +18,7 @@
  * 3 bei Übersetzungsfehler.
  * 99 bei einem unbekannten Fehler.
  */
-int main(int argc, char** argv) {
+int oldBackendMain(int argc, char** argv) {
   /* Ein-/Ausgabestreams nach Argumenten setzen */
   std::ifstream inFile;
   std::ofstream outFile;

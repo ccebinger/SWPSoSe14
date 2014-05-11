@@ -44,11 +44,3 @@ int unmarshallGraph(const std::string& file, char delimiter)
   printNode(n);
 }
 
-int main()
-{
-  unmarshallGraph("src/frontend/test_ast.csv", ';');
-  std::cout << std::endl << std::endl;
-  unmarshallGraph("src/frontend/test2.csv", ';');
-  return 0;
-}
-
