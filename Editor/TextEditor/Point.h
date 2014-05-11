@@ -3,7 +3,7 @@
 // Interne Repräsentation, wird nur von Graph_Interface verwendet
 class Point{
 	private:
-		bool connections[3][3];
+		unsigned int connections : 8, muster : 8;
 		char sign;
 		Point *right, *bottem;
 		bool bRight, bBottem;
@@ -69,7 +69,8 @@ class Point{
 		this->sign = sign;
 	}
 	void clear(void);
-	void deleteSign(void);
+	bool deleteSign(void);
+	void clone(Point *akk);
 	protected:
 	Point* getNextRight(void){
 		return bRight ? right : NULL;
@@ -77,10 +78,16 @@ class Point{
 	Point* getNextBottem(void){
 		return bBottem ? bottem : NULL;
 	}
-	void setBottem(Point *bottem){
+	void setNextRight(Point* right){
+		this->right = right;
+		bRight = true;
+	}
+	void setNextBottem(Point *bottem){
 		this->bottem = bottem;
 		bBottem = true;
 	}
+	private:
+	void setConnections(void);
 };
 
 void Point::clear(void){
@@ -88,8 +95,23 @@ void Point::clear(void){
 	if(bBottem) bottem->clear();
 	delete this;
 };
-void Point::deleteSign(void){
-	if(bRight){ sign = right->getSign(); right->deleteSign();}
+bool Point::deleteSign(void){
+	if(bRight){ sign = right->getSign(); if(right->deleteSign()) bRight = false ; return false;}
 	else delete this;
+	return true;
 };
+void Point::clone(Point *akk){
+	Point *tmp;
+	akk->setSign(getSign());
+	if(bRight){
+		tmp = new Point();
+		akk->setNextRight(tmp);
+		right->clone(tmp);
+	}
+	if(bBottem){
+		tmp = new Point();
+		akk->setNextBottem(tmp);
+		bottem->clone(tmp);
+	}
+}
 #endif // POINT_H

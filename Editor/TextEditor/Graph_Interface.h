@@ -7,10 +7,14 @@
 class Graph_Interface{
 	private:
 	Point *root, *tmp;
+	
 
 	public:
 	Graph_Interface(){
 		root = new Point();
+	}
+	Graph_Interface(Point* root){
+		this->root = root;
 	}
 	void setSign(int x, int y, char sign){
 		root->getPoint(x,y)->setSign(sign);
@@ -45,6 +49,24 @@ class Graph_Interface{
 	char* deleteSign(int x, int y){
 		root->getPoint(x,y)->deleteSign();
 		return (y < root->countRift()) ? root->getPoint(0,y)->getLine(root->getPoint(0,y)->countLine()): NULL;
+	}
+	Graph_Interface* clone(void){
+		tmp = new Point();
+		root->clone(tmp);
+		return new Graph_Interface(tmp);
+	}
+	int getMaxColm(void){
+		return root->countRift();
+	}
+	int getMaxRow(void){
+		int x, k = root->countRift(), line;
+		for(int i = 0; i < k; i++){
+			x = (x<( line = root->countLine())) ? line : x;
+		}; 
+		return x;
+	}
+	void makeConnections(void){
+		
 	}
 };
 #endif // GRAPHINTERFACE_H
