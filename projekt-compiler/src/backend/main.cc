@@ -1,9 +1,9 @@
 #include <fstream>
 #include <iostream>
 
-#include "backend.h"
+#include <backend/backend.h>
 
-#ifdef STANDALONE_BACKEND
+//#ifdef STANDALONE_BACKEND
 
 /**
  * Standalone-App für das Backend. Liest einen serialisierten Graphen und gibt
@@ -18,7 +18,7 @@
  * 3 bei Übersetzungsfehler.
  * 99 bei einem unbekannten Fehler.
  */
-int oldBackendMain(int argc, char** argv) {
+int main(int argc, char** argv) {
   /* Ein-/Ausgabestreams nach Argumenten setzen */
   std::ifstream inFile;
   std::ofstream outFile;
@@ -67,4 +67,4 @@ int oldBackendMain(int argc, char** argv) {
   }
 }
 
-#endif  // STANDALONE_BACKEND
+//#endif  // STANDALONE_BACKEND
