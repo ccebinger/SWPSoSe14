@@ -13,8 +13,8 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with this
 program; if not, see <http://www.gnu.org/licenses/>.*/
 
-#include <backend/classfile/constant_pool.h>
-#include <backend/classfile/classfile_writer.h>
+#include "../classfile/constant_pool.h"
+#include "../classfile/classfile_writer.h"
 #include <sstream>
 
 int main(int argc, char** argv) {

@@ -1,11 +1,12 @@
-#include <backend/backend.h>
+#include "backend.h"
 
 Backend::Status Backend::Generate(std::istream& graphIn,
                                   std::ostream& codeOut) {
-  Graph* graph = Graph::deserialize(graphIn);
-  Backend::Status ret = Backend::Generate(*graph, codeOut);
-  delete graph;
-  return ret;
+	//FIXME: Die deserialize-methode wurde in "src/frontend/Csv_io.cpp" verschoben. Bitte anpassen
+//  Graph* graph = Graph::deserialize(graphIn);
+//  Backend::Status ret = Backend::Generate(*graph, codeOut);
+//  delete graph;
+//  return ret;
 }
 
 Backend::Status Backend::Generate(const Graph& graph, std::ostream& codeOut) {

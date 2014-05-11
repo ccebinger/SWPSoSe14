@@ -3,8 +3,8 @@
 
 #include <iostream>
 
-#include <common/ast/ast.h>
-#include <frontend/adjacency_list.h>
+#include "../common/ast/ast.h"
+#include "../frontend/adjacency_list.h"
 
 /**
  * Die Klasse stellt statische Methoden für das Übersetzen des Graphen in
