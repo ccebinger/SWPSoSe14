@@ -24,13 +24,20 @@ Getestet mit
 		Value: 201103L
 	-> Apply
 
-3. Schritt: 
+3. Schritt: Include Path hinzufÃ¼gen
+	Project properties -> C/C++ General -> Paths and Symbols -> Includes -> GNU C++ -> Add...
+		Workspace... -> den src-Ordner auswÃ¤hlen
+		check - Add to configurations
+		check - Add to all languages
+		check - is a workspace path
+
+4. Schritt: 
 	Window -> Preferences -> C/C++ -> Build -> Settings:
 	Auswählen: CDT GCC Build-in Compiler Settings [Shared]
 	Unten in der Zeile "Command to get compiler specs:" vor "${INPUTS}" muss -std=c++11 eingefügt werden
 	Meine Zeile sieht so aus: ${COMMAND} ${FLAGS} -E -P -v -dD  -std=c++11 "${INPUTS}"
 
-4. Schritt:
+5. Schritt:
 	Project -> Clean
 	Project -> C/C++ Index neu erzeugen
 	evtl Eclipse neustarten (bei mir gings ohne)
