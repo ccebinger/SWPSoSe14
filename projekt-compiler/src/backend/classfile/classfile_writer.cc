@@ -1,12 +1,16 @@
-#include "classfile_writer.h"
+#include <backend/classfile/classfile_writer.h>
 
 #include <array>
 #include <iostream>
 #include <map>
+#include <string>
 
 const char ClassfileWriter::kMagicNumber[] { '\xCA', '\xFE',
       '\xBA', '\xBE' };
 const char ClassfileWriter::kNotRequired[] { '\x00', '\x00' };
+std::map<std::string, int> collection = {{"bear", 4},
+                                         {"cassowary", 2},
+                                         {"tiger", 7}};
 
 std::map<ClassfileWriter::ClassfileVersion, const std::array<const char, 4>>
     ClassfileWriter::kVersionNumbers {
