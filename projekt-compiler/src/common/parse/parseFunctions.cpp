@@ -69,7 +69,7 @@ void RailFunction::printRails() {
 vector<RailFunction> allRailFunctions;
 
 
-int oldParseFunctionMain(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
 	if(argc < 2) {
 		cout << "Please pass the rail file path as argument!";
 		return -1;
@@ -108,6 +108,8 @@ int oldParseFunctionMain(int argc, char* argv[]) {
 
 		if(state == "find function") {
 			if(nextChar == '$') {
+				r.setData(offsetX, offsetY, nextChar);
+				offsetX++;
 				state = "find first semicolon";
 			} else {
 				state = "ignore line while find function";
@@ -119,11 +121,25 @@ int oldParseFunctionMain(int argc, char* argv[]) {
 			}
 			continue;
 		} else if(state == "find first semicolon") {
+			if(nextChar == '\n') {
+				offsetY++;
+			} else {
+				r.setData(offsetX, offsetY, nextChar);
+				offsetX++;
+			}
+
 			if(nextChar == '\'') {
 				state = "parse function name";
 			}
 			continue;
 		} else if(state == "parse function name") {
+			if(nextChar == '\n') {
+				offsetY++;
+			} else {
+				r.setData(offsetX, offsetY, nextChar);
+				offsetX++;
+			}
+
 			if(nextChar == '\'') {
 				r.setName(currentFunctionName);
 				currentFunctionName = "";
@@ -134,6 +150,13 @@ int oldParseFunctionMain(int argc, char* argv[]) {
 			continue;
 		} else if(state == "ignore line after function found") {
 			if(nextChar == '\n') {
+				offsetY++;
+			} else {
+				r.setData(offsetX, offsetY, nextChar);
+				offsetX++;
+			}
+
+			if(nextChar == '\n') {
 				state = "parse rail";
 			}
 			continue;
@@ -143,6 +166,8 @@ int oldParseFunctionMain(int argc, char* argv[]) {
 				r.initData();
 				offsetX = 0;
 				offsetY = 0;
+				r.setData(offsetX, offsetY, nextChar);
+				offsetX++;
 				state = "find first semicolon";
 			} else if(nextChar == '\n') {
 				offsetY++;
@@ -162,11 +187,11 @@ int oldParseFunctionMain(int argc, char* argv[]) {
 	//add the last function also to the vector
 	allRailFunctions.push_back(r);
 
-	//debug: print all functions and rails
+	return allRailFunctions;
 
-	for(unsigned i=0; i<allRailFunctions.size(); i++) {
+	//debug: print all functions and rails
+	/*for(unsigned i=0; i<allRailFunctions.size(); i++) {
 		cout << "function " << allRailFunctions[i].getName() << ":\n\n";
 		allRailFunctions[i].printRails();
-	}
+	}*/
 }
-
