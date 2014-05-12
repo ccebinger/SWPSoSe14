@@ -134,11 +134,11 @@ void EditTableWidget::setSign(QChar c)
     QString color;
     if(c == '$')
     {
-        color = "green";
+        color = "blue";
     }
     else if(c == '#')
     {
-        color = "blue";
+        color = "green";
     }
     else if(c == '-' || c == '|' || c == '\\' || c == '/' || c == 'x' || c == '+' ||
             c == '*' || c == '<' || c == '>' || c == '^' || c == 'v' )

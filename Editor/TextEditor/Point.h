@@ -1,6 +1,5 @@
 #ifndef POINT_H
 #define POINT_H
-
 // Interne Repräsentation, wird nur von Graph_Interface verwendet
 class Point{
 
@@ -99,5 +98,32 @@ protected:
         return bBottom ? bottom : NULL;
     }
 };
+
+void Point::clear(void){
+	if(bRight)right->clear();
+	if(bBottem) bottem->clear();
+	delete this;
+}
+
+bool Point::deleteSign(void){
+	if(bRight){ sign = right->getSign(); if(right->deleteSign()) bRight = false ; return false;}
+	else delete this;
+	return true;
+}
+
+void Point::clone(Point *akk){
+	Point *tmp;
+	akk->setSign(getSign());
+	if(bRight){
+		tmp = new Point();
+		akk->setNextRight(tmp);
+		right->clone(tmp);
+	}
+	if(bBottem){
+		tmp = new Point();
+		akk->setNextBottem(tmp);
+		bottem->clone(tmp);
+	}
+}
 
 #endif // POINT_H
