@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /*[--**--]
 Copyright (C) 2014  SWPSoSe14Cpp Group
 
@@ -14,8 +13,6 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with this
 program; if not, see <http://www.gnu.org/licenses/>.*/
 
-=======
->>>>>>> ef361baa0d6da93d6356d99880d4446d14315af9
 #include <backend/classfile/constant_pool.h>
 
 ConstantPool::ConstantPool() {
