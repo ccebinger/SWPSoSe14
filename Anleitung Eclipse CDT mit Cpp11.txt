@@ -10,6 +10,8 @@ Getestet mit
 1. Schritt: -std=c++11 an 2 Stellen anhängen
 	Project properties -> C/C++ Build -> Settings -> Tool Settings:
 		-> GCC C++ Compiler --> Miscellaneous -> Other Flags --> -std=c++11 anhängen
+		Zusätzlich -Wall und -Wextra -pedantic anhängen, da diese die Kompilierregeln verschärfen, worauf wir uns geeinigt haben.
+		(Das Eingabefeld zu Other Flags gefüllt sah bei mir[Leon] dann so aus: -c -fmessage-length=0 -std=c++11 -Wall -Werror -pedantic )
 		-> GCC C++ Linker --> Miscellaneous -> Other Flags --> -std=c++11 anhängen
 
 2. Schritt: 2 Symbols hinzufügen
