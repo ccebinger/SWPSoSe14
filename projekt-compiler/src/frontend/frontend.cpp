@@ -4,7 +4,7 @@
 
 void checkVec(std::vector<std::string> result)
 {
-  std::regex reg("\[[a-zA-z0-9]+\]"); //THE FUNCTION NAMES
+  std::regex reg("\\[[a-zA-z0-9]+\\]"); //THE FUNCTION NAMES
 
   for (std::vector<std::string>::iterator it = result.begin(); it != result.end(); ++it)
   {

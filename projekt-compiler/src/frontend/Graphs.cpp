@@ -1,7 +1,7 @@
 #include <frontend/Graphs.h>
 
 
-const std::regex Graphs::regexs[] = {std::regex("\[[a-zA-z0-9]+\]")};
+const std::regex Graphs::regexs[] = {std::regex("\\[[a-zA-z0-9]+\\]")};
 
 
 Graphs::Graphs()
@@ -136,7 +136,7 @@ Graphs::Node_ptr Graphs::unmarshall_line(Graphs::Graph_ptr adj, std::string& lin
 Command Graphs::getCommand(std::string& cmd)
 {
   Command c;
-  std::regex regex_push("[0-9]|\[[0-9]\]|\['[a-zA-Z0-9]+'\]");
+  std::regex regex_push("[0-9]|\\[[0-9]\\]|\\['[a-zA-Z0-9]+'\\]");
   std::regex regex_add("a");
   std::regex regex_call("[{][a-zA-Z0-9]+[}]");
   if (std::regex_match(cmd.begin(), cmd.end(), regex_push))

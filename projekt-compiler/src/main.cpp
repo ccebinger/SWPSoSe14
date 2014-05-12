@@ -3,6 +3,7 @@
 
 #include <frontend/parse/lexer.h>
 #include <frontend/Parser.h>
+//#include <frontend/Graphs.h>
 
 
 using namespace std;
@@ -16,12 +17,11 @@ int main(int argc, char *argv[]) {
 	// Lexer
 	//FIXME hardcoded. must be provided by commandline
 	Lexer lexer;
-	lexer.lex("../src/test-cases/helloworld.txt");
+	lexer.lex("../test-cases/helloworld.txt");
 	RailFunction func = lexer.functions.at(0); //FIXME hardcoded number of functions
 
 
 	// "Parser"
-	Graphs graphs;
 	BoardContainer board{func.code, MAX_CHARS_PER_LINE, MAX_LINES_PER_FUNCTION};
 	Parser p(board, func.getName());
 	shared_ptr<Adjacency_list> asg = p.parseGraph();
@@ -30,16 +30,18 @@ int main(int argc, char *argv[]) {
 	}
 
 
-	// Serialize
+	// Create Graphs
+	Graphs graphs;
 	graphs.put(func.getName(), asg);
+
+
+	// Serialize
 	graphs.marshall("out.csv");
 
 
 	// Deserialize
 	Graphs sndGraphs;
 	sndGraphs.unmarshall("out.csv", ';'); //FIXME fix delimiter
-
-
 
 
 
