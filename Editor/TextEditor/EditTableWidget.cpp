@@ -130,6 +130,8 @@ void EditTableWidget::setPosition(int x, int y)
 
 void EditTableWidget::setSign(QChar c)
 {
+    // get the insert mode and the write direction
+    // TODO: later replace with enums
     QWidget *w = this->cellWidget(m_cursorYPos, m_cursorXPos);
     QString color;
     if(c == '$')
@@ -141,7 +143,7 @@ void EditTableWidget::setSign(QChar c)
         color = "green";
     }
     else if(c == '-' || c == '|' || c == '\\' || c == '/' || c == 'x' || c == '+' ||
-            c == '*' || c == '<' || c == '>' || c == '^' || c == 'v' )
+            c == '*' || c == '<' || c == '>' || c == '^' || c == 'v' || c == '@')
     {
         color = "gray";
     }
@@ -149,32 +151,27 @@ void EditTableWidget::setSign(QChar c)
     {
         color = "black";
     }
-    QString text;
-    if(c == '<')
-    {
-        text = "&lt;";
-    }
-    else
-    {
-        text = QString(c);
-    }
-    text = "<font color=\"" + color + "\">" + text + "</font>";
+    QString text = QString(c);
+
+    //text = "<font color=\"" + color + "\">" + text + "</font>";
+    QLabel *l;
     if(w == NULL)
     {
         QFont f("unexistent");
         f.setStyleHint(QFont::Monospace);
 
-        QLabel *l = new QLabel(text);
+        l = new QLabel(text);
         l->setFont(f);
         l->setAlignment(Qt::AlignCenter);
         this->setCellWidget(m_cursorYPos, m_cursorXPos, l);
     }
     else
     {
-        QLabel *l = dynamic_cast<QLabel *>(w);
+        l = dynamic_cast<QLabel *>(w);
         assert(l);
         l->setText(text);
     }
+    l->setStyleSheet("QLabel { color: " + color + "; };");
     m_textMaxX = std::max(m_textMaxX, m_cursorXPos);
     m_textMaxY = std::max(m_textMaxY, m_cursorYPos);
     emit textChanged();
