@@ -3,7 +3,7 @@
 
 #include <backend/backend.h>
 
-//#ifdef STANDALONE_BACKEND
+#ifdef STANDALONE_BACKEND
 
 /**
  * Standalone-App für das Backend. Liest einen serialisierten Graphen und gibt
@@ -67,4 +67,4 @@ int main(int argc, char** argv) {
   }
 }
 
-//#endif  // STANDALONE_BACKEND
+#endif  // STANDALONE_BACKEND
