@@ -1,4 +1,4 @@
-#include "adjacency_list.h"
+#include <frontend/adjacency_list.h>
 
 Adjacency_list::Adjacency_list(Adjacency_list::str name) : graph_name(name)
 {

@@ -3,7 +3,7 @@
 
 #include <iterator>
 #include <iostream>
-#include "../common/ast/ast.h"
+#include <common/ast/ast.h>
 
 class Adjacency_list : public Graph {
  private:

@@ -2,7 +2,7 @@
 #define FRONTEND_H
 
 #include <iostream>
-#include "Graphs.h"
+#include <frontend/Graphs.h>
 
 
 void checkVec(std::vector<std::string> result);

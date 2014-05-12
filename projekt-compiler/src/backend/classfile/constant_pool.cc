@@ -1,4 +1,4 @@
-#include "constant_pool.h"
+#include <backend/classfile/constant_pool.h>
 
 ConstantPool::ConstantPool() {
   //  TODO Auto-generated constructor stub
