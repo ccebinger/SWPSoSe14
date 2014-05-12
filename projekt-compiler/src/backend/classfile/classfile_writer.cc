@@ -8,13 +8,11 @@
 const char ClassfileWriter::kMagicNumber[] { '\xCA', '\xFE',
       '\xBA', '\xBE' };
 const char ClassfileWriter::kNotRequired[] { '\x00', '\x00' };
-std::map<std::string, int> collection = {{"bear", 4},
-                                         {"cassowary", 2},
-                                         {"tiger", 7}};
 
 std::map<ClassfileWriter::ClassfileVersion, const std::array<const char, 4>>
     ClassfileWriter::kVersionNumbers {
-  { ClassfileWriter::ClassfileVersion::JAVA_7, {'\x00', '\x00', '\x00', '\x33'}}
+  { ClassfileWriter::ClassfileVersion::JAVA_7,
+        std::array<const char, 4>{'\x00', '\x00', '\x00', '\x33'}}
 };
 
 ClassfileWriter::ClassfileWriter(ClassfileVersion version,
