@@ -50,7 +50,68 @@ Graphs::Graph_map::iterator Graphs::end()
 }
 
 void Graphs::marshall(Graphs::str file) {
+	
+	// [function name]
+	// id ; cmd ; adj1 (true,default) ; adj2 (false, not present)
+	
 	//FIXME Miro ;) #2
+
+
+	//FIXME delete file
+
+
+	std::ofstream fh(file);
+	if(!fh) {
+		throw "Serialize: can't open file handle for " + file;
+	}
+
+
+	std::map<std::string, Graph_ptr>::iterator it;
+
+	// Function
+	for(it = this->graphs.begin(); it != this->graphs.end(); ++it) {
+		Graph_ptr gp = it->second;
+		std::size_t count = gp->nodeCount();
+		
+		// Function name
+		fh << "[" << it->first <<"]" << std::endl;
+		
+		// Node
+		for(std::size_t i = 0; i<count; ++i) {
+			
+			
+			
+			std::shared_ptr<Node> node = gp->find(i);
+			
+			
+			// id ; Command
+			fh << node->id << ";" << node->command.arg;
+			
+			
+			// Adjacency list
+			if(node->successor1) {
+				fh << ";" << node->successor1->id;
+			}
+			else {
+				// Error state for Haskell-Group
+				fh << ";0";
+			}
+			
+			if(node->successor2) {
+				fh << ";" << node->successor2->id;
+			}
+			else {
+				// Error state for Haskell-Group
+				fh << ";0";
+			}
+			
+			fh << std::endl << std::endl;
+		}
+
+	}
+
+
+	fh.close();
 }
 
 void Graphs::unmarshall(Graphs::str file, char delimiter)

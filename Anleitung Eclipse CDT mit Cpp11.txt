@@ -41,3 +41,10 @@ Getestet mit
 	Project -> Clean
 	Project -> C/C++ Index neu erzeugen
 	evtl Eclipse neustarten (bei mir gings ohne)
+
+
+( 6. Schritt: g++ 4.9 installieren
+	sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+	sudo apt-get update
+	sudo apt-get install g++-4.9
+)
