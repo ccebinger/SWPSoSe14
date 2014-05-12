@@ -40,7 +40,7 @@ struct Node {
     successor1.reset();
     successor1.reset();
   }
-	int id;
+	int id = 0;
 	Command command;
 	std::shared_ptr<Node> successor1; //true Pfad
 	std::shared_ptr<Node> successor2; //false Pfad
@@ -54,7 +54,6 @@ public:
 	virtual ~Graph(){};
 	virtual void addNode(std::shared_ptr<Node> node) = 0;
 	virtual void addEdge(std::shared_ptr<Node> source, std::shared_ptr<Node> dist, bool path) = 0;
-	virtual void serialize(std::ostream& out) = 0;
 	virtual std::shared_ptr<Node> start() = 0;
 	virtual std::size_t nodeCount() const = 0 ;
 	virtual std::shared_ptr<Node> find(int id) const = 0 ;

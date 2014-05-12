@@ -1,90 +1,51 @@
 #include <iostream>
 #include <string.h>
 
-#include <common/parse/parseFunctions.cpp>
-
+#include <frontend/parse/lexer.h>
+#include <frontend/Parser.h>
 
 
 using namespace std;
 
 
 int main(int argc, char *argv[]) {
+	// ------------------------------------------------------------------------
+	// FRONTEND
+	// ------------------------------------------------------------------------
 
-//	bool runFrontend = false;
-//	bool runBackend = false;
-//	bool runParseFunctions = false;
-//
-//	for(int i=0; i<argc; i++) {
-//		if(strcmp(argv[i], "-f") == 0) {
-//			runFrontend = true;
-//		}
-//		else if(strcmp(argv[i], "-b") == 0) {
-//			runBackend = true;
-//		}
-//		else if(strcmp(argv[i], "-pf") == 0) {
-//			runParseFunctions = true;
-//		}
-//
-//		cout << argv[i] << endl;
-//	}
-//
-//
-//	cout << "-------------------" << endl;
-//	cout << "-f: " << runFrontend << endl;
-//	cout << "-b: " << runBackend << endl;
-//
-//
-//	if(runFrontend) {
-//		// Alte main() aus frontend
-//		unmarshallGraph("src/frontend/test_ast.csv", ';');
-//		std::cout << std::endl << std::endl;
-//		unmarshallGraph("src/frontend/test2.csv", ';');
-//		return 0;
-//	}
-//
-//
-//
-//	if(runParseFunctions) {
-//		//
-//	}
-//
-//
-//	if(runBackend) {
-////		oldBackendMain();
-//	}
+	// Lexer
+	//FIXME hardcoded. must be provided by commandline
+	Lexer lexer;
+	lexer.lex("../src/test-cases/helloworld.txt");
+	RailFunction func = lexer.functions.at(0); //FIXME hardcoded number of functions
 
 
-	// lex source file
-	vector<RailFunction> parsed = oldParseFunctionMain(argc, argv);
+	// "Parser"
+	Graphs graphs;
+	BoardContainer board{func.code, MAX_CHARS_PER_LINE, MAX_LINES_PER_FUNCTION};
+	Parser p(board, func.getName());
+	shared_ptr<Adjacency_list> asg = p.parseGraph();
+	if(asg == NULL) {
+		throw "Parser error " + p.errorMessage + "";
+	}
 
 
-	// parse source
+	// Serialize
+	graphs.put(func.getName(), asg);
+	graphs.marshall("out.csv");
+
+
+	// Deserialize
+	Graphs sndGraphs;
+	sndGraphs.unmarshall("out.csv", ';'); //FIXME fix delimiter
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	// ------------------------------------------------------------------------
+	// BACKEND
+	// ------------------------------------------------------------------------
 
 
 

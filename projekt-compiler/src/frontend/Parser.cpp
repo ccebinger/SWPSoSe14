@@ -7,13 +7,9 @@
  *      Author: LeonBornemann
  */
 
-#include "Parser.h"
-#include <map>
-#include <algorithm>
-#include <iostream>
-#include <string>
-#include <sstream>
-//#include "adjacency_list.cpp"
+
+#include <frontend/Parser.h>
+
 
 std::list<char> listFromArray(char chars[], int size){
 	std::list<char> myList;

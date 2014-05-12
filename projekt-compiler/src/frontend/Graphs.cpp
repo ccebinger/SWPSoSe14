@@ -1,13 +1,11 @@
 #include <frontend/Graphs.h>
 
 
-const std::regex Graphs::regexs[] = {
-                                    std::regex("\[[a-zA-z0-9]+\]")};
+const std::regex Graphs::regexs[] = {std::regex("\[[a-zA-z0-9]+\]")};
 
 
 Graphs::Graphs()
 {
-
   //ctor
 }
 
@@ -22,9 +20,9 @@ Graphs::~Graphs()
 
 
 
-bool Graphs::put(Graphs::str key, Graphs::Graph_ptr graph)
-{
+bool Graphs::put(Graphs::str key, Graphs::Graph_ptr graph) {
   graphs.insert(std::pair<std::string, Graphs::Graph_ptr>(key, graph));
+  return true;
 }
 
 Graphs::Graph_ptr Graphs::find(Graphs::str key)
@@ -49,6 +47,10 @@ Graphs::Graph_map::iterator Graphs::begin()
 Graphs::Graph_map::iterator Graphs::end()
 {
   return graphs.end();
+}
+
+void Graphs::marshall(Graphs::str file) {
+	//FIXME Miro ;) #2
 }
 
 void Graphs::unmarshall(Graphs::str file, char delimiter)

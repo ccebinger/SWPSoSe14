@@ -22,7 +22,11 @@ ConstantPool::~ConstantPool() {
 }
 
 unsigned ConstantPool::addConstant() {
+	return 0;
 }
 
-std::ostream ConstantPool::getByteArray() {
+//FIXME return std::ostream
+void ConstantPool::getByteArray() {
+
+
 }

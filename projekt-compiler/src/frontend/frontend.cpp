@@ -41,5 +41,6 @@ int unmarshallGraph(const std::string& file, char delimiter)
   std::cout << "Name: " << g->name() << "Size: " << g->nodeCount() << std::endl;
   n = g->start();
   printNode(n);
+  return 0;
 }
 

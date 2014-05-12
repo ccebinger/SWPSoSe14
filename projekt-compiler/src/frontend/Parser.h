@@ -1,12 +1,22 @@
 
 #ifndef Parser_h
 #define Parser_h
-using namespace std;
+
 #include <list>
 #include <map>
 #include <string>
-#include "adjacency_list.h"
-#include "ast.h"
+#include <algorithm>
+#include <iostream>
+#include <sstream>
+
+
+
+#include <frontend/adjacency_list.h>
+
+
+using namespace std;
+
+
 /*assignment of the enum values must not be changed without adapting the functions
  * void turnLeft45Deg() and
  * void turnRight45Deg()

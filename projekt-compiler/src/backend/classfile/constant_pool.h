@@ -32,7 +32,7 @@ class ConstantPool {
    * Schreibt den Pool im .class-Dateiformat (Version 7) in den stream.
    */
   unsigned addConstant();
-  std::ostream getByteArray();
+  void getByteArray();
 };
 
 #endif /* CONSTANT_POOL_H_ */
