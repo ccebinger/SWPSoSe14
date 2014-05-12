@@ -1,0 +1,11 @@
+Der TextEditor ist ein einfacher Editor für Rail.
+
+Im linken Fenster können Programme eingeladen und bearbeitet werden.
+Im rechts oberen Fenster können Eingaben für das geladene Programm definiert werden und
+im unteren Fenster wird die Ausgabe des Programms angezeigt.
+
+
+Die Einträge unter "Menu" dienen dem Laden und Speichern von Dateien.
+Die Einträge unter "Edit" sind für das Setzen und Ausführen des Rail-Interpreters.
+
+Fehler und Crashes des Interpreters können leider noch nicht angezeigt werden.
