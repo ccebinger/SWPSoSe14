@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include <common/ast/ast.h>
+#include "common/ast/ast.h"
 #include <frontend/adjacency_list.h>
 
 /**
