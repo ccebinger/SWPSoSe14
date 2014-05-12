@@ -1,4 +1,4 @@
-#include "Graphs.h"
+#include <frontend/Graphs.h>
 
 
 const std::regex Graphs::regexs[] = {

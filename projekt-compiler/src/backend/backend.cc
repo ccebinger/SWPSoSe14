@@ -1,4 +1,4 @@
-#include "backend.h"
+#include <backend/backend.h>
 
 Backend::Status Backend::Generate(std::istream& graphIn,
                                   std::ostream& codeOut) {
