@@ -1,7 +1,7 @@
 # c.ebinger, 28-04-2014
 # Usage: make fu-rail 
 
-all: rail
+all: rail fu-rail tests
 
 tests: unittest_constantpool unittest_classfile_writer_test
 
