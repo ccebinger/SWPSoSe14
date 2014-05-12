@@ -6,7 +6,7 @@ all: rail
 tests: unittest_constantpool unittest_classfile_writer_test
 
 fu-rail: projekt-compiler/src/backend/main.cc  
-	g++ -std=c++0x -o fu-rail projekt-compiler/src/backend/backend.cc projekt-compiler/src/backend/main.cc -Iprojekt-compiler/src
+	g++ -D STANDALONE_BACKEND -std=c++0x -o fu-rail projekt-compiler/src/backend/backend.cc projekt-compiler/src/backend/main.cc -Iprojekt-compiler/src
 
 rail: rail-interpreter/src/*.cpp
 	g++ -o rail rail-interpreter/src/*.cpp  
