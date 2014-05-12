@@ -2,8 +2,7 @@
 #define POINT_H
 
 // Interne Repräsentation, wird nur von Graph_Interface verwendet
-class Point
-{
+class Point{
 
 private:
     bool connections[3][3];

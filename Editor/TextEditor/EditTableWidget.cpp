@@ -131,12 +131,40 @@ void EditTableWidget::setPosition(int x, int y)
 void EditTableWidget::setSign(QChar c)
 {
     QWidget *w = this->cellWidget(m_cursorYPos, m_cursorXPos);
+    QString color;
+    if(c == '$')
+    {
+        color = "green";
+    }
+    else if(c == '#')
+    {
+        color = "blue";
+    }
+    else if(c == '-' || c == '|' || c == '\\' || c == '/' || c == 'x' || c == '+' ||
+            c == '*' || c == '<' || c == '>' || c == '^' || c == 'v' )
+    {
+        color = "gray";
+    }
+    else
+    {
+        color = "black";
+    }
+    QString text;
+    if(c == '<')
+    {
+        text = "&lt;";
+    }
+    else
+    {
+        text = QString(c);
+    }
+    text = "<font color=\"" + color + "\">" + text + "</font>";
     if(w == NULL)
     {
         QFont f("unexistent");
         f.setStyleHint(QFont::Monospace);
 
-        QLabel *l = new QLabel(QString(c));
+        QLabel *l = new QLabel(text);
         l->setFont(f);
         l->setAlignment(Qt::AlignCenter);
         this->setCellWidget(m_cursorYPos, m_cursorXPos, l);
@@ -145,7 +173,7 @@ void EditTableWidget::setSign(QChar c)
     {
         QLabel *l = dynamic_cast<QLabel *>(w);
         assert(l);
-        l->setText(QString(c));
+        l->setText(text);
     }
     m_textMaxX = std::max(m_textMaxX, m_cursorXPos);
     m_textMaxY = std::max(m_textMaxY, m_cursorYPos);
