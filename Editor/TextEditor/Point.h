@@ -102,14 +102,14 @@ protected:
 void Point::clear(void){
 	if(bRight)right->clear();
 	if(bBottem) bottem->clear();
-	delete this;
-}
+    delete this;
+};
 
 bool Point::deleteSign(void){
 	if(bRight){ sign = right->getSign(); if(right->deleteSign()) bRight = false ; return false;}
 	else delete this;
-	return true;
-}
+    return true;
+};
 
 void Point::clone(Point *akk){
 	Point *tmp;
@@ -125,5 +125,4 @@ void Point::clone(Point *akk){
 		bottem->clone(tmp);
 	}
 }
-
 #endif // POINT_H
