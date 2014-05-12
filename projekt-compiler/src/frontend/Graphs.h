@@ -6,8 +6,8 @@
 #include <fstream>
 #include <sstream>
 
-#include "adjacency_list.h"
-#include "Invalid_Format_Exception.h"
+#include <frontend/adjacency_list.h>
+#include <frontend/Invalid_Format_Exception.h>
 
 class Graphs
 {
@@ -28,6 +28,7 @@ class Graphs
     virtual Graph_map::iterator begin();
     virtual Graph_map::iterator end();
     virtual size_t size();
+    virtual void marshall(str file);
     virtual void unmarshall(str file, char delimeter);
   private:
     Node_ptr findNode(Graph_ptr adj, std::string id);

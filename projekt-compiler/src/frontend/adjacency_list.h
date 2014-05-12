@@ -3,7 +3,7 @@
 
 #include <iterator>
 #include <iostream>
-#include "../common/ast/ast.h"
+#include <common/ast/ast.h>
 
 class Adjacency_list : public Graph {
  private:
@@ -18,7 +18,6 @@ class Adjacency_list : public Graph {
   virtual ~Adjacency_list();
   virtual void addNode(std::shared_ptr<Node> node);
   virtual void addEdge(std::shared_ptr<Node> source, std::shared_ptr<Node> dist, bool path);
-  virtual void serialize(std::ostream &out);
   virtual NODES::iterator begin();
   virtual std::shared_ptr<Node> start();
   virtual std::size_t nodeCount() const;

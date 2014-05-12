@@ -13,6 +13,8 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with this
 program; if not, see <http://www.gnu.org/licenses/>.*/
 
+#if TESTS
+
 #include <backend/classfile/constant_pool.h>
 #include <backend/classfile/classfile_writer.h>
 #include <sstream>
@@ -20,6 +22,8 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 int main(int argc, char** argv) {
   ConstantPool cp;
   std::ostringstream os;
-  ClassfileWriter cs(ClassfileWriter::ClassfileVersion::JAVA_7,
-                     cp, os);
+
+  cp.addConstant();
 }
+
+#endif

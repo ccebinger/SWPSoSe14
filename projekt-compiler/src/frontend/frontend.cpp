@@ -1,11 +1,10 @@
 #include <iostream>
-#include "Csv_io.h"
-#include "Graphs.h"
+#include <frontend/Graphs.h>
 
 
 void checkVec(std::vector<std::string> result)
 {
-  std::regex reg("\[[a-zA-z0-9]+\]"); //THE FUNCTION NAMES
+  std::regex reg("\\[[a-zA-z0-9]+\\]"); //THE FUNCTION NAMES
 
   for (std::vector<std::string>::iterator it = result.begin(); it != result.end(); ++it)
   {
@@ -42,5 +41,6 @@ int unmarshallGraph(const std::string& file, char delimiter)
   std::cout << "Name: " << g->name() << "Size: " << g->nodeCount() << std::endl;
   n = g->start();
   printNode(n);
+  return 0;
 }
 

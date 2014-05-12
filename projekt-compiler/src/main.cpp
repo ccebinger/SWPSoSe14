@@ -1,90 +1,55 @@
 #include <iostream>
 #include <string.h>
 
-// main(): frontend
-#include "frontend/frontend.h"
+#include <frontend/parse/lexer.h>
+#include <frontend/Parser.h>
+//#include <frontend/Graphs.h>
 
-// main(): classfile_writer_test.cc
-//#include "backend/classfile/constant_pool.h"
-//#include "backend/classfile/classfile_writer.h"
-//#include <sstream>
-
-// main(): parseFunctions
-//#include "common/parse/parseFunctions.cpp"
-
-// main(): constant pool test
-//#include "backend/unittest/constant_pool_test.cc"
-
-// main(): backend
-//#include "backend/main.cc"
 
 using namespace std;
 
 
 int main(int argc, char *argv[]) {
+	// ------------------------------------------------------------------------
+	// FRONTEND
+	// ------------------------------------------------------------------------
 
-	bool runFrontend = false;
-	bool runBackend = false;
-	bool runCwt = false;
-	bool runParseFunctions = false;
-	bool runConstantPoolTest = false;
-
-
-	for(int i=0; i<argc; i++) {
-		if(strcmp(argv[i], "-f") == 0) {
-			runFrontend = true;
-		}
-		else if(strcmp(argv[i], "-b") == 0) {
-			runBackend = true;
-		}
-		else if(strcmp(argv[i], "-cwt") == 0) {
-			runCwt = true;
-		}
-		else if(strcmp(argv[i], "-pf") == 0) {
-			runParseFunctions = true;
-		}
-		else if(strcmp(argv[i], "-cpt") == 0) {
-			runConstantPoolTest = true;
-		}
+	// Lexer
+	//FIXME hardcoded. must be provided by commandline
+	Lexer lexer;
+	lexer.lex("../test-cases/helloworld.txt");
+	RailFunction func = lexer.functions.at(0); //FIXME hardcoded number of functions
 
 
-		cout << argv[i] << endl;
+	// "Parser"
+	BoardContainer board{func.code, MAX_CHARS_PER_LINE, MAX_LINES_PER_FUNCTION};
+	Parser p(board, func.getName());
+	shared_ptr<Adjacency_list> asg = p.parseGraph();
+	if(asg == NULL) {
+		throw "Parser error " + p.errorMessage + "";
 	}
 
 
-	cout << "-------------------" << endl;
-	cout << "-f: " << runFrontend << endl;
-	cout << "-b: " << runBackend << endl;
+	// Create Graphs
+	Graphs graphs;
+	graphs.put(func.getName(), asg);
 
 
-	if(runFrontend) {
-		// Alte main() aus frontend
-		unmarshallGraph("src/frontend/test_ast.csv", ';');
-		std::cout << std::endl << std::endl;
-		unmarshallGraph("src/frontend/test2.csv", ';');
-		return 0;
-	}
+	// Serialize
+	graphs.marshall("out.csv");
 
 
-	if(runCwt) {
-		// Alte main() aus classfile_writer_test.cc
-//		ConstantPool cp;
-//		std::ostringstream os;
-//		ClassfileWriter cs(ClassfileWriter::ClassfileVersion::JAVA_7, cp, os);
-	}
-
-	if(runParseFunctions) {
-		//oldParseFunctionMain(argc, argv);
-	}
-
-	if(runConstantPoolTest) {
-//		oldMainConstantPoolTest(argc, argv);
-	}
+	// Deserialize
+	Graphs sndGraphs;
+	sndGraphs.unmarshall("out.csv", ';'); //FIXME fix delimiter
 
 
-	if(runBackend) {
-//		oldBackendMain();
-	}
+
+	// ------------------------------------------------------------------------
+	// BACKEND
+	// ------------------------------------------------------------------------
+
+
 
 
 

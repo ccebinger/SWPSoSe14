@@ -1,24 +1,6 @@
-#include <iostream>
-#include <fstream>
-#include <cstring>
-#include <vector>
-using namespace std;
+#include <frontend/parse/lexer.h>
 
-const int MAX_CHARS_PER_LINE = 1024;
-const int MAX_LINES_PER_FUNCTION = 1024;
 
-class RailFunction {
-	string name;
-	char code[MAX_CHARS_PER_LINE][MAX_LINES_PER_FUNCTION];
-
-	public:
-		string getName();
-		void setName(string name);
-		void initData();
-		char getData(int offsetX, int offsetY);
-		void setData(int offsetX, int offsetY, char c);
-		void printRails();
-};
 
 string RailFunction::getName() {
 	return this->name;
@@ -65,25 +47,15 @@ void RailFunction::printRails() {
 	cout << "\n===========================================\n";
 }
 
-//the vector which holds all rail functions
-vector<RailFunction> allRailFunctions;
 
 
-int oldParseFunctionMain(int argc, char* argv[]) {
-	if(argc < 2) {
-		cout << "Please pass the rail file path as argument!";
-		return -1;
-	} else if(argc > 2) {
-		cout << "Only one argument (rail file path) is supported!";
-		return -1;
-	}
+void Lexer::lex(const string& filename) {
 
 	// create a file-reading object
 	ifstream fin;
-	fin.open(argv[1]); // open a file
+	fin.open(filename); // open a file
 	if (!fin.good()) {
-		cout << "file not found: " << argv[1];
-		return -1; // exit if file not found
+		throw "Lexer: file not found";
 	}
 
 	// work with states
@@ -108,6 +80,8 @@ int oldParseFunctionMain(int argc, char* argv[]) {
 
 		if(state == "find function") {
 			if(nextChar == '$') {
+				r.setData(offsetX, offsetY, nextChar);
+				offsetX++;
 				state = "find first semicolon";
 			} else {
 				state = "ignore line while find function";
@@ -119,11 +93,25 @@ int oldParseFunctionMain(int argc, char* argv[]) {
 			}
 			continue;
 		} else if(state == "find first semicolon") {
+			if(nextChar == '\n') {
+				offsetY++;
+			} else {
+				r.setData(offsetX, offsetY, nextChar);
+				offsetX++;
+			}
+
 			if(nextChar == '\'') {
 				state = "parse function name";
 			}
 			continue;
 		} else if(state == "parse function name") {
+			if(nextChar == '\n') {
+				offsetY++;
+			} else {
+				r.setData(offsetX, offsetY, nextChar);
+				offsetX++;
+			}
+
 			if(nextChar == '\'') {
 				r.setName(currentFunctionName);
 				currentFunctionName = "";
@@ -134,15 +122,24 @@ int oldParseFunctionMain(int argc, char* argv[]) {
 			continue;
 		} else if(state == "ignore line after function found") {
 			if(nextChar == '\n') {
+				offsetY++;
+			} else {
+				r.setData(offsetX, offsetY, nextChar);
+				offsetX++;
+			}
+
+			if(nextChar == '\n') {
 				state = "parse rail";
 			}
 			continue;
 		} else if(state == "parse rail") {
 			if(nextChar == '$') {
-				allRailFunctions.push_back(r);
+				functions.push_back(r);
 				r.initData();
 				offsetX = 0;
 				offsetY = 0;
+				r.setData(offsetX, offsetY, nextChar);
+				offsetX++;
 				state = "find first semicolon";
 			} else if(nextChar == '\n') {
 				offsetY++;
@@ -160,13 +157,13 @@ int oldParseFunctionMain(int argc, char* argv[]) {
 	}
 
 	//add the last function also to the vector
-	allRailFunctions.push_back(r);
+	functions.push_back(r);
+
 
 	//debug: print all functions and rails
-
-	for(unsigned i=0; i<allRailFunctions.size(); i++) {
-		cout << "function " << allRailFunctions[i].getName() << ":\n\n";
-		allRailFunctions[i].printRails();
-	}
+	/*for(unsigned i=0; i<functions.size(); i++) {
+		cout << "function " << functions[i].getName() << ":\n\n";
+		functions[i].printRails();
+	}*/
 }
 

@@ -1,4 +1,4 @@
-#include "adjacency_list.h"
+#include <frontend/adjacency_list.h>
 
 Adjacency_list::Adjacency_list(Adjacency_list::str name) : graph_name(name)
 {
@@ -42,10 +42,6 @@ void Adjacency_list::addEdge(std::shared_ptr<Node> source, std::shared_ptr<Node>
   }
 }
 
-void Adjacency_list::serialize(std::ostream &out)
-{
-  //TODO
-}
 
 std::shared_ptr<Node> Adjacency_list::find(int id) const
 {
