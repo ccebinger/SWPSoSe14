@@ -2,7 +2,7 @@
 #include <string.h>
 
 // main(): frontend
-//#include "frontend/frontend.cpp"
+#include "frontend/frontend.h"
 
 // main(): classfile_writer_test.cc
 //#include "backend/classfile/constant_pool.h"
@@ -59,10 +59,10 @@ int main(int argc, char *argv[]) {
 
 	if(runFrontend) {
 		// Alte main() aus frontend
-//		unmarshallGraph("src/frontend/test_ast.csv", ';');
-//		std::cout << std::endl << std::endl;
-//		unmarshallGraph("src/frontend/test2.csv", ';');
-//		return 0;
+		unmarshallGraph("src/frontend/test_ast.csv", ';');
+		std::cout << std::endl << std::endl;
+		unmarshallGraph("src/frontend/test2.csv", ';');
+		return 0;
 	}
 
 
