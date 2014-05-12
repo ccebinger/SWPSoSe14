@@ -16,7 +16,7 @@ class ClassfileWriter {
   /**
    * Die Versionsnummer der zu schreibenden .class-Datei.
    */
-  enum ClassfileVersion:int {
+  enum ClassfileVersion {
     JAVA_7
   };
 
