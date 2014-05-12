@@ -1,7 +1,0 @@
-$ 'main'(--):
- \
-  \
-   \
-    \
-     \---i---# Make sure the input file is empty
-      
