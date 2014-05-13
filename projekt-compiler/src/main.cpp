@@ -26,7 +26,9 @@ int main(int argc, char *argv[]) {
 	Parser p(board, func.getName());
 	shared_ptr<Adjacency_list> asg = p.parseGraph();
 	if(asg == NULL) {
-		throw Parse_Exception(p.errorMessage);
+    Parse_Exception pe;
+    pe.set_msg(p.errorMessage);
+		throw pe;
 	}
 
 

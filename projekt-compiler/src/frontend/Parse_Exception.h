@@ -3,16 +3,17 @@
 
 
 #include <exception>
+#include <sstream>
 class Parse_Exception: public std::exception
 {
 private:
-  std::string message;
-
+  std::string msg;
 public:
-  Parse_Exception(const std::string& msg) {message=msg;}
+  void set_msg(const std::string& m) {msg = m;}
+private:
   virtual const char* what() const throw()
   {
-    return ("Parser exception: " + message).c_str();
+    return msg.c_str();
   }
 };
 

@@ -55,7 +55,9 @@ void Lexer::lex(const string& filename) {
 	ifstream fin;
 	fin.open(filename); // open a file
 	if (!fin.good()) {
-		throw IO_Exception(filename);
+		IO_Exception ie;
+		ie.set_file(filename);
+		throw ie;
 	}
 
 	// work with states

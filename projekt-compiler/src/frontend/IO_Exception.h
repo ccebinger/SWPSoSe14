@@ -7,12 +7,12 @@ class IO_Exception: public std::exception
 {
 private:
   std::string file;
-
 public:
-  IO_Exception(const std::string& fileName) {file=fileName;}
+  void set_file(const std::string& fileName) {file=fileName;}
+private:
   virtual const char* what() const throw()
   {
-    return ("Can't open the given file: " + file).c_str();
+    return (file).c_str();
   }
 };
 
