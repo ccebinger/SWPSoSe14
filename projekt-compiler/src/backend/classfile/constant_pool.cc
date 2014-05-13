@@ -21,12 +21,31 @@ ConstantPool::ConstantPool() {
 ConstantPool::~ConstantPool() {
 }
 
-unsigned ConstantPool::addConstant() {
-	return 0;
+unsigned ConstantPool::addString(std::string str) {
+  return 0;
 }
 
-//FIXME return std::ostream
-void ConstantPool::getByteArray() {
+unsigned ConstantPool::addInt(int32 i) {
+  return 0;
+}
 
+unsigned ConstantPool::addLong(int64 l) {
+  return 0;
+}
 
+unsigned ConstantPool::addFloat(float f) {
+  return 0;
+}
+
+unsigned ConstantPool::addDouble(double d) {
+  return 0;
+}
+
+unsigned ConstantPool::addConstant() {
+  return 0;
+}
+
+std::vector<char> ConstantPool::getByteArray() {
+  std::vector<char> cp;
+  return cp;
 }

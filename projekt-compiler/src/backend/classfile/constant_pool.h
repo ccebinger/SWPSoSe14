@@ -16,8 +16,8 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #ifndef CONSTANT_POOL_H_
 #define CONSTANT_POOL_H_
 
-#include <iostream>
 #include <vector>
+#include <string>
 
 /**
  * Repräsentiert einen Constant Pool einer .class-Datei, Version 7.
@@ -31,8 +31,12 @@ class ConstantPool {
   /**
    * Schreibt den Pool im .class-Dateiformat (Version 7) in den stream.
    */
-  unsigned addConstant();
-  void getByteArray();
+  unsigned addString(std::String str);
+  unsigned addInt(int32 i);
+  unsigned addLong(long64 l);
+  unsigned addFloat(float f);
+  unsigned addDouble(double d);
+  std::vector<char> getByteArray();
 };
 
 #endif /* CONSTANT_POOL_H_ */
