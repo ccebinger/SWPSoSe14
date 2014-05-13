@@ -1,4 +1,5 @@
 #include <backend/backend.h>
+#include <frontend/Graphs.h>
 
 Backend::Status Backend::Generate(std::istream& graphIn,
                                   std::ostream& codeOut) {
@@ -9,7 +10,7 @@ Backend::Status Backend::Generate(std::istream& graphIn,
 //	return ret;
 }
 
-Backend::Status Backend::Generate(const Graph& graph, std::ostream& codeOut) {
+Backend::Status Backend::Generate(const Graphs& graph, std::ostream& codeOut) {
   (void) graph;
   (void) codeOut;
   // TODO
