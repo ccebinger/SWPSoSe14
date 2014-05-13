@@ -23,9 +23,12 @@ class ClassfileWriter {
   /**
    * Erstellt einen neuen Writer zum Schreiben einer .class-Datei der
    * Version 'version' mit dem ConstantPool 'constantPool' auf den
-   * Stream 'out'.
+   * Stream 'out'. Der Bytecode wird in der map 'codeFunctions' gehalten, Map
+   * Funktionsname -> Bytecode.
    */
   ClassfileWriter(ClassfileVersion version, const ConstantPool& constantPool,
+                  const std::map<std::string,
+                    std::vector<char>&> codeFunctions,
                   std::ostream& out);
 
   virtual ~ClassfileWriter();
@@ -60,19 +63,18 @@ class ClassfileWriter {
   const ConstantPool& constant_pool_;
 
   /**
+   * Mappt Funktionsnamen auf ihren zugehörigen Bytecode.
+   */
+  const std::map<std::string, std::vector<char>&>& code_functions_;
+
+  /**
    * Konstante zum Schreiben für nicht verwendete Elemente in der Class-Datei.
    * Vorerst für Interface und Field - wird daher auf den Wert 0x0000 gesetzt.
    */
   static const char kNotRequired[];
 
-
   /**
    * Konstante zum Schreiben für öffentliches Konstrukt.
-   */
-  static const char publicAccessFlag[];
-
-  /**
-   * Die Access-Flags für die generierte class. Nur public gesetzt.
    */
   static const char kPublicAccessFlag[];
 

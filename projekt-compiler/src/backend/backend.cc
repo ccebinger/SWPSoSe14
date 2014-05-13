@@ -1,19 +1,26 @@
-#include <backend/backend.h>
-#include <frontend/Graphs.h>
+#include "backend/backend.h"
 
-Backend::Status Backend::Generate(std::istream& graphIn,
+#include "backend/classfile/classfile_writer.h"
+#include "backend/codegen/bytecode_generator.h"
+#include "frontend/Graphs.h"
+
+Backend::Status Backend::Generate(const std::string& graphIn,
                                   std::ostream& codeOut) {
-	//FIXME: Die deserialize-methode wurde in "src/frontend/Csv_io.cpp" verschoben. Bitte anpassen
-//	Graph* graph = Graph::deserialize(graphIn);
-//	Backend::Status ret = Backend::Generate(*graph, codeOut);
-//	delete graph;
-//	return ret;
+  Graphs graphs;
+  graphs.unmarshall(graphIn, ';');
+  Backend::Status ret = Backend::Generate(graphs, codeOut);
+  return ret;
 }
 
-Backend::Status Backend::Generate(const Graphs& graph, std::ostream& codeOut) {
-  (void) graph;
-  (void) codeOut;
-  // TODO
+Backend::Status Backend::Generate(Graphs& graphs, std::ostream& codeOut) {
+  std::string entryFunctionName("main");
+  Graphs::Graph_ptr mainFunction = graphs.find(entryFunctionName);
+  ConstantPool constantPool;
+  std::vector<char> mainCode = BytecodeGenerator::GenerateCodeFromFuntionGraph(mainFunction, constantPool);
+  std::map<std::string, std::vector<char>&> codeMap{{"main", mainCode}};
+
+  ClassfileWriter writer(ClassfileWriter::JAVA_7, constantPool, codeMap, codeOut);
+  writer.WriteClassfile();
   return Backend::Status::SUCCESS;
 }
 

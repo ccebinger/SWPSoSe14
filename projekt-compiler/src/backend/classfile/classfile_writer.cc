@@ -19,8 +19,11 @@ std::map<ClassfileWriter::ClassfileVersion, const std::array<const char, 4>>
 
 ClassfileWriter::ClassfileWriter(ClassfileVersion version,
                                  const ConstantPool& constantPool,
+                                 const std::map<std::string,
+                                   std::vector<char>&> codeFunctions,
                                  std::ostream& out) :
-    out_(out), version_(version), constant_pool_(constantPool) {
+    out_(out), version_(version), constant_pool_(constantPool),
+    code_functions_(codeFunctions) {
 }
 
 ClassfileWriter::~ClassfileWriter() {

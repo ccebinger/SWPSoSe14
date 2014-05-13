@@ -25,18 +25,18 @@ class Backend {
   };
 
   /**
-   * Übersetzt den serialisierten Graphen aus graphIn in Target-Code, der
-   * auf codeOut geschrieben wird. Gibt je nach Ergebnis einen
+   * Übersetzt den serialisierten Graphen aus graphIn (Dateiname) in
+   * Target-Code, der auf codeOut geschrieben wird. Gibt je nach Ergebnis einen
    * Backend::Status zurück.
    */
-  static Backend::Status Generate(std::istream& graphIn,
+  static Backend::Status Generate(const std::string& filename,
                                   std::ostream& codeOut);
 
   /**
    * Übersetzt den Graphen aus graph in Target-Code, der auf codeOut
    * geschrieben wird. Gibt je nach Ergebnis einen Backend::Status zurück.
    */
-  static Backend::Status Generate(const Graphs& graph, std::ostream& codeOut);
+  static Backend::Status Generate(Graphs& graphs, std::ostream& codeOut);
 
   /**
    * Gibt eine beschreibende Fehlernachricht zu einem Backend::Status
