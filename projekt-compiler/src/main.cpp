@@ -3,7 +3,7 @@
 
 #include <frontend/parse/lexer.h>
 #include <frontend/Parser.h>
-//#include <frontend/Graphs.h>
+#include <frontend/Graphs.h>
 
 
 using namespace std;

@@ -20,7 +20,7 @@ struct Command {
 
 struct Node {
 
-  Node() {}
+  Node() {id = 0;}
   Node(const Node& n)
   {
     id = n.id;
@@ -40,7 +40,7 @@ struct Node {
     successor1.reset();
     successor1.reset();
   }
-	int id = 0;
+	int id;
 	Command command;
 	std::shared_ptr<Node> successor1; //true Pfad
 	std::shared_ptr<Node> successor2; //false Pfad

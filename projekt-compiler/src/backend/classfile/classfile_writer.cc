@@ -1,4 +1,5 @@
 #include <backend/classfile/classfile_writer.h>
+#include <backend/classfile/constant_pool.h>
 
 #include <array>
 #include <iostream>
@@ -8,6 +9,7 @@
 const char ClassfileWriter::kMagicNumber[] { '\xCA', '\xFE',
       '\xBA', '\xBE' };
 const char ClassfileWriter::kNotRequired[] { '\x00', '\x00' };
+const char ClassfileWriter::kPublicAccessFlag[] { '\x00', '\x00','\x00', '\x01' };
 
 std::map<ClassfileWriter::ClassfileVersion, const std::array<const char, 4>>
     ClassfileWriter::kVersionNumbers {
@@ -51,15 +53,15 @@ void ClassfileWriter::WriteConstantPool() {
 }
 
 void ClassfileWriter::WriteAccessFlags() {
-  // TODO
+  out_.write(kPublicAccessFlag, sizeof(kPublicAccessFlag));
 }
 
 void ClassfileWriter::WriteClassName() {
-  // TODO
+  //TODO
 }
 
 void ClassfileWriter::WriteSuperClassName() {
-  // TODO
+  //TODO
 }
 
 void ClassfileWriter::WriteInterfaces() {

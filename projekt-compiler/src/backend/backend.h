@@ -5,6 +5,7 @@
 
 #include <common/ast/ast.h>
 #include <frontend/adjacency_list.h>
+#include <frontend/Graphs.h>
 
 /**
  * Die Klasse stellt statische Methoden für das Übersetzen des Graphen in
@@ -35,7 +36,7 @@ class Backend {
    * Übersetzt den Graphen aus graph in Target-Code, der auf codeOut
    * geschrieben wird. Gibt je nach Ergebnis einen Backend::Status zurück.
    */
-  static Backend::Status Generate(const Graph& graph, std::ostream& codeOut);
+  static Backend::Status Generate(const Graphs& graph, std::ostream& codeOut);
 
   /**
    * Gibt eine beschreibende Fehlernachricht zu einem Backend::Status

@@ -66,6 +66,11 @@ class ClassfileWriter {
   static const char kNotRequired[];
 
   /**
+   * Die Access-Flags für die generierte class. Nur public gesetzt.
+   */
+  static const char kPublicAccessFlag[];
+
+  /**
    * Schreibt 0xCAFEBABE.
    */
   void WriteMagicNumber();

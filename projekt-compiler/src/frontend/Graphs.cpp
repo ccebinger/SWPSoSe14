@@ -50,7 +50,60 @@ Graphs::Graph_map::iterator Graphs::end()
 }
 
 void Graphs::marshall(Graphs::str file) {
-	//FIXME Miro ;) #2
+	
+	// [function name]
+	// id ; cmd ; adj1 (true,default) ; adj2 (false, not present)
+	
+	//FIXME delete file
+
+
+	std::ofstream fh(file);
+	if(!fh) {
+		throw "Serialize: can't open file handle for " + file;
+	}
+
+
+	std::map<std::string, Graph_ptr>::iterator it;
+
+	// Function
+	for(it = this->graphs.begin(); it != this->graphs.end(); ++it) {
+		Graph_ptr gp = it->second;
+		std::size_t count = gp->nodeCount();
+		
+		// Function name
+		fh << "[" << it->first <<"]" << std::endl;
+		
+		// Node
+		for(std::size_t i = 0; i<count; ++i) {
+			std::shared_ptr<Node> node = gp->find(i);
+			
+			// id ; Command
+			fh << node->id << ";" << node->command.arg;
+			
+			// Adjacency list
+			if(node->successor1) {
+				fh << ";" << node->successor1->id;
+			}
+			else {
+				// Error state for Haskell-Group
+				fh << ";0";
+			}
+			
+			if(node->successor2) {
+				fh << ";" << node->successor2->id;
+			}
+			else {
+				// Error state for Haskell-Group
+				fh << ";0";
+			}
+			
+			fh << std::endl << std::endl;
+		}
+
+	}
+
+
+	fh.close();
 }
 
 void Graphs::unmarshall(Graphs::str file, char delimiter)
@@ -179,6 +232,61 @@ std::shared_ptr<Node> Graphs::findNode(Graphs::Graph_ptr adj, std::string id)
   }
   return n;
 }
+
+
+void Graphs::writeGraphViz(Graphs::str file) {
+	std::ofstream fh(file);
+	if(!fh) {
+		throw "Graphs.writeGraphViz(): can't open file handle for " + file;
+	}
+	
+	fh << "digraph G {";
+	fh << std::endl << "	node [shape=\"circle\",fontname=Courir,fontsize=10,style=filled,penwidth=1,fillcolor=\"#EEEEEE\",color=\"#048ABD\"]";
+	fh << std::endl << "	edge [color=\"#000000\", arrowsize=\"0.8\", fontsize=10, decorate=true]";
+	fh << std::endl << "	labelloc=\"t\";";
+	fh << std::endl << "	label=\"NFA\";";
+	fh << std::endl << "	rankdir=\"TL\";";
+	fh << std::endl;
+	
+	
+	// Function
+	std::map<std::string, Graph_ptr>::iterator it;
+	for(it = this->graphs.begin(); it != this->graphs.end(); ++it) {
+		Graph_ptr gp = it->second;
+		std::size_t count = gp->nodeCount();
+		
+		// Function name
+		fh << std::endl << "func" << it->first << " [shape=\"invhouse\",fillcolor=\"none\",label=\"Function " << it->first << "\"]";
+		
+		// Function -> first node
+		fh << std::endl << "func" << it->first << " -> 0";
+		
+		
+		// Nodes
+		for(std::size_t i = 0; i<count; ++i) {
+			std::shared_ptr<Node> node = gp->find(i);
+			
+			// Node
+			//FIXME command-based node shapes
+			fh << std::endl << "\t" << node->id << " [label=\"" << node->command.arg << "\"]";
+			
+			// Edges
+			if(node->successor1) {
+				fh << std::endl << "\t" << node->id << " -> " << node->successor1->id;
+				fh << (node->successor1 && node->successor2 ? " [label=\"true\"]" : "");
+			}
+			if(node->successor2) {
+				fh << std::endl << "\t" << node->id << " -> " << node->successor2->id;
+				fh << (node->successor1 && node->successor2 ? " [label=\"false\"]" : "");
+			}
+		}
+	}
+	
+	fh << std::endl << "}";
+	
+	fh.close();
+}
+
 
 
 void printNode(std::shared_ptr<Node> n)

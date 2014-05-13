@@ -30,6 +30,7 @@ class Graphs
     virtual size_t size();
     virtual void marshall(str file);
     virtual void unmarshall(str file, char delimeter);
+    void writeGraphViz(Graphs::str file);
   private:
     Node_ptr findNode(Graph_ptr adj, std::string id);
     Command getCommand(std::string& cmd);
