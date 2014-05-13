@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
   ConstantPool cp;
   std::ostringstream os;
 
-  cp.addConstant();
+  cp.addInt(32);
 }
 
 #endif

@@ -25,11 +25,11 @@ unsigned ConstantPool::addString(std::string str) {
   return 0;
 }
 
-unsigned ConstantPool::addInt(int32 i) {
+unsigned ConstantPool::addInt(int32_t i) {
   return 0;
 }
 
-unsigned ConstantPool::addLong(int64 l) {
+unsigned ConstantPool::addLong(int64_t l) {
   return 0;
 }
 
@@ -38,10 +38,6 @@ unsigned ConstantPool::addFloat(float f) {
 }
 
 unsigned ConstantPool::addDouble(double d) {
-  return 0;
-}
-
-unsigned ConstantPool::addConstant() {
   return 0;
 }
 

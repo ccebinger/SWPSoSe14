@@ -31,9 +31,9 @@ class ConstantPool {
   /**
    * Schreibt den Pool im .class-Dateiformat (Version 7) in den stream.
    */
-  unsigned addString(std::String str);
-  unsigned addInt(int32 i);
-  unsigned addLong(long64 l);
+  unsigned addString(std::string str);
+  unsigned addInt(int32_t i);
+  unsigned addLong(int64_t l);
   unsigned addFloat(float f);
   unsigned addDouble(double d);
   std::vector<char> getByteArray();
