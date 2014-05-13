@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
 	// Lexer
 	//FIXME hardcoded. must be provided by commandline
 	Lexer lexer;
-	lexer.lex("../test-cases/helloworld.txt");
+	lexer.lex("test-cases/helloworld.txt");
 	RailFunction func = lexer.functions.at(0); //FIXME hardcoded number of functions
 
 
