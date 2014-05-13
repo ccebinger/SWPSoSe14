@@ -4,7 +4,7 @@
 #include <frontend/parse/lexer.h>
 #include <frontend/Parser.h>
 #include <frontend/Graphs.h>
-
+#include <frontend/Parse_Exception.h>
 
 using namespace std;
 
@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 	Parser p(board, func.getName());
 	shared_ptr<Adjacency_list> asg = p.parseGraph();
 	if(asg == NULL) {
-		throw "Parser error " + p.errorMessage + "";
+		throw Parse_Exception(p.errorMessage);
 	}
 
 
