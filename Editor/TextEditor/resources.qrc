@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/Rails/Crossing_*.png</file>
+        <file>icons/Rails/Crossing_+.png</file>
+        <file>icons/Rails/Crossing_x.png</file>
+        <file>icons/Rails/Junction_^.png</file>
+        <file>icons/Rails/Junction_&lt;.png</file>
+        <file>icons/Rails/Junction_>.png</file>
+        <file>icons/Rails/Junction_v.png</file>
+        <file>icons/Rails/Straight_E-W.png</file>
+        <file>icons/Rails/Straight_NE-SW.png</file>
+        <file>icons/Rails/Straight_N-S.png</file>
+        <file>icons/Rails/Straight_NW-SE.png</file>
+    </qresource>
+</RCC>

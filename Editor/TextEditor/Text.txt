@@ -1,0 +1,4 @@
+This is a simple text editor.
+
+Including some	tabs
+and line breaks.
