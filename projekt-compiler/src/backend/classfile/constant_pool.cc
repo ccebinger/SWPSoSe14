@@ -21,31 +21,37 @@ ConstantPool::ConstantPool() {
 ConstantPool::~ConstantPool() {
 }
 
-unsigned ConstantPool::addString(std::string str) {
+uint16_t ConstantPool::addString(std::string str) {
+  (void) str;
   return 0;
 }
 
-unsigned ConstantPool::addInt(int32 i) {
+uint16_t ConstantPool::addInt(int32_t i) {
+  (void) i;
   return 0;
 }
 
-unsigned ConstantPool::addLong(int64 l) {
+uint16_t ConstantPool::addLong(int64_t l) {
+  (void) l;
   return 0;
 }
 
-unsigned ConstantPool::addFloat(float f) {
+uint16_t ConstantPool::addFloat(float f) {
+  (void) f;
   return 0;
 }
 
-unsigned ConstantPool::addDouble(double d) {
+uint16_t ConstantPool::addDouble(double d) {
+  (void) d;
   return 0;
 }
 
-unsigned ConstantPool::addConstant() {
-  return 0;
-}
+// Commented out, needed? --jdettlaff
+//uint16_t ConstantPool::addConstant() {
+//  return 0;
+//}
 
-std::vector<char> ConstantPool::getByteArray() {
-  std::vector<char> cp;
+std::vector<uint8_t> ConstantPool::getByteArray() {
+  std::vector<uint8_t> cp;
   return cp;
 }

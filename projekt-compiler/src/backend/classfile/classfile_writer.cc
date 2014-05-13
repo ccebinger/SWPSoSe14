@@ -9,7 +9,7 @@
 const char ClassfileWriter::kMagicNumber[] { '\xCA', '\xFE',
       '\xBA', '\xBE' };
 const char ClassfileWriter::kNotRequired[] { '\x00', '\x00' };
-const char ClassfileWriter::publicAccessFlag[] { '\x00', '\x00','\x00', '\x01' };
+const char ClassfileWriter::kPublicAccessFlag[] { '\x00', '\x00','\x00', '\x01' };
 
 std::map<ClassfileWriter::ClassfileVersion, const std::array<const char, 4>>
     ClassfileWriter::kVersionNumbers {
@@ -53,7 +53,7 @@ void ClassfileWriter::WriteConstantPool() {
 }
 
 void ClassfileWriter::WriteAccessFlags() {
-  out_.write(publicAccessFlag, sizeof(publicAccessFlag));
+  out_.write(kPublicAccessFlag, sizeof(kPublicAccessFlag));
 }
 
 void ClassfileWriter::WriteClassName() {

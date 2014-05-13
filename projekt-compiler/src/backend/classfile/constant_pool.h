@@ -16,6 +16,7 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #ifndef CONSTANT_POOL_H_
 #define CONSTANT_POOL_H_
 
+#include <cstdint>
 #include <vector>
 #include <string>
 
@@ -31,12 +32,12 @@ class ConstantPool {
   /**
    * Schreibt den Pool im .class-Dateiformat (Version 7) in den stream.
    */
-  unsigned addString(std::String str);
-  unsigned addInt(int32 i);
-  unsigned addLong(long64 l);
-  unsigned addFloat(float f);
-  unsigned addDouble(double d);
-  std::vector<char> getByteArray();
+  uint16_t addString(std::string str);
+  uint16_t addInt(int32_t i);
+  uint16_t addLong(int64_t l);
+  uint16_t addFloat(float f);
+  uint16_t addDouble(double d);
+  std::vector<uint8_t> getByteArray();
 };
 
 #endif /* CONSTANT_POOL_H_ */
