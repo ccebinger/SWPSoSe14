@@ -65,6 +65,12 @@ class ClassfileWriter {
    */
   static const char kNotRequired[];
 
+
+  /**
+   * Konstante zum Schreiben für öffentliches Konstrukt.
+   */
+  static const char publicAccessFlag[];
+
   /**
    * Schreibt 0xCAFEBABE.
    */
