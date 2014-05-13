@@ -1,9 +1,5 @@
 #include <frontend/Graphs.h>
 
-
-const std::regex Graphs::regexs[] = {std::regex("\\[[a-zA-z0-9]+\\]")};
-
-
 Graphs::Graphs()
 {
   //ctor
@@ -50,16 +46,16 @@ Graphs::Graph_map::iterator Graphs::end()
 }
 
 void Graphs::marshall(Graphs::str file) {
-	
+
 	// [function name]
 	// id ; cmd ; adj1 (true,default) ; adj2 (false, not present)
-	
+
 	//FIXME delete file
 
 
 	std::ofstream fh(file);
 	if(!fh) {
-		throw "Serialize: can't open file handle for " + file;
+		throw IO_Exception(file);
 	}
 
 
@@ -69,17 +65,17 @@ void Graphs::marshall(Graphs::str file) {
 	for(it = this->graphs.begin(); it != this->graphs.end(); ++it) {
 		Graph_ptr gp = it->second;
 		std::size_t count = gp->nodeCount();
-		
+
 		// Function name
 		fh << "[" << it->first <<"]" << std::endl;
-		
+
 		// Node
 		for(std::size_t i = 0; i<count; ++i) {
 			std::shared_ptr<Node> node = gp->find(i);
-			
+
 			// id ; Command
 			fh << node->id << ";" << node->command.arg;
-			
+
 			// Adjacency list
 			if(node->successor1) {
 				fh << ";" << node->successor1->id;
@@ -88,7 +84,7 @@ void Graphs::marshall(Graphs::str file) {
 				// Error state for Haskell-Group
 				fh << ";0";
 			}
-			
+
 			if(node->successor2) {
 				fh << ";" << node->successor2->id;
 			}
@@ -96,7 +92,7 @@ void Graphs::marshall(Graphs::str file) {
 				// Error state for Haskell-Group
 				fh << ";0";
 			}
-			
+
 			fh << std::endl << std::endl;
 		}
 
@@ -113,23 +109,38 @@ void Graphs::unmarshall(Graphs::str file, char delimiter)
   std::getline(infile, line); //must contain function name
   try
   {
-    if (!std::regex_match(line.begin(), line.end(), regexs[0]))
+    if (!containsFunctionName(line))//if (!std::regex_match(line.begin(), line.end(), regexs[0]))
       throw Invalid_Format_Exception();
 
-    while (std::regex_match(line.begin(), line.end(), regexs[0]))
+    while (containsFunctionName(line))//(std::regex_match(line.begin(), line.end(), regexs[0]))
     {
+      if (containsBeginAndEndChar(line, '[', ']'))
+      {
+        line.erase(0,1);
+        line.erase(line.length()-1, 1);
+      }
       const std::string key = line;
       put(key, unmarshall_Function(infile, line, delimiter));
       skip_empty_lines(infile, line);
     }
     infile.close();
   }
-  catch (Invalid_Format_Exception ife)
+  catch (Invalid_Format_Exception& ife)
   {
     infile.close();
     throw ife;
   }
 
+}
+
+bool Graphs::containsFunctionName(str line)
+{
+  if (line.find_first_of("[") == 0)
+  {
+    if (line.find_last_of("]") == line.length() - 1)
+    	return true;
+  }
+  return false;
 }
 
 void Graphs::skip_empty_lines(std::ifstream& infile, std::string& line)
@@ -141,7 +152,7 @@ Graphs::Graph_ptr Graphs::unmarshall_Function(std::ifstream& infile, std::string
 {
   Graphs::Graph_ptr adj(new Adjacency_list(line));
   std::cout << "Graph: " << adj->name() << std::endl;
-  while(std::getline(infile, line) && !line.empty() && !std::regex_match(line.begin(), line.end(), regexs[0]))
+  while(std::getline(infile, line) && !line.empty() && !containsFunctionName(line))
   {
     std::shared_ptr<Node> n(unmarshall_line(adj, line, delimiter));
     adj->addNode(n);
@@ -189,36 +200,34 @@ Graphs::Node_ptr Graphs::unmarshall_line(Graphs::Graph_ptr adj, std::string& lin
 Command Graphs::getCommand(std::string& cmd)
 {
   Command c;
-  std::regex regex_push("[0-9]|\\[[0-9]\\]|\\['[a-zA-Z0-9]+'\\]");
-  std::regex regex_add("a");
-  std::regex regex_call("[{][a-zA-Z0-9]+[}]");
-  if (std::regex_match(cmd.begin(), cmd.end(), regex_push))
+  int length = cmd.length();
+  if (length == 1)
   {
-    c.type = Command::Type::PUSH_CONST;
-    //std::cout << "PUSH CONST: " << Command::Type::PUSH_CONST;
-  }
-  else if (std::regex_match(cmd.begin(), cmd.end(), regex_add))
+    std::locale loc;
+    if (std::isdigit(cmd[0], loc))
+      c.type = Command::Type::PUSH_CONST;
+    else
+      c.type = static_cast<Command::Type>(cmd[0]);
+  } else if (containsBeginAndEndChar(cmd, '[', ']') ||
+             containsBeginAndEndChar(cmd, '{', '}'))
   {
-    c.type = Command::Type::ADD;
-  }
-  else if (std::regex_match(cmd.begin(), cmd.end(), regex_call))
-  {
-    c.type = Command::Type::CALL;
+    if (cmd[0] == '[')
+      c.type = Command::Type::PUSH_CONST;
+    else
+      c.type = Command::Type::CALL;
+      cmd.erase(0,1);
+      cmd.erase(cmd.length()-1, 1);
   }
   else
-  {
     c.type = Command::Type::OUTPUT;
-  }
 
-  size_t pos = cmd.find("[");
-  if (pos != std::string::npos)
-  {
-    cmd.erase(pos,1); //remove [
-    pos = cmd.find("]");
-    cmd.erase(pos, 1); //remove ]
-  }
   c.arg = cmd;
   return c;
+}
+
+bool Graphs::containsBeginAndEndChar(std::string& cmd, char begin, char end)
+{
+  return cmd.find_first_of(begin) == 0 && cmd.find_last_of(end) == cmd.length() - 1;
 }
 
 std::shared_ptr<Node> Graphs::findNode(Graphs::Graph_ptr adj, std::string id)
@@ -237,9 +246,9 @@ std::shared_ptr<Node> Graphs::findNode(Graphs::Graph_ptr adj, std::string id)
 void Graphs::writeGraphViz(Graphs::str file) {
 	std::ofstream fh(file);
 	if(!fh) {
-		throw "Graphs.writeGraphViz(): can't open file handle for " + file;
+		throw IO_Exception(file);;
 	}
-	
+
 	fh << "digraph G {";
 	fh << std::endl << "	node [shape=\"circle\",fontname=Courir,fontsize=10,style=filled,penwidth=1,fillcolor=\"#EEEEEE\",color=\"#048ABD\"]";
 	fh << std::endl << "	edge [color=\"#000000\", arrowsize=\"0.8\", fontsize=10, decorate=true]";
@@ -247,29 +256,29 @@ void Graphs::writeGraphViz(Graphs::str file) {
 	fh << std::endl << "	label=\"NFA\";";
 	fh << std::endl << "	rankdir=\"TL\";";
 	fh << std::endl;
-	
-	
+
+
 	// Function
 	std::map<std::string, Graph_ptr>::iterator it;
 	for(it = this->graphs.begin(); it != this->graphs.end(); ++it) {
 		Graph_ptr gp = it->second;
 		std::size_t count = gp->nodeCount();
-		
+
 		// Function name
 		fh << std::endl << "func" << it->first << " [shape=\"invhouse\",fillcolor=\"none\",label=\"Function " << it->first << "\"]";
-		
+
 		// Function -> first node
 		fh << std::endl << "func" << it->first << " -> 0";
-		
-		
+
+
 		// Nodes
 		for(std::size_t i = 0; i<count; ++i) {
 			std::shared_ptr<Node> node = gp->find(i);
-			
+
 			// Node
 			//FIXME command-based node shapes
 			fh << std::endl << "\t" << node->id << " [label=\"" << node->command.arg << "\"]";
-			
+
 			// Edges
 			if(node->successor1) {
 				fh << std::endl << "\t" << node->id << " -> " << node->successor1->id;
@@ -281,9 +290,9 @@ void Graphs::writeGraphViz(Graphs::str file) {
 			}
 		}
 	}
-	
+
 	fh << std::endl << "}";
-	
+
 	fh.close();
 }
 

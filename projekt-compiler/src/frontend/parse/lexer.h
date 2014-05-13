@@ -12,7 +12,7 @@
 #include <fstream>
 #include <cstring>
 #include <vector>
-
+#include <frontend/IO_Exception.h>
 
 using namespace std;
 
