@@ -4,7 +4,7 @@
 #include <frontend/parse/lexer.h>
 #include <frontend/Parser.h>
 #include <frontend/Graphs.h>
-
+#include <frontend/Parse_Exception.h>
 
 using namespace std;
 
@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
 	// Lexer
 	//FIXME hardcoded. must be provided by commandline
 	Lexer lexer;
-	lexer.lex("../test-cases/helloworld.txt");
+	lexer.lex("test-cases/helloworld.txt");
 	RailFunction func = lexer.functions.at(0); //FIXME hardcoded number of functions
 
 
@@ -26,7 +26,9 @@ int main(int argc, char *argv[]) {
 	Parser p(board, func.getName());
 	shared_ptr<Adjacency_list> asg = p.parseGraph();
 	if(asg == NULL) {
-		throw "Parser error " + p.errorMessage + "";
+    Parse_Exception pe;
+    pe.set_msg(p.errorMessage);
+		throw pe;
 	}
 
 

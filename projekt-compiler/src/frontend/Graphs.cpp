@@ -55,7 +55,9 @@ void Graphs::marshall(Graphs::str file) {
 
 	std::ofstream fh(file);
 	if(!fh) {
-		throw IO_Exception(file);
+		IO_Exception ie;
+		ie.set_file(file);
+		throw ie;
 	}
 
 
@@ -246,7 +248,9 @@ std::shared_ptr<Node> Graphs::findNode(Graphs::Graph_ptr adj, std::string id)
 void Graphs::writeGraphViz(Graphs::str file) {
 	std::ofstream fh(file);
 	if(!fh) {
-		throw IO_Exception(file);;
+		IO_Exception ie;
+		ie.set_file(file);
+		throw ie;
 	}
 
 	fh << "digraph G {";

@@ -47,8 +47,8 @@ void ClassfileWriter::WriteMagicNumber() {
 }
 
 void ClassfileWriter::WriteVersionNumber() {
-  out_.write(kVersionNumbers[version_].data(),
-             sizeof(kVersionNumbers[version_].data()));
+//  out_.write(kVersionNumbers[version_].data(),
+             //sizeof(kVersionNumbers[version_].data()));
 }
 
 void ClassfileWriter::WriteConstantPool() {
