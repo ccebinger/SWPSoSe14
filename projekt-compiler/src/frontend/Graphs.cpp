@@ -122,7 +122,7 @@ void Graphs::marshall(Graphs::str file) {
 void Graphs::unmarshall(Graphs::str file, char delimiter)
 {
   std::cout << "Deserializing " << file << std::endl;
-	
+
   std::ifstream infile(file);
   std::string line;
   std::getline(infile, line); //must contain function name
@@ -149,7 +149,7 @@ void Graphs::unmarshall(Graphs::str file, char delimiter)
     infile.close();
     throw ife;
   }
-  
+
   std::cout << "done..." << std::endl;
 }
 
@@ -203,15 +203,11 @@ Graphs::Node_ptr Graphs::unmarshall_line(Graphs::Graph_ptr adj, std::string& lin
   if (!std::getline(lineStream, cell, delimiter)) // adja
     throw Invalid_Format_Exception();
 
-  if (std::getline(lineStream, cell, ',')) {
-    n->successor1 = findNode(adj, cell);
-    if (std::getline(lineStream, cell, ','))
-    {
-      n->successor2 = findNode(adj, cell);
-    }
+  n->successor1 = findNode(adj, cell);
+  if (std::getline(lineStream, cell, delimiter))
+  {
+    n->successor2 = findNode(adj, cell);
   }
-  else
-    n->successor1 = findNode(adj, cell);
 
   printNode(n);
   return n;
