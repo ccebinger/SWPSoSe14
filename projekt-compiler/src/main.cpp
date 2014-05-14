@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 			return -1;
 		}
 		cout << "Deserializing " << srcDeserialize << endl;
-		graphs.unmarshall("out.csv", ';');
+		graphs.unmarshall(srcDeserialize, ';');
 	}
 	else if(srcFile != "") {
 		if(access(srcFile.c_str(), F_OK) == -1) {
