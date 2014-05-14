@@ -32,7 +32,7 @@ Getestet mit
 		check - is a workspace path
 
 4. Schritt: 
-	Window -> Preferences -> C/C++ -> Build -> Settings:
+	Window -> Preferences -> C/C++ -> Build -> Settings -> Tab:discovery:
 	Auswählen: CDT GCC Build-in Compiler Settings [Shared]
 	Unten in der Zeile "Command to get compiler specs:" vor "${INPUTS}" muss -std=c++11 eingefügt werden
 	Meine Zeile sieht so aus: ${COMMAND} ${FLAGS} -E -P -v -dD  -std=c++11 "${INPUTS}"

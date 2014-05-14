@@ -174,9 +174,14 @@ bool Parser::checkForValidCommandsInStraightDir(int straightX, int straightY){
 		toPush = readCharsUntil('[');
 		addToAbstractSyntaxGraph(toPush);
 		break;
+	case '@':
+		posX = straightX;
+		posY = straightY;
+		reverseDirection();
 	case '#':
 		posX = straightX;
 		posY = straightY;
+		addToAbstractSyntaxGraph("#");
 		parsingNotFinished = false;
 		break;
 	default:
@@ -257,6 +262,19 @@ void Parser::turnRight45Deg(){
 		case N: dir = NE; break;
 		case NE: dir = E; break;
 		}
+}
+
+void Parser::reverseDirection(){
+	switch(dir){
+	case E: dir = W; break;
+	case SE: dir = NW; break;
+	case S: dir = N; break;
+	case SW: dir = NE; break;
+	case W: dir = E; break;
+	case NW: dir = SE; break;
+	case N: dir = S; break;
+	case NE: dir = SW; break;
+	}
 }
 
 //int calcXOffsetStraight
