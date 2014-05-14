@@ -70,6 +70,7 @@ class Parser{
 		void initializeDirChangeMaps();
 		void turnLeft45Deg();
 		void turnRight45Deg();
+		void reverseDirection();
 		bool checkForValidCommandsInStraightDir(int,int);
 		string readCharsUntil(char);
 	public:

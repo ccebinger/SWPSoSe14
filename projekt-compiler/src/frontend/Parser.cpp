@@ -178,6 +178,7 @@ bool Parser::checkForValidCommandsInStraightDir(int straightX, int straightY){
 		posX = straightX;
 		posY = straightY;
 		reverseDirection();
+		break;
 	case '#':
 		posX = straightX;
 		posY = straightY;
