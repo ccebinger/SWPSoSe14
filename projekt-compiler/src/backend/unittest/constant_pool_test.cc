@@ -18,12 +18,22 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include <backend/classfile/constant_pool.h>
 #include <backend/classfile/classfile_writer.h>
 #include <sstream>
+#include <iostream>
 
 int main(int argc, char** argv) {
   ConstantPool cp;
   std::ostringstream os;
 
   cp.addInt(32);
+  std::vector<uint8_t> list = cp.getByteArray();
+  std::string str;
+
+  auto iter = list.begin();
+  for (; iter!= list.end(); iter++) {
+    str+=static_cast<char>(*iter);
+  }
+
+  std::cout << "test: " << str << ", length: " << list.size() << std::endl;
 }
 
 #endif
