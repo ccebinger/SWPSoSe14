@@ -141,8 +141,8 @@ void Parser::move(){
 		return;
 	}
 	if(rightIsValidRail){
-		posX = leftX;
-		posY = leftY;
+		posX = rightX;
+		posY = rightY;
 		turnRight45Deg();
 		return;
 	}
@@ -174,9 +174,14 @@ bool Parser::checkForValidCommandsInStraightDir(int straightX, int straightY){
 		toPush = readCharsUntil('[');
 		addToAbstractSyntaxGraph(toPush);
 		break;
+	case '@':
+		posX = straightX;
+		posY = straightY;
+		reverseDirection();
 	case '#':
 		posX = straightX;
 		posY = straightY;
+		addToAbstractSyntaxGraph("#");
 		parsingNotFinished = false;
 		break;
 	default:
@@ -260,6 +265,19 @@ void Parser::turnRight45Deg(){
 		}
 }
 
+void Parser::reverseDirection(){
+	switch(dir){
+	case E: dir = W; break;
+	case SE: dir = NW; break;
+	case S: dir = N; break;
+	case SW: dir = NE; break;
+	case W: dir = E; break;
+	case NW: dir = SE; break;
+	case N: dir = S; break;
+	case NE: dir = SW; break;
+	}
+}
+
 //int calcXOffsetStraight
 void Parser::initializeOffsetMaps(){
 	//x offsets
@@ -279,7 +297,7 @@ void Parser::initializeOffsetMaps(){
 	yOffsetMap[W] = offsetvalues{ {-1,-1,-1} };  //Direction: W
 	yOffsetMap[NW] = offsetvalues{ {-1,-1,0} }; //Direction: NW
 	yOffsetMap[N] = offsetvalues{ {-1,0,+1} }; //Direction: N
-	yOffsetMap[NE] = offsetvalues{ {0,-1,-1} };  //Direction: NE
+	yOffsetMap[NE] = offsetvalues{ {0,-1,+1} };  //Direction: NE
 }
 
 void Parser::initializeValidRailMap(){
