@@ -141,8 +141,8 @@ void Parser::move(){
 		return;
 	}
 	if(rightIsValidRail){
-		posX = leftX;
-		posY = leftY;
+		posX = rightX;
+		posY = rightY;
 		turnRight45Deg();
 		return;
 	}
@@ -296,7 +296,7 @@ void Parser::initializeOffsetMaps(){
 	yOffsetMap[W] = offsetvalues{ {-1,-1,-1} };  //Direction: W
 	yOffsetMap[NW] = offsetvalues{ {-1,-1,0} }; //Direction: NW
 	yOffsetMap[N] = offsetvalues{ {-1,0,+1} }; //Direction: N
-	yOffsetMap[NE] = offsetvalues{ {0,-1,-1} };  //Direction: NE
+	yOffsetMap[NE] = offsetvalues{ {0,-1,+1} };  //Direction: NE
 }
 
 void Parser::initializeValidRailMap(){
