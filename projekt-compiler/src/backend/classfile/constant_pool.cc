@@ -15,6 +15,9 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 
 #include <backend/classfile/constant_pool.h>
 
+Item::Item() {}
+Item::Item(uint16_t _index) { index = _index;}
+
 Item::Item(const Item &i) {
   index = i.index;
   type = i.type;
@@ -112,9 +115,13 @@ uint16_t ConstantPool::addInt(int32_t value) {
   key.set(value);
   // Item result = get(key);
   // if (result == NULL) {
-  //   pool.putByte(INT).putInt(value);
-  //   result = new Item(index++, key);
-  //   put(result);
+  pool.push_back(uint8_t(value>>24));
+  pool.push_back(uint8_t(value>>16));
+  pool.push_back(uint8_t(value>>8));
+  pool.push_back(uint8_t(value));
+  //result = new Item(index++, key);
+  key.index = index++;
+  put(key);
   // }
   // return index;
   return 0;
@@ -134,8 +141,7 @@ uint16_t ConstantPool::addLong(int64_t value) {
 }
 
 std::vector<uint8_t> ConstantPool::getByteArray() {
-  std::vector<uint8_t> cp;
-  return cp;
+  return pool;
 }
 
 const Item& ConstantPool::get(const Item &key) const{
@@ -148,7 +154,8 @@ const Item& ConstantPool::get(const Item &key) const{
   return i;
 }
 
-void ConstantPool::put(Item i) {
+void ConstantPool::put(const Item &i) {
+  Item item(i);
   if (index > threshold) {
     int ll = items.size();
     int nl = ll * 2 + 1;
@@ -166,9 +173,9 @@ void ConstantPool::put(Item i) {
     items = newItems;
     threshold = (int) (nl * 0.75);
   }
-  int index = i.hashCode % items.size();
-  i.next = &items[index];
-  items[index] = i;
+  int index = item.hashCode % items.size();
+  item.next = &items[index];
+  items[index] = item;
 }
 
 void ConstantPool::put122(int32_t b, int32_t s1, int32_t s2) {

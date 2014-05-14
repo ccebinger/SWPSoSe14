@@ -27,9 +27,9 @@ static const int LONG = 5;
 
 class Item {
  public:
-  Item() {}
+  Item();
   explicit Item(const Item &i);
-  explicit Item(uint16_t _index) { index = _index;}
+  explicit Item(uint16_t _index);
   Item(uint16_t _index, const Item &i);
 
   bool operator==(const Item& i);
@@ -65,7 +65,7 @@ class ConstantPool {
   std::vector<uint8_t> getByteArray();
  private:
   const Item& get(const Item &key)const;
-  void put(Item i);
+  void put(const Item &i);
   void put122(int32_t b, int32_t s1, int32_t s2);
   void put112(int32_t b1, int32_t b2, int32_t s);
 
