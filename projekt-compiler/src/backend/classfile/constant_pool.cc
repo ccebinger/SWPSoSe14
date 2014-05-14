@@ -145,12 +145,11 @@ std::vector<uint8_t> ConstantPool::getByteArray() {
 }
 
 const Item& ConstantPool::get(const Item &key) const{
-  // Item i = items[key.hashCode % items.size()];
-  // while (i != NULL && (i.type != key.type || !(key == i))) {
-  //   i = i->next;
-  // }
-  // return i;
-  Item i;
+  std::find(items.begin(), items.end(), key);
+  Item i = items[key.hashCode % items.size()];
+  while (i != NULL && (i.type != key.type || !(key == i))) {
+    i = i->next;
+  }
   return i;
 }
 
