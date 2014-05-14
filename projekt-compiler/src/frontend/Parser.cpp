@@ -203,6 +203,7 @@ void Parser::addToAbstractSyntaxGraph(string commandName){
 		abstractSyntaxGraph.reset(new Adjacency_list(graphName,node));
 	} else{
 		node->id = (*currentNode).id +1;
+		abstractSyntaxGraph->addNode(node);
 		abstractSyntaxGraph->addEdge(currentNode,node,isLeftPath);
 	}
 	currentNode = node;

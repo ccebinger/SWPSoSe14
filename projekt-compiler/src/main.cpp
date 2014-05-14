@@ -120,13 +120,7 @@ int main(int argc, char *argv[]) {
 
 	// GraphViz
 	if(dstGraphviz != "") {
-		if(access(dstGraphviz.c_str(), F_OK) == -1) {
-			cerr << "GraphViz-file not accessable, skipping: " << dstGraphviz << endl;
-		}
-		else {
-			graphs.writeGraphViz(dstGraphviz);
-		}
-
+		graphs.writeGraphViz(dstGraphviz);
 	}
 
 	// ------------------------------------------------------------------------

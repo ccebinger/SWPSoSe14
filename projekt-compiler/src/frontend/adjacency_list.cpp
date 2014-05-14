@@ -45,12 +45,11 @@ void Adjacency_list::addEdge(std::shared_ptr<Node> source, std::shared_ptr<Node>
 
 std::shared_ptr<Node> Adjacency_list::find(int id) const
 {
-  bool found = false;
   std::shared_ptr<Node> node;
-  for (size_t i = 0; i < nodeCount() && !found; i++) {
+  for (size_t i = 0; i < nodeCount(); i++) {
     if (nodes.at(i)->id == id) {
-      found = true;
       node = nodes.at(i);
+      break;
     }
   }
   return node;

@@ -65,16 +65,16 @@ void Graphs::marshall(Graphs::str file) {
 	for(it = this->graphs.begin(); it != this->graphs.end(); ++it) {
 		Graph_ptr gp = it->second;
 		std::size_t count = gp->nodeCount();
+		std::cout << "\t" << count << "nodes..." << std::endl;
 
 		// Function name
 		ofh << "[" << it->first <<"]" << std::endl;
 
 		// Node
-		for(std::size_t i = 0; i<count; ++i) {
+		for(std::size_t i = 0; i<=count; ++i) {
 			std::shared_ptr<Node> node = gp->find(i);
 
 			if(node == NULL) {
-				std::cout << "\t" << "skipping node->NULL..." << std::endl;
 				continue;
 			}
 
@@ -98,7 +98,7 @@ void Graphs::marshall(Graphs::str file) {
 				ofh << ";0";
 			}
 
-			ofh << std::endl << std::endl;
+			ofh << std::endl;
 		}
 
 	}
@@ -261,6 +261,9 @@ std::shared_ptr<Node> Graphs::findNode(Graphs::Graph_ptr adj, std::string id)
 
 
 void Graphs::writeGraphViz(Graphs::str file) {
+
+	std::cout << "Creating GraphViz dot-file" << std::endl;
+
 	std::ofstream fh(file);
 	if(!fh) {
 		IO_Exception ie;
@@ -272,7 +275,7 @@ void Graphs::writeGraphViz(Graphs::str file) {
 	fh << std::endl << "	node [shape=\"circle\",fontname=Courir,fontsize=10,style=filled,penwidth=1,fillcolor=\"#EEEEEE\",color=\"#048ABD\"]";
 	fh << std::endl << "	edge [color=\"#000000\", arrowsize=\"0.8\", fontsize=10, decorate=true]";
 	fh << std::endl << "	labelloc=\"t\";";
-	fh << std::endl << "	label=\"NFA\";";
+	fh << std::endl << "	label=\"Rail ASG\";";
 	fh << std::endl << "	rankdir=\"TL\";";
 	fh << std::endl;
 
@@ -284,14 +287,14 @@ void Graphs::writeGraphViz(Graphs::str file) {
 		std::size_t count = gp->nodeCount();
 
 		// Function name
-		fh << std::endl << "func" << it->first << " [shape=\"invhouse\",fillcolor=\"none\",label=\"Function " << it->first << "\"]";
+		fh << std::endl << "\tfunc" << it->first << " [shape=\"invhouse\",fillcolor=\"none\",label=\"Function " << it->first << "\"]";
 
 		// Function -> first node
-		fh << std::endl << "func" << it->first << " -> 0";
+		fh << std::endl << "\tfunc" << it->first << " -> 1";
 
 
 		// Nodes
-		for(std::size_t i = 0; i<count; ++i) {
+		for(std::size_t i=0; i<=count; ++i) {
 			std::shared_ptr<Node> node = gp->find(i);
 			if(node == NULL) {
 				continue;
@@ -316,6 +319,8 @@ void Graphs::writeGraphViz(Graphs::str file) {
 	fh << std::endl << "}";
 
 	fh.close();
+
+	std::cout << "GraphViz end" << std::endl;
 }
 
 
