@@ -58,11 +58,11 @@ int main(int argc, char *argv[]) {
 	// Deserialize
 	// csv-src file & accessable
 	if(srcDeserialize != "") {
-		if(access(dstSerialize.c_str(), F_OK) == -1) {
-			cerr << "Csv-File not accessble: " << dstSerialize << endl;
+		if(access(srcDeserialize.c_str(), F_OK) == -1) {
+			cerr << "Csv-File not accessble: " << srcDeserialize << endl;
 			return -1;
 		}
-
+		cout << "Deserializing " << srcDeserialize << endl;
 		graphs.unmarshall("out.csv", ';');
 	}
 	else if(srcFile != "") {
@@ -70,6 +70,7 @@ int main(int argc, char *argv[]) {
 			cerr << "Sourcefile not accessble: " << srcFile << endl;
 			return -1;
 		}
+		cout << "Reading Sourcefile " << srcFile << endl;
 
 		// Lexer
 		Lexer lexer;
@@ -113,7 +114,7 @@ int main(int argc, char *argv[]) {
 	// GraphViz
 	if(dstGraphviz != "") {
 		if(access(dstGraphviz.c_str(), F_OK) == -1) {
-			cerr << "GraphViz-file not accessable, skipping: " << dstSerialize << endl;
+			cerr << "GraphViz-file not accessable, skipping: " << dstGraphviz << endl;
 		}
 		else {
 			graphs.writeGraphViz(dstGraphviz);
