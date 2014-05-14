@@ -42,8 +42,18 @@ shared_ptr<Adjacency_list> Parser::parseGraph() {
 	dir = SE;
 	posX=0;
 	posY=-1;
+
+//	cout << "-------------------------------------"<<endl;
+//	for(int i=0; i<=50; i++) {
+//		for(int n=0; n<=50; n++) {
+//			cout << board[i][n];
+//		}
+//		cout << endl;
+//	}
+//	cout << "-------------------------------------"<<endl;
+
 	//find $, initiate pos
-	for(int i =0;i<ylen;i++){
+	for(int i =0;i<ylen;++i){
 		if(board[0][i]=='$'){
 			posY = i;
 			break;
