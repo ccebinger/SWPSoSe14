@@ -32,6 +32,8 @@ Parser::Parser(BoardContainer boardContainer,string graphName){
 	initializeOffsetMaps();
 	//allowedChars
 	initializeValidRailMap();
+	//if the train moves straight but reads a specific character the direction needs to be changesd
+	initializeDirChangeMaps();
 
 }
 
@@ -43,6 +45,7 @@ shared_ptr<Adjacency_list> Parser::parseGraph(){
 	for(int i =0;i<ylen;i++){
 		if(board[0][i]=='$'){
 			posY = i;
+			break;
 		}
 	}
 	if(posY==-1){
@@ -52,7 +55,7 @@ shared_ptr<Adjacency_list> Parser::parseGraph(){
 	parsingNotFinished = true;
 	while(parsingNotFinished){
 		cout << "I am at (" << posX << "," << posY << ")" << endl;
-		cout << "current char: " << board[posX][posY] << endl;
+		cout << "previously parsed char: " << board[posX][posY] << endl;
 		move();
 		if(errorMessage != ""){
 			cout << errorMessage <<endl;
@@ -91,6 +94,12 @@ void Parser::move(){
 			//TODO: Richtungswechsel hier implementieren
 			posX = straightX;
 			posY = straightY;
+			if(charAtStraight == leftDirChangeMap[dir]){
+				turnLeft45Deg();
+			}
+			if(charAtStraight == rightDirChangeMap[dir]){
+				turnRight45Deg();
+			}
 			return;
 		}
 		//check for other symbols that are allowed
@@ -314,5 +323,26 @@ void Parser::initializeValidRailMap(){
 	char NEStraight[4] = {'-','/','|','*'};
 	char NERight[3] = {'-','*','+'};
 	validRailMap[NE] = allowedChars{listFromArray(NEleft,3),listFromArray(NEStraight,4),listFromArray(NERight,3)};
+}
+
+void Parser::initializeDirChangeMaps(){
+	//when to turn left 45 deg
+	leftDirChangeMap[E] = '/';
+	leftDirChangeMap[SE] = '-';
+	leftDirChangeMap[S] = '\\';
+	leftDirChangeMap[SW] = '|';
+	leftDirChangeMap[W] = '/';
+	leftDirChangeMap[NW] = '-';
+	leftDirChangeMap[N] = '\\';
+	leftDirChangeMap[NE] = '|';
+	//when to turn right 45 deg
+	rightDirChangeMap[E] = '\\';
+	rightDirChangeMap[SE] = '|';
+	rightDirChangeMap[S] = '/';
+	rightDirChangeMap[SW] = '-';
+	rightDirChangeMap[W] = '\\';
+	rightDirChangeMap[NW] = '|';
+	rightDirChangeMap[N] = '/';
+	rightDirChangeMap[NE] = '-';
 }
 

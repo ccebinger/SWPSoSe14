@@ -83,7 +83,7 @@ void Lexer::lex(const string& filename) {
 		if(state == "find function") {
 			if(nextChar == '$') {
 				r.setData(offsetX, offsetY, nextChar);
-				offsetX++;
+				offsetY++;
 				state = "find first semicolon";
 			} else {
 				state = "ignore line while find function";
@@ -92,14 +92,16 @@ void Lexer::lex(const string& filename) {
 		} else if(state == "ignore line while find function") {
 			if(nextChar == '\n') {
 				state = "find function";
+				offsetY = 0;
 			}
 			continue;
 		} else if(state == "find first semicolon") {
 			if(nextChar == '\n') {
-				offsetY++;
+				offsetX++;
+				offsetY = 0;
 			} else {
 				r.setData(offsetX, offsetY, nextChar);
-				offsetX++;
+				offsetY++;
 			}
 
 			if(nextChar == '\'') {
@@ -108,10 +110,11 @@ void Lexer::lex(const string& filename) {
 			continue;
 		} else if(state == "parse function name") {
 			if(nextChar == '\n') {
-				offsetY++;
+				offsetX++;
+				offsetY = 0;
 			} else {
 				r.setData(offsetX, offsetY, nextChar);
-				offsetX++;
+				offsetY++;
 			}
 
 			if(nextChar == '\'') {
@@ -124,14 +127,16 @@ void Lexer::lex(const string& filename) {
 			continue;
 		} else if(state == "ignore line after function found") {
 			if(nextChar == '\n') {
-				offsetY++;
+				offsetX++;
+				offsetY = 0;
 			} else {
 				r.setData(offsetX, offsetY, nextChar);
-				offsetX++;
+				offsetY++;
 			}
 
 			if(nextChar == '\n') {
 				state = "parse rail";
+				offsetY = 0;
 			}
 			continue;
 		} else if(state == "parse rail") {
@@ -141,15 +146,16 @@ void Lexer::lex(const string& filename) {
 				offsetX = 0;
 				offsetY = 0;
 				r.setData(offsetX, offsetY, nextChar);
-				offsetX++;
+				offsetY++;
 				state = "find first semicolon";
 			} else if(nextChar == '\n') {
-				offsetY++;
+				offsetX++;
+				offsetY = 0;
 			} else if(nextChar == -1) {
 				break;
 			} else {
 				r.setData(offsetX, offsetY, nextChar);
-				offsetX++;
+				offsetY++;
 			}
 			continue;
 		} else {
