@@ -49,12 +49,10 @@ void Graphs::marshall(Graphs::str file) {
 
 	// [function name]
 	// id ; cmd ; adj1 (true,default) ; adj2 (false, not present)
+	std::cout << "Serializing to " << file << std::endl;
 
-	//FIXME delete file
-
-
-	std::ofstream fh(file);
-	if(!fh) {
+	std::ofstream ofh(file);
+	if(!ofh) {
 		IO_Exception ie;
 		ie.set_file(file);
 		throw ie;
@@ -69,39 +67,56 @@ void Graphs::marshall(Graphs::str file) {
 		std::size_t count = gp->nodeCount();
 
 		// Function name
-		fh << "[" << it->first <<"]" << std::endl;
+		ofh << "[" << it->first <<"]" << std::endl;
 
 		// Node
 		for(std::size_t i = 0; i<count; ++i) {
 			std::shared_ptr<Node> node = gp->find(i);
 
+			if(node == NULL) {
+				std::cout << "\t" << "skipping node->NULL..." << std::endl;
+				continue;
+			}
+
 			// id ; Command
-			fh << node->id << ";" << node->command.arg;
+			ofh << node->id << ";" << node->command.arg;
 
 			// Adjacency list
 			if(node->successor1) {
-				fh << ";" << node->successor1->id;
+				ofh << ";" << node->successor1->id;
 			}
 			else {
 				// Error state for Haskell-Group
-				fh << ";0";
+				ofh << ";0";
 			}
 
 			if(node->successor2) {
-				fh << ";" << node->successor2->id;
+				ofh << ";" << node->successor2->id;
 			}
 			else {
 				// Error state for Haskell-Group
-				fh << ";0";
+				ofh << ";0";
 			}
 
-			fh << std::endl << std::endl;
+			ofh << std::endl << std::endl;
 		}
 
 	}
 
 
-	fh.close();
+	ofh.close();
+
+
+	std::cout << "\tPrinting file:" << std::endl;
+	std::ifstream ifh(file);
+	std::string line;
+	while(std::getline(ifh, line)) {
+		std::cout << "\t\t" << line << std::endl;
+	}
+	ifh.close();
+
+
+	std::cout << "Serializing finished" << std::endl;
 }
 
 void Graphs::unmarshall(Graphs::str file, char delimiter)
@@ -278,6 +293,9 @@ void Graphs::writeGraphViz(Graphs::str file) {
 		// Nodes
 		for(std::size_t i = 0; i<count; ++i) {
 			std::shared_ptr<Node> node = gp->find(i);
+			if(node == NULL) {
+				continue;
+			}
 
 			// Node
 			//FIXME command-based node shapes

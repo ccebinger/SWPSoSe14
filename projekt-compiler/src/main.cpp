@@ -21,6 +21,17 @@ int main(int argc, char *argv[]) {
 	string dstSerialize = "";
 	string dstGraphviz = "";
 
+
+	if(argc <= 1) {
+		srcFile = "test-cases/helloworld.txt";
+		dstSerialize = "io/serialized.csv";
+		dstGraphviz = "io/graphviz.dot";
+		cout << "No parameters set, using defaults:" << endl;
+		cout << " -i " << srcFile << endl;
+		cout << " -s " << dstSerialize << endl;
+		cout << " -g " << dstGraphviz << endl;
+	}
+
 	// Parse parameters
 	for(int i=0; i<argc; ++i) {
 
@@ -50,6 +61,7 @@ int main(int argc, char *argv[]) {
 
 
 	cout << endl << "Starting..." << endl;
+
 
 
 	Graphs graphs;
@@ -83,8 +95,8 @@ int main(int argc, char *argv[]) {
 		Parser p(board, func.getName());
 		shared_ptr<Adjacency_list> asg = p.parseGraph();
 		if(asg == NULL) {
-		Parse_Exception pe;
-		pe.set_msg(p.errorMessage);
+			Parse_Exception pe;
+			pe.set_msg(p.errorMessage);
 			throw pe;
 		}
 
@@ -102,12 +114,7 @@ int main(int argc, char *argv[]) {
 
 	// Serialize
 	if(dstSerialize != "") {
-		if(access(dstSerialize.c_str(), F_OK) == -1) {
-			cerr << "File for serialization not accessable, skipping: " << dstSerialize << endl;
-		}
-		else {
-			graphs.marshall(dstSerialize);
-		}
+		graphs.marshall(dstSerialize);
 	}
 
 
