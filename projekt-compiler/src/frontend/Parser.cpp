@@ -37,7 +37,8 @@ Parser::Parser(BoardContainer boardContainer,string graphName){
 
 }
 
-shared_ptr<Adjacency_list> Parser::parseGraph(){
+shared_ptr<Adjacency_list> Parser::parseGraph() {
+	cout << "Begin parsing..." << endl;
 	dir = SE;
 	posX=0;
 	posY=-1;
@@ -54,16 +55,15 @@ shared_ptr<Adjacency_list> Parser::parseGraph(){
 	}
 	parsingNotFinished = true;
 	while(parsingNotFinished){
-		cout << "I am at (" << posX << "," << posY << ")" << endl;
-		cout << "previously parsed char: " << board[posX][posY] << endl;
+		cout << "\t@(" << posX << ", " << posY << ", " << board[posX][posY] << ")" << endl;
 		move();
 		if(errorMessage != ""){
-			cout << errorMessage <<endl;
-			cout << "parsing aborted" << endl;
+			cout << "\t" << errorMessage <<endl;
+			cout << "\tparsing aborted" << endl;
 			break;
 		}
 	}
-	cout << "finished parsing" << endl;
+	cout << "Finished parsing" << endl;
 	return abstractSyntaxGraph;
 }
 
@@ -87,7 +87,6 @@ void Parser::move(){
 	if(straightIsInBoardBounds){
 		char charAtStraight = board[straightX][straightY];
 		list<char> allowedRails = validRailMap[dir].straight;
-		cout << endl;
 		straightIsValidRail = std::find(allowedRails.begin(),allowedRails.end(),charAtStraight)!=allowedRails.end();
 		if(straightIsValidRail){
 			//if allowedRails contains charAtStraight just move forwards
@@ -192,7 +191,7 @@ bool Parser::checkForValidCommandsInStraightDir(int straightX, int straightY){
 
 void Parser::addToAbstractSyntaxGraph(string commandName){
 	//debug
-	cout << "Node creation: " << commandName << endl;
+	cout << "\tNode creation: " << commandName << endl;
 	//TODO: somehow pass this parameter since it is hardcoded for the first Milestone, this will need to change
 	bool isLeftPath = true;
 	std::shared_ptr<Node> node(new Node());
