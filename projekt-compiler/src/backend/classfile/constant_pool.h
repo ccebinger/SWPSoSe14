@@ -19,25 +19,62 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include <cstdint>
 #include <vector>
 #include <string>
+#include <functional>
 
-/**
- * Repräsentiert einen Constant Pool einer .class-Datei, Version 7.
- * Kann auf einem std::ostream ausgegeben werden, als Teil einer .class-Datei.
- */
+static const int STR = 8;
+static const int INT = 3;
+static const int LONG = 5;
+
+class Item {
+ public:
+  Item() {}
+  explicit Item(const Item &i);
+  explicit Item(uint16_t _index) { index = _index;}
+  Item(uint16_t _index, const Item &i);
+
+  bool operator==(const Item& i);
+  bool operator=(const Item& i);
+
+  void set(int32_t intVal);
+  void set(int64_t longVal);
+  void set(int32_t _type, const std::string &_strVal1,
+           const std::string &_strVal2,
+           const std::string &_strVal3);
+
+  Item *next;
+  uint16_t index;
+  int32_t type;
+  int32_t intVal;
+  int64_t longVal;
+  std::string strVal1;
+  std::string strVal2;
+  std::string strVal3;
+  int32_t hashCode;
+
+ private:
+  std::hash<std::string> hash_fn;
+};
+
 class ConstantPool {
  public:
   ConstantPool();
-  virtual ~ConstantPool();
 
-  /**
-   * Schreibt den Pool im .class-Dateiformat (Version 7) in den stream.
-   */
-  uint16_t addString(std::string str);
-  uint16_t addInt(int32_t i);
-  uint16_t addLong(int64_t l);
-  uint16_t addFloat(float f);
-  uint16_t addDouble(double d);
+  uint16_t addString(const std::string &value);
+  uint16_t addInt(int32_t value);
+  uint16_t addLong(int64_t value);
   std::vector<uint8_t> getByteArray();
+ private:
+  const Item& get(const Item &key)const;
+  void put(Item i);
+  void put122(int32_t b, int32_t s1, int32_t s2);
+  void put112(int32_t b1, int32_t b2, int32_t s);
+
+  int threshold;
+  int index;
+  Item key;
+  Item key2;
+  std::vector<Item> items;
+  std::vector<uint8_t> pool;
 };
 
 #endif /* CONSTANT_POOL_H_ */
