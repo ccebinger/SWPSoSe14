@@ -85,7 +85,12 @@ void Lexer::lex(const string& filename) {
 				r.setData(offsetX, offsetY, nextChar);
 				offsetY++;
 				state = "find first semicolon";
-			} else {
+			}
+			else if(nextChar == '\n') {
+				// Fixes a bug where $ was skipped
+				offsetY = 0;
+			}
+			else {
 				state = "ignore line while find function";
 			}
 			continue;

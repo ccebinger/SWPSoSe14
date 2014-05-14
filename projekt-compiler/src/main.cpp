@@ -1,11 +1,16 @@
 #include <iostream>
 #include <string.h>
+//#include <sys/types.h>
+#include <sys/stat.h>
+
 
 #include <frontend/parse/lexer.h>
 #include <frontend/Parser.h>
 #include <frontend/Graphs.h>
 #include <frontend/Parse_Exception.h>
 #include <unistd.h>
+
+
 
 using namespace std;
 
@@ -15,7 +20,19 @@ int main(int argc, char *argv[]) {
 	// ------------------------------------------------------------------------
 	// FRONTEND
 	// ------------------------------------------------------------------------
-
+	
+	
+	// Ensure existence of folder io
+	if(access("io", F_OK) == -1) {
+		if(mkdir("io", 0777) == -1) {
+			IO_Exception ie;
+			ie.set_file("io");
+			throw ie;
+		}
+	}
+	
+	
+	
 	string srcFile = "";
 	string srcDeserialize = "";
 	string dstSerialize = "";
@@ -74,7 +91,6 @@ int main(int argc, char *argv[]) {
 			cerr << "Csv-File not accessble: " << srcDeserialize << endl;
 			return -1;
 		}
-		cout << "Deserializing " << srcDeserialize << endl;
 		graphs.unmarshall(srcDeserialize, ';');
 	}
 	else if(srcFile != "") {

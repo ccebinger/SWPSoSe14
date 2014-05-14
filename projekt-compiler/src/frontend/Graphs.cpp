@@ -65,7 +65,7 @@ void Graphs::marshall(Graphs::str file) {
 	for(it = this->graphs.begin(); it != this->graphs.end(); ++it) {
 		Graph_ptr gp = it->second;
 		std::size_t count = gp->nodeCount();
-		std::cout << "\t" << count << "nodes..." << std::endl;
+		std::cout << "\t" << count << " nodes" << std::endl;
 
 		// Function name
 		ofh << "[" << it->first <<"]" << std::endl;
@@ -107,7 +107,7 @@ void Graphs::marshall(Graphs::str file) {
 	ofh.close();
 
 
-	std::cout << "\tPrinting file:" << std::endl;
+	std::cout << "\tResult:" << std::endl;
 	std::ifstream ifh(file);
 	std::string line;
 	while(std::getline(ifh, line)) {
@@ -116,11 +116,13 @@ void Graphs::marshall(Graphs::str file) {
 	ifh.close();
 
 
-	std::cout << "Serializing finished" << std::endl;
+	std::cout << "done..." << std::endl;
 }
 
 void Graphs::unmarshall(Graphs::str file, char delimiter)
 {
+  std::cout << "Deserializing " << file << std::endl;
+	
   std::ifstream infile(file);
   std::string line;
   std::getline(infile, line); //must contain function name
@@ -147,7 +149,8 @@ void Graphs::unmarshall(Graphs::str file, char delimiter)
     infile.close();
     throw ife;
   }
-
+  
+  std::cout << "done..." << std::endl;
 }
 
 bool Graphs::containsFunctionName(str line)
@@ -168,7 +171,7 @@ void Graphs::skip_empty_lines(std::ifstream& infile, std::string& line)
 Graphs::Graph_ptr Graphs::unmarshall_Function(std::ifstream& infile, std::string& line, char delimiter)
 {
   Graphs::Graph_ptr adj(new Adjacency_list(line));
-  std::cout << "Graph: " << adj->name() << std::endl;
+  std::cout << "\tGraph: " << adj->name() << std::endl;
   while(std::getline(infile, line) && !line.empty() && !containsFunctionName(line))
   {
     std::shared_ptr<Node> n(unmarshall_line(adj, line, delimiter));
@@ -320,14 +323,14 @@ void Graphs::writeGraphViz(Graphs::str file) {
 
 	fh.close();
 
-	std::cout << "GraphViz end" << std::endl;
+	std::cout << "done..." << std::endl;
 }
 
 
 
 void printNode(std::shared_ptr<Node> n)
 {
-  std::cout << "Node: " << n->id
+  std::cout << "\t\tNode: " << n->id
             << " Cmd Type:" << n->command.type << " Arg: " << n->command.arg
             << " Succ 1: " << n->successor1->id << std::endl;
 }
