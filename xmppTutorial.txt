@@ -32,3 +32,14 @@ Nach dem Start von Pidgin:
         Passwort:      -.-
         Lokaler Alias: Sinnvoll wäre euer Vorname (ist nur für die lokale Darstellung...)
 	ACHTUNG:       Häkchen SETZEN für "Dieses neue Konto auf dem Server anlegen"
+
+
+Chat-Gruppe hinzufügen:
+Pidgin -> Menü -> Buddys -> Chat hinzufügen
+	Raum: swp
+	Server: conference.jabber.ccc.de
+	pw: 123
+	Unten beide Häkchen setzen
+
+
+
