@@ -20,8 +20,8 @@ int main(int argc, char *argv[]) {
 	// ------------------------------------------------------------------------
 	// FRONTEND
 	// ------------------------------------------------------------------------
-	
-	
+
+
 	// Ensure existence of folder io
 	if(access("io", F_OK) == -1) {
 		if(mkdir("io", 0777) == -1) {
@@ -30,9 +30,9 @@ int main(int argc, char *argv[]) {
 			throw ie;
 		}
 	}
-	
-	
-	
+
+
+
 	string srcFile = "";
 	string srcDeserialize = "";
 	string dstSerialize = "";
@@ -142,7 +142,6 @@ int main(int argc, char *argv[]) {
 	// ------------------------------------------------------------------------
 	// BACKEND
 	// ------------------------------------------------------------------------
-
 
 
 

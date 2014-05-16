@@ -5,6 +5,10 @@
 #include <iostream>
 #include <common/ast/ast.h>
 
+/**
+ *
+ * @author Christopher Zell <Zelldon91@googlemail.com>
+ */
 class Adjacency_list : public Graph {
  private:
   typedef std::vector<std::shared_ptr<Node>> NODES;

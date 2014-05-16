@@ -1,0 +1,16 @@
+UTPUT_DIRECTORY      = doc
+
+INPUT                 = frontend frontend/parse backend backend/classfile backend/codegen common/ast  
+
+
+EXTRACT_ALL           = YES
+
+
+
+
+HAVE_DOT              = YES
+
+
+
+CALL_GRAPH            = YES
+
