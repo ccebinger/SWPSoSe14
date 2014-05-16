@@ -32,7 +32,7 @@ class Item {
   explicit Item(uint16_t _index);
   Item(uint16_t _index, const Item &i);
 
-  bool operator==(const Item& i);
+  bool operator==(const Item& i)const;
   bool operator=(const Item& i);
 
   void set(int32_t intVal);
@@ -64,7 +64,7 @@ class ConstantPool {
   uint16_t addLong(int64_t value);
   std::vector<uint8_t> getByteArray();
  private:
-  const Item& get(const Item &key)const;
+  uint16_t get(const Item &key)const;
   void put(const Item &i);
   void put122(int32_t b, int32_t s1, int32_t s2);
   void put112(int32_t b1, int32_t b2, int32_t s);

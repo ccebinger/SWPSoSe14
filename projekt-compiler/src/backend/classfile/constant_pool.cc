@@ -14,10 +14,25 @@ You should have received a copy of the GNU General Public License along with thi
 program; if not, see <http://www.gnu.org/licenses/>.*/
 
 #include <backend/classfile/constant_pool.h>
+#include <algorithm>
 
-Item::Item() {}
+////////////////////////////////////////////////////////////////////////
+/// default constructor does nothing, bud is needed because we have other
+//  constructor
+////////////////////////////////////////////////////////////////////////
+Item::Item() {
+}
+
+////////////////////////////////////////////////////////////////////////
+/// constructor with defined index
+/// \param index internal index of item
+////////////////////////////////////////////////////////////////////////
 Item::Item(uint16_t _index) { index = _index;}
 
+////////////////////////////////////////////////////////////////////////
+/// copy constructor
+/// \param i item with values to set to
+////////////////////////////////////////////////////////////////////////
 Item::Item(const Item &i) {
   index = i.index;
   type = i.type;
@@ -29,6 +44,11 @@ Item::Item(const Item &i) {
   hashCode = i.hashCode;
 }
 
+////////////////////////////////////////////////////////////////////////
+/// constructor
+/// \param _index internal index
+/// \param i item to set to
+////////////////////////////////////////////////////////////////////////
 Item::Item(uint16_t _index, const Item &i) {
   index = _index;
   type = i.type;
@@ -40,7 +60,11 @@ Item::Item(uint16_t _index, const Item &i) {
   hashCode = i.hashCode;
 }
 
-bool Item::operator==(const Item& i) {
+////////////////////////////////////////////////////////////////////////
+/// compare operator implementation
+/// \param i copmared item
+////////////////////////////////////////////////////////////////////////
+bool Item::operator==(const Item& i)const {
   switch (type) {
     case STR:
       return i.strVal1 == strVal1;
@@ -54,6 +78,10 @@ bool Item::operator==(const Item& i) {
   }
 }
 
+////////////////////////////////////////////////////////////////////////
+/// copy operator
+/// \param i item to be copied
+////////////////////////////////////////////////////////////////////////
 bool Item::operator=(const Item& i) {
   index = i.index;
   type = i.type;
@@ -66,21 +94,37 @@ bool Item::operator=(const Item& i) {
   return true;
 }
 
-
+////////////////////////////////////////////////////////////////////////
+/// set item to integer value
+/// \param _intVal integer value
+////////////////////////////////////////////////////////////////////////
 void Item::set(int32_t _intVal) {
   type = INT;
   intVal = _intVal;
   hashCode = 0x7FFFFFFF & (type + _intVal);
 }
 
+////////////////////////////////////////////////////////////////////////
+/// set item to long value
+/// \param _longVal long integer value
+////////////////////////////////////////////////////////////////////////
 void Item::set(int64_t _longVal) {
   type = LONG;
   longVal = _longVal;
   hashCode = 0x7FFFFFFF & (type + (int32_t) _longVal);
 }
 
-void Item::set(int32_t  _type, const std::string &_strVal1, const std::string &_strVal2,
-         const std::string &_strVal3) {
+////////////////////////////////////////////////////////////////////////
+/// set item to string value
+/// \param _type type of the item
+/// \param _strVal1  first part of the value of this item.
+/// \param _strVal2  second part of the value of this item.
+/// \param _strVal3  third part of the value of this item.
+////////////////////////////////////////////////////////////////////////
+void Item::set(int32_t  _type,
+               const std::string &_strVal1,
+               const std::string &_strVal2,
+               const std::string &_strVal3) {
   type = _type;
   strVal1 = _strVal1;
   strVal2 = _strVal2;
@@ -96,9 +140,17 @@ void Item::set(int32_t  _type, const std::string &_strVal1, const std::string &_
   }
 }
 
-ConstantPool::ConstantPool():index(1),key(0),key2(0),items(256) {
+////////////////////////////////////////////////////////////////////////
+/// default constructor
+////////////////////////////////////////////////////////////////////////
+ConstantPool::ConstantPool():index(1), key(0), key2(0), items(256) {
 }
 
+////////////////////////////////////////////////////////////////////////
+/// method to put a string into the pool
+/// \param value value to add to pool
+/// \return index of the string in pool
+////////////////////////////////////////////////////////////////////////
 uint16_t ConstantPool::addString(const std::string &value) {
   key2.set(STR, value, "", "");
   // Item result = get(key2);
@@ -111,6 +163,11 @@ uint16_t ConstantPool::addString(const std::string &value) {
   return 0;
 }
 
+////////////////////////////////////////////////////////////////////////
+/// method to put a integer into the pool
+/// \param value value to add to pool
+/// \return index of the integer in the pool
+////////////////////////////////////////////////////////////////////////
 uint16_t ConstantPool::addInt(int32_t value) {
   key.set(value);
   // Item result = get(key);
@@ -127,6 +184,11 @@ uint16_t ConstantPool::addInt(int32_t value) {
   return 0;
 }
 
+////////////////////////////////////////////////////////////////////////
+/// method to put a long int into the pool
+/// \param value value to add to pool
+/// \return index of the long intenger in the pool
+////////////////////////////////////////////////////////////////////////
 uint16_t ConstantPool::addLong(int64_t value) {
   key.set(value);
   // Item result = get(key);
@@ -140,19 +202,31 @@ uint16_t ConstantPool::addLong(int64_t value) {
   return 0;
 }
 
+////////////////////////////////////////////////////////////////////////
+/// returns constant pool as a byte array
+/// \return the bytecode
+////////////////////////////////////////////////////////////////////////
 std::vector<uint8_t> ConstantPool::getByteArray() {
   return pool;
 }
 
-const Item& ConstantPool::get(const Item &key) const{
-  std::find(items.begin(), items.end(), key);
-  Item i = items[key.hashCode % items.size()];
-  while (i != NULL && (i.type != key.type || !(key == i))) {
-    i = i->next;
+////////////////////////////////////////////////////////////////////////
+/// return the constant pool index of a item
+/// \param i item to find in pool
+/// \return index of item or zero if not in pool
+////////////////////////////////////////////////////////////////////////
+uint16_t ConstantPool::get(const Item &key) const {
+  auto i = std::find(items.begin(), items.end(), key);
+  while (i != items.end() && (i->type != key.type || !(key == *i))) {
+    //(*i).set(i->next);
   }
-  return i;
+  return i->index;
 }
 
+////////////////////////////////////////////////////////////////////////
+/// put item into pool
+/// \param i value
+////////////////////////////////////////////////////////////////////////
 void ConstantPool::put(const Item &i) {
   Item item(i);
   if (index > threshold) {
@@ -177,6 +251,12 @@ void ConstantPool::put(const Item &i) {
   items[index] = item;
 }
 
+////////////////////////////////////////////////////////////////////////
+/// Puts one byte and two shorts into the constant pool.
+/// \param b a byte
+/// \param s1 a short
+/// \param s2 a short
+////////////////////////////////////////////////////////////////////////
 void ConstantPool::put122(int32_t b, int32_t s1, int32_t s2) {
   pool.push_back(b);
   pool.push_back(s1>>8);
@@ -185,6 +265,12 @@ void ConstantPool::put122(int32_t b, int32_t s1, int32_t s2) {
   pool.push_back(s2);
 }
 
+////////////////////////////////////////////////////////////////////////
+/// Puts two bytes and one short into the constant pool.
+/// \param b1 a byte
+/// \param b2 a byte
+/// \param s a short
+////////////////////////////////////////////////////////////////////////
 void ConstantPool::put112(int32_t b1, int32_t b2, int32_t s) {
   pool.push_back(b1);
   pool.push_back(b2);
