@@ -1,0 +1,94 @@
+\hypertarget{classBackend}{\section{Backend Class Reference}
+\label{classBackend}\index{Backend@{Backend}}
+}
+
+
+{\ttfamily \#include $<$backend.\-h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{classBackend_a0e8eebed86bd15218f21b068f6c229f2}{Status} \{ \hyperlink{classBackend_a0e8eebed86bd15218f21b068f6c229f2a85c3bbdd79e0c08753992d41f8a7d25c}{S\-U\-C\-C\-E\-S\-S}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \hyperlink{classBackend_a0e8eebed86bd15218f21b068f6c229f2}{Backend\-::\-Status} \hyperlink{classBackend_aa3ad5ea4b71dac952445fbe3762b4d88}{Generate} (const std\-::string \&filename, std\-::ostream \&code\-Out)
+\item 
+static \hyperlink{classBackend_a0e8eebed86bd15218f21b068f6c229f2}{Backend\-::\-Status} \hyperlink{classBackend_a33fce3d0ea3e4b7038ffb0dbf5503a27}{Generate} (\hyperlink{classGraphs}{Graphs} \&graphs, std\-::ostream \&code\-Out)
+\item 
+static std\-::string \hyperlink{classBackend_a72370277408a5586b5923bc56433b815}{Error\-Message} (\hyperlink{classBackend_a0e8eebed86bd15218f21b068f6c229f2}{Backend\-::\-Status} status)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Die Klasse stellt statische Methoden für das Übersetzen des Graphen in Target-\/\-Code zur Verfügung. 
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{classBackend_a0e8eebed86bd15218f21b068f6c229f2}{\index{Backend@{Backend}!Status@{Status}}
+\index{Status@{Status}!Backend@{Backend}}
+\subsubsection[{Status}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf Backend\-::\-Status}}}\label{classBackend_a0e8eebed86bd15218f21b068f6c229f2}
+Die möglichen 'Exit Codes' des Backends. \begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{S\-U\-C\-C\-E\-S\-S@{S\-U\-C\-C\-E\-S\-S}!Backend@{Backend}}\index{Backend@{Backend}!S\-U\-C\-C\-E\-S\-S@{S\-U\-C\-C\-E\-S\-S}}\item[{\em 
+\hypertarget{classBackend_a0e8eebed86bd15218f21b068f6c229f2a85c3bbdd79e0c08753992d41f8a7d25c}{S\-U\-C\-C\-E\-S\-S}\label{classBackend_a0e8eebed86bd15218f21b068f6c229f2a85c3bbdd79e0c08753992d41f8a7d25c}
+}]Erfolgreiche Übersetzung. \end{description}
+\end{Desc}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classBackend_a72370277408a5586b5923bc56433b815}{\index{Backend@{Backend}!Error\-Message@{Error\-Message}}
+\index{Error\-Message@{Error\-Message}!Backend@{Backend}}
+\subsubsection[{Error\-Message}]{\setlength{\rightskip}{0pt plus 5cm}std\-::string Backend\-::\-Error\-Message (
+\begin{DoxyParamCaption}
+\item[{{\bf Backend\-::\-Status}}]{status}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}}\label{classBackend_a72370277408a5586b5923bc56433b815}
+Gibt eine beschreibende Fehlernachricht zu einem \hyperlink{classBackend_a0e8eebed86bd15218f21b068f6c229f2}{Backend\-::\-Status} zurück. Ist der status Backend\-::\-Status\-::\-S\-U\-C\-C\-E\-S\-S, wird ein leerer String zurückgegeben. Typische Nutzung dieser Methode\-: if (status != Backend\-::\-Status\-::\-S\-U\-C\-C\-E\-S\-S) \{ std\-::cerr $<$$<$ Backend\-::\-Error\-Message(status) $<$$<$ std\-::endl; \} \hypertarget{classBackend_aa3ad5ea4b71dac952445fbe3762b4d88}{\index{Backend@{Backend}!Generate@{Generate}}
+\index{Generate@{Generate}!Backend@{Backend}}
+\subsubsection[{Generate}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Backend\-::\-Status} Backend\-::\-Generate (
+\begin{DoxyParamCaption}
+\item[{const std\-::string \&}]{filename, }
+\item[{std\-::ostream \&}]{code\-Out}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}}\label{classBackend_aa3ad5ea4b71dac952445fbe3762b4d88}
+Übersetzt den serialisierten Graphen aus graph\-In (Dateiname) in Target-\/\-Code, der auf code\-Out geschrieben wird. Gibt je nach Ergebnis einen \hyperlink{classBackend_a0e8eebed86bd15218f21b068f6c229f2}{Backend\-::\-Status} zurück. 
+
+Here is the call graph for this function\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classBackend_aa3ad5ea4b71dac952445fbe3762b4d88_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{classBackend_a33fce3d0ea3e4b7038ffb0dbf5503a27}{\index{Backend@{Backend}!Generate@{Generate}}
+\index{Generate@{Generate}!Backend@{Backend}}
+\subsubsection[{Generate}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Backend\-::\-Status} Backend\-::\-Generate (
+\begin{DoxyParamCaption}
+\item[{{\bf Graphs} \&}]{graphs, }
+\item[{std\-::ostream \&}]{code\-Out}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}}\label{classBackend_a33fce3d0ea3e4b7038ffb0dbf5503a27}
+Übersetzt den Graphen aus graph in Target-\/\-Code, der auf code\-Out geschrieben wird. Gibt je nach Ergebnis einen \hyperlink{classBackend_a0e8eebed86bd15218f21b068f6c229f2}{Backend\-::\-Status} zurück. 
+
+Here is the call graph for this function\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classBackend_a33fce3d0ea3e4b7038ffb0dbf5503a27_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+backend/\hyperlink{backend_8h}{backend.\-h}\item 
+backend/\hyperlink{backend_8cc}{backend.\-cc}\end{DoxyCompactItemize}

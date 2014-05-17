@@ -1,0 +1,74 @@
+\hypertarget{classClassfileWriter}{\section{Classfile\-Writer Class Reference}
+\label{classClassfileWriter}\index{Classfile\-Writer@{Classfile\-Writer}}
+}
+
+
+{\ttfamily \#include $<$classfile\-\_\-writer.\-h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{classClassfileWriter_ad1f8ad574818eb3e851f3c99ba6cc8f2}{Classfile\-Version} \{ \hyperlink{classClassfileWriter_ad1f8ad574818eb3e851f3c99ba6cc8f2af3b45f7e6d21c22615772ad808043633}{J\-A\-V\-A\-\_\-7}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classClassfileWriter_afbc090a3af8847ec859093e33ddd28e8}{Classfile\-Writer} (\hyperlink{classClassfileWriter_ad1f8ad574818eb3e851f3c99ba6cc8f2}{Classfile\-Version} version, const \hyperlink{classConstantPool}{Constant\-Pool} \&constant\-Pool, const std\-::map$<$ std\-::string, std\-::vector$<$ char $>$ \& $>$ code\-Functions, std\-::ostream \&out)
+\item 
+virtual \hyperlink{classClassfileWriter_ab72a8243f08eb03cbfdd517121d2f1d2}{$\sim$\-Classfile\-Writer} ()
+\item 
+void \hyperlink{classClassfileWriter_a578ae6492320adc125ec2aaf13ad65c6}{Write\-Classfile} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Klasse zum Schreiben einer einfachen .class-\/\-Datei (Nur Methoden, keine Fields, keine Vererbung) auf einen Stream. 
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{classClassfileWriter_ad1f8ad574818eb3e851f3c99ba6cc8f2}{\index{Classfile\-Writer@{Classfile\-Writer}!Classfile\-Version@{Classfile\-Version}}
+\index{Classfile\-Version@{Classfile\-Version}!ClassfileWriter@{Classfile\-Writer}}
+\subsubsection[{Classfile\-Version}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf Classfile\-Writer\-::\-Classfile\-Version}}}\label{classClassfileWriter_ad1f8ad574818eb3e851f3c99ba6cc8f2}
+Die Versionsnummer der zu schreibenden .class-\/\-Datei. \begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{J\-A\-V\-A\-\_\-7@{J\-A\-V\-A\-\_\-7}!Classfile\-Writer@{Classfile\-Writer}}\index{Classfile\-Writer@{Classfile\-Writer}!J\-A\-V\-A\-\_\-7@{J\-A\-V\-A\-\_\-7}}\item[{\em 
+\hypertarget{classClassfileWriter_ad1f8ad574818eb3e851f3c99ba6cc8f2af3b45f7e6d21c22615772ad808043633}{J\-A\-V\-A\-\_\-7}\label{classClassfileWriter_ad1f8ad574818eb3e851f3c99ba6cc8f2af3b45f7e6d21c22615772ad808043633}
+}]\end{description}
+\end{Desc}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classClassfileWriter_afbc090a3af8847ec859093e33ddd28e8}{\index{Classfile\-Writer@{Classfile\-Writer}!Classfile\-Writer@{Classfile\-Writer}}
+\index{Classfile\-Writer@{Classfile\-Writer}!ClassfileWriter@{Classfile\-Writer}}
+\subsubsection[{Classfile\-Writer}]{\setlength{\rightskip}{0pt plus 5cm}Classfile\-Writer\-::\-Classfile\-Writer (
+\begin{DoxyParamCaption}
+\item[{{\bf Classfile\-Version}}]{version, }
+\item[{const {\bf Constant\-Pool} \&}]{constant\-Pool, }
+\item[{const std\-::map$<$ std\-::string, std\-::vector$<$ char $>$ \& $>$}]{code\-Functions, }
+\item[{std\-::ostream \&}]{out}
+\end{DoxyParamCaption}
+)}}\label{classClassfileWriter_afbc090a3af8847ec859093e33ddd28e8}
+Erstellt einen neuen Writer zum Schreiben einer .class-\/\-Datei der Version 'version' mit dem \hyperlink{classConstantPool}{Constant\-Pool} 'constant\-Pool' auf den Stream 'out'. Der Bytecode wird in der map 'code\-Functions' gehalten, Map Funktionsname -\/$>$ Bytecode. \hypertarget{classClassfileWriter_ab72a8243f08eb03cbfdd517121d2f1d2}{\index{Classfile\-Writer@{Classfile\-Writer}!$\sim$\-Classfile\-Writer@{$\sim$\-Classfile\-Writer}}
+\index{$\sim$\-Classfile\-Writer@{$\sim$\-Classfile\-Writer}!ClassfileWriter@{Classfile\-Writer}}
+\subsubsection[{$\sim$\-Classfile\-Writer}]{\setlength{\rightskip}{0pt plus 5cm}Classfile\-Writer\-::$\sim$\-Classfile\-Writer (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classClassfileWriter_ab72a8243f08eb03cbfdd517121d2f1d2}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classClassfileWriter_a578ae6492320adc125ec2aaf13ad65c6}{\index{Classfile\-Writer@{Classfile\-Writer}!Write\-Classfile@{Write\-Classfile}}
+\index{Write\-Classfile@{Write\-Classfile}!ClassfileWriter@{Classfile\-Writer}}
+\subsubsection[{Write\-Classfile}]{\setlength{\rightskip}{0pt plus 5cm}void Classfile\-Writer\-::\-Write\-Classfile (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classClassfileWriter_a578ae6492320adc125ec2aaf13ad65c6}
+Schreibt die durch diesen Writer festgelegte .class-\/\-Datei auf den Ausgabestream. 
+
+The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+backend/classfile/\hyperlink{classfile__writer_8h}{classfile\-\_\-writer.\-h}\item 
+backend/classfile/\hyperlink{classfile__writer_8cc}{classfile\-\_\-writer.\-cc}\end{DoxyCompactItemize}

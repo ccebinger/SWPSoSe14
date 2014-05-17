@@ -1,0 +1,79 @@
+\hypertarget{Parser_8h}{\section{frontend/\-Parser.h File Reference}
+\label{Parser_8h}\index{frontend/\-Parser.\-h@{frontend/\-Parser.\-h}}
+}
+{\ttfamily \#include $<$list$>$}\\*
+{\ttfamily \#include $<$map$>$}\\*
+{\ttfamily \#include $<$string$>$}\\*
+{\ttfamily \#include $<$algorithm$>$}\\*
+{\ttfamily \#include $<$iostream$>$}\\*
+{\ttfamily \#include $<$sstream$>$}\\*
+{\ttfamily \#include $<$frontend/adjacency\-\_\-list.\-h$>$}\\*
+Include dependency graph for Parser.\-h\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{Parser_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=180pt]{Parser_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structoffsetvalues}{offsetvalues}
+\item 
+struct \hyperlink{structallowedChars}{allowed\-Chars}
+\item 
+struct \hyperlink{structBoardContainer}{Board\-Container}
+\item 
+class \hyperlink{classParser}{Parser}
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aa}{Direction} \{ \\*
+\hyperlink{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaab199e021998d49b1f09338d8b9b18ecb}{E} =0, 
+\hyperlink{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaa61c600c17d14bd4db73433ddbb8491e8}{S\-E} =1, 
+\hyperlink{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaaf1ce01387d2348f8b858721a7db81670}{S} =2, 
+\hyperlink{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaa247b880fc48dc1c74961ba58ae0f68a2}{S\-W} =3, 
+\\*
+\hyperlink{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaab722ceeb601c72cd78fbd35f3581fdf7}{W} =4, 
+\hyperlink{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaa9b2eeb9b33247edbc638099452c6b46f}{N\-W} =5, 
+\hyperlink{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaa2c63acbe79d9f41ba6bb7766e9c37702}{N} =6, 
+\hyperlink{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaa4d3f872f5054b256b01ee4f2c8cf51db}{N\-E} =7
+ \}
+\end{DoxyCompactItemize}
+
+
+\subsection{Enumeration Type Documentation}
+\hypertarget{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aa}{\index{Parser.\-h@{Parser.\-h}!Direction@{Direction}}
+\index{Direction@{Direction}!Parser.h@{Parser.\-h}}
+\subsubsection[{Direction}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf Direction}}}\label{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aa}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{E@{E}!Parser.\-h@{Parser.\-h}}\index{Parser.\-h@{Parser.\-h}!E@{E}}\item[{\em 
+\hypertarget{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaab199e021998d49b1f09338d8b9b18ecb}{E}\label{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaab199e021998d49b1f09338d8b9b18ecb}
+}]\index{S\-E@{S\-E}!Parser.\-h@{Parser.\-h}}\index{Parser.\-h@{Parser.\-h}!S\-E@{S\-E}}\item[{\em 
+\hypertarget{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaa61c600c17d14bd4db73433ddbb8491e8}{S\-E}\label{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaa61c600c17d14bd4db73433ddbb8491e8}
+}]\index{S@{S}!Parser.\-h@{Parser.\-h}}\index{Parser.\-h@{Parser.\-h}!S@{S}}\item[{\em 
+\hypertarget{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaaf1ce01387d2348f8b858721a7db81670}{S}\label{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaaf1ce01387d2348f8b858721a7db81670}
+}]\index{S\-W@{S\-W}!Parser.\-h@{Parser.\-h}}\index{Parser.\-h@{Parser.\-h}!S\-W@{S\-W}}\item[{\em 
+\hypertarget{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaa247b880fc48dc1c74961ba58ae0f68a2}{S\-W}\label{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaa247b880fc48dc1c74961ba58ae0f68a2}
+}]\index{W@{W}!Parser.\-h@{Parser.\-h}}\index{Parser.\-h@{Parser.\-h}!W@{W}}\item[{\em 
+\hypertarget{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaab722ceeb601c72cd78fbd35f3581fdf7}{W}\label{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaab722ceeb601c72cd78fbd35f3581fdf7}
+}]\index{N\-W@{N\-W}!Parser.\-h@{Parser.\-h}}\index{Parser.\-h@{Parser.\-h}!N\-W@{N\-W}}\item[{\em 
+\hypertarget{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaa9b2eeb9b33247edbc638099452c6b46f}{N\-W}\label{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaa9b2eeb9b33247edbc638099452c6b46f}
+}]\index{N@{N}!Parser.\-h@{Parser.\-h}}\index{Parser.\-h@{Parser.\-h}!N@{N}}\item[{\em 
+\hypertarget{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaa2c63acbe79d9f41ba6bb7766e9c37702}{N}\label{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaa2c63acbe79d9f41ba6bb7766e9c37702}
+}]\index{N\-E@{N\-E}!Parser.\-h@{Parser.\-h}}\index{Parser.\-h@{Parser.\-h}!N\-E@{N\-E}}\item[{\em 
+\hypertarget{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaa4d3f872f5054b256b01ee4f2c8cf51db}{N\-E}\label{Parser_8h_a224b9163917ac32fc95a60d8c1eec3aaa4d3f872f5054b256b01ee4f2c8cf51db}
+}]\end{description}
+\end{Desc}

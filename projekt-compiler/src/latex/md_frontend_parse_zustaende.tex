@@ -1,0 +1,39 @@
+\char`\"{}find function\char`\"{}\-:
+\begin{DoxyItemize}
+\item \$ muss als erstes Zeichen am Zeilenanfang stehen
+\item davor dürfen beliebige Zeichen kommen (auch \$, wenn es nicht am Zeilenanfang steht)
+\item wenn nicht \$ gelesen wird\-: wechsele in Zustand \char`\"{}ignore line while find function\char`\"{}
+\item wenn \$ gelesen\-: wechsele nach \char`\"{}find first semicolon\char`\"{}
+\end{DoxyItemize}
+
+\char`\"{}ignore line while find function\char`\"{}\-:
+\begin{DoxyItemize}
+\item überspringe jedes Zeichen, außer Zeilenumbruch ('\par
+')
+\item bei Zeilenumbruch, wechsele in Zustand \char`\"{}find function\char`\"{}
+\end{DoxyItemize}
+
+\char`\"{}find first semicolon\char`\"{}\-:
+\begin{DoxyItemize}
+\item lies solange, bis ' geparsed wird, dann wechsele nach \char`\"{}parse function name\char`\"{}
+\end{DoxyItemize}
+
+\char`\"{}parse function name\char`\"{}\-:
+\begin{DoxyItemize}
+\item lies solange, bis ' geparsed wird, und speichere die gelesenen Zeichen
+\item bei ' wechsele nach \char`\"{}ignore line after function found\char`\"{}
+\end{DoxyItemize}
+
+\char`\"{}ignore line after function found\char`\"{}\-:
+\begin{DoxyItemize}
+\item überspringe jedes Zeichen, außer Zeilenumbruch ('\par
+')
+\item bei Zeilenumbruch, wechsele in Zustand \char`\"{}parse rail\char`\"{}
+\end{DoxyItemize}
+
+\char`\"{}parse rail\char`\"{}\-:
+\begin{DoxyItemize}
+\item parse alle Zeichen und speichere sie
+\item wenn \$ gelesen wird, wechsele zu \char`\"{}find first semicolon\char`\"{} (neue Funktion gefunden)
+\item wenn -\/1 gelesen wird (end of file), brich ab 
+\end{DoxyItemize}

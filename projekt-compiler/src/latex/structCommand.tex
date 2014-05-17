@@ -1,0 +1,140 @@
+\hypertarget{structCommand}{\section{Command Struct Reference}
+\label{structCommand}\index{Command@{Command}}
+}
+
+
+{\ttfamily \#include $<$ast.\-h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1}{Type} \{ \\*
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1aa9601dbf610b9d23ee4b8b7bd378175e}{P\-U\-S\-H\-\_\-\-C\-O\-N\-S\-T} = 0, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1ab8db68a1487bc3f5dc3a9289e6a3b761}{C\-A\-L\-L} = 1, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a6fbf52940c97a769906201ea768361c6}{O\-U\-T\-P\-U\-T} = 111, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a1189491a065b6e6ca344cad213b618ff}{A\-D\-D} = 97, 
+\\*
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a7e3944da56a06f7078ade3e53cfbb215}{S\-U\-B} = 115, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a7b47a91ef35876e3a36f215ca67cc52a}{M\-U\-L\-T} = 109, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a4f9f14e8f597144f5581e4c11717f996}{D\-I\-V} = 100, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1aa5385a05c6b3340821284c63596512fb}{M\-O\-D} = 114, 
+\\*
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1ae881b6fa7ec6fcd5f5e48de9a5e47357}{C\-U\-T} = 99, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1aba5756bd7d42e6770814802b30748cb4}{A\-P\-P\-E\-N\-D} = 112, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a48428a4d51c5dde2f606aac5b8fc8c8e}{S\-I\-Z\-E} = 122, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1aba36ce21d1a872f0eb69fbb2ecccb872}{N\-I\-L} = 110, 
+\\*
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a230daeb879328f6570fc0137a8ba8b8a}{L\-I\-S\-T\-\_\-\-C\-O\-N\-S} = 58, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a20bc54e7f190aca7865d4dc27f2b6489}{L\-I\-S\-T\-\_\-\-B\-R\-E\-A\-K\-U\-P} = 126, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a9b0bf72679374cdefb0c3f0c1965faef}{F\-A\-L\-S\-E} = 102, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a1e91eb5b37ab7cc6f9ff0e773e8a47a5}{G\-R\-E\-A\-T\-E\-R} = 103, 
+\\*
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1ac7cb579e3efb508f2ce9162c7fc4f894}{E\-Q\-U\-A\-L} = 113, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1af4a87f4688672121e2c76e20f4360391}{T\-R\-U\-E} = 116, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a6266090f9a24e8780fcc58bbd3f3e433}{R\-E\-F\-L\-E\-C\-T\-O\-R} = 64, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a3972753fd8c0c1d6d908c9691e740f4f}{S\-T\-A\-R\-T} = 36, 
+\\*
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1af28ab76d25c104e01b8325a337558c21}{F\-I\-N\-I\-S\-H} = 35, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a7ac408d60d087c6290f1e5eb7c16ba87}{L\-A\-M\-B\-D\-A} = 38, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a4bea7fb36a4d87ca49e9944b5ca09ee4}{B\-O\-O\-M} = 98, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1acde4d704509b525b7d867d393d478a7a}{E\-O\-F\-\_\-\-C\-H\-E\-C\-K} = 101, 
+\\*
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1ac1fa13fd13ccf87b7a1ff32aa521625e}{I\-N\-P\-U\-T} = 105, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a9335b6cbcc604c61c8c851fe53baac28}{U\-N\-D\-E\-R\-F\-L\-O\-W\-\_\-\-C\-H\-E\-C\-K} = 117, 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a042a811243865383719e6d6e889ee7e1}{T\-Y\-P\-E\-\_\-\-C\-H\-E\-C\-K} = 63
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1}{Command\-::\-Type} \hyperlink{structCommand_a9b682ee6829f8aa99c936997b9107686}{type}
+\item 
+std\-::string \hyperlink{structCommand_a2764694100839fad40df1dfd7be7145a}{arg}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Represents an Rail command, consits of an enum \hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1}{Command\-::\-Type} and an argument. For each command type in Rail there exists a corresponding enum \hyperlink{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1}{Command\-::\-Type}.
+
+\begin{DoxyAuthor}{Author}
+Christopher Zell \href{mailto:Zelldon91@googlemail.com}{\tt Zelldon91@googlemail.\-com}, Hanin Halawani 
+\end{DoxyAuthor}
+
+
+\subsection{Member Enumeration Documentation}
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1}{\index{Command@{Command}!Type@{Type}}
+\index{Type@{Type}!Command@{Command}}
+\subsubsection[{Type}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf Command\-::\-Type}}}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1}
+Represents an command type of an Rail progamm. Each value corresponds to the ascii value of the corresponding Rail command. E.\-g. o -\/$>$ 111 or a -\/$>$ 97, thats makes the mapping much easier. \begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{P\-U\-S\-H\-\_\-\-C\-O\-N\-S\-T@{P\-U\-S\-H\-\_\-\-C\-O\-N\-S\-T}!Command@{Command}}\index{Command@{Command}!P\-U\-S\-H\-\_\-\-C\-O\-N\-S\-T@{P\-U\-S\-H\-\_\-\-C\-O\-N\-S\-T}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1aa9601dbf610b9d23ee4b8b7bd378175e}{P\-U\-S\-H\-\_\-\-C\-O\-N\-S\-T}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1aa9601dbf610b9d23ee4b8b7bd378175e}
+}]0-\/9 or \mbox{[}...\mbox{]} \index{C\-A\-L\-L@{C\-A\-L\-L}!Command@{Command}}\index{Command@{Command}!C\-A\-L\-L@{C\-A\-L\-L}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1ab8db68a1487bc3f5dc3a9289e6a3b761}{C\-A\-L\-L}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1ab8db68a1487bc3f5dc3a9289e6a3b761}
+}]\{F\-U\-N\-C\} \index{O\-U\-T\-P\-U\-T@{O\-U\-T\-P\-U\-T}!Command@{Command}}\index{Command@{Command}!O\-U\-T\-P\-U\-T@{O\-U\-T\-P\-U\-T}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a6fbf52940c97a769906201ea768361c6}{O\-U\-T\-P\-U\-T}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a6fbf52940c97a769906201ea768361c6}
+}]o \index{A\-D\-D@{A\-D\-D}!Command@{Command}}\index{Command@{Command}!A\-D\-D@{A\-D\-D}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a1189491a065b6e6ca344cad213b618ff}{A\-D\-D}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a1189491a065b6e6ca344cad213b618ff}
+}]a \index{S\-U\-B@{S\-U\-B}!Command@{Command}}\index{Command@{Command}!S\-U\-B@{S\-U\-B}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a7e3944da56a06f7078ade3e53cfbb215}{S\-U\-B}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a7e3944da56a06f7078ade3e53cfbb215}
+}]s \index{M\-U\-L\-T@{M\-U\-L\-T}!Command@{Command}}\index{Command@{Command}!M\-U\-L\-T@{M\-U\-L\-T}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a7b47a91ef35876e3a36f215ca67cc52a}{M\-U\-L\-T}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a7b47a91ef35876e3a36f215ca67cc52a}
+}]m \index{D\-I\-V@{D\-I\-V}!Command@{Command}}\index{Command@{Command}!D\-I\-V@{D\-I\-V}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a4f9f14e8f597144f5581e4c11717f996}{D\-I\-V}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a4f9f14e8f597144f5581e4c11717f996}
+}]d \index{M\-O\-D@{M\-O\-D}!Command@{Command}}\index{Command@{Command}!M\-O\-D@{M\-O\-D}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1aa5385a05c6b3340821284c63596512fb}{M\-O\-D}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1aa5385a05c6b3340821284c63596512fb}
+}]r \index{C\-U\-T@{C\-U\-T}!Command@{Command}}\index{Command@{Command}!C\-U\-T@{C\-U\-T}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1ae881b6fa7ec6fcd5f5e48de9a5e47357}{C\-U\-T}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1ae881b6fa7ec6fcd5f5e48de9a5e47357}
+}]c \index{A\-P\-P\-E\-N\-D@{A\-P\-P\-E\-N\-D}!Command@{Command}}\index{Command@{Command}!A\-P\-P\-E\-N\-D@{A\-P\-P\-E\-N\-D}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1aba5756bd7d42e6770814802b30748cb4}{A\-P\-P\-E\-N\-D}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1aba5756bd7d42e6770814802b30748cb4}
+}]p \index{S\-I\-Z\-E@{S\-I\-Z\-E}!Command@{Command}}\index{Command@{Command}!S\-I\-Z\-E@{S\-I\-Z\-E}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a48428a4d51c5dde2f606aac5b8fc8c8e}{S\-I\-Z\-E}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a48428a4d51c5dde2f606aac5b8fc8c8e}
+}]z \index{N\-I\-L@{N\-I\-L}!Command@{Command}}\index{Command@{Command}!N\-I\-L@{N\-I\-L}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1aba36ce21d1a872f0eb69fbb2ecccb872}{N\-I\-L}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1aba36ce21d1a872f0eb69fbb2ecccb872}
+}]n \index{L\-I\-S\-T\-\_\-\-C\-O\-N\-S@{L\-I\-S\-T\-\_\-\-C\-O\-N\-S}!Command@{Command}}\index{Command@{Command}!L\-I\-S\-T\-\_\-\-C\-O\-N\-S@{L\-I\-S\-T\-\_\-\-C\-O\-N\-S}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a230daeb879328f6570fc0137a8ba8b8a}{L\-I\-S\-T\-\_\-\-C\-O\-N\-S}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a230daeb879328f6570fc0137a8ba8b8a}
+}]\-: \index{L\-I\-S\-T\-\_\-\-B\-R\-E\-A\-K\-U\-P@{L\-I\-S\-T\-\_\-\-B\-R\-E\-A\-K\-U\-P}!Command@{Command}}\index{Command@{Command}!L\-I\-S\-T\-\_\-\-B\-R\-E\-A\-K\-U\-P@{L\-I\-S\-T\-\_\-\-B\-R\-E\-A\-K\-U\-P}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a20bc54e7f190aca7865d4dc27f2b6489}{L\-I\-S\-T\-\_\-\-B\-R\-E\-A\-K\-U\-P}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a20bc54e7f190aca7865d4dc27f2b6489}
+}]$\sim$ \index{F\-A\-L\-S\-E@{F\-A\-L\-S\-E}!Command@{Command}}\index{Command@{Command}!F\-A\-L\-S\-E@{F\-A\-L\-S\-E}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a9b0bf72679374cdefb0c3f0c1965faef}{F\-A\-L\-S\-E}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a9b0bf72679374cdefb0c3f0c1965faef}
+}]f \index{G\-R\-E\-A\-T\-E\-R@{G\-R\-E\-A\-T\-E\-R}!Command@{Command}}\index{Command@{Command}!G\-R\-E\-A\-T\-E\-R@{G\-R\-E\-A\-T\-E\-R}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a1e91eb5b37ab7cc6f9ff0e773e8a47a5}{G\-R\-E\-A\-T\-E\-R}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a1e91eb5b37ab7cc6f9ff0e773e8a47a5}
+}]g \index{E\-Q\-U\-A\-L@{E\-Q\-U\-A\-L}!Command@{Command}}\index{Command@{Command}!E\-Q\-U\-A\-L@{E\-Q\-U\-A\-L}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1ac7cb579e3efb508f2ce9162c7fc4f894}{E\-Q\-U\-A\-L}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1ac7cb579e3efb508f2ce9162c7fc4f894}
+}]q \index{T\-R\-U\-E@{T\-R\-U\-E}!Command@{Command}}\index{Command@{Command}!T\-R\-U\-E@{T\-R\-U\-E}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1af4a87f4688672121e2c76e20f4360391}{T\-R\-U\-E}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1af4a87f4688672121e2c76e20f4360391}
+}]t \index{R\-E\-F\-L\-E\-C\-T\-O\-R@{R\-E\-F\-L\-E\-C\-T\-O\-R}!Command@{Command}}\index{Command@{Command}!R\-E\-F\-L\-E\-C\-T\-O\-R@{R\-E\-F\-L\-E\-C\-T\-O\-R}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a6266090f9a24e8780fcc58bbd3f3e433}{R\-E\-F\-L\-E\-C\-T\-O\-R}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a6266090f9a24e8780fcc58bbd3f3e433}
+}]@ \index{S\-T\-A\-R\-T@{S\-T\-A\-R\-T}!Command@{Command}}\index{Command@{Command}!S\-T\-A\-R\-T@{S\-T\-A\-R\-T}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a3972753fd8c0c1d6d908c9691e740f4f}{S\-T\-A\-R\-T}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a3972753fd8c0c1d6d908c9691e740f4f}
+}]\$ \index{F\-I\-N\-I\-S\-H@{F\-I\-N\-I\-S\-H}!Command@{Command}}\index{Command@{Command}!F\-I\-N\-I\-S\-H@{F\-I\-N\-I\-S\-H}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1af28ab76d25c104e01b8325a337558c21}{F\-I\-N\-I\-S\-H}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1af28ab76d25c104e01b8325a337558c21}
+}]\# \index{L\-A\-M\-B\-D\-A@{L\-A\-M\-B\-D\-A}!Command@{Command}}\index{Command@{Command}!L\-A\-M\-B\-D\-A@{L\-A\-M\-B\-D\-A}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a7ac408d60d087c6290f1e5eb7c16ba87}{L\-A\-M\-B\-D\-A}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a7ac408d60d087c6290f1e5eb7c16ba87}
+}]\& \index{B\-O\-O\-M@{B\-O\-O\-M}!Command@{Command}}\index{Command@{Command}!B\-O\-O\-M@{B\-O\-O\-M}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a4bea7fb36a4d87ca49e9944b5ca09ee4}{B\-O\-O\-M}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a4bea7fb36a4d87ca49e9944b5ca09ee4}
+}]b \index{E\-O\-F\-\_\-\-C\-H\-E\-C\-K@{E\-O\-F\-\_\-\-C\-H\-E\-C\-K}!Command@{Command}}\index{Command@{Command}!E\-O\-F\-\_\-\-C\-H\-E\-C\-K@{E\-O\-F\-\_\-\-C\-H\-E\-C\-K}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1acde4d704509b525b7d867d393d478a7a}{E\-O\-F\-\_\-\-C\-H\-E\-C\-K}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1acde4d704509b525b7d867d393d478a7a}
+}]e \index{I\-N\-P\-U\-T@{I\-N\-P\-U\-T}!Command@{Command}}\index{Command@{Command}!I\-N\-P\-U\-T@{I\-N\-P\-U\-T}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1ac1fa13fd13ccf87b7a1ff32aa521625e}{I\-N\-P\-U\-T}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1ac1fa13fd13ccf87b7a1ff32aa521625e}
+}]i \index{U\-N\-D\-E\-R\-F\-L\-O\-W\-\_\-\-C\-H\-E\-C\-K@{U\-N\-D\-E\-R\-F\-L\-O\-W\-\_\-\-C\-H\-E\-C\-K}!Command@{Command}}\index{Command@{Command}!U\-N\-D\-E\-R\-F\-L\-O\-W\-\_\-\-C\-H\-E\-C\-K@{U\-N\-D\-E\-R\-F\-L\-O\-W\-\_\-\-C\-H\-E\-C\-K}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a9335b6cbcc604c61c8c851fe53baac28}{U\-N\-D\-E\-R\-F\-L\-O\-W\-\_\-\-C\-H\-E\-C\-K}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a9335b6cbcc604c61c8c851fe53baac28}
+}]u \index{T\-Y\-P\-E\-\_\-\-C\-H\-E\-C\-K@{T\-Y\-P\-E\-\_\-\-C\-H\-E\-C\-K}!Command@{Command}}\index{Command@{Command}!T\-Y\-P\-E\-\_\-\-C\-H\-E\-C\-K@{T\-Y\-P\-E\-\_\-\-C\-H\-E\-C\-K}}\item[{\em 
+\hypertarget{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a042a811243865383719e6d6e889ee7e1}{T\-Y\-P\-E\-\_\-\-C\-H\-E\-C\-K}\label{structCommand_a4ca33b8d40e12deca5e7bb4190426ee1a042a811243865383719e6d6e889ee7e1}
+}]? \end{description}
+\end{Desc}
+
+
+\subsection{Member Data Documentation}
+\hypertarget{structCommand_a2764694100839fad40df1dfd7be7145a}{\index{Command@{Command}!arg@{arg}}
+\index{arg@{arg}!Command@{Command}}
+\subsubsection[{arg}]{\setlength{\rightskip}{0pt plus 5cm}std\-::string Command\-::arg}}\label{structCommand_a2764694100839fad40df1dfd7be7145a}
+The argument of the Rail command. \hypertarget{structCommand_a9b682ee6829f8aa99c936997b9107686}{\index{Command@{Command}!type@{type}}
+\index{type@{type}!Command@{Command}}
+\subsubsection[{type}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Command\-::\-Type} Command\-::type}}\label{structCommand_a9b682ee6829f8aa99c936997b9107686}
+The type of the Rail command. 
+
+The documentation for this struct was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+common/ast/\hyperlink{ast_8h}{ast.\-h}\end{DoxyCompactItemize}

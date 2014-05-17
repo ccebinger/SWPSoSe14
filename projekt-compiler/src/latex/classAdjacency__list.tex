@@ -1,0 +1,259 @@
+\hypertarget{classAdjacency__list}{\section{Adjacency\-\_\-list Class Reference}
+\label{classAdjacency__list}\index{Adjacency\-\_\-list@{Adjacency\-\_\-list}}
+}
+
+
+{\ttfamily \#include $<$adjacency\-\_\-list.\-h$>$}
+
+
+
+Inheritance diagram for Adjacency\-\_\-list\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=160pt]{classAdjacency__list__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for Adjacency\-\_\-list\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=160pt]{classAdjacency__list__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classAdjacency__list_a7d5d3a9d4e555a56303fa9facc54f0ba}{Adjacency\-\_\-list} (str \hyperlink{classAdjacency__list_ab2eea0405522e8b9917d84ef44e70f66}{name})
+\item 
+\hyperlink{classAdjacency__list_a2a98e4275df4dc38fbfcdf84ec5ced7d}{Adjacency\-\_\-list} (str \hyperlink{classAdjacency__list_ab2eea0405522e8b9917d84ef44e70f66}{name}, std\-::shared\-\_\-ptr$<$ \hyperlink{structNode}{Node} $>$ \hyperlink{classAdjacency__list_a129aec8db0fc3b6109de60f765c41ac4}{start})
+\item 
+virtual \hyperlink{classAdjacency__list_a1eeb2fe43e777799b553b29135bcafd0}{$\sim$\-Adjacency\-\_\-list} ()
+\item 
+virtual void \hyperlink{classAdjacency__list_adbc9e5768336f17f7442638e5284f2a7}{add\-Node} (std\-::shared\-\_\-ptr$<$ \hyperlink{structNode}{Node} $>$ node)
+\item 
+virtual void \hyperlink{classAdjacency__list_a43a6325bc1e122a2675c39ea826f5f2a}{add\-Edge} (std\-::shared\-\_\-ptr$<$ \hyperlink{structNode}{Node} $>$ source, std\-::shared\-\_\-ptr$<$ \hyperlink{structNode}{Node} $>$ dist, bool path)
+\item 
+virtual N\-O\-D\-E\-S\-::iterator \hyperlink{classAdjacency__list_aca86880551fe5df685606de3a8ea0710}{begin} ()
+\item 
+virtual std\-::shared\-\_\-ptr$<$ \hyperlink{structNode}{Node} $>$ \hyperlink{classAdjacency__list_a129aec8db0fc3b6109de60f765c41ac4}{start} ()
+\item 
+virtual std\-::size\-\_\-t \hyperlink{classAdjacency__list_ac67e271d3a734fc596d678490101b509}{node\-Count} () const 
+\item 
+virtual std\-::shared\-\_\-ptr$<$ \hyperlink{structNode}{Node} $>$ \hyperlink{classAdjacency__list_aa15c2f8c06d2d3eee4e2f04002b728ab}{find} (int id) const 
+\item 
+virtual std\-::string \hyperlink{classAdjacency__list_ab2eea0405522e8b9917d84ef44e70f66}{name} () const 
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Represents the implementation of the A\-S\-G interface as adjacency list. See documentation \hyperlink{classGraph}{Graph}.
+
+\begin{DoxyAuthor}{Author}
+Christopher Zell \href{mailto:Zelldon91@googlemail.com}{\tt Zelldon91@googlemail.\-com} 
+\end{DoxyAuthor}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classAdjacency__list_a7d5d3a9d4e555a56303fa9facc54f0ba}{\index{Adjacency\-\_\-list@{Adjacency\-\_\-list}!Adjacency\-\_\-list@{Adjacency\-\_\-list}}
+\index{Adjacency\-\_\-list@{Adjacency\-\_\-list}!Adjacency_list@{Adjacency\-\_\-list}}
+\subsubsection[{Adjacency\-\_\-list}]{\setlength{\rightskip}{0pt plus 5cm}Adjacency\-\_\-list\-::\-Adjacency\-\_\-list (
+\begin{DoxyParamCaption}
+\item[{Adjacency\-\_\-list\-::str}]{name}
+\end{DoxyParamCaption}
+)}}\label{classAdjacency__list_a7d5d3a9d4e555a56303fa9facc54f0ba}
+The ctor of the adjacency list, which gets the name of the Rail function. 
+\begin{DoxyParams}{Parameters}
+{\em name} & the name of the Rail function (A\-S\-G) \\
+\hline
+\end{DoxyParams}
+\hypertarget{classAdjacency__list_a2a98e4275df4dc38fbfcdf84ec5ced7d}{\index{Adjacency\-\_\-list@{Adjacency\-\_\-list}!Adjacency\-\_\-list@{Adjacency\-\_\-list}}
+\index{Adjacency\-\_\-list@{Adjacency\-\_\-list}!Adjacency_list@{Adjacency\-\_\-list}}
+\subsubsection[{Adjacency\-\_\-list}]{\setlength{\rightskip}{0pt plus 5cm}Adjacency\-\_\-list\-::\-Adjacency\-\_\-list (
+\begin{DoxyParamCaption}
+\item[{Adjacency\-\_\-list\-::str}]{name, }
+\item[{std\-::shared\-\_\-ptr$<$ {\bf Node} $>$}]{start}
+\end{DoxyParamCaption}
+)}}\label{classAdjacency__list_a2a98e4275df4dc38fbfcdf84ec5ced7d}
+The ctor of the adjacency list, which gets the name of the Rail function and the first node. 
+\begin{DoxyParams}{Parameters}
+{\em name} & the name of the Rail function (A\-S\-G) \\
+\hline
+{\em start} & the start node of the Rail function \\
+\hline
+\end{DoxyParams}
+\hypertarget{classAdjacency__list_a1eeb2fe43e777799b553b29135bcafd0}{\index{Adjacency\-\_\-list@{Adjacency\-\_\-list}!$\sim$\-Adjacency\-\_\-list@{$\sim$\-Adjacency\-\_\-list}}
+\index{$\sim$\-Adjacency\-\_\-list@{$\sim$\-Adjacency\-\_\-list}!Adjacency_list@{Adjacency\-\_\-list}}
+\subsubsection[{$\sim$\-Adjacency\-\_\-list}]{\setlength{\rightskip}{0pt plus 5cm}Adjacency\-\_\-list\-::$\sim$\-Adjacency\-\_\-list (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classAdjacency__list_a1eeb2fe43e777799b553b29135bcafd0}
+The destructor of the adjacency list. Cleans up the nodes vector and resets the shared\-\_\-ptr's. 
+
+\subsection{Member Function Documentation}
+\hypertarget{classAdjacency__list_a43a6325bc1e122a2675c39ea826f5f2a}{\index{Adjacency\-\_\-list@{Adjacency\-\_\-list}!add\-Edge@{add\-Edge}}
+\index{add\-Edge@{add\-Edge}!Adjacency_list@{Adjacency\-\_\-list}}
+\subsubsection[{add\-Edge}]{\setlength{\rightskip}{0pt plus 5cm}void Adjacency\-\_\-list\-::add\-Edge (
+\begin{DoxyParamCaption}
+\item[{std\-::shared\-\_\-ptr$<$ {\bf Node} $>$}]{source, }
+\item[{std\-::shared\-\_\-ptr$<$ {\bf Node} $>$}]{dist, }
+\item[{bool}]{path}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classAdjacency__list_a43a6325bc1e122a2675c39ea826f5f2a}
+Replaces the successor of a certain node. If the path is true the successor1 of the source will be replaced, successor2 if the path is false.
+
+
+\begin{DoxyParams}{Parameters}
+{\em source} & the node which gets a new succesor \\
+\hline
+{\em dist} & the new successor of the source \\
+\hline
+{\em path} & specifies whether the successor1 or 2 are been replaced \\
+\hline
+\end{DoxyParams}
+
+
+Implements \hyperlink{classGraph_a9e45aafa60a807245e24565baea74a39}{Graph}.
+
+\hypertarget{classAdjacency__list_adbc9e5768336f17f7442638e5284f2a7}{\index{Adjacency\-\_\-list@{Adjacency\-\_\-list}!add\-Node@{add\-Node}}
+\index{add\-Node@{add\-Node}!Adjacency_list@{Adjacency\-\_\-list}}
+\subsubsection[{add\-Node}]{\setlength{\rightskip}{0pt plus 5cm}void Adjacency\-\_\-list\-::add\-Node (
+\begin{DoxyParamCaption}
+\item[{std\-::shared\-\_\-ptr$<$ {\bf Node} $>$}]{node}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classAdjacency__list_adbc9e5768336f17f7442638e5284f2a7}
+
+
+
+
+The implementation only adds the node if the node not already exists in the list. If the node exists, the node will be replaced by the new one. \par
+ Inherited D\-O\-C\-: \par
+ Adds a node (command) to the corresponding A\-S\-G.
+
+
+\begin{DoxyParams}{Parameters}
+{\em node} & the node which will be added \\
+\hline
+\end{DoxyParams}
+
+
+Implements \hyperlink{classGraph_ae4ad7e42e8df191acd6563ca65ee779c}{Graph}.
+
+
+
+Here is the call graph for this function\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classAdjacency__list_adbc9e5768336f17f7442638e5284f2a7_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{classAdjacency__list_aca86880551fe5df685606de3a8ea0710}{\index{Adjacency\-\_\-list@{Adjacency\-\_\-list}!begin@{begin}}
+\index{begin@{begin}!Adjacency_list@{Adjacency\-\_\-list}}
+\subsubsection[{begin}]{\setlength{\rightskip}{0pt plus 5cm}Adjacency\-\_\-list\-::\-N\-O\-D\-E\-S\-::iterator Adjacency\-\_\-list\-::begin (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classAdjacency__list_aca86880551fe5df685606de3a8ea0710}
+Returns the begin iterator of the nodes vector. \begin{DoxyReturn}{Returns}
+the begin iterator of the nodes vector 
+\end{DoxyReturn}
+\hypertarget{classAdjacency__list_aa15c2f8c06d2d3eee4e2f04002b728ab}{\index{Adjacency\-\_\-list@{Adjacency\-\_\-list}!find@{find}}
+\index{find@{find}!Adjacency_list@{Adjacency\-\_\-list}}
+\subsubsection[{find}]{\setlength{\rightskip}{0pt plus 5cm}std\-::shared\-\_\-ptr$<$ {\bf Node} $>$ Adjacency\-\_\-list\-::find (
+\begin{DoxyParamCaption}
+\item[{int}]{id}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classAdjacency__list_aa15c2f8c06d2d3eee4e2f04002b728ab}
+Finds for the given id the node in the A\-S\-G. 
+\begin{DoxyParams}{Parameters}
+{\em id} & the id of the node, which should be founded \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+the node with the searched id 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{classGraph_aa37e2e2fd8d7ae9a94d4e174980644c6}{Graph}.
+
+
+
+Here is the call graph for this function\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classAdjacency__list_aa15c2f8c06d2d3eee4e2f04002b728ab_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{classAdjacency__list_ab2eea0405522e8b9917d84ef44e70f66}{\index{Adjacency\-\_\-list@{Adjacency\-\_\-list}!name@{name}}
+\index{name@{name}!Adjacency_list@{Adjacency\-\_\-list}}
+\subsubsection[{name}]{\setlength{\rightskip}{0pt plus 5cm}std\-::string Adjacency\-\_\-list\-::name (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classAdjacency__list_ab2eea0405522e8b9917d84ef44e70f66}
+Returns the name of the A\-S\-G. The name of the graph is equal to the name of the Rail function. (Each function has his own graph) \begin{DoxyReturn}{Returns}
+the name of the A\-S\-G 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{classGraph_a0d1bc2d4425ddbef019b5d7589765c5a}{Graph}.
+
+\hypertarget{classAdjacency__list_ac67e271d3a734fc596d678490101b509}{\index{Adjacency\-\_\-list@{Adjacency\-\_\-list}!node\-Count@{node\-Count}}
+\index{node\-Count@{node\-Count}!Adjacency_list@{Adjacency\-\_\-list}}
+\subsubsection[{node\-Count}]{\setlength{\rightskip}{0pt plus 5cm}std\-::size\-\_\-t Adjacency\-\_\-list\-::node\-Count (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+) const\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classAdjacency__list_ac67e271d3a734fc596d678490101b509}
+Returns the current size of the graph (node count). \begin{DoxyReturn}{Returns}
+the size of the A\-S\-G 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{classGraph_afed2883e765871cc439b08d9aeba028b}{Graph}.
+
+\hypertarget{classAdjacency__list_a129aec8db0fc3b6109de60f765c41ac4}{\index{Adjacency\-\_\-list@{Adjacency\-\_\-list}!start@{start}}
+\index{start@{start}!Adjacency_list@{Adjacency\-\_\-list}}
+\subsubsection[{start}]{\setlength{\rightskip}{0pt plus 5cm}std\-::shared\-\_\-ptr$<$ {\bf Node} $>$ Adjacency\-\_\-list\-::start (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classAdjacency__list_a129aec8db0fc3b6109de60f765c41ac4}
+Returns the start node of the A\-S\-G, respectively of the Rail function. \begin{DoxyReturn}{Returns}
+the start node 
+\end{DoxyReturn}
+
+
+Implements \hyperlink{classGraph_a7b0c57d46c652fb12e4ca65a816f7a36}{Graph}.
+
+
+
+Here is the call graph for this function\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classAdjacency__list_a129aec8db0fc3b6109de60f765c41ac4_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+frontend/\hyperlink{adjacency__list_8h}{adjacency\-\_\-list.\-h}\item 
+frontend/\hyperlink{adjacency__list_8cpp}{adjacency\-\_\-list.\-cpp}\end{DoxyCompactItemize}

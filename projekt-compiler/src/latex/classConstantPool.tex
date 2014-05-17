@@ -1,0 +1,134 @@
+\hypertarget{classConstantPool}{\section{Constant\-Pool Class Reference}
+\label{classConstantPool}\index{Constant\-Pool@{Constant\-Pool}}
+}
+
+
+{\ttfamily \#include $<$constant\-\_\-pool.\-h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classConstantPool_a50d57d55016646ae88a978fb3297e83d}{Constant\-Pool} ()
+\begin{DoxyCompactList}\small\item\em default constructor \end{DoxyCompactList}\item 
+uint16\-\_\-t \hyperlink{classConstantPool_acecd4913f07d84ff76ac59dee978730d}{add\-String} (const std\-::string \&value)
+\item 
+uint16\-\_\-t \hyperlink{classConstantPool_a9f10ea2eb79969299ff5f7a031309093}{add\-Int} (int32\-\_\-t value)
+\item 
+uint16\-\_\-t \hyperlink{classConstantPool_ad678172b62e701905e72c2cdc72d09a6}{add\-Long} (int64\-\_\-t value)
+\item 
+std\-::vector$<$ uint8\-\_\-t $>$ \hyperlink{classConstantPool_ae37c5a805552c018d71951be2847032a}{get\-Byte\-Array} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classConstantPool_a50d57d55016646ae88a978fb3297e83d}{\index{Constant\-Pool@{Constant\-Pool}!Constant\-Pool@{Constant\-Pool}}
+\index{Constant\-Pool@{Constant\-Pool}!ConstantPool@{Constant\-Pool}}
+\subsubsection[{Constant\-Pool}]{\setlength{\rightskip}{0pt plus 5cm}Constant\-Pool\-::\-Constant\-Pool (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classConstantPool_a50d57d55016646ae88a978fb3297e83d}
+
+
+default constructor 
+
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classConstantPool_a9f10ea2eb79969299ff5f7a031309093}{\index{Constant\-Pool@{Constant\-Pool}!add\-Int@{add\-Int}}
+\index{add\-Int@{add\-Int}!ConstantPool@{Constant\-Pool}}
+\subsubsection[{add\-Int}]{\setlength{\rightskip}{0pt plus 5cm}uint16\-\_\-t Constant\-Pool\-::add\-Int (
+\begin{DoxyParamCaption}
+\item[{int32\-\_\-t}]{value}
+\end{DoxyParamCaption}
+)}}\label{classConstantPool_a9f10ea2eb79969299ff5f7a031309093}
+method to put a integer into the pool 
+\begin{DoxyParams}{Parameters}
+{\em value} & value to add to pool \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+index of the integer in the pool 
+\end{DoxyReturn}
+
+
+Here is the call graph for this function\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=282pt]{classConstantPool_a9f10ea2eb79969299ff5f7a031309093_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{classConstantPool_ad678172b62e701905e72c2cdc72d09a6}{\index{Constant\-Pool@{Constant\-Pool}!add\-Long@{add\-Long}}
+\index{add\-Long@{add\-Long}!ConstantPool@{Constant\-Pool}}
+\subsubsection[{add\-Long}]{\setlength{\rightskip}{0pt plus 5cm}uint16\-\_\-t Constant\-Pool\-::add\-Long (
+\begin{DoxyParamCaption}
+\item[{int64\-\_\-t}]{value}
+\end{DoxyParamCaption}
+)}}\label{classConstantPool_ad678172b62e701905e72c2cdc72d09a6}
+method to put a long int into the pool 
+\begin{DoxyParams}{Parameters}
+{\em value} & value to add to pool \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+index of the long intenger in the pool 
+\end{DoxyReturn}
+
+
+Here is the call graph for this function\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=292pt]{classConstantPool_ad678172b62e701905e72c2cdc72d09a6_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{classConstantPool_acecd4913f07d84ff76ac59dee978730d}{\index{Constant\-Pool@{Constant\-Pool}!add\-String@{add\-String}}
+\index{add\-String@{add\-String}!ConstantPool@{Constant\-Pool}}
+\subsubsection[{add\-String}]{\setlength{\rightskip}{0pt plus 5cm}uint16\-\_\-t Constant\-Pool\-::add\-String (
+\begin{DoxyParamCaption}
+\item[{const std\-::string \&}]{value}
+\end{DoxyParamCaption}
+)}}\label{classConstantPool_acecd4913f07d84ff76ac59dee978730d}
+method to put a string into the pool 
+\begin{DoxyParams}{Parameters}
+{\em value} & value to add to pool \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+index of the string in pool 
+\end{DoxyReturn}
+
+
+Here is the call graph for this function\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=296pt]{classConstantPool_acecd4913f07d84ff76ac59dee978730d_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{classConstantPool_ae37c5a805552c018d71951be2847032a}{\index{Constant\-Pool@{Constant\-Pool}!get\-Byte\-Array@{get\-Byte\-Array}}
+\index{get\-Byte\-Array@{get\-Byte\-Array}!ConstantPool@{Constant\-Pool}}
+\subsubsection[{get\-Byte\-Array}]{\setlength{\rightskip}{0pt plus 5cm}std\-::vector$<$ uint8\-\_\-t $>$ Constant\-Pool\-::get\-Byte\-Array (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classConstantPool_ae37c5a805552c018d71951be2847032a}
+returns constant pool as a byte array \begin{DoxyReturn}{Returns}
+the bytecode 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+backend/classfile/\hyperlink{constant__pool_8h}{constant\-\_\-pool.\-h}\item 
+backend/classfile/\hyperlink{constant__pool_8cc}{constant\-\_\-pool.\-cc}\end{DoxyCompactItemize}

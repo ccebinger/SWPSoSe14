@@ -1,0 +1,177 @@
+\hypertarget{classGraphs}{\section{Graphs Class Reference}
+\label{classGraphs}\index{Graphs@{Graphs}}
+}
+
+
+{\ttfamily \#include $<$Graphs.\-h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef std\-::shared\-\_\-ptr$<$ \hyperlink{structNode}{Node} $>$ \hyperlink{classGraphs_a2804b752d72989344f11a6ec3145eea8}{Node\-\_\-ptr}
+\item 
+typedef std\-::shared\-\_\-ptr$<$ \hyperlink{classGraph}{Graph} $>$ \hyperlink{classGraphs_a58b4b65d81870fc3b2936c068b644a4d}{Graph\-\_\-ptr}
+\item 
+typedef std\-::map$<$ std\-::string, \\*
+\hyperlink{classGraphs_a58b4b65d81870fc3b2936c068b644a4d}{Graph\-\_\-ptr} $>$ \hyperlink{classGraphs_ae84f43c27f4abeec92270c954a9255d4}{Graph\-\_\-map}
+\item 
+typedef const std\-::string \& \hyperlink{classGraphs_a98a6f0415cbeae8adc7500164c78e3f3}{str}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classGraphs_ac474b1dea2e194dd74f554e75d60b83a}{Graphs} ()
+\item 
+virtual \hyperlink{classGraphs_ad1f81a7661844de33fc248c8575c9d3e}{$\sim$\-Graphs} ()
+\item 
+virtual bool \hyperlink{classGraphs_a4918b1f853cb695103da70945f8fd431}{put} (\hyperlink{classGraphs_a98a6f0415cbeae8adc7500164c78e3f3}{str} key, \hyperlink{classGraphs_a58b4b65d81870fc3b2936c068b644a4d}{Graph\-\_\-ptr} graph)
+\item 
+virtual \hyperlink{classGraphs_a58b4b65d81870fc3b2936c068b644a4d}{Graph\-\_\-ptr} \hyperlink{classGraphs_a91dad024134f39c0695017b419bc5e30}{find} (\hyperlink{classGraphs_a98a6f0415cbeae8adc7500164c78e3f3}{str} key)
+\item 
+virtual Graph\-\_\-map\-::iterator \hyperlink{classGraphs_a8a073cce4572a581991904bdf3fe08cc}{begin} ()
+\item 
+virtual Graph\-\_\-map\-::iterator \hyperlink{classGraphs_a0e29872711f39db4c244dd1bf970b298}{end} ()
+\item 
+virtual size\-\_\-t \hyperlink{classGraphs_a3b054630d2bf941bcb7f27f6b4af7830}{size} ()
+\item 
+virtual void \hyperlink{classGraphs_a50f10866f91655a7159aa4fe4abb66dd}{marshall} (\hyperlink{classGraphs_a98a6f0415cbeae8adc7500164c78e3f3}{str} file)
+\item 
+virtual void \hyperlink{classGraphs_ae16cf56023c83cd77e8b5592c9274c5f}{unmarshall} (\hyperlink{classGraphs_a98a6f0415cbeae8adc7500164c78e3f3}{str} file, char delimeter)
+\item 
+void \hyperlink{classGraphs_a6a93fd87235a675d39c23e8fcbafb8b1}{write\-Graph\-Viz} (\hyperlink{classGraphs_a98a6f0415cbeae8adc7500164c78e3f3}{Graphs\-::str} file)
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Typedef Documentation}
+\hypertarget{classGraphs_ae84f43c27f4abeec92270c954a9255d4}{\index{Graphs@{Graphs}!Graph\-\_\-map@{Graph\-\_\-map}}
+\index{Graph\-\_\-map@{Graph\-\_\-map}!Graphs@{Graphs}}
+\subsubsection[{Graph\-\_\-map}]{\setlength{\rightskip}{0pt plus 5cm}typedef std\-::map$<$std\-::string, {\bf Graph\-\_\-ptr}$>$ {\bf Graphs\-::\-Graph\-\_\-map}}}\label{classGraphs_ae84f43c27f4abeec92270c954a9255d4}
+\hypertarget{classGraphs_a58b4b65d81870fc3b2936c068b644a4d}{\index{Graphs@{Graphs}!Graph\-\_\-ptr@{Graph\-\_\-ptr}}
+\index{Graph\-\_\-ptr@{Graph\-\_\-ptr}!Graphs@{Graphs}}
+\subsubsection[{Graph\-\_\-ptr}]{\setlength{\rightskip}{0pt plus 5cm}typedef std\-::shared\-\_\-ptr$<${\bf Graph}$>$ {\bf Graphs\-::\-Graph\-\_\-ptr}}}\label{classGraphs_a58b4b65d81870fc3b2936c068b644a4d}
+\hypertarget{classGraphs_a2804b752d72989344f11a6ec3145eea8}{\index{Graphs@{Graphs}!Node\-\_\-ptr@{Node\-\_\-ptr}}
+\index{Node\-\_\-ptr@{Node\-\_\-ptr}!Graphs@{Graphs}}
+\subsubsection[{Node\-\_\-ptr}]{\setlength{\rightskip}{0pt plus 5cm}typedef std\-::shared\-\_\-ptr$<${\bf Node}$>$ {\bf Graphs\-::\-Node\-\_\-ptr}}}\label{classGraphs_a2804b752d72989344f11a6ec3145eea8}
+\hypertarget{classGraphs_a98a6f0415cbeae8adc7500164c78e3f3}{\index{Graphs@{Graphs}!str@{str}}
+\index{str@{str}!Graphs@{Graphs}}
+\subsubsection[{str}]{\setlength{\rightskip}{0pt plus 5cm}typedef const std\-::string\& {\bf Graphs\-::str}}}\label{classGraphs_a98a6f0415cbeae8adc7500164c78e3f3}
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classGraphs_ac474b1dea2e194dd74f554e75d60b83a}{\index{Graphs@{Graphs}!Graphs@{Graphs}}
+\index{Graphs@{Graphs}!Graphs@{Graphs}}
+\subsubsection[{Graphs}]{\setlength{\rightskip}{0pt plus 5cm}Graphs\-::\-Graphs (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classGraphs_ac474b1dea2e194dd74f554e75d60b83a}
+\hypertarget{classGraphs_ad1f81a7661844de33fc248c8575c9d3e}{\index{Graphs@{Graphs}!$\sim$\-Graphs@{$\sim$\-Graphs}}
+\index{$\sim$\-Graphs@{$\sim$\-Graphs}!Graphs@{Graphs}}
+\subsubsection[{$\sim$\-Graphs}]{\setlength{\rightskip}{0pt plus 5cm}Graphs\-::$\sim$\-Graphs (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classGraphs_ad1f81a7661844de33fc248c8575c9d3e}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classGraphs_a8a073cce4572a581991904bdf3fe08cc}{\index{Graphs@{Graphs}!begin@{begin}}
+\index{begin@{begin}!Graphs@{Graphs}}
+\subsubsection[{begin}]{\setlength{\rightskip}{0pt plus 5cm}Graphs\-::\-Graph\-\_\-map\-::iterator Graphs\-::begin (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classGraphs_a8a073cce4572a581991904bdf3fe08cc}
+\hypertarget{classGraphs_a0e29872711f39db4c244dd1bf970b298}{\index{Graphs@{Graphs}!end@{end}}
+\index{end@{end}!Graphs@{Graphs}}
+\subsubsection[{end}]{\setlength{\rightskip}{0pt plus 5cm}Graphs\-::\-Graph\-\_\-map\-::iterator Graphs\-::end (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classGraphs_a0e29872711f39db4c244dd1bf970b298}
+\hypertarget{classGraphs_a91dad024134f39c0695017b419bc5e30}{\index{Graphs@{Graphs}!find@{find}}
+\index{find@{find}!Graphs@{Graphs}}
+\subsubsection[{find}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Graphs\-::\-Graph\-\_\-ptr} Graphs\-::find (
+\begin{DoxyParamCaption}
+\item[{{\bf Graphs\-::str}}]{key}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classGraphs_a91dad024134f39c0695017b419bc5e30}
+\hypertarget{classGraphs_a50f10866f91655a7159aa4fe4abb66dd}{\index{Graphs@{Graphs}!marshall@{marshall}}
+\index{marshall@{marshall}!Graphs@{Graphs}}
+\subsubsection[{marshall}]{\setlength{\rightskip}{0pt plus 5cm}void Graphs\-::marshall (
+\begin{DoxyParamCaption}
+\item[{{\bf Graphs\-::str}}]{file}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classGraphs_a50f10866f91655a7159aa4fe4abb66dd}
+
+
+Here is the call graph for this function\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=322pt]{classGraphs_a50f10866f91655a7159aa4fe4abb66dd_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{classGraphs_a4918b1f853cb695103da70945f8fd431}{\index{Graphs@{Graphs}!put@{put}}
+\index{put@{put}!Graphs@{Graphs}}
+\subsubsection[{put}]{\setlength{\rightskip}{0pt plus 5cm}bool Graphs\-::put (
+\begin{DoxyParamCaption}
+\item[{{\bf Graphs\-::str}}]{key, }
+\item[{{\bf Graphs\-::\-Graph\-\_\-ptr}}]{graph}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classGraphs_a4918b1f853cb695103da70945f8fd431}
+\hypertarget{classGraphs_a3b054630d2bf941bcb7f27f6b4af7830}{\index{Graphs@{Graphs}!size@{size}}
+\index{size@{size}!Graphs@{Graphs}}
+\subsubsection[{size}]{\setlength{\rightskip}{0pt plus 5cm}size\-\_\-t Graphs\-::size (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classGraphs_a3b054630d2bf941bcb7f27f6b4af7830}
+\hypertarget{classGraphs_ae16cf56023c83cd77e8b5592c9274c5f}{\index{Graphs@{Graphs}!unmarshall@{unmarshall}}
+\index{unmarshall@{unmarshall}!Graphs@{Graphs}}
+\subsubsection[{unmarshall}]{\setlength{\rightskip}{0pt plus 5cm}void Graphs\-::unmarshall (
+\begin{DoxyParamCaption}
+\item[{{\bf Graphs\-::str}}]{file, }
+\item[{char}]{delimeter}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [virtual]}}}\label{classGraphs_ae16cf56023c83cd77e8b5592c9274c5f}
+
+
+Here is the call graph for this function\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=286pt]{classGraphs_ae16cf56023c83cd77e8b5592c9274c5f_cgraph}
+\end{center}
+\end{figure}
+
+
+\hypertarget{classGraphs_a6a93fd87235a675d39c23e8fcbafb8b1}{\index{Graphs@{Graphs}!write\-Graph\-Viz@{write\-Graph\-Viz}}
+\index{write\-Graph\-Viz@{write\-Graph\-Viz}!Graphs@{Graphs}}
+\subsubsection[{write\-Graph\-Viz}]{\setlength{\rightskip}{0pt plus 5cm}void Graphs\-::write\-Graph\-Viz (
+\begin{DoxyParamCaption}
+\item[{{\bf Graphs\-::str}}]{file}
+\end{DoxyParamCaption}
+)}}\label{classGraphs_a6a93fd87235a675d39c23e8fcbafb8b1}
+
+
+Here is the call graph for this function\-:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=346pt]{classGraphs_a6a93fd87235a675d39c23e8fcbafb8b1_cgraph}
+\end{center}
+\end{figure}
+
+
+
+
+The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+frontend/\hyperlink{Graphs_8h}{Graphs.\-h}\item 
+frontend/\hyperlink{Graphs_8cpp}{Graphs.\-cpp}\end{DoxyCompactItemize}
