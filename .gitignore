@@ -220,5 +220,5 @@ pip-log.txt
 doc/
 Doc/
 
-projekt-compiler/src/latex/*
-projekt-compiler/src/html/*
+src/latex/
+src/html/
