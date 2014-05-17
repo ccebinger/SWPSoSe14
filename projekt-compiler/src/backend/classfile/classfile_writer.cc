@@ -76,7 +76,55 @@ void ClassfileWriter::WriteFields() {
 }
 
 void ClassfileWriter::WriteMethods() {
-  // TODO
+	/**
+	 * TODO: insert method_count dynamically (minimum 2 for init & main method for MS1)
+	 * TODO: use u2 (e.g. 2 methods = \x0002)
+	 */
+
+	/**
+	 * Inserts the bytecode for the method init.
+	 * Should be the same in every class-file.
+	 */
+	char methodInit[] { '\x00', '\x01',	/* access_flag=1 */
+						'\x00', '\x07',	/* <inti> */
+						'\x00', '\x08',	/* ()V */
+						'\x00', '\x01',	/* u2 attributes_count=1 */
+						'\x00', '\x09',	/* u2 attribute_name_index=9 */
+						'\x00', '\x00', '\x00', '\x1D',	/* u4 attribute_length=29 */
+						'\x00', '\x01',    /* u2 max_stack=1 */
+						'\x00', '\x01',    /* u2 max_locals=1 */
+						'\x00', '\x00', '\x00', '\x05',	/* u4 code_length=5 */
+						'\x2A', '\xB7', '\x00', '\x01', '\xB1',
+						'\x00', '\x00',	/* u2 exception_table_length=0 */
+						'\x00', '\x01',	/* u2 attributes_count=1 */
+						'\x00', '\x0A',	/* u2 attribute_name_index=10, length=15; bytes="LineNumberTable" */
+						'\x00', '\x00', '\x00', '\x06',	/* u4 attribute_length=6 */
+						'\x00', '\x01', '\x00', '\x00', '\x00', '\x01'	/* Attribute bytes: */
+		};
+	out_.write(methodInit, sizeof(methodInit));
+
+	/**
+	 * Inserts the bytecode for the method main.
+	 * Should be the same in every class-file.
+	 * TODO: for MS2: May be replaced by a function
+	 */
+	char methodMain[] { '\x00', '\x09',	/* access_flag=9 */
+						'\x00', '\x0B',	/* main */
+						'\x00', '\x0C',	/* ([Ljava/lang/String;)V */
+						'\x00', '\x01',	/* u2 attributes_count=1 */
+						'\x00', '\x09',	/* u2 attribute_name_index=9 */
+						'\x00', '\x00', '\x00', '\x25',	/* u4 attribute_length=37 */
+						'\x00', '\x02',    /* u2 max_stack=2 */
+						'\x00', '\x01',    /* u2 max_locals=1 */
+						'\x00', '\x00', '\x00', '\x09',	/* u4 code_length=9 */
+						'\xB2', '\x00', '\x02', '\x12', '\x03', '\xB6', '\x00', '\x04', '\xB1',
+						'\x00', '\x00',	/* u2 exception_table_length=0 */
+						'\x00', '\x01',	/* u2 attributes_count=1 */
+						'\x00', '\x0A',	/* u2 attribute_name_index=10, length=15; bytes="LineNumberTable" */
+						'\x00', '\x00', '\x00', '\x0A',	/* u4 attribute_length=10 */
+						'\x00', '\x02', '\x00', '\x00', '\x00', '\x03', '\x00', '\x08', '\x00', '\x04'	/* Attribute bytes: */
+		};
+	out_.write(methodMain, sizeof(methodMain));
 }
 
 void ClassfileWriter::WriteAttributes() {
