@@ -86,17 +86,19 @@ void ClassfileWriter::WriteMethods() {
 	 * Should be the same in every class-file.
 	 */
 	char methodInit[] { '\x00', '\x01',	/* access_flag=1 */
+						// TODO: insert reference from constant pool here
 						'\x00', '\x07',	/* <inti> */
 						'\x00', '\x08',	/* ()V */
 						'\x00', '\x01',	/* u2 attributes_count=1 */
 						'\x00', '\x09',	/* u2 attribute_name_index=9 */
 						'\x00', '\x00', '\x00', '\x1D',	/* u4 attribute_length=29 */
-						'\x00', '\x01',    /* u2 max_stack=1 */
-						'\x00', '\x01',    /* u2 max_locals=1 */
+						'\x00', '\x01', /* u2 max_stack=1 */
+						'\x00', '\x01', /* u2 max_locals=1 */
 						'\x00', '\x00', '\x00', '\x05',	/* u4 code_length=5 */
 						'\x2A', '\xB7', '\x00', '\x01', '\xB1',
 						'\x00', '\x00',	/* u2 exception_table_length=0 */
 						'\x00', '\x01',	/* u2 attributes_count=1 */
+						// TODO: insert reference from constant pool here
 						'\x00', '\x0A',	/* u2 attribute_name_index=10, length=15; bytes="LineNumberTable" */
 						'\x00', '\x00', '\x00', '\x06',	/* u4 attribute_length=6 */
 						'\x00', '\x01', '\x00', '\x00', '\x00', '\x01'	/* Attribute bytes: */
@@ -109,17 +111,19 @@ void ClassfileWriter::WriteMethods() {
 	 * TODO: for MS2: May be replaced by a function
 	 */
 	char methodMain[] { '\x00', '\x09',	/* access_flag=9 */
+						// TODO: insert reference from constant pool here
 						'\x00', '\x0B',	/* main */
 						'\x00', '\x0C',	/* ([Ljava/lang/String;)V */
 						'\x00', '\x01',	/* u2 attributes_count=1 */
 						'\x00', '\x09',	/* u2 attribute_name_index=9 */
 						'\x00', '\x00', '\x00', '\x25',	/* u4 attribute_length=37 */
-						'\x00', '\x02',    /* u2 max_stack=2 */
-						'\x00', '\x01',    /* u2 max_locals=1 */
+						'\x00', '\x02', /* u2 max_stack=2 */
+						'\x00', '\x01', /* u2 max_locals=1 */
 						'\x00', '\x00', '\x00', '\x09',	/* u4 code_length=9 */
 						'\xB2', '\x00', '\x02', '\x12', '\x03', '\xB6', '\x00', '\x04', '\xB1',
 						'\x00', '\x00',	/* u2 exception_table_length=0 */
 						'\x00', '\x01',	/* u2 attributes_count=1 */
+						// TODO: insert reference from constant pool here
 						'\x00', '\x0A',	/* u2 attribute_name_index=10, length=15; bytes="LineNumberTable" */
 						'\x00', '\x00', '\x00', '\x0A',	/* u4 attribute_length=10 */
 						'\x00', '\x02', '\x00', '\x00', '\x00', '\x03', '\x00', '\x08', '\x00', '\x04'	/* Attribute bytes: */
