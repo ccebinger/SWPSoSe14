@@ -1,8 +1,0 @@
-<map id="backend/codegen/bytecode_generator.h" name="backend/codegen/bytecode_generator.h">
-<area shape="rect" id="node2" href="$constant__pool_8h.html" title="backend/classfile/constant\l_pool.h" alt="" coords="121,262,297,303"/>
-<area shape="rect" id="node7" href="$ast_8h.html" title="common/ast/ast.h" alt="" coords="322,269,448,296"/>
-<area shape="rect" id="node10" href="$Graphs_8h.html" title="frontend/Graphs.h" alt="" coords="655,96,781,123"/>
-<area shape="rect" id="node15" href="$adjacency__list_8h.html" title="frontend/adjacency\l_list.h" alt="" coords="421,171,552,213"/>
-<area shape="rect" id="node17" href="$Invalid__Format__Exception_8h.html" title="frontend/Invalid_Format\l_Exception.h" alt="" coords="913,171,1071,213"/>
-<area shape="rect" id="node19" href="$IO__Exception_8h.html" title="frontend/IO_Exception.h" alt="" coords="1096,179,1259,205"/>
-</map>

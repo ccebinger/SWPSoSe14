@@ -1,7 +1,0 @@
-<map id="Backend::Generate" name="Backend::Generate">
-<area shape="rect" id="node2" href="$classGraphs.html#a91dad024134f39c0695017b419bc5e30" title="Graphs::find" alt="" coords="251,5,344,32"/>
-<area shape="rect" id="node3" href="$classBytecodeGenerator.html#a3e352fea6159f2c4bb48ec9b3d532672" title="BytecodeGenerator::\lGenerateCodeFromFuntionGraph" alt="" coords="190,57,405,98"/>
-<area shape="rect" id="node6" href="$classClassfileWriter.html#a578ae6492320adc125ec2aaf13ad65c6" title="ClassfileWriter::WriteClassfile" alt="" coords="198,123,397,149"/>
-<area shape="rect" id="node4" href="$classConstantPool.html#acecd4913f07d84ff76ac59dee978730d" title="ConstantPool::addString" alt="" coords="454,64,618,91"/>
-<area shape="rect" id="node5" href="$classItem.html#a6c9c2df6f8e7e5bd6816cbbb9d50bf1e" title="Item::set" alt="" coords="667,64,741,91"/>
-</map>
