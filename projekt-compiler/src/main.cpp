@@ -23,15 +23,23 @@ int main(int argc, char *argv[]) {
 
 
 	// Ensure existence of folder io
+#ifdef _WIN32
 	if(access("io", F_OK) == -1) {
+		if(mkdir("io") == -1) {
+			IO_Exception ie;
+			ie.set_file("io");
+			throw ie;
+		}
+	}
+#else
+  if(access("io", F_OK) == -1) {
 		if(mkdir("io", 0777) == -1) {
 			IO_Exception ie;
 			ie.set_file("io");
 			throw ie;
 		}
 	}
-
-
+#endif
 
 	string srcFile = "";
 	string srcDeserialize = "";
