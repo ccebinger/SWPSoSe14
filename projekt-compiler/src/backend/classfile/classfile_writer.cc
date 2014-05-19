@@ -65,7 +65,7 @@ void ClassfileWriter::WriteClassName() {
 
 void ClassfileWriter::WriteSuperClassName() {
   /**
-   * FIXME: in line 71, the argument superClass is not accepted
+   * FIXME: in line 72, the argument superClass is not accepted
    * Is this a problem of eclipse? Does it build correctly in your IDE?
    */
   const std::string superClass("java/lang/Object");
