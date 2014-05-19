@@ -129,7 +129,7 @@ void Item::set(int32_t  _type,
 ////////////////////////////////////////////////////////////////////////
 /// default constructor
 ////////////////////////////////////////////////////////////////////////
-ConstantPool::ConstantPool():index(1), key(0), items(256) {
+ConstantPool::ConstantPool():index(1), items(256) {
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -138,15 +138,192 @@ ConstantPool::ConstantPool():index(1), key(0), items(256) {
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
 uint16_t ConstantPool::addString(const std::string &value) {
+  Item key;
   key.set(STR, value, "", "");
-  // Item result = get(key2);
+  Item result = get(key);
   // if (result == NULL) {
-  //   //pool.put12(STR, newUTF8(value));
+  //   pool.put12(STR, newUTF8(value));
   //   result = new Item(index++, key2);
   //   put(result);
   // }
   // return index;
-  return 0;
+  return key.index;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+/// Puts a byte into this byte vector. The byte vector is automatically
+/// enlarged if necessary.
+/// \param b a byte.
+/// \return this byte vector.
+////////////////////////////////////////////////////////////////////////
+uint16_t ConstantPool::putByte(uint8_t b) {
+  int length = this.length;
+  if (length + 1 > data.length) {
+    enlarge(1);
+  }
+  data[length++] = (byte) b;
+  this.length = length;
+  return this;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// Puts a short into this byte vector. The byte vector is automatically
+/// enlarged if necessary.
+/// \param s a short.
+/// \return this byte vector.
+////////////////////////////////////////////////////////////////////////
+uint16_t ConstantPool::putShort(uint16_t s) {
+  int length = this.length;
+  if (length + 2 > data.length) {
+    enlarge(2);
+  }
+  byte[] data = this.data;
+  data[length++] = (byte) (s >>> 8);
+  data[length++] = (byte) s;
+  this.length = length;
+  return this;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// Puts an int into this byte vector. The byte vector is automatically
+/// enlarged if necessary.
+/// \param i an int.
+/// \return this byte vector.
+////////////////////////////////////////////////////////////////////////
+uint16_t ConstantPool::putInt(int32_t i) {
+  int length = this.length;
+  if (length + 4 > data.length) {
+    enlarge(4);
+  }
+  byte[] data = this.data;
+  data[length++] = (byte) (i >>> 24);
+  data[length++] = (byte) (i >>> 16);
+  data[length++] = (byte) (i >>> 8);
+  data[length++] = (byte) i;
+  this.length = length;
+  return this;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// Puts a long into this byte vector. The byte vector is automatically
+/// enlarged if necessary.
+/// \param l a long.
+/// \return this byte vector.
+////////////////////////////////////////////////////////////////////////
+uint16_t ConstantPool::putLong(int64_t l) {
+  int length = this.length;
+  if (length + 8 > data.length) {
+    enlarge(8);
+  }
+  byte[] data = this.data;
+  int i = (int) (l >>> 32);
+  data[length++] = (byte) (i >>> 24);
+  data[length++] = (byte) (i >>> 16);
+  data[length++] = (byte) (i >>> 8);
+  data[length++] = (byte) i;
+  i = (int) l;
+  data[length++] = (byte) (i >>> 24);
+  data[length++] = (byte) (i >>> 16);
+  data[length++] = (byte) (i >>> 8);
+  data[length++] = (byte) i;
+  this.length = length;
+  return this;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// Puts an UTF8 string into this byte vector. The byte vector is
+/// automatically enlarged if necessary.
+/// \param s a String whose UTF8 encoded length must be less than 65536.
+/// \return this byte vector.
+////////////////////////////////////////////////////////////////////////
+uint16_t ConstantPool::putUTF8(std:string s) {
+  int charLength = s.length();
+  if (charLength > 65535) {
+    throw new IllegalArgumentException();
+  }
+  int len = length;
+  if (len + 2 + charLength > data.length) {
+    enlarge(2 + charLength);
+  }
+  byte[] data = this.data;
+  // optimistic algorithm: instead of computing the byte length and then
+  // serializing the string (which requires two loops), we assume the byte
+  // length is equal to char length (which is the most frequent case), and
+  // we start serializing the string right away. During the serialization,
+  // if we find that this assumption is wrong, we continue with the
+  // general method.
+  data[len++] = (byte) (charLength >>> 8);
+  data[len++] = (byte) charLength;
+  for (int i = 0; i < charLength; ++i) {
+    char c = s.charAt(i);
+    if (c >= '\001' && c <= '\177') {
+      data[len++] = (byte) c;
+    } else {
+      length = len;
+      return encodeUTF8(s, i, 65535);
+    }
+  }
+  length = len;
+  return this;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+/// Puts an UTF8 string into this byte vector. The byte vector is
+/// automatically enlarged if necessary. The string length is encoded in two
+/// bytes before the encoded characters, if there is space for that (i.e. if
+/// this.length - i - 2 >= 0).
+/// \param s the String to encode.
+/// \param i the index of the first character to encode. The previous
+///          characters are supposed to have already been encoded, using
+///          only one byte per character.
+/// \param maxByteLength the maximum byte length of the encoded string,
+///        including the already encoded characters.
+/// \return this byte vector.
+////////////////////////////////////////////////////////////////////////
+uint16_t ConstantPool::encodeUTF8(std:string s, int32_t i,
+                                  int32_t maxByteLength) {
+  int charLength = s.length();
+  int byteLength = i;
+  char c;
+  for (int j = i; j < charLength; ++j) {
+    c = s.charAt(j);
+    if (c >= '\001' && c <= '\177') {
+      byteLength++;
+    } else if (c > '\u07FF') {
+      byteLength += 3;
+    } else {
+      byteLength += 2;
+    }
+  }
+  if (byteLength > maxByteLength) {
+    throw new IllegalArgumentException();
+  }
+  int start = length - i - 2;
+  if (start >= 0) {
+    data[start] = (byte) (byteLength >>> 8);
+    data[start + 1] = (byte) byteLength;
+  }
+  if (length + byteLength - i > data.length) {
+    enlarge(byteLength - i);
+  }
+  int len = length;
+  for (int j = i; j < charLength; ++j) {
+    c = s.charAt(j);
+    if (c >= '\001' && c <= '\177') {
+      data[len++] = (byte) c;
+    } else if (c > '\u07FF') {
+      data[len++] = (byte) (0xE0 | c >> 12 & 0xF);
+      data[len++] = (byte) (0x80 | c >> 6 & 0x3F);
+      data[len++] = (byte) (0x80 | c & 0x3F);
+    } else {
+      data[len++] = (byte) (0xC0 | c >> 6 & 0x1F);
+      data[len++] = (byte) (0x80 | c & 0x3F);
+    }
+  }
+  length = len;
+  return this;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -155,9 +332,9 @@ uint16_t ConstantPool::addString(const std::string &value) {
 /// \return index of the integer in the pool
 ////////////////////////////////////////////////////////////////////////
 uint16_t ConstantPool::addInt(int32_t value) {
-  key.set(value);
-  // Item result = get(key);
-  // if (result == NULL) {
+  Item key(value);
+  Item result = get(key);
+  // if (result) {
   pool.push_back(uint8_t(value>>24));
   pool.push_back(uint8_t(value>>16));
   pool.push_back(uint8_t(value>>8));
@@ -166,8 +343,7 @@ uint16_t ConstantPool::addInt(int32_t value) {
   key.index = index++;
   put(key);
   // }
-  // return index;
-  return 0;
+  return index;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -176,16 +352,16 @@ uint16_t ConstantPool::addInt(int32_t value) {
 /// \return index of the long intenger in the pool
 ////////////////////////////////////////////////////////////////////////
 uint16_t ConstantPool::addLong(int64_t value) {
+  Item key;
   key.set(value);
-  // Item result = get(key);
+  Item result = get(key);
   // if (result == NULL) {
   //   pool.putByte(LONG).putLong(value);
   //   result = new Item(index, key);
   //   index += 2;
   //   put(result);
   // }
-  // return index;
-  return 0;
+  return index;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -201,12 +377,9 @@ std::vector<uint8_t> ConstantPool::getByteArray() {
 /// \param i item to find in pool
 /// \return index of item or zero if not in pool
 ////////////////////////////////////////////////////////////////////////
-uint16_t ConstantPool::get(const Item &key) const {
+const Item& ConstantPool::get(const Item &key) const {
   auto i = std::find(items.begin(), items.end(), key);
-  while (i != items.end() && (i->type != key.type || !(key == *i))) {
-    //(*i).set(i->next);
-  }
-  return i->index;
+  return *i;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -235,6 +408,46 @@ void ConstantPool::put(const Item &i) {
   item.next = &items[index++];
   items[index] = item;
 }
+
+////////////////////////////////////////////////////////////////////////
+/// Puts two bytes into this byte vector. The byte vector is automatically
+/// enlarged if necessary.
+/// \param b1 first byte.
+/// \param b2 second byte.
+/// \return this byte vector.
+////////////////////////////////////////////////////////////////////////
+uint16_t ConstantPool::put11( int b1,  int b2) {
+  int length = this.length;
+  if (length + 2 > data.length) {
+    enlarge(2);
+  }
+  byte[] data = this.data;
+  data[length++] = (byte) b1;
+  data[length++] = (byte) b2;
+  this.length = length;
+  return this;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// Puts a byte and a short into this byte vector. The byte vector is
+/// automatically enlarged if necessary.
+/// \param b first byte.
+/// \param s a short.
+/// \return this byte vector.
+////////////////////////////////////////////////////////////////////////
+uint16_t ConstantPool::put12( int b,  int s) {
+  int length = this.length;
+  if (length + 3 > data.length) {
+    enlarge(3);
+  }
+  byte[] data = this.data;
+  data[length++] = (byte) b;
+  data[length++] = (byte) (s >>> 8);
+  data[length++] = (byte) s;
+  this.length = length;
+  return this;
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 /// Puts one byte and two shorts into the constant pool.
