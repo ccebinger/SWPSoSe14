@@ -26,7 +26,7 @@ class ClassfileWriter {
    * Stream 'out'. Der Bytecode wird in der map 'codeFunctions' gehalten, Map
    * Funktionsname -> Bytecode.
    */
-  ClassfileWriter(ClassfileVersion version, const ConstantPool& constantPool,
+  ClassfileWriter(ClassfileVersion version, ConstantPool& constantPool,
                   const std::map<std::string,
                     std::vector<char>&> codeFunctions,
                   std::ostream& out);
@@ -60,7 +60,7 @@ class ClassfileWriter {
   /**
    * Der ConstantPool der zu schreibenden Class-Datei.
    */
-  const ConstantPool& constant_pool_;
+  ConstantPool& constant_pool_;
 
   /**
    * Mappt Funktionsnamen auf ihren zugehörigen Bytecode.

@@ -18,7 +18,7 @@ std::map<ClassfileWriter::ClassfileVersion, const std::array<const char, 4>>
 };
 
 ClassfileWriter::ClassfileWriter(ClassfileVersion version,
-                                 const ConstantPool& constantPool,
+                                 ConstantPool& constantPool,
                                  const std::map<std::string,
                                    std::vector<char>&> codeFunctions,
                                  std::ostream& out) :
@@ -60,11 +60,15 @@ void ClassfileWriter::WriteAccessFlags() {
 }
 
 void ClassfileWriter::WriteClassName() {
-  //TODO
+	uint16_t indexInPool = (constant_pool_.addString("java/lang/Object"))-1;
+	out_ << ((unsigned char) indexInPool & 0xFF00U >> 8);
+	out_ << ((unsigned char) indexInPool & 0x00FFU);
 }
 
 void ClassfileWriter::WriteSuperClassName() {
-  //TODO
+  uint16_t indexInPool = constant_pool_.addString("java/lang/Object");
+  out_ << ((unsigned char) indexInPool & 0xFF00U >> 8);
+  out_ << ((unsigned char) indexInPool & 0x00FFU);
 }
 
 void ClassfileWriter::WriteInterfaces() {
