@@ -15,8 +15,8 @@ std::vector<char> BytecodeGenerator::GenerateCodeFromFuntionGraph(Graphs::Graph_
       // Emit
       // ldc indexInPool
       result.push_back('\x12');
-      result.push_back(indexInPool && 0xFF00U >> 8);
-      result.push_back(indexInPool && 0x00FFU);
+      result.push_back(indexInPool & 0xFF00U >> 8);
+      result.push_back(indexInPool & 0x00FFU);
     break;
     case Command::Type::OUTPUT:
       // Emit
