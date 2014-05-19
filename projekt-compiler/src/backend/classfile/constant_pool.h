@@ -13,8 +13,13 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with this
 program; if not, see <http://www.gnu.org/licenses/>.*/
 
-#ifndef CONSTANT_POOL_H_
-#define CONSTANT_POOL_H_
+////////////////////////////////////////////////////////////////////////
+// ! \file constant_pool.h
+/// definition
+////////////////////////////////////////////////////////////////////////
+
+#ifndef PROJEKT_COMPILER_SRC_BACKEND_CLASSFILE_CONSTANT_POOL_H_
+#define PROJEKT_COMPILER_SRC_BACKEND_CLASSFILE_CONSTANT_POOL_H_
 
 #include <cstdint>
 #include <vector>
@@ -24,6 +29,10 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 static const int STR = 8;
 static const int INT = 3;
 static const int LONG = 5;
+
+////////////////////////////////////////////////////////////////////////
+/// ! Item
+////////////////////////////////////////////////////////////////////////
 
 class Item {
  public:
@@ -41,19 +50,19 @@ class Item {
            const std::string &_strVal2,
            const std::string &_strVal3);
 
-  Item *next;
-  uint16_t index;
-  int32_t type;
-  int32_t intVal;
-  int64_t longVal;
-  std::string strVal1;
-  std::string strVal2;
-  std::string strVal3;
-  int32_t hashCode;
-
- private:
-  std::hash<std::string> hash_fn;
+  uint16_t index;  //!< index of item
+  int32_t type;  //!< item type
+  int32_t intVal;  //!< if type integer the value is stored here
+  int64_t longVal;  //!< if type long values is stored here
+  std::string strVal1;  //!< if type string value is stored here
+  std::string strVal2;  //!< if type string value is stored here
+  std::string strVal3;  //!< if type string value is stored here
+  Item *next;  //!< pointer to next item in list
 };
+
+////////////////////////////////////////////////////////////////////////
+/// ! ConstantPool
+////////////////////////////////////////////////////////////////////////
 
 class ConstantPool {
  public:
@@ -69,12 +78,10 @@ class ConstantPool {
   void put122(int32_t b, int32_t s1, int32_t s2);
   void put112(int32_t b1, int32_t b2, int32_t s);
 
-  int threshold;
-  int index;
-  Item key;
-  Item key2;
-  std::vector<Item> items;
-  std::vector<uint8_t> pool;
+  int index;  //!< index xounter
+  Item key;  //!< helper object to push item into pool
+  std::vector<Item> items;  //!< item list
+  std::vector<uint8_t> pool;  //!< byte constant list
 };
 
-#endif /* CONSTANT_POOL_H_ */
+#endif  // PROJEKT_COMPILER_SRC_BACKEND_CLASSFILE_CONSTANT_POOL_H_

@@ -41,7 +41,6 @@ Item::Item(const Item &i) {
   strVal1 = i.strVal1;
   strVal2 = i.strVal2;
   strVal3 = i.strVal3;
-  hashCode = i.hashCode;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -57,7 +56,6 @@ Item::Item(uint16_t _index, const Item &i) {
   strVal1 = i.strVal1;
   strVal2 = i.strVal2;
   strVal3 = i.strVal3;
-  hashCode = i.hashCode;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -90,7 +88,6 @@ bool Item::operator=(const Item& i) {
   strVal1 = i.strVal1;
   strVal2 = i.strVal2;
   strVal3 = i.strVal3;
-  hashCode = i.hashCode;
   return true;
 }
 
@@ -101,7 +98,6 @@ bool Item::operator=(const Item& i) {
 void Item::set(int32_t _intVal) {
   type = INT;
   intVal = _intVal;
-  hashCode = 0x7FFFFFFF & (type + _intVal);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -111,7 +107,6 @@ void Item::set(int32_t _intVal) {
 void Item::set(int64_t _longVal) {
   type = LONG;
   longVal = _longVal;
-  hashCode = 0x7FFFFFFF & (type + (int32_t) _longVal);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -129,21 +124,12 @@ void Item::set(int32_t  _type,
   strVal1 = _strVal1;
   strVal2 = _strVal2;
   strVal3 = _strVal3;
-  switch (type) {
-    case STR: {
-      hashCode = 0x7FFFFFFF & (type + hash_fn(strVal1));
-      return;
-    }
-    default:
-      hashCode = 0x7FFFFFFF & (type + hash_fn(strVal1)
-                               * hash_fn(strVal2) * hash_fn(strVal3));
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////
 /// default constructor
 ////////////////////////////////////////////////////////////////////////
-ConstantPool::ConstantPool():index(1), key(0), key2(0), items(256) {
+ConstantPool::ConstantPool():index(1), key(0), items(256) {
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -152,7 +138,7 @@ ConstantPool::ConstantPool():index(1), key(0), key2(0), items(256) {
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
 uint16_t ConstantPool::addString(const std::string &value) {
-  key2.set(STR, value, "", "");
+  key.set(STR, value, "", "");
   // Item result = get(key2);
   // if (result == NULL) {
   //   //pool.put12(STR, newUTF8(value));
@@ -229,14 +215,14 @@ uint16_t ConstantPool::get(const Item &key) const {
 ////////////////////////////////////////////////////////////////////////
 void ConstantPool::put(const Item &i) {
   Item item(i);
-  if (index > threshold) {
+  //if (index > threshold) {
     int ll = items.size();
     int nl = ll * 2 + 1;
     std::vector<Item> newItems(nl);
     for (int l = ll - 1; l >= 0; --l) {
       Item *j = &items[l];
       while (j != nullptr) {
-        int index = j->hashCode % newItems.size();
+        int index = j->index;
         Item *k = j->next;
         j->next = &newItems[index];
         //newItems[index] = &j;
@@ -244,10 +230,9 @@ void ConstantPool::put(const Item &i) {
       }
     }
     items = newItems;
-    threshold = (int) (nl * 0.75);
-  }
-  int index = item.hashCode % items.size();
-  item.next = &items[index];
+    //threshold = (int) (nl * 0.75);
+    //}
+  item.next = &items[index++];
   items[index] = item;
 }
 
