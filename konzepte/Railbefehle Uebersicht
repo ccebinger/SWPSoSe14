@@ -2,40 +2,77 @@ Konzept des Lexer / Parsers
 
 Übersicht über die Befehle in Rail und deren Bezeichnung
 
-Befehl in R	|	Bezeichnung	|	Funktion	
+	Befehl in R	|	Bezeichnung	|	Funktion	
 
-	i	|	in()		|	Eingabe 
-	o	|	out()		|	Ausgabe
-	e	|	eof()		|	EOF
-	b	|	boom()		|	Programm Crash und Ausgab
-	u	|	under()		|	Push Anzahl Elemente auf dem Stack bevor gepusht wir
-	?	|	type()		|	Ausgabe des Typ
+System		i	|	in()		|	Eingabe 
+		o	|	out()		|	Ausgabe
+		e	|	eof()		|	EOF
+		b	|	boom()		|	Programm Crash und Ausgab
+		u	|	under()		|	Push Anzahl Elemente auf dem Stack bevor gepusht wir
+		?	|	type()		|	Ausgabe des Typ
 	
-	[1]	|	pushConst(1)	|	Push Konstante 1
-	1	|	pushConst(1)	|	Push Konstante 1
-	(x)	|	pushVar(x)	|	Push Variable x
-	(!x!)	|	popVar(x)	|	Pop Variable x
-	{x}	|	call(x)		|	Funktionsaufruf
+
+Delimiter	[1]	|	pushConst(1)	|	Push Konstante 1
+		1	|	pushConst(1)	|	Push Konstante 1
+		(x)	|	pushVar(x)	|	Push Variable x
+		(!x!)	|	popVar(x)	|	Pop Variable x
+		{x}	|	call(x)		|	Funktionsaufruf
  
-	a	|	add()		|	Addition
-	s	|	sub()		|	Subtraktion
-	d	|	div()		|	Division 
-	m	|	mult()		|	Multiplikation
-	r	|	mod()		|	Modulo Operation. Gibt den Rest aus
-		
-	c	|	cut()		|	Stringcut
-	p	|	append()	|	Hängt String an
-	z	|	size()		|	bestimmt die Anzahl Zeichen
-	n	|	nil()		|	Leere Liste wird auf den Stack gepusht
-	:	|	concat()	|	Fügt Liste an Liste an
-	~	|	break()		|	Ausgabe von Head und Tail
 	
-	f	| 	pushConst(0)	|	False. Push 0 auf dem Stack
-	t	|	pushConst(1)	|	True. Push 1 auf den Stack
-	g	|	greater()	|	Input a und b. C ist dann das Ergebnis von a>b
-	q	|	equal()		|	Überprüfung auf Gleichheit
-	
-	@	|	reflect()	|	Richtung wird gespiegelt
-	&	|	lambda()	|	Weiß nicht....
+Math		a	|	add()		|	Addition
+		s	|	sub()		|	Subtraktion
+		d	|	div()		|	Division 
+		m	|	mult()		|	Multiplikation
+		r	|	mod()		|	Modulo Operation. Gibt den Rest aus
 
+		
+String		c	|	cut()		|	Stringcut
+		p	|	append()	|	Hängt String an
+		z	|	size()		|	bestimmt die Anzahl Zeichen
+
+
+List		n	|	nil()		|	Leere Liste wird auf den Stack gepusht
+		:	|	concat()	|	Fügt Liste an Liste an
+		~	|	break()		|	Ausgabe von Head und Tail
+	
+	
+Condition	f	| 	pushConst(0)	|	False. Push 0 auf dem Stack
+		t	|	pushConst(1)	|	True. Push 1 auf den Stack
+		g	|	greater()	|	Input a und b. C ist dann das Ergebnis von a>b
+		q	|	equal()		|	Überprüfung auf Gleichheit
+
+
+	
+Misc		@	|	reflect()	|	Richtung wird gespiegelt
+		&	|	lambda()	|	Weiß nicht....
+
+
+Einzelne Buchstaben, die in Rail eine Bedeutung haben:
+
+	a	add
+	b	boom
+	c	cut
+	d	div
+	e	eof
+	f	false
+	g	greater than
+	h	-
+	i	input
+	j	-
+	k	-
+	l	-
+	m	mul
+	n	nil
+	o	output
+	p	append
+	q	equal
+	r	Rest von Mod
+	s	sub
+	t	true
+	u	underflow
+	v	if
+	w	-
+	x	gleis
+	y	-
+	z	size
 ￼
