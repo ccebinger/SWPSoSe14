@@ -37,7 +37,7 @@ static const int LONG = 5;
 class Item {
  public:
   Item();
-  explicit Item(const Item &i);
+  Item(const Item &i);
   explicit Item(uint16_t _index);
   Item(uint16_t _index, const Item &i);
 
@@ -73,13 +73,12 @@ class ConstantPool {
   uint16_t addLong(int64_t value);
   std::vector<uint8_t> getByteArray();
  private:
-  uint16_t get(const Item &key)const;
+  const Item& get(const Item &key)const;
   void put(const Item &i);
   void put122(int32_t b, int32_t s1, int32_t s2);
   void put112(int32_t b1, int32_t b2, int32_t s);
 
   int index;  //!< index xounter
-  Item key;  //!< helper object to push item into pool
   std::vector<Item> items;  //!< item list
   std::vector<uint8_t> pool;  //!< byte constant list
 };
