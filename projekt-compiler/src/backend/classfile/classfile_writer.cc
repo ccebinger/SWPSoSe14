@@ -1,5 +1,5 @@
 /*!
-* \mainpage
+* \mainpage classfile_writer.cc
 * \author Backend group & friends
 * \date SoSe 2014
 *

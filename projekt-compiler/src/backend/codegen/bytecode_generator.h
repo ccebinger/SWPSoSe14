@@ -8,7 +8,7 @@
 class BytecodeGenerator
 {
 public:
-  static std::vector<char> GenerateCodeFromFuntionGraph(Graphs::Graph_ptr graph,
+  static std::vector<char> GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
                                ConstantPool& constantPool);
 
 private:
