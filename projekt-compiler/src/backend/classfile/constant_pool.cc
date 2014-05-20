@@ -201,7 +201,7 @@ std::vector<uint8_t> ConstantPool::getByteArray() {
 /// \param i item to find in pool
 /// \return index of item or zero if not in pool
 ////////////////////////////////////////////////////////////////////////
-uint16_t ConstantPool::get(const Item &key) const {
+const Item& ConstantPool::get(const Item &key) const {
   auto i = std::find(items.begin(), items.end(), key);
   while (i != items.end() && (i->type != key.type || !(key == *i))) {
     //(*i).set(i->next);

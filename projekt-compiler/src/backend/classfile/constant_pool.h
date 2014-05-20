@@ -79,6 +79,7 @@ class ConstantPool {
   void put112(int32_t b1, int32_t b2, int32_t s);
 
   int index;  //!< index xounter
+  Item key;
   std::vector<Item> items;  //!< item list
   std::vector<uint8_t> pool;  //!< byte constant list
 };
