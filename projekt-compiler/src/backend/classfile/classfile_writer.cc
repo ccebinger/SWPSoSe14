@@ -85,7 +85,8 @@ void ClassfileWriter::WriteVersionNumber() {
  * \sa constant_pool.cc
  */
 void ClassfileWriter::WriteConstantPool() {
-  // TODO
+  out_.write((char*)constant_pool_.getByteArray().data(),
+             constant_pool_.getByteArray().size());
 }
 
 /*!

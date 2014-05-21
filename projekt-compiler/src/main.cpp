@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
 		int rMkdir = mkdir("io");
 #else
 		int rMkdir = mkdir("io", 0777);
-#endif;
+#endif
 		if(rMkdir == -1) {
 			IO_Exception ie;
 			ie.set_file("io");
