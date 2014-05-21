@@ -134,14 +134,32 @@ ConstantPool::ConstantPool(): items(256) {
 }
 
 ////////////////////////////////////////////////////////////////////////
+/// method to put a string into the pool
+/// \param value value to add to pool
+/// \return index of the string in pool
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::addString(const std::string &value) {
+  Item key;
+  key.set(STR, value, "", "");
+  Item result = get(key);
+  // if (result == NULL) {
+  //   pool.put12(STR, newUTF8(value));
+  //   result = new Item(index++, key2);
+  //   put(result);
+  // }
+  // return index;
+  return key.index;
+}
+
+
+////////////////////////////////////////////////////////////////////////
 /// Puts a byte into this byte vector. The byte vector is automatically
 /// enlarged if necessary.
 /// \param b a byte.
 /// \return this byte vector.
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::putByte(uint8_t b) {
+void ConstantPool::putByte(uint8_t b) {
   pool.push_back((uint8_t) b);
-  return items.size();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -150,10 +168,9 @@ size_t ConstantPool::putByte(uint8_t b) {
 /// \param s a short.
 /// \return this byte vector.
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::putShort(uint16_t s) {
+void ConstantPool::putShort(uint16_t s) {
   pool.push_back((uint8_t) (s >> 8));
   pool.push_back((uint8_t) s);
-  return items.size();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -162,12 +179,11 @@ size_t ConstantPool::putShort(uint16_t s) {
 /// \param i an int.
 /// \return this byte vector.
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::putInt(int32_t i) {
+void ConstantPool::putInt(int32_t i) {
   pool.push_back((uint8_t) (i >> 24));
   pool.push_back((uint8_t) (i >> 16));
   pool.push_back((uint8_t) (i >> 8));
   pool.push_back((uint8_t) i);
-  return items.size();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -176,7 +192,7 @@ size_t ConstantPool::putInt(int32_t i) {
 /// \param l a long.
 /// \return this byte vector.
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::putLong(int64_t l) {
+void ConstantPool::putLong(int64_t l) {
   int i = (int32_t) (l >> 32);
   pool.push_back((uint8_t) (i >> 24));
   pool.push_back((uint8_t) (i >> 16));
@@ -187,7 +203,6 @@ size_t ConstantPool::putLong(int64_t l) {
   pool.push_back((uint8_t) (i >> 16));
   pool.push_back((uint8_t) (i >> 8));
   pool.push_back((uint8_t) i);
-  return items.size();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -196,7 +211,7 @@ size_t ConstantPool::putLong(int64_t l) {
 /// \param s a String whose UTF8 encoded length must be less than 65536.
 /// \return this byte vector.
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::putUTF8(std::string s) {
+void ConstantPool::putUTF8(std::string s) {
   // optimistic algorithm: instead of computing the byte length and then
   // serializing the string (which requires two loops), we assume the byte
   // length is equal to char length (which is the most frequent case), and
@@ -214,7 +229,6 @@ size_t ConstantPool::putUTF8(std::string s) {
     //   return encodeUTF8(s, i, 65535);
     }
   }
-  return items.size();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -230,7 +244,7 @@ size_t ConstantPool::putUTF8(std::string s) {
 ///        including the already encoded characters.
 /// \return this byte vector.
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::encodeUTF8(std::string s, int32_t i,
+void ConstantPool::encodeUTF8(std::string s, int32_t i,
                                   int32_t maxByteLength) {
   // int charLength = s.length();
   // int byteLength = i;
@@ -266,6 +280,43 @@ size_t ConstantPool::encodeUTF8(std::string s, int32_t i,
   //     pool.push_back((uint8_t) (0xC0 | c >> 6 & 0x1F));
   //     pool.push_back((uint8_t) (0x80 | c & 0x3F));
   //   }
+  // }
+}
+
+////////////////////////////////////////////////////////////////////////
+/// method to put a integer into the pool
+/// \param value value to add to pool
+/// \return index of the integer in the pool
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::addInt(int32_t value) {
+  Item key(value);
+  Item result = get(key);
+  // if (result) {
+  pool.push_back(uint8_t(value>>24));
+  pool.push_back(uint8_t(value>>16));
+  pool.push_back(uint8_t(value>>8));
+  pool.push_back(uint8_t(value));
+  //result = new Item(index++, key);
+  key.index = items.size() + 1;
+  put(key);
+  // }
+  return items.size();
+}
+
+////////////////////////////////////////////////////////////////////////
+/// method to put a long int into the pool
+/// \param value value to add to pool
+/// \return index of the long intenger in the pool
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::addLong(int64_t value) {
+  Item key;
+  key.set(value);
+  Item result = get(key);
+  // if (result == NULL) {
+  //   pool.putByte(LONG).putLong(value);
+  //   result = new Item(index, key);
+  //   index += 2;
+  //   put(result);
   // }
   return items.size();
 }
