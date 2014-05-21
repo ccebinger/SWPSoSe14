@@ -23,23 +23,20 @@ int main(int argc, char *argv[]) {
 
 
 	// Ensure existence of folder io
-#ifdef _WIN32
+	// Frage von Miro: Wer benutzt denn für das Projekt Windows?
 	if(access("io", F_OK) == -1) {
-		if(mkdir("io") == -1) {
-			IO_Exception ie;
-			ie.set_file("io");
-			throw ie;
-		}
-	}
+#ifdef _WIN32
+		int rMkdir = mkdir("io");
 #else
-  if(access("io", F_OK) == -1) {
-		if(mkdir("io", 0777) == -1) {
+		int rMkdir = mkdir("io", 0777);
+#endif;
+		if(rMkdir == -1) {
 			IO_Exception ie;
 			ie.set_file("io");
 			throw ie;
 		}
 	}
-#endif
+
 
 	string srcFile = "";
 	string srcDeserialize = "";

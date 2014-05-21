@@ -203,7 +203,7 @@ void ConstantPool::putUTF8(std::string s) {
   // general method.
   pool.push_back((uint8_t) (s.size() >> 8));
   pool.push_back((uint8_t) s.size());
-  for (int i = 0; i < s.size(); ++i) {
+  for (size_t i = 0; i < s.size(); ++i) { // Miro: Fixed unsigned vs signed warning
     char c = s[i];
     if (c >= '\001' && c <= '\177') {
       pool.push_back((uint8_t) c);
