@@ -50,7 +50,7 @@ class Item {
            const std::string &_strVal2,
            const std::string &_strVal3);
 
-  uint16_t index;  //!< index of item
+  size_t index;  //!< index of item
   int32_t type;  //!< item type
   int32_t intVal;  //!< if type integer the value is stored here
   int64_t longVal;  //!< if type long values is stored here
@@ -68,27 +68,28 @@ class ConstantPool {
  public:
   ConstantPool();
 
-  uint16_t addString(const std::string &value);
-  uint16_t addInt(int32_t value);
-  uint16_t addLong(int64_t value);
+  size_t addString(const std::string &value);
+  size_t addInt(int32_t value);
+  size_t addLong(int64_t value);
   std::vector<uint8_t> getByteArray();
 
  private:
   const Item& get(const Item &key)const;
 
-  uint16_t encodeUTF8(std::tring s, int i, int maxByteLength);
-  uint16_t putShort(uint16_t s);
-  uint16_t putInt(int32_t i);
-  uint16_t putLong(int64_t l);
-  uint16_t putUTF8(std::tring s);
+  size_t encodeUTF8(std::string s, int32_t i,
+                                    int32_t maxByteLength);
+  size_t putByte(uint8_t b);
+  size_t putShort(uint16_t s);
+  size_t putInt(int32_t i);
+  size_t putLong(int64_t l);
+  size_t putUTF8(std::string s);
 
-  void put(const Item &i);
-  uint16_t put11(int32_t b1, int32_t b2);
-  uint16_t put12(int32_t b, int32_t s);
+  void put(Item i);
+  void put11(int32_t b1, int32_t b2);
+  void put12(int32_t b, int32_t s);
   void put122(int32_t b, int32_t s1, int32_t s2);
   void put112(int32_t b1, int32_t b2, int32_t s);
 
-  int index;  //!< index xounter
   std::vector<Item> items;  //!< item list
   std::vector<uint8_t> pool;  //!< byte constant list
 };
