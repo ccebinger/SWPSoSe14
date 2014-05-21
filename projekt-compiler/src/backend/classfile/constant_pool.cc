@@ -134,25 +134,6 @@ ConstantPool::ConstantPool(): items(256) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-/// method to put a string into the pool
-/// \param value value to add to pool
-/// \return index of the string in pool
-////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addString(const std::string &value) {
-  Item key;
-  key.set(STR, value, "", "");
-  Item result = get(key);
-  // if (result == NULL) {
-  //   pool.put12(STR, newUTF8(value));
-  //   result = new Item(index++, key2);
-  //   put(result);
-  // }
-  // return index;
-  return key.index;
-}
-
-
-////////////////////////////////////////////////////////////////////////
 /// Puts a byte into this byte vector. The byte vector is automatically
 /// enlarged if necessary.
 /// \param b a byte.
@@ -285,44 +266,6 @@ size_t ConstantPool::encodeUTF8(std::string s, int32_t i,
   //     pool.push_back((uint8_t) (0xC0 | c >> 6 & 0x1F));
   //     pool.push_back((uint8_t) (0x80 | c & 0x3F));
   //   }
-  // }
-  return items.size();
-}
-
-////////////////////////////////////////////////////////////////////////
-/// method to put a integer into the pool
-/// \param value value to add to pool
-/// \return index of the integer in the pool
-////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addInt(int32_t value) {
-  Item key(value);
-  Item result = get(key);
-  // if (result) {
-  pool.push_back(uint8_t(value>>24));
-  pool.push_back(uint8_t(value>>16));
-  pool.push_back(uint8_t(value>>8));
-  pool.push_back(uint8_t(value));
-  //result = new Item(index++, key);
-  key.index = items.size() + 1;
-  put(key);
-  // }
-  return items.size();
-}
-
-////////////////////////////////////////////////////////////////////////
-/// method to put a long int into the pool
-/// \param value value to add to pool
-/// \return index of the long intenger in the pool
-////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addLong(int64_t value) {
-  Item key;
-  key.set(value);
-  Item result = get(key);
-  // if (result == NULL) {
-  //   pool.putByte(LONG).putLong(value);
-  //   result = new Item(index, key);
-  //   index += 2;
-  //   put(result);
   // }
   return items.size();
 }
