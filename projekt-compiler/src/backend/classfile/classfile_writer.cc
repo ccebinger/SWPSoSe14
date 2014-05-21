@@ -1,3 +1,13 @@
+/*!
+* \mainpage classfile_writer.cc
+* \author Backend group & friends
+* \date SoSe 2014
+*
+* This class writes the specific class-file we want to create from a rail program.
+* For each function in an rail program (incl. main), we need to produce one class-file.
+*
+*/
+
 #include <backend/classfile/classfile_writer.h>
 #include <backend/classfile/constant_pool.h>
 
@@ -6,29 +16,42 @@
 #include <map>
 #include <string>
 
-const char ClassfileWriter::kMagicNumber[] { '\xCA', '\xFE',
-      '\xBA', '\xBE' };
+const char ClassfileWriter::kMagicNumber[] { '\xCA', '\xFE','\xBA', '\xBE' };
 const char ClassfileWriter::kNotRequired[] { '\x00', '\x00' };
 const char ClassfileWriter::kPublicAccessFlag[] { '\x00', '\x00','\x00', '\x01' };
 
 std::map<ClassfileWriter::ClassfileVersion, const std::array<const char, 4>>
     ClassfileWriter::kVersionNumbers {
-  { ClassfileWriter::ClassfileVersion::JAVA_7,
-        std::array<const char, 4>{'\x00', '\x00', '\x00', '\x33'}}
+    {ClassfileWriter::ClassfileVersion::JAVA_7,
+    std::array<const char, 4>{'\x00', '\x00', '\x00', '\x33'}}
 };
 
+/*!
+ * \brief Constructor for ClassfileWriter
+ * \param version The java version of the class-file
+ * \param constantPool The specific constant pool for the class-file
+ * \param codeFunctions Holds the the bytecode via map function name -> bytecode
+ * \param out The ouput stream
+ */
 ClassfileWriter::ClassfileWriter(ClassfileVersion version,
                                  ConstantPool& constantPool,
                                  const std::map<std::string,
-                                   std::vector<char>&> codeFunctions,
+                                 	 std::vector<char>&> codeFunctions,
                                  std::ostream& out) :
     out_(out), version_(version), constant_pool_(constantPool),
     code_functions_(codeFunctions) {
 }
 
+/*!
+ * \brief Deconstructor for ClassFileWriter
+ */
 ClassfileWriter::~ClassfileWriter() {
 }
 
+/*!
+ * \brief Calls methods to write into the classfile
+ * Each method represents an specific part of the class-file
+ */
 void ClassfileWriter::WriteClassfile() {
   WriteMagicNumber();
   WriteVersionNumber();
@@ -42,43 +65,81 @@ void ClassfileWriter::WriteClassfile() {
   WriteAttributes();
 }
 
+/*!
+ * \brief Write the magic number
+ * The magic number indicates a java class-file
+ */
 void ClassfileWriter::WriteMagicNumber() {
   out_.write(kMagicNumber, sizeof(kMagicNumber));
 }
 
+/*!
+ * \brief Write the java version number (e.g. 0x00000033 for v.7)
+ */
 void ClassfileWriter::WriteVersionNumber() {
   out_.write(kVersionNumbers[version_].data(),
              kVersionNumbers[version_].size());
 }
 
+/*!
+ * \brief Write the constant pool
+ * \sa constant_pool.cc
+ */
 void ClassfileWriter::WriteConstantPool() {
   // TODO
 }
 
+/*!
+ * \brief Write the access flag (e.g. 0x00000001 for public)
+ */
 void ClassfileWriter::WriteAccessFlags() {
   out_.write(kPublicAccessFlag, sizeof(kPublicAccessFlag));
 }
 
+/*!
+ * \brief Write the class name
+ * We get the class name from the constant pool.
+ * The index of the class name is one postition before the
+ * 	java/lang/object super class
+ */
 void ClassfileWriter::WriteClassName() {
 	uint16_t indexInPool = (constant_pool_.addString("java/lang/Object"))-1;
 	out_ << ((unsigned char) indexInPool & 0xFF00U >> 8);
 	out_ << ((unsigned char) indexInPool & 0x00FFU);
 }
-
+/*!
+ * \brief Write super class name
+ * For us we always have the java/lang/object class
+ */
 void ClassfileWriter::WriteSuperClassName() {
   uint16_t indexInPool = constant_pool_.addString("java/lang/Object");
   out_ << ((unsigned char) indexInPool & 0xFF00U >> 8);
   out_ << ((unsigned char) indexInPool & 0x00FFU);
 }
 
+/*!
+ * \brief Write the interfaces
+ * Not used in Rail programms, thus 0x0000
+ */
 void ClassfileWriter::WriteInterfaces() {
   out_.write(kNotRequired, sizeof(kNotRequired));
 }
 
+/*!
+ * \brief Write the fields
+ * Not used in Rail programms, thus 0x0000
+ */
 void ClassfileWriter::WriteFields() {
   out_.write(kNotRequired, sizeof(kNotRequired));
 }
 
+/*!
+ * \brief Write the methods
+ * The methods refer to the constant pool.
+ * BUT this reference is again an reference to the actual element.
+ * (i.e. method -> reference in constant pool -> actual element in constant pool)
+ * FIXME: The init and main is hard coded. Should be replaced later.
+ */
 void ClassfileWriter::WriteMethods() {
 	/**
 	 * TODO: insert method_count dynamically (minimum 2 for init & main method for MS1)
@@ -112,7 +173,7 @@ void ClassfileWriter::WriteMethods() {
 	/**
 	 * Inserts the bytecode for the method main.
 	 * Should be the same in every class-file.
-	 * TODO: for MS2: May be replaced by a function
+	 * TODO: for MS2: May be replaced by a rail function
 	 */
 	char methodMain[] { '\x00', '\x09',	/* access_flag=9 */
 						// TODO: insert reference from constant pool here
@@ -135,6 +196,9 @@ void ClassfileWriter::WriteMethods() {
 	out_.write(methodMain, sizeof(methodMain));
 }
 
+/*!
+ * \brief Writes attributes in class-file
+ */
 void ClassfileWriter::WriteAttributes() {
   // TODO
 }

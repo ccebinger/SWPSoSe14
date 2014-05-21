@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-std::vector<char> BytecodeGenerator::GenerateCodeFromFuntionGraph(Graphs::Graph_ptr graph,
+std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
                                ConstantPool& constantPool) {
   std::vector<char> result;
   std::shared_ptr<Node> currentNode(graph->start());
