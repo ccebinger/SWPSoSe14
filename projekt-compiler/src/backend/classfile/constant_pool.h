@@ -68,15 +68,15 @@ class ConstantPool {
  public:
   ConstantPool();
 
-  size_t addString(const std::string &value);
+  size_t addByte(uint8_t value);
   size_t addInt(int32_t value);
   size_t addLong(int64_t value);
+  size_t addString(const std::string &value);
   std::vector<uint8_t> getByteArray();
-
-
- private:
+  bool check(const Item& i) const;   //!< check if item in list
   const Item& get(const Item &key)const;
 
+ private:
   void encodeUTF8(std::string s, int32_t i,
                                     int32_t maxByteLength);
 
@@ -86,7 +86,7 @@ class ConstantPool {
   void putLong(int64_t l);
   void putUTF8(std::string s);
 
-  void put(Item i);
+  size_t put(Item i);
   void put11(int32_t b1, int32_t b2);
   void put12(int32_t b, int32_t s);
   void put122(int32_t b, int32_t s1, int32_t s2);
