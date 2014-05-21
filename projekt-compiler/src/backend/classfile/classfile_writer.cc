@@ -62,7 +62,6 @@ void ClassfileWriter::WriteClassfile() {
   WriteInterfaces();
   WriteFields();
   WriteMethods();
-  WriteAttributes();
 }
 
 /*!
@@ -162,8 +161,9 @@ void ClassfileWriter::WriteMethods() {
 						'\x00', '\x00', '\x00', '\x05',	/* u4 code_length=5 */
 						'\x2A', '\xB7', '\x00', '\x01', '\xB1',
 						'\x00', '\x00',	/* u2 exception_table_length=0 */
+						// TODO: call WriteAttributes to link method with its specific attributes
 						'\x00', '\x01',	/* u2 attributes_count=1 */
-						// TODO: insert reference from constant pool here
+						// TODO: insert reference from constant pool
 						'\x00', '\x0A',	/* u2 attribute_name_index=10, length=15; bytes="LineNumberTable" */
 						'\x00', '\x00', '\x00', '\x06',	/* u4 attribute_length=6 */
 						'\x00', '\x01', '\x00', '\x00', '\x00', '\x01'	/* Attribute bytes: */
@@ -176,7 +176,7 @@ void ClassfileWriter::WriteMethods() {
 	 * TODO: for MS2: May be replaced by a rail function
 	 */
 	char methodMain[] { '\x00', '\x09',	/* access_flag=9 */
-						// TODO: insert reference from constant pool here
+						// TODO: insert reference from constant pool
 						'\x00', '\x0B',	/* main */
 						'\x00', '\x0C',	/* ([Ljava/lang/String;)V */
 						'\x00', '\x01',	/* u2 attributes_count=1 */
@@ -187,8 +187,9 @@ void ClassfileWriter::WriteMethods() {
 						'\x00', '\x00', '\x00', '\x09',	/* u4 code_length=9 */
 						'\xB2', '\x00', '\x02', '\x12', '\x03', '\xB6', '\x00', '\x04', '\xB1',
 						'\x00', '\x00',	/* u2 exception_table_length=0 */
+						// TODO: call WriteAttributes to link method with its specific attributes
 						'\x00', '\x01',	/* u2 attributes_count=1 */
-						// TODO: insert reference from constant pool here
+						// TODO: insert reference from constant pool
 						'\x00', '\x0A',	/* u2 attribute_name_index=10, length=15; bytes="LineNumberTable" */
 						'\x00', '\x00', '\x00', '\x0A',	/* u4 attribute_length=10 */
 						'\x00', '\x02', '\x00', '\x00', '\x00', '\x03', '\x00', '\x08', '\x00', '\x04'	/* Attribute bytes: */
@@ -198,6 +199,7 @@ void ClassfileWriter::WriteMethods() {
 
 /*!
  * \brief Writes attributes in class-file
+ * Every method calls WritesAttributes
  */
 void ClassfileWriter::WriteAttributes() {
   // TODO
