@@ -130,7 +130,9 @@ void Item::set(int32_t  _type,
 /// default constructor
 ////////////////////////////////////////////////////////////////////////
 ConstantPool::ConstantPool(): items(256) {
-  //FIXME: push constants
+  putUTF8("main.java");
+  putUTF8("java.lang.String");
+  putUTF8("java.lang.System.out");
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -372,7 +374,6 @@ bool ConstantPool::check(const Item &key) const {
 /// \param i value
 ////////////////////////////////////////////////////////////////////////
 size_t ConstantPool::put(Item i) {
-  // FIXME: check if item is in items
   if (!check(i)) {
     i.index = items.size();
     items.push_back(i);
