@@ -25,6 +25,7 @@ int main(int argc, char** argv) {
   std::ostringstream os;
 
   cp.addInt(32);
+  std::cout << "test1: " << cp.addString("main.java") << std::endl;
   std::vector<uint8_t> list = cp.getByteArray();
   std::string str;
 

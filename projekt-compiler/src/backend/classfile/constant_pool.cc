@@ -130,8 +130,13 @@ void Item::set(int32_t  _type,
 /// default constructor
 ////////////////////////////////////////////////////////////////////////
 ConstantPool::ConstantPool(): items(256) {
+  // Java Class Reference auf java/lang/system
+  // Field Reference java.lang.system.out
+  // Method referenc Java.io.printStream.println
+  // Method reference Main.java
   putUTF8("main.java");
   putUTF8("java.lang.String");
+  putUTF8("java.lang.System");
   putUTF8("java.lang.System.out");
 }
 
