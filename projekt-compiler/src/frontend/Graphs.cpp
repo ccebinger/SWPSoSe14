@@ -225,9 +225,11 @@ Command Graphs::getCommand(std::string& cmd)
     else
       c.type = static_cast<Command::Type>(cmd[0]);
   } else if (containsBeginAndEndChar(cmd, '[', ']') ||
-             containsBeginAndEndChar(cmd, '{', '}'))
+             containsBeginAndEndChar(cmd, '{', '}') ||
+             containsBeginAndEndChar(cmd, ']', '[') ||
+             containsBeginAndEndChar(cmd, '}', '{'))
   {
-    if (cmd[0] == '[')
+    if (cmd[0] == '[' || cmd[0] == ']')
       c.type = Command::Type::PUSH_CONST;
     else
       c.type = Command::Type::CALL;
