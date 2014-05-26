@@ -19,3 +19,6 @@ Zum Arbeiten mit git immer folgende schritte:
 5. <git commit -am"Eure Commit-Message ( was habt ihr gemacht)"> (damit erzeugt ihr lokal eine neue Version)
 6. <git push> (läd eure Änderung auf den Server hoch)
 
+Nützliches:
+Unter Linux in der command-line <sudo apt-get install qgit gitk> um die zusätzliche Programme zu installieren. Diese Programme sind nützlich um das Repository zu betrachten(Änderungen nachzuvollziehen).
+
