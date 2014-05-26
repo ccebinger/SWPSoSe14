@@ -1,1 +1,21 @@
-test
+Alles was man braucht um mit git unter linux arbeiten zu können
+
+1. Git installieren(Ubuntu: Softwarecenter, sonst einfach gewünschte version runterladen)
+2. Einmalig: In Git euren Namen und eure Mail-Adresse festlegen:
+	<git config --global user.email "eure Mail Adresse"> (bei mir sah der Befehl so aus: <git config --global user.email "leonbornemann@gmx.de"> )
+	git config --global user.name "euer Git-Name" (bei mir: <git config --global user.name "leonBornemann"> )
+
+3. Einmalig: Ordner erstellen, in den die lokale Kopie des Git-Repositories eingefügt werden soll
+Command-line öffnen und dort mittels "cd" hinnavigieren
+<git clone https://github.com/ccebinger/SWPSoSe14> eingeben, nun solltet ihr statusupdates über den Fortschritt des Runterladens erhalten.
+
+
+Zum Arbeiten mit git immer folgende schritte:
+1. in der command line in das oben erstellte directory reinnavigieren
+2. <git pull> eingeben (holt aktuelle Änderungen vom Server)
+3. In diesem Verzeichnis eure Änderungen machen
+3.5 Zur Sicherheit nochmal <git pull>
+4. Neue Dateien(die ihr neu erzeugt habt) mit dem add Kommando hinzufügen (<git add *> fügt alle Dateien im aktuellen Pfad, die ihr neu erzeugt habt hinzu)
+5. <git commit -am"Eure Commit-Message ( was habt ihr gemacht)"> (damit erzeugt ihr lokal eine neue Version)
+6. <git push> (läd eure Änderung auf den Server hoch)
+
