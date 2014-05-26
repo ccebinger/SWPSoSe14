@@ -24,27 +24,21 @@ int main(int argc, char** argv) {
   ConstantPool cp;
   std::ostringstream os;
 
-<<<<<<< HEAD
   cp.addInt(32);
   std::cout << "test1: " << cp.addString("main.java") << std::endl;
-=======
->>>>>>> 8073628aba04ea16e3215c3c6da47a3be2a7b89c
   std::vector<uint8_t> list = cp.getByteArray();
   int offset  = list.size();
   //  cp.addInt(0x22);
 //  cp.addInt(0x20);
 //  cp.addInt(0x10);
 
-
-
   /*
    *  1)	Byte
    *
    */
-  for(int i=0; i<256;i++) {
-	  cp.addByte(i);
+  for (int i = 0; i< 256; i++) {
+    cp.addByte(i);
   }
-
 
   /*
    *  2)	Integer
@@ -60,14 +54,11 @@ int main(int argc, char** argv) {
    *
    */
 
-
   /*
    *  4)	String
    *
    */
   //cp.addString("Hallo");
-
-
 
   std::string str;
   list = cp.getByteArray();
@@ -78,17 +69,15 @@ int main(int argc, char** argv) {
 
   bakval = static_cast<char>(*iter++);;
   for (; iter!= (list.begin()+offset+255); iter++) {
-	  val = static_cast<char>(*iter);
-	  str += val;
-	  if(!(val > bakval)) {
-		  std::cout << val;
-		  passed = false;
-	  }
-	  bakval = val;
+    val = static_cast<char>(*iter);
+    str += val;
+    if (!(val > bakval)) {
+      std::cout << val;
+      passed = false;
+    }
+    bakval = val;
   }
- // std::cout << str << std::endl;
-
-
+  // std::cout << str << std::endl;
 }
 
 #endif
