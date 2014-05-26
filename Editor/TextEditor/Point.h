@@ -1,73 +1,96 @@
 #include <iostream>
+#include "Stack.h"
 #ifndef POINT_H
 #define POINT_H
 // Interne Repräsentation, wird nur von Graph_Interface verwendet
+// color bytemask: Red: 128,Grey: 64, Blue:32, Green: 16, Fet:8, Kursiv: 4
+// colors Red: commend, Green: Funktion, Black: Connected Rail, Grey: unconnectetd Rail, Blue: String, Blue+Fet: String+Funktion, Kursiv: not used yet, if no color is set color is black.
 class Point{
 	private:
-	int muster, connections, bCons;
+    enum type { RAIL, COM, STRING, FUNC, EMPTY };
+    int muster, connections, bCons, color;
 	char sign;
 	Point* cons[8];
+    bool string;
+    enum type type;
 	
 
 	private:
 	void setMuster(void){
 		switch(sign){
 			case '$' :
-				muster = 3;
+                muster = 3;
+                type = FUNC;
 				break;
 			case '@' :
-				muster = 255;
+                muster = 255;
+                type = FUNC;
 				break;
 			case '#' :
-				muster = 255;
+                muster = 255;
+                type = FUNC;
 				break;
 			case '-' :
 				muster = 24;
+                type = RAIL;
 				break;
 			case '|' :
 				muster = 66;
+                type = RAIL;
 				break;
 			case '\\' :
 				muster = 219;
+                type = RAIL;
 				break;
 			case '/' :
 				muster = 126;
+                type = RAIL;
 				break;
 			case '^' :
 				muster = 69;
+                type = RAIL;
 				break;
 			case '<' :
 				muster = 49;
+                type = RAIL;
 				break;
 			case '>' :
 				muster = 134;
+                type = RAIL;
 				break;
 			case 'v' :
 				muster = 164;
+                type = RAIL;
 				break;
 			case '[' :
-				muster = 255;
+                muster = 255;
+                type = RAIL;
 				break;
 			case ']' :
-				muster = 255;
+                muster = 255;
+                type = RAIL;
 				break;
 			case '(' :
-				muster = 255;
+                muster = 255;
+                type = FUNC;
 				break;
 			case ')' :
-				muster = 255;
+                muster = 255;
+                type = FUNC;
 				break;
-			case '{' :
+            /*case '{' :
 				muster = 255;
 				break;
 			case '}' :
 				muster = 255;
-				break;
+                break;*/
 			case ' ' :
 				muster = 0;
+                type = EMPTY;
 				break;
 			default :
-				muster = 255;
+                muster = 0;
+                type = EMPTY;
 				break;
 		}
 	}
@@ -77,14 +100,27 @@ class Point{
 		setMuster();
 		bCons = 0;
 		connections = 0;
+        if(type == STRING) string = true;
+        else string = false;
+        color = 0;
 	}
-	Point(){sign = ' ';}
+    Point(){
+        sign = ' ';
+        setMuster();
+        connections = 0;
+        if(type == STRING) string = true;
+        else string = false;
+        color = 0;
+    }
 	Point(Point *next, char sign){
 		bCons = 8;
 		cons[4] = next;
 		this->sign = sign;
 		setMuster();
 		connections = 0;
+        if(type == STRING) string = true;
+        else string = false;
+        color = 0;
 	}
 	Point* getPoint (int x, int y){
 		if((bool)y){
@@ -145,9 +181,47 @@ class Point{
 	int getMuster(void){
 		return muster;
 	}
-	void setConnections(int connections, bool mode){
-		
-		(mode)?this->connections |= connections:this->connections &= (~connections);
+    void setConnections(int connections, bool mode,Stack *change, int x, int y){
+        int old = this->connections, count = 0;
+        (mode)?this->connections |= connections:this->connections &= (~connections);
+        if((old&muster) != (muster&this->connections)){
+            if(!string){
+                switch(type){
+                case RAIL:
+                    for(int i = 0; i<8;i++){
+                        if(this->connections % 2) count++;
+                        this->connections >>= 1;
+                    }
+                    if(count < 2) color = 64;
+                    break;
+                case COM:
+                    color = 128;
+                    break;
+                case STRING:
+                    color = 32;
+                    break;
+                case FUNC:
+                    color = 16;
+                    break;
+                case EMPTY:
+                    color = 0;
+                    break;
+                default:
+                    color = 0;
+                    break;
+                }
+            }else{
+                switch(type){
+                case FUNC:
+                    color = 40;
+                    break;
+                default:
+                    color = 32;
+                    break;
+                }
+            }
+            change->push(x,y,sign,color);
+        }
 	}
 	void testConnections(void){
 		// TODO: set connections
@@ -184,16 +258,39 @@ class Point{
 				break;
 		}bCons |= pCon;
 	}
-	void makeCons(void){
+    Point* setString(int con){
+        string = true;
+        if(con & 128) return (bCons & 1)? cons[7] : NULL;
+        if(con & 64) return (bCons & 2)? cons[6] : NULL;
+        if(con & 32) return (bCons & 4)? cons[5] : NULL;
+        if(con & 16) return (bCons & 8)? cons[4] : NULL;
+        if(con & 8) return (bCons & 16)? cons[3] : NULL;
+        if(con & 4) return (bCons & 32)? cons[2] : NULL;
+        if(con & 2) return (bCons & 64)? cons[1] : NULL;
+        if(con & 1) return (bCons & 128)? cons[0] : NULL;
+    }
+    void getStringDirection(Stack *directions, int x, int y){
+        if(!string)return;
+        if(connections & 128)directions->push(x+1,y+1,' ',128);
+        if(connections & 64)directions->push(x,y+1,' ',64);
+        if(connections & 32)directions->push(x-1,y+1,' ',32);
+        if(connections & 16)directions->push(x+1,y,' ',16);
+        if(connections & 8)directions->push(x-1,y,' ',8);
+        if(connections & 4)directions->push(x+1,y-1,' ',4);
+        if(connections & 2)directions->push(x,y-1,' ',2);
+        if(connections & 1)directions->push(x-1,y-1,' ',1);
+    }
+
+    void makeCons(int x, int y, Stack *change){
 		int tmp = bCons;
-		if(tmp & 128)cons[0]->setConnections(1,(muster&128)?true:false);
-		if(tmp & 64)cons[1]->setConnections(2,(muster&64)?true:false);
-		if(tmp & 32)cons[2]->setConnections(4,(muster&32)?true:false);
-		if(tmp & 16)cons[3]->setConnections(8,(muster&16)?true:false);
-		if(tmp & 8)cons[4]->setConnections(16,(muster&8)?true:false);
-		if(tmp & 4)cons[5]->setConnections(32,(muster&4)?true:false);
-		if(tmp & 2)cons[6]->setConnections(64,(muster&2)?true:false);
-		if(tmp & 1)cons[7]->setConnections(128,(muster&1)?true:false);
+        if(tmp & 128)cons[0]->setConnections(1,(muster&128)?true:false,change,x,y);
+        if(tmp & 64)cons[1]->setConnections(2,(muster&64)?true:false,change,x,y);
+        if(tmp & 32)cons[2]->setConnections(4,(muster&32)?true:false,change,x,y);
+        if(tmp & 16)cons[3]->setConnections(8,(muster&16)?true:false,change,x,y);
+        if(tmp & 8)cons[4]->setConnections(16,(muster&8)?true:false,change,x,y);
+        if(tmp & 4)cons[5]->setConnections(32,(muster&4)?true:false,change,x,y);
+        if(tmp & 2)cons[6]->setConnections(64,(muster&2)?true:false,change,x,y);
+        if(tmp & 1)cons[7]->setConnections(128,(muster&1)?true:false,change,x,y);
 	}
 	protected:
 	Point* getNextRight(void){

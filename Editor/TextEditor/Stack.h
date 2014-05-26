@@ -46,6 +46,10 @@ class Stack{
 	char getSign(void){
 		return sign;
 	}
+    int getColor(void){
+        return color;
+    }
+
 	protected:
 	Stack* getNext(void){
 		return next;

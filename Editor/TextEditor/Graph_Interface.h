@@ -6,6 +6,10 @@
 #include "Point.h"
 #include "Stack.h"
 
+
+// TODO: UNDO STring
+// TODO: Know Commands
+// TODO: redo
 class Graph_Interface{
 	private:
 	Point *root, *tmp;
@@ -33,6 +37,16 @@ class Graph_Interface{
 		if(!(bCons & 2))tmp->setCons(2,root->getPoint(x,y+1));
 		if(!(bCons & 1))tmp->setCons(1,root->getPoint(x+1,y+1));
 		tmp->makeCons();
+        Stack *directions = new Stack(), *tmp2;
+        tmp2->getStringDirection(directions,x,y);
+        while((tmp2 = directions->pop()) != NULL){
+            Point *tmp3; = tmp;
+            x = tmp2->getX(); y = tmp2->getY();
+            while((tmp3 = tmp3->setString(tmp2->getColor())) != NULL || (x>0 && x<getMaxRow() && y>0 && getMaxColm() && (tmp3 = root->getPoint(x,y)))){
+
+            }
+            // TODO: undo string
+        }
 	}
 	public:
 	void setSign(int x, int y, char sign){
