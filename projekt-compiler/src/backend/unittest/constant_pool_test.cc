@@ -62,22 +62,12 @@ int main(int argc, char** argv) {
 
   std::string str;
   list = cp.getByteArray();
-  auto iter = list.begin()+offset;
+  auto iter = list.begin();
 
-  bool passed = true;
-  unsigned char val, bakval;
-
-  bakval = static_cast<char>(*iter++);;
-  for (; iter!= (list.begin()+offset+255); iter++) {
-    val = static_cast<char>(*iter);
-    str += val;
-    if (!(val > bakval)) {
-      std::cout << val;
-      passed = false;
-    }
-    bakval = val;
+  for (; iter!= list.end(); iter++) {
+    std::cout << *iter;
   }
-  // std::cout << str << std::endl;
+  std::cout << str << std::endl;
 }
 
 #endif
