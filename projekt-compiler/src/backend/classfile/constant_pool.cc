@@ -169,6 +169,7 @@ size_t ConstantPool::addInt(int32_t value) {
   size_t index = 0;
   i.set(value);
   if (check(i)) {
+    put2(INT);
     index = put(i);
     putInt(value);
   } else {
@@ -187,6 +188,7 @@ size_t ConstantPool::addLong(int64_t value) {
   size_t index = 0;
   i.set(value);
   if (check(i)) {
+    put2(LONG);
     index = put(i);
     putLong(value);
   } else {
@@ -205,8 +207,9 @@ size_t ConstantPool::addString(const std::string &value) {
   size_t index = 0;
   i.set(STR, value, "", "");
   if (check(i)) {
-    index = put(i);
+    put2(UTF8);
     putUTF8(value);
+    index = put(i);
   } else {
     index = get(i).index;
   }
@@ -219,7 +222,17 @@ size_t ConstantPool::addString(const std::string &value) {
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
 size_t ConstantPool::addClassReference(const std::string &value) {
-  return 0;
+  Item i;
+  size_t index = 0;
+  i.set(STR, value, "", "");
+  if (check(i)) {
+    put2(CLASS);
+    putUTF8(value);
+    index = put(i);
+  } else {
+    index = get(i).index;
+  }
+  return index;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -228,7 +241,17 @@ size_t ConstantPool::addClassReference(const std::string &value) {
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
 size_t ConstantPool::addFieldReference(const std::string &value) {
-    return 0;
+  Item i;
+  size_t index = 0;
+  i.set(STR, value, "", "");
+  if (check(i)) {
+    put2(FIELD);
+    putUTF8(value);
+    index = put(i);
+  } else {
+    index = get(i).index;
+  }
+  return index;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -237,7 +260,17 @@ size_t ConstantPool::addFieldReference(const std::string &value) {
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
 size_t ConstantPool::addMethodReference(const std::string &value) {
-  return 0;
+  Item i;
+  size_t index = 0;
+  i.set(STR, value, "", "");
+  if (check(i)) {
+    put2(METHOD);
+    putUTF8(value);
+    index = put(i);
+  } else {
+    index = get(i).index;
+  }
+  return index;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -246,7 +279,17 @@ size_t ConstantPool::addMethodReference(const std::string &value) {
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
 size_t ConstantPool::addInterfaceMethodReference(const std::string &value) {
-  return 0;
+  Item i;
+  size_t index = 0;
+  i.set(STR, value, "", "");
+  if (check(i)) {
+    put2(IMETHOD);
+    putUTF8(value);
+    index = put(i);
+  } else {
+    index = get(i).index;
+  }
+  return index;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -346,6 +389,8 @@ void ConstantPool::putUTF8(std::string s) {
   // we start serializing the string right away. During the serialization,
   // if we find that this assumption is wrong, we continue with the
   // general method.
+
+  // push string size on stack
   pool.push_back((uint8_t) (s.size() >> 8));
   pool.push_back((uint8_t) s.size());
   auto iter = s.begin();
@@ -425,9 +470,18 @@ size_t ConstantPool::put(Item i) {
 ////////////////////////////////////////////////////////////////////////
 /// Puts two bytes into this byte vector. The byte vector is automatically
 /// enlarged if necessary.
+/// \param s short.
+////////////////////////////////////////////////////////////////////////
+void ConstantPool::put2(int32_t s) {
+  pool.push_back((uint8_t) (s>>8));
+  pool.push_back((uint8_t) s);
+}
+
+////////////////////////////////////////////////////////////////////////
+/// Puts two bytes into this byte vector. The byte vector is automatically
+/// enlarged if necessary.
 /// \param b1 first byte.
 /// \param b2 second byte.
-/// \return this byte vector.
 ////////////////////////////////////////////////////////////////////////
 void ConstantPool::put11(int32_t b1, int32_t b2) {
   pool.push_back((uint8_t) b1);
@@ -439,7 +493,6 @@ void ConstantPool::put11(int32_t b1, int32_t b2) {
 /// automatically enlarged if necessary.
 /// \param b first byte.
 /// \param s a short.
-/// \return this byte vector.
 ////////////////////////////////////////////////////////////////////////
 void ConstantPool::put12(int32_t b,  int32_t s) {
   pool.push_back((uint8_t) b);
