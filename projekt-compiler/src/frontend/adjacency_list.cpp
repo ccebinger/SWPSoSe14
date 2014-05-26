@@ -78,3 +78,17 @@ std::shared_ptr<Node> Adjacency_list::start()
   else
     throw -1;
 }
+
+void Adjacency_list::putVariable(const std::string& identifier)
+{
+  putVariable(identifier, Graph::Variable_Type::STRING);
+}
+
+void Adjacency_list::putVariable(const std::string& identifier, Variable_Type type)
+{
+  symbol_table.insert(std::pair<std::string, Graph::Variable_Type>(identifier, type));
+}
+Graph::Variable_Type Adjacency_list::getVariable(const std::string& identifier)
+{
+  return symbol_table.at(identifier);
+}

@@ -189,6 +189,37 @@ public:
 	 * @return      the name of the ASG
    */
 	virtual std::string name() const = 0;
+
+ /**
+  * The existing types for the Variables of an Rail program.
+  */
+	enum Variable_Type
+	{
+	  INTEGER,
+	  STRING
+	};
+
+ /**
+	* Puts an variable identifier to the symbol table of the graph.
+	* The variable type is per default Variable_Type::String.
+	* @param identifier       the identifier of the variable
+	*/
+	virtual void putVariable(const std::string& identifier) = 0;
+ /**
+	* Puts an variable identifier with his given type to the symbol table of the graph.
+	*
+	* @param identifier       the identifier of the variable
+	* @param type             the type of the variable
+	*/
+	virtual void putVariable(const std::string& identifier, Variable_Type type) = 0;
+
+ /**
+	* Returns the type of the requested variable, if the variable
+	* with the given identifier not exists a exception will be thrown.
+	* @param identifier         the identifier of the searched variable
+	* @return                   the type of the searched variable
+	*/
+	virtual Variable_Type getVariable(const std::string& identifier) = 0;
 };
 
 #endif /* AST_H_ */
