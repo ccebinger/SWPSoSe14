@@ -325,44 +325,44 @@ void Parser::initializeValidRailMap(){
 	 * Taking a left or right turn will always result in a change of direction(so there are no maps for this case)
 	 */
 	//East
-	char Eleft[2] = {'/','*','x'};
-	char EStraight[5] = {'-','/','\\','+','*'};
-	char ERight[2] = {'\\','*','x'};
+	char Eleft[] = {'/','*','x'};
+	char EStraight[] = {'-','/','\\','+','*'};
+	char ERight[] = {'\\','*','x'};
 	validRailMap[E] = allowedChars{listFromArray(Eleft,2),listFromArray(EStraight,5),listFromArray(ERight,2)};
 	//Southeast
-	char SEleft[3] = {'-','*','+'};
-	char SEStraight[4] = {'-','\\','|','*','x'};
-	char SERight[3] = {'|','*','+'};
+	char SEleft[] = {'-','*','+'};
+	char SEStraight[] = {'-','\\','|','*','x'};
+	char SERight[] = {'|','*','+'};
 	validRailMap[SE] = allowedChars{listFromArray(SEleft,3),listFromArray(SEStraight,4),listFromArray(SERight,3)};
 	//South
-	char Sleft[2] = {'\\','*','x'};
-	char SStraight[5] = {'|','\\','/','*','+'};
-	char SRight[2] = {'/','*','x'};
+	char Sleft[] = {'\\','*','x'};
+	char SStraight[] = {'|','\\','/','*','+'};
+	char SRight[] = {'/','*','x'};
 	validRailMap[S] = allowedChars{listFromArray(Sleft,2),listFromArray(SStraight,5),listFromArray(SRight,2)};
 	//Southwest
-	char SWleft[3] = {'|','*','+'};
-	char SWStraight[4] = {'-','/','|','*','x'};
-	char SWRight[3] = {'-','*','+'};
+	char SWleft[] = {'|','*','+'};
+	char SWStraight[] = {'-','/','|','*','x'};
+	char SWRight[] = {'-','*','+'};
 	validRailMap[SW] = allowedChars{listFromArray(SWleft,3),listFromArray(SWStraight,4),listFromArray(SWRight,3)};
 	//West
-	char Wleft[2] = {'/','*','x'};
-	char WStraight[5] = {'-','/','\\','+','*'};
-	char WRight[2] = {'\\','*','x'};
+	char Wleft[] = {'/','*','x'};
+	char WStraight[] = {'-','/','\\','+','*'};
+	char WRight[] = {'\\','*','x'};
 	validRailMap[W] = allowedChars{listFromArray(Wleft,2),listFromArray(WStraight,5),listFromArray(WRight,2)};
 	//Northwest
-	char NWleft[3] = {'-','*','+'};
-	char NWStraight[4] = {'-','\\','|','*','x'};
-	char NWRight[3] = {'|','*','+'};
+	char NWleft[] = {'-','*','+'};
+	char NWStraight[] = {'-','\\','|','*','x'};
+	char NWRight[] = {'|','*','+'};
 	validRailMap[NW] = allowedChars{listFromArray(NWleft,3),listFromArray(NWStraight,4),listFromArray(NWRight,3)};
 	//North
-	char Nleft[2] = {'\\','*','x'};
-	char NStraight[5] = {'|','\\','/','*','+'};
-	char NRight[2] = {'/','*','x'};
+	char Nleft[] = {'\\','*','x'};
+	char NStraight[] = {'|','\\','/','*','+'};
+	char NRight[] = {'/','*','x'};
 	validRailMap[N] = allowedChars{listFromArray(Nleft,2),listFromArray(NStraight,5),listFromArray(NRight,2)};
 	//Northeast
-	char NEleft[3] = {'|','*','+'};
-	char NEStraight[4] = {'-','/','|','*','x'};
-	char NERight[3] = {'-','*','+'};
+	char NEleft[] = {'|','*','+'};
+	char NEStraight[] = {'-','/','|','*','x'};
+	char NERight[] = {'-','*','+'};
 	validRailMap[NE] = allowedChars{listFromArray(NEleft,3),listFromArray(NEStraight,4),listFromArray(NERight,3)};
 }
 
