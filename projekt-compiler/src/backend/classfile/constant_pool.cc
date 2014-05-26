@@ -182,7 +182,7 @@ void ConstantPool::putInt(int32_t i) {
 /// \return this byte vector.
 ////////////////////////////////////////////////////////////////////////
 void ConstantPool::putLong(int64_t l) {
-  int i = (int32_t) (l >> 32);
+  int32_t i = (int32_t) (l >> 32);
   pool.push_back((uint8_t) (i >> 24));
   pool.push_back((uint8_t) (i >> 16));
   pool.push_back((uint8_t) (i >> 8));
