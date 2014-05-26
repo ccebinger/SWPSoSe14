@@ -15,6 +15,7 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 
 #include <backend/classfile/constant_pool.h>
 #include <algorithm>
+//#include <codecvt>
 
 ////////////////////////////////////////////////////////////////////////
 /// default constructor does nothing, bud is needed because we have other
@@ -130,8 +131,13 @@ void Item::set(int32_t  _type,
 /// default constructor
 ////////////////////////////////////////////////////////////////////////
 ConstantPool::ConstantPool(): items(256) {
+  // Java Class Reference auf java/lang/system
+  // Field Reference java.lang.system.out
+  // Method referenc Java.io.printStream.println
+  // Method reference Main.java
   putUTF8("main.java");
   putUTF8("java.lang.String");
+  putUTF8("java.lang.System");
   putUTF8("java.lang.System.out");
 }
 
@@ -207,9 +213,9 @@ void ConstantPool::putUTF8(std::string s) {
     char c = s[i];
     if (c >= '\001' && c <= '\177') {
       pool.push_back((uint8_t) c);
-    // } else {
-    //   length = len;
-    //   return encodeUTF8(s, i, 65535);
+    } else {
+      //length = len;
+      return encodeUTF8(s, i, 65535);
     }
   }
 }
@@ -229,41 +235,42 @@ void ConstantPool::putUTF8(std::string s) {
 ////////////////////////////////////////////////////////////////////////
 void ConstantPool::encodeUTF8(std::string s, int32_t i,
                                   int32_t maxByteLength) {
-  // int charLength = s.length();
-  // int byteLength = i;
-  // char c;
-  // for (int j = i; j < s.size(); ++j) {
-  //   c = s[j];
-  //   if (c >= '\001' && c <= '\177') {
-  //     byteLength++;
-  //   } else if (c > '\u07FF') {
-  //     byteLength += 3;
-  //   } else {
-  //     byteLength += 2;
-  //   }
-  // }
-  // if (byteLength > maxByteLength) {
-  //   throw std::invalid_argument("encodeUTF8 IllegalArgumentException string is bigger then constant pool");
-  // }
-  // int start = pool.size() - i - 2;
-  // if (start >= 0) {
-  //   pool[start] = (uint8_t) (byteLength >> 8);
-  //   pool[start + 1] = (uint8_t) byteLength;
-  // }
-  // int len = pool.size();
-  // for (int j = i; j < charLength; ++j) {
-  //   c = s[j];
-  //   if (c >= "\001" && c <= "\177") {
-  //     pool.push_back((uint8_t) c);
-  //   } else if (c > "\u07FF") {
-  //     pool.push_back((uint8_t) (0xE0 | c >> 12 & 0xF));
-  //     pool.push_back((uint8_t) (0x80 | c >> 6 & 0x3F));
-  //     pool.push_back((uint8_t) (0x80 | c & 0x3F));
-  //   } else {
-  //     pool.push_back((uint8_t) (0xC0 | c >> 6 & 0x1F));
-  //     pool.push_back((uint8_t) (0x80 | c & 0x3F));
-  //   }
-  // }
+  size_t byteLength = i;
+  auto iter = s.cbegin()+i;
+  for (; iter != s.end(); i++) {
+    if (*iter >= 0x01 && *iter <= 0xB1) {
+      byteLength++;
+    } else if (*iter > 0x7FF) {
+      byteLength += 3;
+    } else {
+      byteLength += 2;
+    }
+  }
+  if (byteLength > maxByteLength) {
+    throw std::invalid_argument(
+        "encodeUTF8 IllegalArgumentException string is bigger then constant pool");
+  }
+  size_t start = pool.size() - i - 2;
+  if (start >= 0) {
+    pool[start] = (uint8_t) (byteLength >> 8);
+    pool[start + 1] = (uint8_t) byteLength;
+  }
+  size_t len = pool.size();
+  uint8_t c;
+  auto it = s.cbegin()+i;
+  for (; it != s.end(); it++) {
+    c = *it;
+    if (c >= 0x01 && c <= 0xB1) {
+      pool.push_back((uint8_t) c);
+    } else if (c > 0x7FF) {
+      pool.push_back((uint8_t) (0xE0 | c >> 12 & 0xF));
+      pool.push_back((uint8_t) (0x80 | c >> 6 & 0x3F));
+      pool.push_back((uint8_t) (0x80 | c & 0x3F));
+    } else {
+      pool.push_back((uint8_t) (0xC0 | c >> 6 & 0x1F));
+      pool.push_back((uint8_t) (0x80 | c & 0x3F));
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////
