@@ -77,8 +77,7 @@ class ConstantPool {
   const Item& get(const Item &key)const;
 
  private:
-  void encodeUTF8(std::string s, int32_t i,
-                                    int32_t maxByteLength);
+  void encodeUTF8(std::string s, uint32_t pos);
 
   void putByte(uint8_t b);
   void putShort(uint16_t s);

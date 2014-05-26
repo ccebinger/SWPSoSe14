@@ -209,13 +209,13 @@ void ConstantPool::putUTF8(std::string s) {
   // general method.
   pool.push_back((uint8_t) (s.size() >> 8));
   pool.push_back((uint8_t) s.size());
-  for (size_t i = 0; i < s.size(); ++i) { // Miro: Fixed unsigned vs signed warning
-    char c = s[i];
-    if (c >= '\001' && c <= '\177') {
-      pool.push_back((uint8_t) c);
+  auto iter = s.begin();
+  for (size_t pos = 0; pos < s.size(); pos++) {
+    // check if ASCII code is between 1 and 127 -> 1 byte utf8
+    if (s[pos] >= 0x01 && s[pos] <= 0xB1) {
+      pool.push_back((uint8_t) s[pos]);
     } else {
-      //length = len;
-      return encodeUTF8(s, i, 65535);
+      encodeUTF8(s, pos);
     }
   }
 }
@@ -229,35 +229,31 @@ void ConstantPool::putUTF8(std::string s) {
 /// \param i the index of the first character to encode. The previous
 ///          characters are supposed to have already been encoded, using
 ///          only one byte per character.
-/// \param maxByteLength the maximum byte length of the encoded string,
-///        including the already encoded characters.
 /// \return this byte vector.
 ////////////////////////////////////////////////////////////////////////
-void ConstantPool::encodeUTF8(std::string s, int32_t i,
-                                  int32_t maxByteLength) {
-  size_t byteLength = i;
-  auto iter = s.cbegin()+i;
-  for (; iter != s.end(); i++) {
-    if (*iter >= 0x01 && *iter <= 0xB1) {
+void ConstantPool::encodeUTF8(std::string s, uint32_t pos) {
+  // calculcate utf8 string size
+  auto i = s.begin()+pos;
+  size_t byteLength = 0;
+  for (; i != s.end(); i++) {
+    // check if ASCII code is between 1 and 127 -> 1 byte utf8
+    if (*i >= 0x01 && *i <= 0xB1) {
       byteLength++;
-    } else if (*iter > 0x7FF) {
+      // bigger then 2047 -> 3 byte utf8
+    } else if (*i > 0x7FF) {
       byteLength += 3;
+      // else -> 2 byte utf8
     } else {
       byteLength += 2;
     }
   }
-  if (byteLength > maxByteLength) {
-    throw std::invalid_argument(
-        "encodeUTF8 IllegalArgumentException string is bigger then constant pool");
-  }
-  size_t start = pool.size() - i - 2;
-  if (start >= 0) {
-    pool[start] = (uint8_t) (byteLength >> 8);
-    pool[start + 1] = (uint8_t) byteLength;
-  }
+  pool.push_back((uint8_t) (byteLength >> 8));
+  pool.push_back((uint8_t) byteLength);
+
+  // convert ASCII to utf8
   size_t len = pool.size();
   uint8_t c;
-  auto it = s.cbegin()+i;
+  auto it = s.begin()+pos;
   for (; it != s.end(); it++) {
     c = *it;
     if (c >= 0x01 && c <= 0xB1) {
