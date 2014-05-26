@@ -20,5 +20,6 @@ Zum Arbeiten mit git immer folgende schritte:
 6. <git push> (läd eure Änderung auf den Server hoch)
 
 Nützliches:
-Unter Linux in der command-line <sudo apt-get install qgit gitk> um die zusätzliche Programme zu installieren. Diese Programme sind nützlich um das Repository zu betrachten(Änderungen nachzuvollziehen).
+Unter Linux in der command-line <sudo apt-get install qgit gitk> um die zusätzliche Programme zu installieren. Diese Programme sind nützlich um das Repository zu betrachten(Änderungen nachzuvollziehen). 
+Ergänzend dazu sei auf den heißen Tipp von Lyudmila (Haskell-Gruppe) verwiesen: tig. 
 
