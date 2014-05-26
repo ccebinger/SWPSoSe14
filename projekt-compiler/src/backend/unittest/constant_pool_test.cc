@@ -23,14 +23,18 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 int main(int argc, char** argv) {
   ConstantPool cp;
   std::ostringstream os;
+  unsigned char val, bakval;
 
-  cp.addInt(32);
-  std::cout << "test1: " << cp.addString("main.java") << std::endl;
+//  cp.addInt(1<<4);
   std::vector<uint8_t> list = cp.getByteArray();
+  auto iter = list.begin();
+
+  for (; iter!= (list.end()); iter++) {
+    val = static_cast<char>(*iter);
+      std::cout << val;
+  }
+
   int offset  = list.size();
-  //  cp.addInt(0x22);
-//  cp.addInt(0x20);
-//  cp.addInt(0x10);
 
   /*
    *  1)	Byte
@@ -39,6 +43,24 @@ int main(int argc, char** argv) {
   for (int i = 0; i< 256; i++) {
     cp.addByte(i);
   }
+
+  std::string str;
+  list = cp.getByteArray();
+  iter = list.begin()+offset;
+
+  bool passed = true;
+
+  bakval = static_cast<char>(*iter++);;
+  for (; iter!= (list.begin()+offset+255); iter++) {
+    val = static_cast<char>(*iter);
+    str += val;
+    if (!(val > bakval)) {
+      std::cout << val;
+      passed = false;
+    }
+    bakval = val;
+  }
+}
 
   /*
    *  2)	Integer
@@ -58,26 +80,7 @@ int main(int argc, char** argv) {
    *  4)	String
    *
    */
-  //cp.addString("Hallo");
 
-  std::string str;
-  list = cp.getByteArray();
-  auto iter = list.begin()+offset;
 
-  bool passed = true;
-  unsigned char val, bakval;
-
-  bakval = static_cast<char>(*iter++);;
-  for (; iter!= (list.begin()+offset+255); iter++) {
-    val = static_cast<char>(*iter);
-    str += val;
-    if (!(val > bakval)) {
-      std::cout << val;
-      passed = false;
-    }
-    bakval = val;
-  }
-  // std::cout << str << std::endl;
-}
 
 #endif
