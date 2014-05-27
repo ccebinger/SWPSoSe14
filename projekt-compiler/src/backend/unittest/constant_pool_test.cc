@@ -51,7 +51,33 @@ bool testAddByte() {
   }
   return false;
 }
+/*
+  std::string str;
+  auto list = cp.getByteArray();
+  iter = list.begin()+offset;
 
+  bool passed = true;
+
+  bakval = static_cast<char>(*iter++);;
+  for (; iter!= (list.begin()+offset+255); iter++) {
+    val = static_cast<char>(*iter);
+    str += val;
+    if (!(val > bakval)) {
+      std::cout << val;
+      passed = false;
+    }
+    bakval = val;
+  }
+} */
+
+  /*
+   *  2)	Integer
+   *
+   */
+//  for(int i=0; i<256;i++) {
+//	  cp.addInt(i);
+//  }
+//  	cp.addInt(0x10);
 /*
  *  2)	Integer
  *
@@ -71,7 +97,6 @@ bool testAddInt() {
   //	  cp.addInt(i);
   //  }
   //  	cp.addInt(0x10);
-
   /*
    *  3)	Integer
    *
@@ -85,8 +110,6 @@ bool testAddInt() {
  */
 bool testAddString() {
   ConstantPool cp;
-
-  //cp.addString("Hallo");
 
   string str;
   auto list = cp.getByteArray();
