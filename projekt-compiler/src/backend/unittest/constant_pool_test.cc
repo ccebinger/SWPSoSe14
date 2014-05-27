@@ -22,6 +22,19 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 
 using namespace std;
 
+bool testConstructor() {
+  ConstantPool cp;
+  auto listInit = cp.getByteArray();
+
+  cp.addClassReference("java/lang/system");
+
+  auto listChange = cp.getByteArray();
+
+  cout << "test add constant: "<< listInit.size()
+       << "/" << listChange.size() <<endl;
+  return listChange.size() == listInit.size();
+}
+
 bool testAddClassReference() {
   ConstantPool cp;
   return false;
@@ -87,6 +100,10 @@ bool testAddString() {
 }
 
 int main(int argc, char** argv) {
+  if (!testConstructor()) {
+    cout << "testConstructor failed all system off, everything falls apart ... boom\n";
+  }
+
   if (!testAddClassReference()) {
     cout << "testAddClassReference failed all system off, everything falls apart ... boom\n";
   }

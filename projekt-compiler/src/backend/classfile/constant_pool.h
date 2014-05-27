@@ -51,17 +51,13 @@ class Item {
 
   void set(int32_t intVal);
   void set(int64_t longVal);
-  void set(int32_t _type, const std::string &_strVal1,
-           const std::string &_strVal2,
-           const std::string &_strVal3);
+  void set(int32_t _type, const std::string &_strVal);
 
   size_t index;  //!< index of item
   int32_t type;  //!< item type
   int32_t intVal;  //!< if type integer the value is stored here
   int64_t longVal;  //!< if type long values is stored here
-  std::string strVal1;  //!< if type string value is stored here
-  std::string strVal2;  //!< if type string value is stored here
-  std::string strVal3;  //!< if type string value is stored here
+  std::string strVal;  //!< if type string value is stored here
   Item *next;  //!< pointer to next item in list
 };
 
