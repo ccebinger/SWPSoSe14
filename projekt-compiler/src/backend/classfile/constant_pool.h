@@ -72,18 +72,22 @@ class ConstantPool {
   size_t addInt(int32_t value);
   size_t addLong(int64_t value);
   size_t addString(const std::string &value);
+  size_t addClassReference(const std::string &value);
+  size_t addFieldReference(const std::string &value);
+  size_t addMethodReference(const std::string &value);
+  size_t addInterfaceMethodReference(const std::string &value);
+
   std::vector<uint8_t> getByteArray();
   bool check(const Item& i) const;   //!< check if item in list
   const Item& get(const Item &key)const;
 
  private:
-  void encodeUTF8(std::string s, uint32_t pos);
-
   void putByte(uint8_t b);
   void putShort(uint16_t s);
   void putInt(int32_t i);
   void putLong(int64_t l);
   void putUTF8(std::string s);
+  void encodeUTF8(std::string s, uint32_t pos);
 
   size_t put(Item i);
   void put11(int32_t b1, int32_t b2);

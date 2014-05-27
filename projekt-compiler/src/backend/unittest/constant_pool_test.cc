@@ -24,9 +24,10 @@ int main(int argc, char** argv) {
   ConstantPool cp;
   std::ostringstream os;
   unsigned char val, bakval;
+  std::vector<uint8_t> list;
 
 //  cp.addInt(1<<4);
-  std::vector<uint8_t> list = cp.getByteArray();
+  list = cp.getByteArray();
   auto iter = list.begin();
 
   for (; iter!= (list.end()); iter++) {
@@ -82,5 +83,19 @@ int main(int argc, char** argv) {
    */
 
 
+
+
+  //cp.addString("Hallo");
+
+/*  std::string str;
+  std::vector<uint8_t> list;
+  list = cp.getByteArray();
+  auto iter = list.begin();
+
+  for (; iter!= list.end(); iter++) {
+    std::cout << *iter;
+  }
+  std::cout << str << std::endl;
+} */
 
 #endif
