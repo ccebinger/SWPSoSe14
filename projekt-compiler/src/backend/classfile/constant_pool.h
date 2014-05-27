@@ -26,9 +26,14 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include <string>
 #include <functional>
 
-static const int STR = 8;
-static const int INT = 3;
-static const int LONG = 5;
+static const uint8_t CLASS = 7;
+static const uint8_t FIELD = 9;
+static const uint8_t METHOD = 10;
+static const uint8_t IMETHOD = 11;
+static const uint8_t UTF8 = 1;
+static const uint8_t STR = 8;
+static const uint8_t INT = 3;
+static const uint8_t LONG = 5;
 
 ////////////////////////////////////////////////////////////////////////
 /// ! Item
@@ -90,6 +95,7 @@ class ConstantPool {
   void encodeUTF8(std::string s, uint32_t pos);
 
   size_t put(Item i);
+  void put2(int32_t s);
   void put11(int32_t b1, int32_t b2);
   void put12(int32_t b, int32_t s);
   void put122(int32_t b, int32_t s1, int32_t s2);

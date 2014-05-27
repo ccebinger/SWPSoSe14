@@ -20,33 +20,27 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include <sstream>
 #include <iostream>
 
-int main(int argc, char** argv) {
+using namespace std;
+
+bool testAddClassReference() {
   ConstantPool cp;
-  std::ostringstream os;
-  unsigned char val, bakval;
-  std::vector<uint8_t> list;
+  return false;
+}
 
-//  cp.addInt(1<<4);
-  list = cp.getByteArray();
-  auto iter = list.begin();
-
-  for (; iter!= (list.end()); iter++) {
-    val = static_cast<char>(*iter);
-      std::cout << val;
-  }
-
-  int offset  = list.size();
-
-  /*
-   *  1)	Byte
-   *
-   */
+/*
+ *  1)	Byte
+ *
+ */
+bool testAddByte() {
+  ConstantPool cp;
   for (int i = 0; i< 256; i++) {
     cp.addByte(i);
   }
-
+  return false;
+}
+/*
   std::string str;
-  list = cp.getByteArray();
+  auto list = cp.getByteArray();
   iter = list.begin()+offset;
 
   bool passed = true;
@@ -61,7 +55,7 @@ int main(int argc, char** argv) {
     }
     bakval = val;
   }
-}
+} */
 
   /*
    *  2)	Integer
@@ -71,31 +65,66 @@ int main(int argc, char** argv) {
 //	  cp.addInt(i);
 //  }
 //  	cp.addInt(0x10);
+/*
+ *  2)	Integer
+ *
+ */
+bool testAddInt() {
+  ConstantPool cp;
 
+  cp.addInt(32);
+  cout << "test1: " << cp.addString("main.java") << endl;
+  auto list = cp.getByteArray();
+  int offset  = list.size();
+  //  cp.addInt(0x22);
+  //  cp.addInt(0x20);
+  //  cp.addInt(0x10);
+
+  //  for(int i=0; i<256;i++) {
+  //	  cp.addInt(i);
+  //  }
+  //  	cp.addInt(0x10);
   /*
    *  3)	Integer
    *
    */
+  return false;
+}
 
-  /*
-   *  4)	String
-   *
-   */
+/*
+ *  4)	String
+ *
+ */
+bool testAddString() {
+  ConstantPool cp;
 
-
-
-
-  //cp.addString("Hallo");
-
-/*  std::string str;
-  std::vector<uint8_t> list;
-  list = cp.getByteArray();
+  string str;
+  auto list = cp.getByteArray();
   auto iter = list.begin();
 
   for (; iter!= list.end(); iter++) {
-    std::cout << *iter;
+    cout << *iter;
   }
-  std::cout << str << std::endl;
-} */
+  cout << str << endl;
+  return false;
+}
+
+int main(int argc, char** argv) {
+  if (!testAddClassReference()) {
+    cout << "testAddClassReference failed all system off, everything falls apart ... boom\n";
+  }
+
+  if (!testAddByte()) {
+    cout << "testAddByte failed all system off, everything falls apart ... boom\n";
+  }
+
+  if (!testAddInt()) {
+    cout << "testAddInt failed all system off, everything falls apart ... boom\n";
+  }
+
+  if (!testAddString()) {
+    cout << "testAddString failed all system off, everything falls apart ... boom\n";
+  }
+}
 
 #endif
