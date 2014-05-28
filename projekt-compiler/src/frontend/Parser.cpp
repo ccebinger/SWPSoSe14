@@ -39,7 +39,7 @@ shared_ptr<Adjacency_list> Parser::parseGraph() {
 	addNextNodeAsTruePathOfPreviousNode = true;
 	int startPosY=-1;
 	//find $, initiate pos
-	for(int i=0; i<board->getHeight(); ++i) {
+	for(int i=0; i<board->getWidth(); ++i) {
 		if(board->get(0, i) == '$') {
 			startPosY = i;
 			break;
@@ -70,19 +70,19 @@ shared_ptr<Adjacency_list> Parser::parseGraph(int startPosX, int startPosY, Dire
 	return abstractSyntaxGraph;
 }
 
-void Parser::move(){
+void Parser::move() {
 	//straight
 	int straightX = posX + xOffsetMap.at(dir).offsets[STRAIGHT];
 	int straightY = posY + yOffsetMap.at(dir).offsets[STRAIGHT];
-	bool straightIsInBoardBounds = straightX >= 0 && straightX < board->getWidth() && straightY >= 0 && straightY < board->getHeight();
+	bool straightIsInBoardBounds = straightX >= 0 && straightX < board->getHeight() && straightY >= 0 && straightY < board->getWidth();
 	//left
 	int leftX = posX + xOffsetMap.at(dir).offsets[LEFT];
 	int leftY = posY + yOffsetMap.at(dir).offsets[LEFT];
-	bool leftIsInBoardBounds =  leftX >=0 && leftX < board->getWidth() && leftY >=0 && leftY < board->getHeight();
+	bool leftIsInBoardBounds =  leftX >=0 && leftX < board->getHeight() && leftY >=0 && leftY < board->getWidth();
 	//right
 	int rightX = posX + xOffsetMap.at(dir).offsets[RIGHT];
 	int rightY = posY + yOffsetMap.at(dir).offsets[RIGHT];
-	bool rightIsInBoardBounds =  rightX >=0 && rightX < board->getWidth() && rightY >=0 && rightY < board->getHeight();
+	bool rightIsInBoardBounds =  rightX >=0 && rightX < board->getHeight() && rightY >=0 && rightY < board->getWidth();
 	//bool vars that will be checked in the end
 	bool leftIsValidRail = false;
 	bool rightIsValidRail = false;
@@ -255,7 +255,7 @@ string Parser::readCharsUntil(char until) {
 	while(true){
 		int nextX = posX + xOffsetMap.at(dir).offsets[STRAIGHT];
 		int nextY = posY + yOffsetMap.at(dir).offsets[STRAIGHT];
-		if(posX >= board->getWidth() || nextY >= board->getHeight()){
+		if(posX >= board->getHeight() || nextY >= board->getWidth()) {
 			//TODO:Dir auch ausgeben
 			std::stringstream sstm;
 			sstm << "Parsing ran out of valid space for function in line" << posX << ", character:" << posY;
