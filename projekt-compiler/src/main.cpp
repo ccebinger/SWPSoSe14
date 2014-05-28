@@ -4,8 +4,8 @@
 #include <sys/stat.h>
 
 
-#include <frontend/parse/Lexer.h>
-#include <frontend/Parser.h>
+#include <frontend/lexer/Lexer.h>
+#include <frontend/parser/Parser.h>
 #include <frontend/Graphs.h>
 #include <frontend/Parse_Exception.h>
 #include <unistd.h>
