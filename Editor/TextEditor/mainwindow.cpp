@@ -33,6 +33,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->ui_saveAsAction, SIGNAL(triggered()), this, SLOT(saveFileAs()));
     connect(ui->ui_quitAction, SIGNAL(triggered()), this, SLOT(close()));
 
+    connect(ui->ui_setInterpreterAction, SIGNAL(triggered()), this, SLOT(undo()));
+    connect(ui->ui_setInterpreterAction, SIGNAL(triggered()), this, SLOT(redo()));
     connect(ui->ui_setInterpreterAction, SIGNAL(triggered()), this, SLOT(setInterpreter()));
     connect(ui->ui_runInterpreterAction, SIGNAL(triggered()), this, SLOT(runInterpreter()));
 }
@@ -192,6 +194,16 @@ void MainWindow::newFile()
         setModified(false);
         setCurrentPath(QString());
     }
+}
+
+void MainWindow::undo()
+{
+
+}
+
+void MainWindow::redo()
+{
+
 }
 
 void MainWindow::setInterpreter()

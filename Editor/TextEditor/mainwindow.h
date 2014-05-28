@@ -38,6 +38,8 @@ private slots:
     void saveFile();
     void saveFileAs();
 
+    void undo();
+    void redo();
     void setInterpreter();
     void runInterpreter();
 };
