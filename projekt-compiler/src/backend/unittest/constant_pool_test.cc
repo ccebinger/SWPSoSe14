@@ -26,7 +26,7 @@ bool testConstructor() {
   ConstantPool cp;
   auto listInit = cp.getByteArray();
 
-  cp.addClassReference("java/lang/system");
+  cp.addClassRef("java/lang/system");
 
   auto listChange = cp.getByteArray();
 

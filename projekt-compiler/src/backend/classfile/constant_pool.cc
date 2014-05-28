@@ -108,7 +108,7 @@ void Item::set(int64_t _longVal) {
 /// \param _type type of the item
 /// \param _strVal  first part of the value of this item.
 ////////////////////////////////////////////////////////////////////////
-void Item::set(int32_t  _type,
+void Item::set(ItemType _type,
                const std::string &_strVal) {
   type = _type;
   strVal = _strVal;
@@ -119,13 +119,13 @@ void Item::set(int32_t  _type,
 ////////////////////////////////////////////////////////////////////////
 ConstantPool::ConstantPool(): items(256) {
   // Java Class Reference auf java/lang/system
-  addClassReference("java/lang/system");
+  addClassRef("java/lang/system");
   // Field Reference java.lang.system.out
-  addFieldReference("java.lang.system.out");
+  addFieldRef("java.lang.system.out");
   // Method referenc Java.io.printStream.println
-  addMethodReference("Java.io.printStream.println");
+  addMethRef("Java.io.printStream.println");
   // Method reference Main.java
-  addMethodReference("Main.java");
+  addMethRef("Main.java");
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -137,7 +137,7 @@ size_t ConstantPool::addByte(uint8_t value) {
   Item i;
   size_t index = 0;
   i.set(value);
-  if (check(i)) {
+  if (!check(i)) {
     index = put(i);
     putByte(value);
   } else {
@@ -155,7 +155,7 @@ size_t ConstantPool::addInt(int32_t value) {
   Item i;
   size_t index = 0;
   i.set(value);
-  if (check(i)) {
+  if (!check(i)) {
     put2(INT);
     index = put(i);
     putInt(value);
@@ -174,7 +174,7 @@ size_t ConstantPool::addLong(int64_t value) {
   Item i;
   size_t index = 0;
   i.set(value);
-  if (check(i)) {
+  if (!check(i)) {
     put2(LONG);
     index = put(i);
     putLong(value);
@@ -193,7 +193,7 @@ size_t ConstantPool::addString(const std::string &value) {
   Item i;
   size_t index = 0;
   i.set(STR, value);
-  if (check(i)) {
+  if (!check(i)) {
     put2(UTF8);
     putUTF8(value);
     index = put(i);
@@ -208,11 +208,11 @@ size_t ConstantPool::addString(const std::string &value) {
 /// \param value value to add to pool
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addClassReference(const std::string &value) {
+size_t ConstantPool::addClassRef(const std::string &value) {
   Item i;
   size_t index = 0;
-  i.set(STR, value);
-  if (check(i)) {
+  i.set(CLASS, value);
+  if (!check(i)) {
     put2(CLASS);
     putUTF8(value);
     index = put(i);
@@ -227,11 +227,11 @@ size_t ConstantPool::addClassReference(const std::string &value) {
 /// \param value value to add to pool
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addFieldReference(const std::string &value) {
+size_t ConstantPool::addFieldRef(const std::string &value) {
   Item i;
   size_t index = 0;
-  i.set(STR, value);
-  if (check(i)) {
+  i.set(FIELD, value);
+  if (!check(i)) {
     put2(FIELD);
     putUTF8(value);
     index = put(i);
@@ -246,11 +246,11 @@ size_t ConstantPool::addFieldReference(const std::string &value) {
 /// \param value value to add to pool
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addMethodReference(const std::string &value) {
+size_t ConstantPool::addMethRef(const std::string &value) {
   Item i;
   size_t index = 0;
-  i.set(STR, value);
-  if (check(i)) {
+  i.set(METHOD, value);
+  if (!check(i)) {
     put2(METHOD);
     putUTF8(value);
     index = put(i);
@@ -265,11 +265,11 @@ size_t ConstantPool::addMethodReference(const std::string &value) {
 /// \param value value to add to pool
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addInterfaceMethodReference(const std::string &value) {
+size_t ConstantPool::addIMethRef(const std::string &value) {
   Item i;
   size_t index = 0;
-  i.set(STR, value);
-  if (check(i)) {
+  i.set(IMETHOD, value);
+  if (!check(i)) {
     put2(IMETHOD);
     putUTF8(value);
     index = put(i);
@@ -277,6 +277,16 @@ size_t ConstantPool::addInterfaceMethodReference(const std::string &value) {
     index = get(i).index;
   }
   return index;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// method to count numbers of items with specified type
+/// \return amount of items with types
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::countItemType(ItemType type) {
+  return std::count_if(items.begin(),
+                       items.end(),
+                       [&](Item i) {return i.type == type;});
 }
 
 ////////////////////////////////////////////////////////////////////////

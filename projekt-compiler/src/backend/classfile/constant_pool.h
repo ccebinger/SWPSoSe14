@@ -26,14 +26,16 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include <string>
 #include <functional>
 
-static const uint8_t CLASS = 7;
-static const uint8_t FIELD = 9;
-static const uint8_t METHOD = 10;
-static const uint8_t IMETHOD = 11;
-static const uint8_t UTF8 = 1;
-static const uint8_t STR = 8;
-static const uint8_t INT = 3;
-static const uint8_t LONG = 5;
+enum ItemType{
+  CLASS = 7,
+  FIELD = 9,
+  METHOD = 10,
+  IMETHOD = 11,
+  UTF8 = 1,
+  STR = 8,
+  INT = 3,
+  LONG = 5
+};
 
 ////////////////////////////////////////////////////////////////////////
 /// ! Item
@@ -51,10 +53,10 @@ class Item {
 
   void set(int32_t intVal);
   void set(int64_t longVal);
-  void set(int32_t _type, const std::string &_strVal);
+  void set(ItemType _type, const std::string &_strVal);
 
   size_t index;  //!< index of item
-  int32_t type;  //!< item type
+  ItemType type;  //!< item type
   int32_t intVal;  //!< if type integer the value is stored here
   int64_t longVal;  //!< if type long values is stored here
   std::string strVal;  //!< if type string value is stored here
@@ -73,14 +75,15 @@ class ConstantPool {
   size_t addInt(int32_t value);
   size_t addLong(int64_t value);
   size_t addString(const std::string &value);
-  size_t addClassReference(const std::string &value);
-  size_t addFieldReference(const std::string &value);
-  size_t addMethodReference(const std::string &value);
-  size_t addInterfaceMethodReference(const std::string &value);
+  size_t addClassRef(const std::string &value);
+  size_t addFieldRef(const std::string &value);
+  size_t addMethRef(const std::string &value);
+  size_t addIMethRef(const std::string &value);
 
   std::vector<uint8_t> getByteArray();
   bool check(const Item& i) const;   //!< check if item in list
   const Item& get(const Item &key)const;
+  size_t countItemType(ItemType type);
 
  private:
   void putByte(uint8_t b);
