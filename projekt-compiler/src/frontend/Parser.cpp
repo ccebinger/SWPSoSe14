@@ -19,17 +19,10 @@ std::list<char> listFromArray(char chars[], int size) {
 }
 
 Parser::Parser(std::shared_ptr<RailFunction> railFunction) {
-
-
 	this->board = railFunction;
 	//errorMessage - empty String: Everything is ok
 	errorMessage = "";
 	abstractSyntaxGraph = NULL;
-
-	//allowedChars
-	initializeValidRailMap();
-
-
 }
 
 void Parser::setRowCol(int newRow, int newCol){
@@ -41,7 +34,7 @@ shared_ptr<Adjacency_list> Parser::parseGraph() {
 	addNextNodeAsTruePathOfPreviousNode = true;
 	int startPosY=-1;
 	//find $, initiate pos
-	for(int i=0; i<board->getWidth(); ++i) {
+	for(uint32_t i=0; i<board->getWidth(); ++i) {
 		if(board->get(0, i) == '$') {
 			startPosY = i;
 			break;
@@ -73,25 +66,29 @@ shared_ptr<Adjacency_list> Parser::parseGraph(int startPosRow, int startPosCol, 
 }
 
 void Parser::move() {
+
 	//straight
-	int straightRow = posRow + rowOffsetMap.at(dir).offsets[STRAIGHT];
-	int straightCol = posCol + colOffsetMap.at(dir).offsets[STRAIGHT];
+	uint32_t straightRow = posRow + rowOffsetMap.at(dir).offsets[STRAIGHT];
+	uint32_t straightCol = posCol + colOffsetMap.at(dir).offsets[STRAIGHT];
 	bool straightIsInBoardBounds = straightRow >= 0 && straightRow < board->getHeight() && straightCol >= 0 && straightCol < board->getWidth();
+
 	//left
-	int leftRow = posRow + rowOffsetMap.at(dir).offsets[LEFT];
-	int leftCol = posCol + colOffsetMap.at(dir).offsets[LEFT];
+	uint32_t leftRow = posRow + rowOffsetMap.at(dir).offsets[LEFT];
+	uint32_t leftCol = posCol + colOffsetMap.at(dir).offsets[LEFT];
 	bool leftIsInBoardBounds =  leftRow >=0 && leftRow < board->getHeight() && leftCol >=0 && leftCol < board->getWidth();
+
 	//right
-	int rightRow = posRow + rowOffsetMap.at(dir).offsets[RIGHT];
-	int rightCol = posCol + colOffsetMap.at(dir).offsets[RIGHT];
+	uint32_t rightRow = posRow + rowOffsetMap.at(dir).offsets[RIGHT];
+	uint32_t rightCol = posCol + colOffsetMap.at(dir).offsets[RIGHT];
 	bool rightIsInBoardBounds =  rightRow >=0 && rightRow < board->getHeight() && rightCol >=0 && rightCol < board->getWidth();
+
 	//bool vars that will be checked in the end
 	bool leftIsValidRail = false;
 	bool rightIsValidRail = false;
 	bool straightIsValidRail = false;
 	if(straightIsInBoardBounds) {
 		char charAtStraight = board->get(straightRow, straightCol);
-		list<char> allowedRails = validRailMap[dir].straight;
+		list<char> allowedRails = validRailMap.at(dir).straight;
 		straightIsValidRail = std::find(allowedRails.begin(),allowedRails.end(),charAtStraight)!=allowedRails.end();
 		if(straightIsValidRail){
 			//if allowedRails contains charAtStraight just move forwards
@@ -113,12 +110,12 @@ void Parser::move() {
 	if(leftIsInBoardBounds){
 
 		char charAtLeft = board->get(leftRow, leftCol);
-		list<char> allowedRailsLeft = validRailMap[dir].left;
+		list<char> allowedRailsLeft = validRailMap.at(dir).left;
 		leftIsValidRail = std::find(allowedRailsLeft.begin(),allowedRailsLeft.end(),charAtLeft)!=allowedRailsLeft.end();
 	}
 	if(rightIsInBoardBounds){
 		char charAtRight = board->get(rightRow, rightCol);
-		list<char> allowedRailsRight = validRailMap[dir].right;
+		list<char> allowedRailsRight = validRailMap.at(dir).right;
 		rightIsValidRail = std::find(allowedRailsRight.begin(),allowedRailsRight.end(),charAtRight)!=allowedRailsRight.end();
 	}
 	//error handling begin
@@ -251,12 +248,12 @@ void Parser::addToAbstractSyntaxGraph(string commandName,Command::Type type){
 //FIXME translate -> english
 //setzt position auf until falls er existiert, und gibt den gelesenen string inklusive anfangs und endzeichen zurueck
 //falls nicht wir ein leerer string zurueckgegeben und die fehlermeldung gesetzt
-string Parser::readCharsUntil(char until) {
+string Parser::readCharsUntil(unsigned char until) {
 	string result = "";
 	result += board->get(posRow, posCol);
 	while(true){
-		int nextRow = posRow + rowOffsetMap.at(dir).offsets[STRAIGHT];
-		int nextCol = posCol + colOffsetMap.at(dir).offsets[STRAIGHT];
+		uint32_t nextRow = posRow + rowOffsetMap.at(dir).offsets[STRAIGHT];
+		uint32_t nextCol = posCol + colOffsetMap.at(dir).offsets[STRAIGHT];
 		if(posRow >= board->getHeight() || nextCol >= board->getWidth()) {
 			//TODO:Dir auch ausgeben
 			std::stringstream sstm;
@@ -312,74 +309,6 @@ void Parser::reverseDirection() {
 		case NE: dir = SW; break;
 	}
 }
-
-
-
-void Parser::initializeValidRailMap() {
-	/*
-	 * The validRailMap is responsible for identifying valid rails when going into a specific direction
-	 * Naturally the valid rails differ from looking left, straight or right.
-	 * For example if the train is moving east, when looking straight you can either read '-','/','\','+' or '*' as a valid rail
-	 * (Some of these may result in a change of direction but this is handled by leftDirChangeMap and rightDirChangeMap)
-	 * Taking a left or right turn will always result in a change of direction(so there are no maps for this case)
-	 */
-	//East
-	char Eleft[] = {'/','*','x'};
-	char EStraight[] = {'-','/','\\','+','*'};
-	char ERight[] = {'\\','*','x'};
-	validRailMap[E] = allowedChars{
-		listFromArray(Eleft,2),
-		listFromArray(EStraight,5),
-		listFromArray(ERight,2)
-	};
-
-
-	//Southeast
-	char SEleft[] = {'-','*','+'};
-	char SEStraight[] = {'-','\\','|','*','x'};
-	char SERight[] = {'|','*','+'};
-	validRailMap[SE] = allowedChars{
-		listFromArray(SEleft,3),
-		listFromArray(SEStraight,4),
-		listFromArray(SERight,3)
-	};
-
-	//South
-	char Sleft[] = {'\\','*','x'};
-	char SStraight[] = {'|','\\','/','*','+'};
-	char SRight[] = {'/','*','x'};
-	validRailMap[S] = allowedChars{listFromArray(Sleft,2),listFromArray(SStraight,5),listFromArray(SRight,2)};
-	//Southwest
-	char SWleft[] = {'|','*','+'};
-	char SWStraight[] = {'-','/','|','*','x'};
-	char SWRight[] = {'-','*','+'};
-	validRailMap[SW] = allowedChars{listFromArray(SWleft,3),listFromArray(SWStraight,4),listFromArray(SWRight,3)};
-	//West
-	char Wleft[] = {'/','*','x'};
-	char WStraight[] = {'-','/','\\','+','*'};
-	char WRight[] = {'\\','*','x'};
-	validRailMap[W] = allowedChars{listFromArray(Wleft,2),listFromArray(WStraight,5),listFromArray(WRight,2)};
-	//Northwest
-	char NWleft[] = {'-','*','+'};
-	char NWStraight[] = {'-','\\','|','*','x'};
-	char NWRight[] = {'|','*','+'};
-	validRailMap[NW] = allowedChars{listFromArray(NWleft,3),listFromArray(NWStraight,4),listFromArray(NWRight,3)};
-	//North
-	char Nleft[] = {'\\','*','x'};
-	char NStraight[] = {'|','\\','/','*','+'};
-	char NRight[] = {'/','*','x'};
-	validRailMap[N] = allowedChars{listFromArray(Nleft,2),listFromArray(NStraight,5),listFromArray(NRight,2)};
-	//Northeast
-	char NEleft[] = {'|','*','+'};
-	char NEStraight[] = {'-','/','|','*','x'};
-	char NERight[] = {'-','*','+'};
-	validRailMap[NE] = allowedChars{listFromArray(NEleft,3),listFromArray(NEStraight,4),listFromArray(NERight,3)};
-}
-
-
-
-
-
 
 
 

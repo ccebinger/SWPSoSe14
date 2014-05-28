@@ -117,6 +117,53 @@ class Parser {
 		};
 
 
+
+
+
+		const map<Direction, allowedChars> validRailMap = {
+			{ E, allowedChars {
+				{'/','*','x'},				// left
+				{'-','/','\\','+','*'},		// straight
+				{'\\','*','x'},				// right
+			}},
+			{ SE, allowedChars {
+				{'-','*','+'},
+				{'-','\\','|','*','x'},
+				{'|','*','+'},
+			}},
+			{ S, allowedChars {
+				{'\\','*','x'},
+				{'|','\\','/','*','+'},
+				{'/','*','x'}
+			}},
+			{ SW, allowedChars {
+				{'|','*','+'},
+				{'-','/','|','*','x'},
+				{'-','*','+'}
+			}},
+			{ W, allowedChars {
+				{'/','*','x'},
+				{'-','/','\\','+','*'},
+				{'\\','*','x'},
+			}},
+			{ NW, allowedChars {
+				{'-','*','+'},
+				{'-','\\','|','*','x'},
+				{'|','*','+'},
+			}},
+			{ N, allowedChars {
+				{'\\','*','x'},
+				{'|','\\','/','*','+'},
+				{'/','*','x'},
+			}},
+			{ NE, allowedChars {
+				{'|','*','+'},
+				{'-','/','|','*','x'},
+				{'-','*','+'},
+			}},
+		};
+
+
 	private:
 		const int LEFT = 0;
 		const int STRAIGHT = 1;
@@ -124,7 +171,7 @@ class Parser {
 		//IMPORTANT: Note that in all occurences in this file x is the line and y is the position of the character in line x(basically the column)
 		//this is a little counter intuitive to a coordiante system since it is exactly the other way round(going right means increasing y value)
 		//this should probably be refactored in the future, or x and y should be called i and j (since these are more commonly used when indexing matrices)
-		int posRow, posCol;
+		uint32_t posRow, posCol;
 		Direction dir;
 		//char (*board)[1024];
 		shared_ptr<RailFunction> board;
@@ -134,11 +181,6 @@ class Parser {
 		std::shared_ptr<Node> currentNode;
 		int lastUsedId;
 		bool addNextNodeAsTruePathOfPreviousNode;
-		map<Direction, allowedChars> validRailMap;
-
-
-
-
 
 
 
@@ -146,8 +188,6 @@ class Parser {
 		bool parsingNotFinished = true;
 		void move();
 		void addToAbstractSyntaxGraph(string,Command::Type);
-		void initializeValidRailMap();
-		void initializeDirChangeMaps();
 		void turnLeft45Deg();
 		void turnRight45Deg();
 		void reverseDirection();
@@ -155,7 +195,7 @@ class Parser {
 		bool checkForValidCommandsInStraightDir(int,int);
 		int getNextUnusedId();
 		void setRowCol(int,int);
-		string readCharsUntil(char);
+		string readCharsUntil(unsigned char);
 	public:
 		string errorMessage;
 		Parser(shared_ptr<RailFunction> railFunction);
