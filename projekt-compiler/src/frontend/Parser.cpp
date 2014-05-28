@@ -8,6 +8,7 @@
  */
 
 
+#include <frontend/parse/Lexer.h>
 #include <frontend/Parser.h>
 
 
@@ -19,11 +20,11 @@ std::list<char> listFromArray(char chars[], int size){
 	return myList;
 }
 
-Parser::Parser(BoardContainer boardContainer,string graphName){
-	this->board = boardContainer.board;
-	this->xlen = boardContainer.xlen;
-	this->ylen = boardContainer.ylen;
-	this->graphName = graphName;
+Parser::Parser(std::shared_ptr<RailFunction> railFunction) {
+	this->board = railFunction;
+	this->xlen = railFunction->getWidth();
+	this->ylen = railFunction->getHeight();
+	this->graphName = railFunction->getName();
 	parsingNotFinished = true;
 	//errorMessage - empty String: Everything is ok
 	errorMessage = "";
@@ -46,8 +47,8 @@ shared_ptr<Adjacency_list> Parser::parseGraph() {
 	addNextNodeAsTruePathOfPreviousNode = true;
 	int startPosY=-1;
 	//find $, initiate pos
-	for(int i =0;i<ylen;++i){
-		if(board[0][i]=='$'){
+	for(int i =0;i<ylen;++i) {
+		if(board->get(0, i) == '$') {
 			startPosY = i;
 			break;
 		}
@@ -64,8 +65,8 @@ shared_ptr<Adjacency_list> Parser::parseGraph(int startPosX, int startPosY, Dire
 	setXY(startPosX,startPosY);
 	dir = startDir;
 	parsingNotFinished = true;
-	while(parsingNotFinished){
-		cout << "\t@(" << posX << ", " << posY << ", " << board[posX][posY] << ")" << endl;
+	while(parsingNotFinished) {
+		cout << "\t@(" << posX << ", " << posY << ", " << Encoding::unicodeToUtf8(board->get(posX, posY)) << ")" << endl;
 		move();
 		if(errorMessage != ""){
 			cout << "\t" << errorMessage <<endl;
@@ -94,8 +95,8 @@ void Parser::move(){
 	bool leftIsValidRail = false;
 	bool rightIsValidRail = false;
 	bool straightIsValidRail = false;
-	if(straightIsInBoardBounds){
-		char charAtStraight = board[straightX][straightY];
+	if(straightIsInBoardBounds) {
+		char charAtStraight = board->get(straightX, straightY);
 		list<char> allowedRails = validRailMap[dir].straight;
 		straightIsValidRail = std::find(allowedRails.begin(),allowedRails.end(),charAtStraight)!=allowedRails.end();
 		if(straightIsValidRail){
@@ -116,12 +117,13 @@ void Parser::move(){
 		}
 	}
 	if(leftIsInBoardBounds){
-		char charAtLeft = board[leftX][leftY];
+
+		char charAtLeft = board->get(leftX, leftY);
 		list<char> allowedRailsLeft = validRailMap[dir].left;
 		leftIsValidRail = std::find(allowedRailsLeft.begin(),allowedRailsLeft.end(),charAtLeft)!=allowedRailsLeft.end();
 	}
 	if(rightIsInBoardBounds){
-		char charAtRight = board[rightX][rightY];
+		char charAtRight = board->get(rightX, rightY);
 		list<char> allowedRailsRight = validRailMap[dir].right;
 		rightIsValidRail = std::find(allowedRailsRight.begin(),allowedRailsRight.end(),charAtRight)!=allowedRailsRight.end();
 	}
@@ -154,7 +156,7 @@ void Parser::move(){
 }
 
 bool Parser::checkForValidCommandsInStraightDir(int straightX, int straightY){
-	char charAtStraight = board[straightX][straightY];
+	char charAtStraight = board->get(straightX, straightY);
 	bool didGoStraight = true;
 	string toPush;
 	switch(charAtStraight){
@@ -254,9 +256,9 @@ void Parser::addToAbstractSyntaxGraph(string commandName,Command::Type type){
 
 //setzt position auf until falls er existiert, und gibt den gelesenen string inklusive anfangs und endzeichen zurueck
 //falls nicht wir ein leerer string zurueckgegeben und die fehlermeldung gesetzt
-string Parser::readCharsUntil(char until){
+string Parser::readCharsUntil(char until) {
 	string result = "";
-	result += board[posX][posY];
+	result += board->get(posX, posY);
 	while(true){
 		int nextX = posX + xOffsetMap[dir].offsets[STRAIGHT];
 		int nextY = posY + yOffsetMap[dir].offsets[STRAIGHT];
@@ -269,8 +271,8 @@ string Parser::readCharsUntil(char until){
 		}
 		posX = nextX;
 		posY = nextY;
-		result += board[posX][posY];
-		if(board[posX][posY] == until){
+		result += board->get(posX, posY);
+		if(board->get(posX, posY) == until) {
 			break;
 		}
 	}

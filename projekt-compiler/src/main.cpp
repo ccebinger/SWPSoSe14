@@ -4,7 +4,7 @@
 #include <sys/stat.h>
 
 
-#include <frontend/parse/lexer.h>
+#include <frontend/parse/Lexer.h>
 #include <frontend/Parser.h>
 #include <frontend/Graphs.h>
 #include <frontend/Parse_Exception.h>
@@ -108,12 +108,12 @@ int main(int argc, char *argv[]) {
 		// Lexer
 		Lexer lexer;
 		lexer.lex(srcFile);
-		RailFunction func = lexer.functions.at(0); //FIXME hardcoded number of functions
+		std::shared_ptr<RailFunction> func = lexer.functions.at(0); //FIXME hardcoded number of functions
+
 
 
 		// "Parser"
-		BoardContainer board{func.code, MAX_CHARS_PER_LINE, MAX_LINES_PER_FUNCTION};
-		Parser p(board, func.getName());
+		Parser p(func);
 		shared_ptr<Adjacency_list> asg = p.parseGraph();
 		if(asg == NULL) {
 			Parse_Exception pe;
@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		// Create Graphs
-		graphs.put(func.getName(), asg);
+		graphs.put(func->getName(), asg);
 	}
 	else {
 		cerr << "No source specified. Use either -i <file> or -d <file>." << endl;

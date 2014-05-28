@@ -12,6 +12,7 @@
 
 
 
+#include <common/Encoding.h>
 #include <frontend/adjacency_list.h>
 
 
@@ -52,9 +53,12 @@ class Parser{
 		//IMPORTANT: Note that in all occurences in this file x is the line and y is the position of the character in line x(basically the column)
 		//this is a little counter intuitive to a coordiante system since it is exactly the other way round(going right means increasing y value)
 		//this should probably be refactored in the future, or x and y should be called i and j (since these are more commonly used when indexing matrices)
-		int posX,posY,xlen,ylen;
+		int posX, posY, xlen, ylen;
 		Direction dir;
-		char (*board)[1024];
+		//char (*board)[1024];
+		shared_ptr<RailFunction> board;
+
+
 		std::shared_ptr<Adjacency_list> abstractSyntaxGraph;
 		std::shared_ptr<Node> currentNode;
 		int lastUsedId;
@@ -81,7 +85,7 @@ class Parser{
 		string readCharsUntil(char);
 	public:
 		string errorMessage;
-		Parser(BoardContainer,string);
+		Parser(shared_ptr<RailFunction> railFunction);
 		shared_ptr<Adjacency_list> parseGraph();
 		shared_ptr<Adjacency_list> parseGraph(int,int,Direction);
 };

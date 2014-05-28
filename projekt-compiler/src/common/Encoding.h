@@ -93,6 +93,14 @@ public:
 	}
 	
 	
+	static std::string unicodeToUtf8(uint32_t unicode) {
+		std::string result;
+		Encoding::unicodeToUtf8(unicode, result);
+		return result;
+	}
+
+
+
 	static void unicodeToUtf8String(std::deque<int32_t>* unicode, std::string& result) {
 		for(auto i=unicode->begin(); i<unicode->end(); ++i) {
 			unicodeToUtf8(*i, result);
