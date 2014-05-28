@@ -20,19 +20,13 @@ std::list<char> listFromArray(char chars[], int size){
 
 Parser::Parser(std::shared_ptr<RailFunction> railFunction) {
 	this->board = railFunction;
-	this->xlen = railFunction->getWidth();
-	this->ylen = railFunction->getHeight();
-	this->graphName = railFunction->getName();
-	parsingNotFinished = true;
 	//errorMessage - empty String: Everything is ok
 	errorMessage = "";
 	abstractSyntaxGraph = NULL;
-	//Order in offsetvalues: [0] - Left, [1] - straight, [2] - right
-	initializeOffsetMaps();
+
 	//allowedChars
 	initializeValidRailMap();
-	//if the train moves straight but reads a specific character the direction needs to be changesd
-	initializeDirChangeMaps();
+
 
 }
 
@@ -45,20 +39,20 @@ shared_ptr<Adjacency_list> Parser::parseGraph() {
 	addNextNodeAsTruePathOfPreviousNode = true;
 	int startPosY=-1;
 	//find $, initiate pos
-	for(int i =0;i<ylen;++i) {
+	for(int i=0; i<board->getHeight(); ++i) {
 		if(board->get(0, i) == '$') {
 			startPosY = i;
 			break;
 		}
 	}
 	if(startPosY==-1){
-		errorMessage ="$ not found in function "+graphName;
+		errorMessage ="$ not found in function " + board->getName();
 		return NULL;
 	}
 	return parseGraph(0,startPosY,SE);
 }
 
-shared_ptr<Adjacency_list> Parser::parseGraph(int startPosX, int startPosY, Direction startDir){
+shared_ptr<Adjacency_list> Parser::parseGraph(int startPosX, int startPosY, Direction startDir) {
 	cout << "Begin parsing..." << endl;
 	setXY(startPosX,startPosY);
 	dir = startDir;
@@ -78,17 +72,17 @@ shared_ptr<Adjacency_list> Parser::parseGraph(int startPosX, int startPosY, Dire
 
 void Parser::move(){
 	//straight
-	int straightX = posX + xOffsetMap[dir].offsets[STRAIGHT];
-	int straightY = posY + yOffsetMap[dir].offsets[STRAIGHT];
-	bool straightIsInBoardBounds = straightX >=0 && straightX < xlen && straightY >=0 && straightY <ylen;
+	int straightX = posX + xOffsetMap.at(dir).offsets[STRAIGHT];
+	int straightY = posY + yOffsetMap.at(dir).offsets[STRAIGHT];
+	bool straightIsInBoardBounds = straightX >= 0 && straightX < board->getWidth() && straightY >= 0 && straightY < board->getHeight();
 	//left
-	int leftX = posX + xOffsetMap[dir].offsets[LEFT];
-	int leftY = posY + yOffsetMap[dir].offsets[LEFT];
-	bool leftIsInBoardBounds =  leftX >=0 && leftX < xlen && leftY >=0 && leftY <ylen;
+	int leftX = posX + xOffsetMap.at(dir).offsets[LEFT];
+	int leftY = posY + yOffsetMap.at(dir).offsets[LEFT];
+	bool leftIsInBoardBounds =  leftX >=0 && leftX < board->getWidth() && leftY >=0 && leftY < board->getHeight();
 	//right
-	int rightX = posX + xOffsetMap[dir].offsets[RIGHT];
-	int rightY = posY + yOffsetMap[dir].offsets[RIGHT];
-	bool rightIsInBoardBounds =  rightX >=0 && rightX < xlen && rightY >=0 && rightY <ylen;
+	int rightX = posX + xOffsetMap.at(dir).offsets[RIGHT];
+	int rightY = posY + yOffsetMap.at(dir).offsets[RIGHT];
+	bool rightIsInBoardBounds =  rightX >=0 && rightX < board->getWidth() && rightY >=0 && rightY < board->getHeight();
 	//bool vars that will be checked in the end
 	bool leftIsValidRail = false;
 	bool rightIsValidRail = false;
@@ -100,10 +94,10 @@ void Parser::move(){
 		if(straightIsValidRail){
 			//if allowedRails contains charAtStraight just move forwards
 			setXY(straightX,straightY);
-			if(charAtStraight == leftDirChangeMap[dir]){
+			if(charAtStraight == leftDirChangeMap.at(dir)){
 				turnLeft45Deg();
 			}
-			if(charAtStraight == rightDirChangeMap[dir]){
+			if(charAtStraight == rightDirChangeMap.at(dir)){
 				turnRight45Deg();
 			}
 			return;
@@ -238,7 +232,7 @@ void Parser::addToAbstractSyntaxGraph(string commandName,Command::Type type){
 		//this is the first node that we meet create a new one
 		node->id = 1;
 		lastUsedId = 1;
-		abstractSyntaxGraph.reset(new Adjacency_list(graphName,node));
+		abstractSyntaxGraph.reset(new Adjacency_list(board->getName(), node));
 	} else {
 		node->id = ++lastUsedId;
 		abstractSyntaxGraph->addNode(node);
@@ -259,9 +253,9 @@ string Parser::readCharsUntil(char until) {
 	string result = "";
 	result += board->get(posX, posY);
 	while(true){
-		int nextX = posX + xOffsetMap[dir].offsets[STRAIGHT];
-		int nextY = posY + yOffsetMap[dir].offsets[STRAIGHT];
-		if(posX >= xlen || nextY >= ylen){
+		int nextX = posX + xOffsetMap.at(dir).offsets[STRAIGHT];
+		int nextY = posY + yOffsetMap.at(dir).offsets[STRAIGHT];
+		if(posX >= board->getWidth() || nextY >= board->getHeight()){
 			//TODO:Dir auch ausgeben
 			std::stringstream sstm;
 			sstm << "Parsing ran out of valid space for function in line" << posX << ", character:" << posY;
@@ -278,21 +272,21 @@ string Parser::readCharsUntil(char until) {
 	return result;
 }
 
-void Parser::turnLeft45Deg(){
-	switch(dir){
-	case E: dir = NE; break;
-	case SE: dir = E; break;
-	case S: dir = SE; break;
-	case SW: dir = S; break;
-	case W: dir = SW; break;
-	case NW: dir = W; break;
-	case N: dir = NW; break;
-	case NE: dir = N; break;
+void Parser::turnLeft45Deg() {
+	switch(dir) {
+		case E: dir = NE; break;
+		case SE: dir = E; break;
+		case S: dir = SE; break;
+		case SW: dir = S; break;
+		case W: dir = SW; break;
+		case NW: dir = W; break;
+		case N: dir = NW; break;
+		case NE: dir = N; break;
 	}
 }
 
-void Parser::turnRight45Deg(){
-	switch(dir){
+void Parser::turnRight45Deg() {
+	switch(dir) {
 		case E: dir = SE; break;
 		case SE: dir = S; break;
 		case S: dir = SW; break;
@@ -301,50 +295,25 @@ void Parser::turnRight45Deg(){
 		case NW: dir = N; break;
 		case N: dir = NE; break;
 		case NE: dir = E; break;
-		}
-}
-
-void Parser::reverseDirection(){
-	switch(dir){
-	case E: dir = W; break;
-	case SE: dir = NW; break;
-	case S: dir = N; break;
-	case SW: dir = NE; break;
-	case W: dir = E; break;
-	case NW: dir = SE; break;
-	case N: dir = S; break;
-	case NE: dir = SW; break;
 	}
 }
 
-//int calcXOffsetStraight
-void Parser::initializeOffsetMaps(){
-	/*
-	 * The xOffsetMap/yOffsetMap are responsible for providing the offsets(based on the current position and Direction) that tell you where to look for the character
-	 * For Example if you are going east and you want to look left, x(rowNumber) needs to be lowered by 1, if you are going straight x stays the same(0), if you are going right x needs to be increased by 1 (+1)
-	 * Thus the offset-values are saved as a triple of ints, first one being for left, second for straight, third right
-	 */
-	//x offsets
-	xOffsetMap[E] = offsetvalues{ {-1,0,+1} };  //Direction E
-	xOffsetMap[SE] = offsetvalues{ {0,+1,+1} }; //Direction: SE
-	xOffsetMap[S] = offsetvalues{ {+1,+1,+1} }; //Direction: S
-	xOffsetMap[SW] = offsetvalues{ {+1,+1,0} };//Direction: SW
-	xOffsetMap[W] = offsetvalues{ {+1,0,-1} };  //Direction: W
-	xOffsetMap[NW] = offsetvalues{ {0,-1,-1} }; //Direction: NW
-	xOffsetMap[N] = offsetvalues{ {-1,-1,-1} }; //Direction: N
-	xOffsetMap[NE] = offsetvalues{ {-1,-1,0} };  //Direction: NE
-	//y offsets:
-	yOffsetMap[E] = offsetvalues{ {+1,+1,+1} };  //DIrection E
-	yOffsetMap[SE] = offsetvalues{ {+1,+1,0} }; //Direction: SE
-	yOffsetMap[S] = offsetvalues{ {+1,0,-1} }; //Direction: S
-	yOffsetMap[SW] = offsetvalues{ {0,-1,-1} };//Direction: SW
-	yOffsetMap[W] = offsetvalues{ {-1,-1,-1} };  //Direction: W
-	yOffsetMap[NW] = offsetvalues{ {-1,-1,0} }; //Direction: NW
-	yOffsetMap[N] = offsetvalues{ {-1,0,+1} }; //Direction: N
-	yOffsetMap[NE] = offsetvalues{ {0,+1,+1} };  //Direction: NE
+void Parser::reverseDirection() {
+	switch(dir) {
+		case E: dir = W; break;
+		case SE: dir = NW; break;
+		case S: dir = N; break;
+		case SW: dir = NE; break;
+		case W: dir = E; break;
+		case NW: dir = SE; break;
+		case N: dir = S; break;
+		case NE: dir = SW; break;
+	}
 }
 
-void Parser::initializeValidRailMap(){
+
+
+void Parser::initializeValidRailMap() {
 	/*
 	 * The validRailMap is responsible for identifying valid rails when going into a specific direction
 	 * Naturally the valid rails differ from looking left, straight or right.
@@ -394,29 +363,13 @@ void Parser::initializeValidRailMap(){
 	validRailMap[NE] = allowedChars{listFromArray(NEleft,3),listFromArray(NEStraight,4),listFromArray(NERight,3)};
 }
 
-void Parser::initializeDirChangeMaps(){
-	/*
-	 * The leftDirChangeMap/rightDirChangeMap are needed for the following case:
-	 * The train did go straight and now it needs to be decided, if the direction needs to be changed
-	 * For Example if your Direction is East and you go straight by reading '/' you need to change the direction (left turn)
-	 */
-	//when to turn left 45 deg
-	leftDirChangeMap[E] = '/';
-	leftDirChangeMap[SE] = '-';
-	leftDirChangeMap[S] = '\\';
-	leftDirChangeMap[SW] = '|';
-	leftDirChangeMap[W] = '/';
-	leftDirChangeMap[NW] = '-';
-	leftDirChangeMap[N] = '\\';
-	leftDirChangeMap[NE] = '|';
-	//when to turn right 45 deg
-	rightDirChangeMap[E] = '\\';
-	rightDirChangeMap[SE] = '|';
-	rightDirChangeMap[S] = '/';
-	rightDirChangeMap[SW] = '-';
-	rightDirChangeMap[W] = '\\';
-	rightDirChangeMap[NW] = '|';
-	rightDirChangeMap[N] = '/';
-	rightDirChangeMap[NE] = '-';
-}
+
+
+
+
+
+
+
+
+
 

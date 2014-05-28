@@ -17,9 +17,6 @@
 #include <common/Encoding.h>
 #include <frontend/IO_Exception.h>
 
-//const int MAX_CHARS_PER_LINE = 1024;
-//const int MAX_LINES_PER_FUNCTION = 1024;
-
 
 class RailFunction {
 
