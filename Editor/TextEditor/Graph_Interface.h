@@ -26,7 +26,7 @@ class Graph_Interface{
 		undo = new Stack();
 	}
 	private:
-	void setSignIntern(int x,int y, char sign){
+    Stack* setSignIntern(int x,int y, char sign){
 		int bCons = tmp->setSign(sign);
 		if(!(bCons & 128) && x-1 >= 0 && y-1 >= 0)tmp->setCons(128,root->getPoint(x-1,y-1));
 		if(!(bCons & 64) && y-1 >= 0)tmp->setCons(64,root->getPoint(x,y-1));
@@ -48,27 +48,29 @@ class Graph_Interface{
             // TODO: string setzung ändern auf erkennung für mehrere richtungen
             // TODO: fixen bug für x  und y
         }
+        return NULL;
 	}
 	public:
-	void setSign(int x, int y, char sign){
+    Stack* setSign(int x, int y, char sign){
 		tmp = root->getPoint(x,y);
 		undo->push(x,y,tmp->getSign(),0);
-        setSignIntern(x,y,sign);
+        return setSignIntern(x,y,sign);
 	}
-	void makeUndo(void){
+    Stack* makeUndo(void){
 		Stack *element = undo->pop();
 		setSignIntern(element->getX(),element->getY(),element->getSign());
+        return NULL;
 	}
 	void insertSign(int x, int y, char sign){
 		// TODO: INSERT Sign
 	}
-	void setCharArray(int x, int y, char *signs,int length){
+    Stack* setCharArray(int x, int y, char *signs,int length){
 		int tmp = x;
 		for(int i = 0;i<length;i++){
 			if(signs[i]=='\n'){y++;x = tmp;}
 			else setSign(x++,y,signs[i]);
 		}
-		std::cout << "test\n";
+        return NULL;
 	}
 	char getSign(int x,int y){
 		return root->getPoint(x,y)->getSign();
