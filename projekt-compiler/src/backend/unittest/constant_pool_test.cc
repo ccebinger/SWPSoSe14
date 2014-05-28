@@ -20,20 +20,128 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include <sstream>
 #include <iostream>
 
-int main(int argc, char** argv) {
+using namespace std;
+
+bool testConstructor() {
   ConstantPool cp;
-  std::ostringstream os;
+  auto listInit = cp.getByteArray();
+
+  cp.addClassReference("java/lang/system");
+
+  auto listChange = cp.getByteArray();
+
+  cout << "test add constant: "<< listInit.size()
+       << "/" << listChange.size() <<endl;
+  return listChange.size() == listInit.size();
+}
+
+bool testAddClassReference() {
+  ConstantPool cp;
+  return false;
+}
+
+/*
+ *  1)	Byte
+ *
+ */
+bool testAddByte() {
+  ConstantPool cp;
+  for (int i = 0; i< 256; i++) {
+    cp.addByte(i);
+  }
+  return false;
+}
+/*
+  std::string str;
+  auto list = cp.getByteArray();
+  iter = list.begin()+offset;
+
+  bool passed = true;
+
+  bakval = static_cast<char>(*iter++);;
+  for (; iter!= (list.begin()+offset+255); iter++) {
+    val = static_cast<char>(*iter);
+    str += val;
+    if (!(val > bakval)) {
+      std::cout << val;
+      passed = false;
+    }
+    bakval = val;
+  }
+} */
+
+  /*
+   *  2)	Integer
+   *
+   */
+//  for(int i=0; i<256;i++) {
+//	  cp.addInt(i);
+//  }
+//  	cp.addInt(0x10);
+/*
+ *  2)	Integer
+ *
+ */
+bool testAddInt() {
+  ConstantPool cp;
 
   cp.addInt(32);
-  std::vector<uint8_t> list = cp.getByteArray();
-  std::string str;
+  cout << "test1: " << cp.addString("main.java") << endl;
+  auto list = cp.getByteArray();
+  int offset  = list.size();
+  //  cp.addInt(0x22);
+  //  cp.addInt(0x20);
+  //  cp.addInt(0x10);
 
+  //  for(int i=0; i<256;i++) {
+  //	  cp.addInt(i);
+  //  }
+  //  	cp.addInt(0x10);
+  /*
+   *  3)	Integer
+   *
+   */
+  return false;
+}
+
+/*
+ *  4)	String
+ *
+ */
+bool testAddString() {
+  ConstantPool cp;
+
+  string str;
+  auto list = cp.getByteArray();
   auto iter = list.begin();
+
   for (; iter!= list.end(); iter++) {
-    str+=static_cast<char>(*iter);
+    cout << *iter;
+  }
+  cout << str << endl;
+  return false;
+}
+
+int main(int argc, char** argv) {
+  if (!testConstructor()) {
+    cout << "testConstructor failed all system off, everything falls apart ... boom\n";
   }
 
-  std::cout << "test: " << str << ", length: " << list.size() << std::endl;
+  if (!testAddClassReference()) {
+    cout << "testAddClassReference failed all system off, everything falls apart ... boom\n";
+  }
+
+  if (!testAddByte()) {
+    cout << "testAddByte failed all system off, everything falls apart ... boom\n";
+  }
+
+  if (!testAddInt()) {
+    cout << "testAddInt failed all system off, everything falls apart ... boom\n";
+  }
+
+  if (!testAddString()) {
+    cout << "testAddString failed all system off, everything falls apart ... boom\n";
+  }
 }
 
 #endif

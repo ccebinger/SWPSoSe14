@@ -203,5 +203,29 @@ void ClassfileWriter::WriteMethods() {
  * Every method calls WritesAttributes
  */
 void ClassfileWriter::WriteAttributes() {
-  // TODO
+/**
+ * TODO: 0. insert attribute_count (u2)
+ *  Code_attribute:
+ * TODO: 1. call constant pool to get reference of attribute (u2)
+ * 			-> attribute_name_index
+ * TODO: 2. indicate the length of the subsequent information in bytes (u4) (without 6 bytes of attribute_name_index)
+ * 			-> attributes_length
+ * TODO: 3. maximum depth of the operand stack of this method at any point during execution of the method (u2)
+ * 			-> max_stack
+ * TODO: 4. number of local variables in the local variable array allocated upon invocation of this method (u2)
+ * 			-> max_locals
+ * TODO: 5. number of bytes in the code array for this method (u4) = should be: max_stack + max_locals
+ * 			-> code_length
+ */
+	// out_.write(kNotRequired,sizeof(kNotRequired)); //exception_table_length
+/**
+ *  LineNumberTable:
+ * TODO: 1. insert attribute_count (u2)
+ * TODO: 2. call constant pool to get reference of attribute (u2) = +1 of code_attribute
+ * 			-> attributes_name_index
+ * TODO: 3. indicate the length of the subsequent information in bytes (u4) (without 6 bytes of attribute_name_index)
+ * 			-> attributes_length
+ *
+ *  StackMapTable is needed for variables MS2
+ */
 }

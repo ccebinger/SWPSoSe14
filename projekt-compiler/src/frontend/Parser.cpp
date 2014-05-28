@@ -291,6 +291,11 @@ void Parser::reverseDirection(){
 
 //int calcXOffsetStraight
 void Parser::initializeOffsetMaps(){
+	/*
+	 * The xOffsetMap/yOffsetMap are responsible for providing the offsets(based on the current position and Direction) that tell you where to look for the character
+	 * For Example if you are going east and you want to look left, x(rowNumber) needs to be lowered by 1, if you are going straight x stays the same(0), if you are going right x needs to be increased by 1 (+1)
+	 * Thus the offset-values are saved as a triple of ints, first one being for left, second for straight, third right
+	 */
 	//x offsets
 	xOffsetMap[E] = offsetvalues{ {-1,0,+1} };  //Direction E
 	xOffsetMap[SE] = offsetvalues{ {0,+1,+1} }; //Direction: SE
@@ -308,53 +313,65 @@ void Parser::initializeOffsetMaps(){
 	yOffsetMap[W] = offsetvalues{ {-1,-1,-1} };  //Direction: W
 	yOffsetMap[NW] = offsetvalues{ {-1,-1,0} }; //Direction: NW
 	yOffsetMap[N] = offsetvalues{ {-1,0,+1} }; //Direction: N
-	yOffsetMap[NE] = offsetvalues{ {0,-1,+1} };  //Direction: NE
+	yOffsetMap[NE] = offsetvalues{ {0,+1,+1} };  //Direction: NE
 }
 
 void Parser::initializeValidRailMap(){
+	/*
+	 * The validRailMap is responsible for identifying valid rails when going into a specific direction
+	 * Naturally the valid rails differ from looking left, straight or right.
+	 * For example if the train is moving east, when looking straight you can either read '-','/','\','+' or '*' as a valid rail
+	 * (Some of these may result in a change of direction but this is handled by leftDirChangeMap and rightDirChangeMap)
+	 * Taking a left or right turn will always result in a change of direction(so there are no maps for this case)
+	 */
 	//East
-	char Eleft[2] = {'/','*'};
-	char EStraight[5] = {'-','/','\\','+','*'};
-	char ERight[2] = {'\\','*'};
+	char Eleft[] = {'/','*','x'};
+	char EStraight[] = {'-','/','\\','+','*'};
+	char ERight[] = {'\\','*','x'};
 	validRailMap[E] = allowedChars{listFromArray(Eleft,2),listFromArray(EStraight,5),listFromArray(ERight,2)};
 	//Southeast
-	char SEleft[3] = {'-','*','+'};
-	char SEStraight[4] = {'-','\\','|','*'};
-	char SERight[3] = {'|','*','+'};
+	char SEleft[] = {'-','*','+'};
+	char SEStraight[] = {'-','\\','|','*','x'};
+	char SERight[] = {'|','*','+'};
 	validRailMap[SE] = allowedChars{listFromArray(SEleft,3),listFromArray(SEStraight,4),listFromArray(SERight,3)};
 	//South
-	char Sleft[2] = {'\\','*'};
-	char SStraight[5] = {'|','\\','/','*','+'};
-	char SRight[2] = {'/','*'};
+	char Sleft[] = {'\\','*','x'};
+	char SStraight[] = {'|','\\','/','*','+'};
+	char SRight[] = {'/','*','x'};
 	validRailMap[S] = allowedChars{listFromArray(Sleft,2),listFromArray(SStraight,5),listFromArray(SRight,2)};
 	//Southwest
-	char SWleft[3] = {'|','*','+'};
-	char SWStraight[4] = {'-','/','|','*'};
-	char SWRight[3] = {'-','*','+'};
+	char SWleft[] = {'|','*','+'};
+	char SWStraight[] = {'-','/','|','*','x'};
+	char SWRight[] = {'-','*','+'};
 	validRailMap[SW] = allowedChars{listFromArray(SWleft,3),listFromArray(SWStraight,4),listFromArray(SWRight,3)};
 	//West
-	char Wleft[2] = {'/','*'};
-	char WStraight[5] = {'-','/','\\','+','*'};
-	char WRight[2] = {'\\','*'};
+	char Wleft[] = {'/','*','x'};
+	char WStraight[] = {'-','/','\\','+','*'};
+	char WRight[] = {'\\','*','x'};
 	validRailMap[W] = allowedChars{listFromArray(Wleft,2),listFromArray(WStraight,5),listFromArray(WRight,2)};
 	//Northwest
-	char NWleft[3] = {'-','*','+'};
-	char NWStraight[4] = {'-','\\','|','*'};
-	char NWRight[3] = {'|','*','+'};
+	char NWleft[] = {'-','*','+'};
+	char NWStraight[] = {'-','\\','|','*','x'};
+	char NWRight[] = {'|','*','+'};
 	validRailMap[NW] = allowedChars{listFromArray(NWleft,3),listFromArray(NWStraight,4),listFromArray(NWRight,3)};
 	//North
-	char Nleft[2] = {'\\','*'};
-	char NStraight[5] = {'|','\\','/','*','+'};
-	char NRight[2] = {'/','*'};
+	char Nleft[] = {'\\','*','x'};
+	char NStraight[] = {'|','\\','/','*','+'};
+	char NRight[] = {'/','*','x'};
 	validRailMap[N] = allowedChars{listFromArray(Nleft,2),listFromArray(NStraight,5),listFromArray(NRight,2)};
 	//Northeast
-	char NEleft[3] = {'|','*','+'};
-	char NEStraight[4] = {'-','/','|','*'};
-	char NERight[3] = {'-','*','+'};
+	char NEleft[] = {'|','*','+'};
+	char NEStraight[] = {'-','/','|','*','x'};
+	char NERight[] = {'-','*','+'};
 	validRailMap[NE] = allowedChars{listFromArray(NEleft,3),listFromArray(NEStraight,4),listFromArray(NERight,3)};
 }
 
 void Parser::initializeDirChangeMaps(){
+	/*
+	 * The leftDirChangeMap/rightDirChangeMap are needed for the following case:
+	 * The train did go straight and now it needs to be decided, if the direction needs to be changed
+	 * For Example if your Direction is East and you go straight by reading '/' you need to change the direction (left turn)
+	 */
 	//when to turn left 45 deg
 	leftDirChangeMap[E] = '/';
 	leftDirChangeMap[SE] = '-';

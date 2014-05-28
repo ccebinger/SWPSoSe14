@@ -15,6 +15,7 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 
 #include <backend/classfile/constant_pool.h>
 #include <algorithm>
+//#include <codecvt>
 
 ////////////////////////////////////////////////////////////////////////
 /// default constructor does nothing, bud is needed because we have other
@@ -38,9 +39,7 @@ Item::Item(const Item &i) {
   type = i.type;
   intVal = i.intVal;
   longVal = i.longVal;
-  strVal1 = i.strVal1;
-  strVal2 = i.strVal2;
-  strVal3 = i.strVal3;
+  strVal = i.strVal;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -53,9 +52,7 @@ Item::Item(uint16_t _index, const Item &i) {
   type = i.type;
   intVal = i.intVal;
   longVal = i.longVal;
-  strVal1 = i.strVal1;
-  strVal2 = i.strVal2;
-  strVal3 = i.strVal3;
+  strVal = i.strVal;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -65,14 +62,13 @@ Item::Item(uint16_t _index, const Item &i) {
 bool Item::operator==(const Item& i)const {
   switch (type) {
     case STR:
-      return i.strVal1 == strVal1;
+      return i.strVal == strVal;
     case LONG:
       return i.longVal == longVal;
     case INT:
       return i.intVal == intVal;
     default:
-      return i.strVal1 == strVal1 && i.strVal2 == strVal2
-          && i.strVal3 == strVal3;
+      return i.strVal == strVal;
   }
 }
 
@@ -85,9 +81,7 @@ bool Item::operator=(const Item& i) {
   type = i.type;
   intVal = i.intVal;
   longVal = i.longVal;
-  strVal1 = i.strVal1;
-  strVal2 = i.strVal2;
-  strVal3 = i.strVal3;
+  strVal = i.strVal;
   return true;
 }
 
@@ -112,27 +106,208 @@ void Item::set(int64_t _longVal) {
 ////////////////////////////////////////////////////////////////////////
 /// set item to string value
 /// \param _type type of the item
-/// \param _strVal1  first part of the value of this item.
-/// \param _strVal2  second part of the value of this item.
-/// \param _strVal3  third part of the value of this item.
+/// \param _strVal  first part of the value of this item.
 ////////////////////////////////////////////////////////////////////////
 void Item::set(int32_t  _type,
-               const std::string &_strVal1,
-               const std::string &_strVal2,
-               const std::string &_strVal3) {
+               const std::string &_strVal) {
   type = _type;
-  strVal1 = _strVal1;
-  strVal2 = _strVal2;
-  strVal3 = _strVal3;
+  strVal = _strVal;
 }
 
 ////////////////////////////////////////////////////////////////////////
 /// default constructor
 ////////////////////////////////////////////////////////////////////////
 ConstantPool::ConstantPool(): items(256) {
-  putUTF8("main.java");
-  putUTF8("java.lang.String");
-  putUTF8("java.lang.System.out");
+  // Java Class Reference auf java/lang/system
+  addClassReference("java/lang/system");
+  // Field Reference java.lang.system.out
+  addFieldReference("java.lang.system.out");
+  // Method referenc Java.io.printStream.println
+  addMethodReference("Java.io.printStream.println");
+  // Method reference Main.java
+  addMethodReference("Main.java");
+}
+
+////////////////////////////////////////////////////////////////////////
+/// method to put a string into the pool
+/// \param value value to add to pool
+/// \return index of the string in pool
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::addByte(uint8_t value) {
+  Item i;
+  size_t index = 0;
+  i.set(value);
+  if (check(i)) {
+    index = put(i);
+    putByte(value);
+  } else {
+    index = get(i).index;
+  }
+  return index;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// method to put a integer into the pool
+/// \param value value to add to pool
+/// \return index of the integer in the pool
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::addInt(int32_t value) {
+  Item i;
+  size_t index = 0;
+  i.set(value);
+  if (check(i)) {
+    put2(INT);
+    index = put(i);
+    putInt(value);
+  } else {
+    index = get(i).index;
+  }
+  return index;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// method to put a long int into the pool
+/// \param value value to add to pool
+/// \return index of the long intenger in the pool
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::addLong(int64_t value) {
+  Item i;
+  size_t index = 0;
+  i.set(value);
+  if (check(i)) {
+    put2(LONG);
+    index = put(i);
+    putLong(value);
+  } else {
+    index = get(i).index;
+  }
+  return index;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// method to put a string into the pool
+/// \param value value to add to pool
+/// \return index of the string in pool
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::addString(const std::string &value) {
+  Item i;
+  size_t index = 0;
+  i.set(STR, value);
+  if (check(i)) {
+    put2(UTF8);
+    putUTF8(value);
+    index = put(i);
+  } else {
+    index = get(i).index;
+  }
+  return index;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// method to put a string into the pool
+/// \param value value to add to pool
+/// \return index of the string in pool
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::addClassReference(const std::string &value) {
+  Item i;
+  size_t index = 0;
+  i.set(STR, value);
+  if (check(i)) {
+    put2(CLASS);
+    putUTF8(value);
+    index = put(i);
+  } else {
+    index = get(i).index;
+  }
+  return index;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// method to put a string into the pool
+/// \param value value to add to pool
+/// \return index of the string in pool
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::addFieldReference(const std::string &value) {
+  Item i;
+  size_t index = 0;
+  i.set(STR, value);
+  if (check(i)) {
+    put2(FIELD);
+    putUTF8(value);
+    index = put(i);
+  } else {
+    index = get(i).index;
+  }
+  return index;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// method to put a string into the pool
+/// \param value value to add to pool
+/// \return index of the string in pool
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::addMethodReference(const std::string &value) {
+  Item i;
+  size_t index = 0;
+  i.set(STR, value);
+  if (check(i)) {
+    put2(METHOD);
+    putUTF8(value);
+    index = put(i);
+  } else {
+    index = get(i).index;
+  }
+  return index;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// method to put a string into the pool
+/// \param value value to add to pool
+/// \return index of the string in pool
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::addInterfaceMethodReference(const std::string &value) {
+  Item i;
+  size_t index = 0;
+  i.set(STR, value);
+  if (check(i)) {
+    put2(IMETHOD);
+    putUTF8(value);
+    index = put(i);
+  } else {
+    index = get(i).index;
+  }
+  return index;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// returns constant pool as a byte array
+/// \return the bytecode
+////////////////////////////////////////////////////////////////////////
+std::vector<uint8_t> ConstantPool::getByteArray() {
+  return pool;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// return the constant pool index of a item
+/// \param key item to find in pool
+/// \return item in pool or last
+////////////////////////////////////////////////////////////////////////
+const Item &ConstantPool::get(const Item &key) const {
+  auto i = std::find(items.begin(), items.end(), key);
+  return *i;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// return the constant pool index of a item
+/// \param i item to find in pool
+/// \return index of item or zero if not in pool
+////////////////////////////////////////////////////////////////////////
+bool ConstantPool::check(const Item &key) const {
+  auto i = std::find(items.begin(), items.end(), key);
+  if (i != items.end()) {
+    return true;
+  }
+  return false;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -176,7 +351,7 @@ void ConstantPool::putInt(int32_t i) {
 /// \return this byte vector.
 ////////////////////////////////////////////////////////////////////////
 void ConstantPool::putLong(int64_t l) {
-  int i = (int32_t) (l >> 32);
+  int32_t i = (int32_t) (l >> 32);
   pool.push_back((uint8_t) (i >> 24));
   pool.push_back((uint8_t) (i >> 16));
   pool.push_back((uint8_t) (i >> 8));
@@ -201,15 +376,17 @@ void ConstantPool::putUTF8(std::string s) {
   // we start serializing the string right away. During the serialization,
   // if we find that this assumption is wrong, we continue with the
   // general method.
+
+  // push string size on stack
   pool.push_back((uint8_t) (s.size() >> 8));
   pool.push_back((uint8_t) s.size());
-  for (size_t i = 0; i < s.size(); ++i) { // Miro: Fixed unsigned vs signed warning
-    char c = s[i];
-    if (c >= '\001' && c <= '\177') {
-      pool.push_back((uint8_t) c);
-    // } else {
-    //   length = len;
-    //   return encodeUTF8(s, i, 65535);
+  auto iter = s.begin();
+  for (size_t pos = 0; pos < s.size(); pos++) {
+    // check if ASCII code is between 1 and 127 -> 1 byte utf8
+    if (s[pos] >= 0x01 && s[pos] <= 0xB1) {
+      pool.push_back((uint8_t) s[pos]);
+    } else {
+      encodeUTF8(s, pos);
     }
   }
 }
@@ -223,150 +400,44 @@ void ConstantPool::putUTF8(std::string s) {
 /// \param i the index of the first character to encode. The previous
 ///          characters are supposed to have already been encoded, using
 ///          only one byte per character.
-/// \param maxByteLength the maximum byte length of the encoded string,
-///        including the already encoded characters.
 /// \return this byte vector.
 ////////////////////////////////////////////////////////////////////////
-void ConstantPool::encodeUTF8(std::string s, int32_t i,
-                                  int32_t maxByteLength) {
-  // int charLength = s.length();
-  // int byteLength = i;
-  // char c;
-  // for (int j = i; j < s.size(); ++j) {
-  //   c = s[j];
-  //   if (c >= '\001' && c <= '\177') {
-  //     byteLength++;
-  //   } else if (c > '\u07FF') {
-  //     byteLength += 3;
-  //   } else {
-  //     byteLength += 2;
-  //   }
-  // }
-  // if (byteLength > maxByteLength) {
-  //   throw std::invalid_argument("encodeUTF8 IllegalArgumentException string is bigger then constant pool");
-  // }
-  // int start = pool.size() - i - 2;
-  // if (start >= 0) {
-  //   pool[start] = (uint8_t) (byteLength >> 8);
-  //   pool[start + 1] = (uint8_t) byteLength;
-  // }
-  // int len = pool.size();
-  // for (int j = i; j < charLength; ++j) {
-  //   c = s[j];
-  //   if (c >= "\001" && c <= "\177") {
-  //     pool.push_back((uint8_t) c);
-  //   } else if (c > "\u07FF") {
-  //     pool.push_back((uint8_t) (0xE0 | c >> 12 & 0xF));
-  //     pool.push_back((uint8_t) (0x80 | c >> 6 & 0x3F));
-  //     pool.push_back((uint8_t) (0x80 | c & 0x3F));
-  //   } else {
-  //     pool.push_back((uint8_t) (0xC0 | c >> 6 & 0x1F));
-  //     pool.push_back((uint8_t) (0x80 | c & 0x3F));
-  //   }
-  // }
-}
-
-////////////////////////////////////////////////////////////////////////
-/// method to put a string into the pool
-/// \param value value to add to pool
-/// \return index of the string in pool
-////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addByte(uint8_t value) {
-  Item i;
-  size_t index = 0;
-  i.set(value);
-  if (check(i)) {
-    index = put(i);
-    putByte(value);
-  } else {
-    index = get(i).index;
+void ConstantPool::encodeUTF8(std::string s, uint32_t pos) {
+  // calculcate utf8 string size
+  auto i = s.begin()+pos;
+  size_t byteLength = 0;
+  for (; i != s.end(); i++) {
+    // check if ASCII code is between 1 and 127 -> 1 byte utf8
+    if (*i >= 0x01 && *i <= 0xB1) {
+      byteLength++;
+      // bigger then 2047 -> 3 byte utf8
+    } else if (*i > 0x7FF) {
+      byteLength += 3;
+      // else -> 2 byte utf8
+    } else {
+      byteLength += 2;
+    }
   }
-  return index;
-}
+  pool.push_back((uint8_t) (byteLength >> 8));
+  pool.push_back((uint8_t) byteLength);
 
-////////////////////////////////////////////////////////////////////////
-/// method to put a string into the pool
-/// \param value value to add to pool
-/// \return index of the string in pool
-////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addString(const std::string &value) {
-  Item i;
-  size_t index = 0;
-  i.set(STR, value, "", "");
-  if (check(i)) {
-    index = put(i);
-    putUTF8(value);
-  } else {
-    index = get(i).index;
+  // convert ASCII to utf8
+  size_t len = pool.size();
+  uint8_t c;
+  auto it = s.begin()+pos;
+  for (; it != s.end(); it++) {
+    c = *it;
+    if (c >= 0x01 && c <= 0xB1) {
+      pool.push_back((uint8_t) c);
+    } else if (c > 0x7FF) {
+      pool.push_back((uint8_t) (0xE0 | c >> 12 & 0xF));
+      pool.push_back((uint8_t) (0x80 | c >> 6 & 0x3F));
+      pool.push_back((uint8_t) (0x80 | c & 0x3F));
+    } else {
+      pool.push_back((uint8_t) (0xC0 | c >> 6 & 0x1F));
+      pool.push_back((uint8_t) (0x80 | c & 0x3F));
+    }
   }
-  return index;
-}
-
-////////////////////////////////////////////////////////////////////////
-/// method to put a integer into the pool
-/// \param value value to add to pool
-/// \return index of the integer in the pool
-////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addInt(int32_t value) {
-  Item i;
-  size_t index = 0;
-  i.set(value);
-  if (check(i)) {
-    index = put(i);
-    putInt(value);
-  } else {
-    index = get(i).index;
-  }
-  return index;
-}
-
-////////////////////////////////////////////////////////////////////////
-/// method to put a long int into the pool
-/// \param value value to add to pool
-/// \return index of the long intenger in the pool
-////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addLong(int64_t value) {
-  Item i;
-  size_t index = 0;
-  i.set(value);
-  if (check(i)) {
-    index = put(i);
-    putLong(value);
-  } else {
-    index = get(i).index;
-  }
-  return index;
-}
-
-////////////////////////////////////////////////////////////////////////
-/// returns constant pool as a byte array
-/// \return the bytecode
-////////////////////////////////////////////////////////////////////////
-std::vector<uint8_t> ConstantPool::getByteArray() {
-  return pool;
-}
-
-////////////////////////////////////////////////////////////////////////
-/// return the constant pool index of a item
-/// \param key item to find in pool
-/// \return item in pool or last
-////////////////////////////////////////////////////////////////////////
-const Item &ConstantPool::get(const Item &key) const {
-  auto i = std::find(items.begin(), items.end(), key);
-  return *i;
-}
-
-////////////////////////////////////////////////////////////////////////
-/// return the constant pool index of a item
-/// \param i item to find in pool
-/// \return index of item or zero if not in pool
-////////////////////////////////////////////////////////////////////////
-bool ConstantPool::check(const Item &key) const {
-  auto i = std::find(items.begin(), items.end(), key);
-  if (i != items.end()) {
-    return true;
-  }
-  return false;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -386,9 +457,18 @@ size_t ConstantPool::put(Item i) {
 ////////////////////////////////////////////////////////////////////////
 /// Puts two bytes into this byte vector. The byte vector is automatically
 /// enlarged if necessary.
+/// \param s short.
+////////////////////////////////////////////////////////////////////////
+void ConstantPool::put2(int32_t s) {
+  pool.push_back((uint8_t) (s>>8));
+  pool.push_back((uint8_t) s);
+}
+
+////////////////////////////////////////////////////////////////////////
+/// Puts two bytes into this byte vector. The byte vector is automatically
+/// enlarged if necessary.
 /// \param b1 first byte.
 /// \param b2 second byte.
-/// \return this byte vector.
 ////////////////////////////////////////////////////////////////////////
 void ConstantPool::put11(int32_t b1, int32_t b2) {
   pool.push_back((uint8_t) b1);
@@ -400,7 +480,6 @@ void ConstantPool::put11(int32_t b1, int32_t b2) {
 /// automatically enlarged if necessary.
 /// \param b first byte.
 /// \param s a short.
-/// \return this byte vector.
 ////////////////////////////////////////////////////////////////////////
 void ConstantPool::put12(int32_t b,  int32_t s) {
   pool.push_back((uint8_t) b);
