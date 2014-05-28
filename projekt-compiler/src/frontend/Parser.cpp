@@ -10,15 +10,17 @@
 #include <frontend/Parser.h>
 
 
-std::list<char> listFromArray(char chars[], int size){
+std::list<char> listFromArray(char chars[], int size) {
 	std::list<char> myList;
-	for(int i=0;i<size;i++){
+	for(int i=0; i<size; i++){
 		myList.push_back(chars[i]);
 	}
 	return myList;
 }
 
 Parser::Parser(std::shared_ptr<RailFunction> railFunction) {
+
+
 	this->board = railFunction;
 	//errorMessage - empty String: Everything is ok
 	errorMessage = "";
@@ -30,9 +32,9 @@ Parser::Parser(std::shared_ptr<RailFunction> railFunction) {
 
 }
 
-void Parser::setXY(int newX, int newY){
-	posX = newX;
-	posY = newY;
+void Parser::setRowCol(int newRow, int newCol){
+	posRow = newRow;
+	posCol = newCol;
 }
 
 shared_ptr<Adjacency_list> Parser::parseGraph() {
@@ -52,13 +54,13 @@ shared_ptr<Adjacency_list> Parser::parseGraph() {
 	return parseGraph(0,startPosY,SE);
 }
 
-shared_ptr<Adjacency_list> Parser::parseGraph(int startPosX, int startPosY, Direction startDir) {
+shared_ptr<Adjacency_list> Parser::parseGraph(int startPosRow, int startPosCol, Direction startDir) {
 	cout << "Begin parsing..." << endl;
-	setXY(startPosX,startPosY);
+	setRowCol(startPosRow,startPosCol);
 	dir = startDir;
 	parsingNotFinished = true;
 	while(parsingNotFinished) {
-		cout << "\t@(" << posX << ", " << posY << ", " << Encoding::unicodeToUtf8(board->get(posX, posY)) << ")" << endl;
+		cout << "\t@(" << posRow << ", " << posCol << ", " << Encoding::unicodeToUtf8(board->get(posRow, posCol)) << ")" << endl;
 		move();
 		if(errorMessage != ""){
 			cout << "\t" << errorMessage <<endl;
@@ -72,28 +74,28 @@ shared_ptr<Adjacency_list> Parser::parseGraph(int startPosX, int startPosY, Dire
 
 void Parser::move() {
 	//straight
-	int straightX = posX + xOffsetMap.at(dir).offsets[STRAIGHT];
-	int straightY = posY + yOffsetMap.at(dir).offsets[STRAIGHT];
-	bool straightIsInBoardBounds = straightX >= 0 && straightX < board->getHeight() && straightY >= 0 && straightY < board->getWidth();
+	int straightRow = posRow + rowOffsetMap.at(dir).offsets[STRAIGHT];
+	int straightCol = posCol + colOffsetMap.at(dir).offsets[STRAIGHT];
+	bool straightIsInBoardBounds = straightRow >= 0 && straightRow < board->getHeight() && straightCol >= 0 && straightCol < board->getWidth();
 	//left
-	int leftX = posX + xOffsetMap.at(dir).offsets[LEFT];
-	int leftY = posY + yOffsetMap.at(dir).offsets[LEFT];
-	bool leftIsInBoardBounds =  leftX >=0 && leftX < board->getHeight() && leftY >=0 && leftY < board->getWidth();
+	int leftRow = posRow + rowOffsetMap.at(dir).offsets[LEFT];
+	int leftCol = posCol + colOffsetMap.at(dir).offsets[LEFT];
+	bool leftIsInBoardBounds =  leftRow >=0 && leftRow < board->getHeight() && leftCol >=0 && leftCol < board->getWidth();
 	//right
-	int rightX = posX + xOffsetMap.at(dir).offsets[RIGHT];
-	int rightY = posY + yOffsetMap.at(dir).offsets[RIGHT];
-	bool rightIsInBoardBounds =  rightX >=0 && rightX < board->getHeight() && rightY >=0 && rightY < board->getWidth();
+	int rightRow = posRow + rowOffsetMap.at(dir).offsets[RIGHT];
+	int rightCol = posCol + colOffsetMap.at(dir).offsets[RIGHT];
+	bool rightIsInBoardBounds =  rightRow >=0 && rightRow < board->getHeight() && rightCol >=0 && rightCol < board->getWidth();
 	//bool vars that will be checked in the end
 	bool leftIsValidRail = false;
 	bool rightIsValidRail = false;
 	bool straightIsValidRail = false;
 	if(straightIsInBoardBounds) {
-		char charAtStraight = board->get(straightX, straightY);
+		char charAtStraight = board->get(straightRow, straightCol);
 		list<char> allowedRails = validRailMap[dir].straight;
 		straightIsValidRail = std::find(allowedRails.begin(),allowedRails.end(),charAtStraight)!=allowedRails.end();
 		if(straightIsValidRail){
 			//if allowedRails contains charAtStraight just move forwards
-			setXY(straightX,straightY);
+			setRowCol(straightRow,straightCol);
 			if(charAtStraight == leftDirChangeMap.at(dir)){
 				turnLeft45Deg();
 			}
@@ -103,43 +105,43 @@ void Parser::move() {
 			return;
 		}
 		//check for other symbols that are allowed
-		bool didGoStraight = checkForValidCommandsInStraightDir(straightX,straightY);
+		bool didGoStraight = checkForValidCommandsInStraightDir(straightRow,straightCol);
 		if(didGoStraight){
 			return;
 		}
 	}
 	if(leftIsInBoardBounds){
 
-		char charAtLeft = board->get(leftX, leftY);
+		char charAtLeft = board->get(leftRow, leftCol);
 		list<char> allowedRailsLeft = validRailMap[dir].left;
 		leftIsValidRail = std::find(allowedRailsLeft.begin(),allowedRailsLeft.end(),charAtLeft)!=allowedRailsLeft.end();
 	}
 	if(rightIsInBoardBounds){
-		char charAtRight = board->get(rightX, rightY);
+		char charAtRight = board->get(rightRow, rightCol);
 		list<char> allowedRailsRight = validRailMap[dir].right;
 		rightIsValidRail = std::find(allowedRailsRight.begin(),allowedRailsRight.end(),charAtRight)!=allowedRailsRight.end();
 	}
 	//error handling begin
 	if(leftIsValidRail && rightIsValidRail){
 		std::stringstream sstm;
-		sstm << "abiguous move at line" << posX << ", character:" << posY;
+		sstm << "abiguous move at line" << posRow << ", character:" << posCol;
 		errorMessage = sstm.str();
 		return;
 	}
 	if(!leftIsValidRail && !rightIsValidRail){
 		std::stringstream sstm;
-		sstm << "no valid move possible at line" << posX << ", character:" << posY;
+		sstm << "no valid move possible at line" << posRow << ", character:" << posCol;
 		errorMessage = sstm.str();
 		return;
 	}
 	//error handling end
 	if(leftIsValidRail){
-		setXY(leftX,leftY);
+		setRowCol(leftRow,leftCol);
 		turnLeft45Deg();
 		return;
 	}
 	if(rightIsValidRail){
-		setXY(rightX,rightY);
+		setRowCol(rightRow,rightCol);
 		turnRight45Deg();
 		return;
 	}
@@ -147,47 +149,47 @@ void Parser::move() {
 	return;
 }
 
-bool Parser::checkForValidCommandsInStraightDir(int straightX, int straightY){
-	char charAtStraight = board->get(straightX, straightY);
+bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol){
+	char charAtStraight = board->get(straightRow, straightCol);
 	bool didGoStraight = true;
 	string toPush;
 	switch(charAtStraight){
 	case 'o':
-		setXY(straightX,straightY);
+		setRowCol(straightRow,straightCol);
 		addToAbstractSyntaxGraph("o",Command::Type::OUTPUT);
 		break;
 	case '[':
-		setXY(straightX,straightY);
+		setRowCol(straightRow,straightCol);
 		//TODO: ueberpruefen ob notwendig: list<char> invalidCharList = listFromArray({'[','{','(',},);
 		toPush = readCharsUntil(']');
 		addToAbstractSyntaxGraph(toPush,Command::Type::PUSH_CONST);
 		//TODO: create pushNode in graph
 		break;
 	case ']':
-		setXY(straightX,straightY);
+		setRowCol(straightRow,straightCol);
 		toPush = readCharsUntil('[');
 		addToAbstractSyntaxGraph(toPush,Command::Type::PUSH_CONST);
 		break;
 	case '@':
-		setXY(straightX,straightY);
+		setRowCol(straightRow,straightCol);
 		reverseDirection();
 		break;
 	case '#':
-		setXY(straightX,straightY);
+		setRowCol(straightRow,straightCol);
 		addToAbstractSyntaxGraph("#",Command::Type::FINISH);
 		parsingNotFinished = false;
 		break;
 	case '<':
-		didGoStraight = parseJunctions(E,straightX,straightY,SE,NE,"<",Command::Type::EASTJUNC);
+		didGoStraight = parseJunctions(E,straightRow,straightCol,SE,NE,"<",Command::Type::EASTJUNC);
 		break;
 	case '>':
-		didGoStraight = parseJunctions(W,straightX,straightY,NW,SW,">",Command::Type::WESTJUNC);
+		didGoStraight = parseJunctions(W,straightRow,straightCol,NW,SW,">",Command::Type::WESTJUNC);
 		break;
 	case '^':
-		didGoStraight = parseJunctions(S,straightX,straightY,SW,SE,"^",Command::Type::SOUTHJUNC);
+		didGoStraight = parseJunctions(S,straightRow,straightCol,SW,SE,"^",Command::Type::SOUTHJUNC);
 		break;
 	case 'v':
-		didGoStraight = parseJunctions(N,straightX,straightY,NE,NW,"v",Command::Type::NORTHJUNC);
+		didGoStraight = parseJunctions(N,straightRow,straightCol,NE,NW,"v",Command::Type::NORTHJUNC);
 		break;
 	default:
 		didGoStraight = false;
@@ -206,15 +208,15 @@ bool Parser::checkForValidCommandsInStraightDir(int straightX, int straightY){
  * command name: the junction symbol as a string
  * juncType: ast.h Command::type enum value of the junction
 */
-bool Parser::parseJunctions(Direction requiredDir,int juncX,int juncY,Direction truePathDir,Direction falsePathDir,string commandName,Command::Type juncType){
+bool Parser::parseJunctions(Direction requiredDir, int juncRow, int juncCol, Direction truePathDir, Direction falsePathDir, string commandName, Command::Type juncType) {
 	if(dir==requiredDir){
 		addToAbstractSyntaxGraph(commandName,juncType);
 		std::shared_ptr<Node> ifNode = currentNode;
-		parseGraph(juncX,juncY,truePathDir);
+		parseGraph(juncRow,juncCol,truePathDir);
 		parsingNotFinished = true;
 		currentNode = ifNode;
 		addNextNodeAsTruePathOfPreviousNode = false;
-		parseGraph(juncX,juncY,falsePathDir);
+		parseGraph(juncRow,juncCol,falsePathDir);
 		parsingNotFinished = false;
 		return true;
 	} else{
@@ -251,21 +253,21 @@ void Parser::addToAbstractSyntaxGraph(string commandName,Command::Type type){
 //falls nicht wir ein leerer string zurueckgegeben und die fehlermeldung gesetzt
 string Parser::readCharsUntil(char until) {
 	string result = "";
-	result += board->get(posX, posY);
+	result += board->get(posRow, posCol);
 	while(true){
-		int nextX = posX + xOffsetMap.at(dir).offsets[STRAIGHT];
-		int nextY = posY + yOffsetMap.at(dir).offsets[STRAIGHT];
-		if(posX >= board->getHeight() || nextY >= board->getWidth()) {
+		int nextRow = posRow + rowOffsetMap.at(dir).offsets[STRAIGHT];
+		int nextCol = posCol + colOffsetMap.at(dir).offsets[STRAIGHT];
+		if(posRow >= board->getHeight() || nextCol >= board->getWidth()) {
 			//TODO:Dir auch ausgeben
 			std::stringstream sstm;
-			sstm << "Parsing ran out of valid space for function in line" << posX << ", character:" << posY;
+			sstm << "Parsing ran out of valid space for function in line" << posRow << ", character:" << posCol;
 			errorMessage = sstm.str();
 			return "";
 		}
-		posX = nextX;
-		posY = nextY;
-		result += board->get(posX, posY);
-		if(board->get(posX, posY) == until) {
+		posRow = nextRow;
+		posCol = nextCol;
+		result += board->get(posRow, posCol);
+		if(board->get(posRow, posCol) == until) {
 			break;
 		}
 	}
@@ -325,12 +327,23 @@ void Parser::initializeValidRailMap() {
 	char Eleft[] = {'/','*','x'};
 	char EStraight[] = {'-','/','\\','+','*'};
 	char ERight[] = {'\\','*','x'};
-	validRailMap[E] = allowedChars{listFromArray(Eleft,2),listFromArray(EStraight,5),listFromArray(ERight,2)};
+	validRailMap[E] = allowedChars{
+		listFromArray(Eleft,2),
+		listFromArray(EStraight,5),
+		listFromArray(ERight,2)
+	};
+
+
 	//Southeast
 	char SEleft[] = {'-','*','+'};
 	char SEStraight[] = {'-','\\','|','*','x'};
 	char SERight[] = {'|','*','+'};
-	validRailMap[SE] = allowedChars{listFromArray(SEleft,3),listFromArray(SEStraight,4),listFromArray(SERight,3)};
+	validRailMap[SE] = allowedChars{
+		listFromArray(SEleft,3),
+		listFromArray(SEStraight,4),
+		listFromArray(SERight,3)
+	};
+
 	//South
 	char Sleft[] = {'\\','*','x'};
 	char SStraight[] = {'|','\\','/','*','+'};

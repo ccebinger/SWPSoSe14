@@ -63,26 +63,26 @@ class Parser {
 		//if the train moves straight but reads a specific character the direction needs to be changesd
 		//when to turn left 45 deg
 		const map<Direction,char> leftDirChangeMap = {
-			{E,  '/'},
-			{SE, '-'},
-			{S,  '\\'},
-			{SW, '|'},
-			{W,  '/'},
-			{NW, '-'},
-			{N,  '\\'},
-			{NE, '|'},
+			{ E,  '/'  },
+			{ SE, '-'  },
+			{ S,  '\\' },
+			{ SW, '|'  },
+			{ W,  '/'  },
+			{ NW, '-'  },
+			{ N,  '\\' },
+			{ NE, '|'  },
 		};
 
 		//when to turn right 45 deg
 		const map<Direction,char> rightDirChangeMap = {
-			{E,  '\\'},
-			{SE, '|'},
-			{S,  '/'},
-			{SW, '-'},
-			{W,  '\\'},
-			{NW, '|'},
-			{N,  '/'},
-			{NE, '-'},
+			{ E,  '\\' },
+			{ SE, '|'  },
+			{ S,  '/'  },
+			{ SW, '-'  },
+			{ W,  '\\' },
+			{ NW, '|'  },
+			{ N,  '/'  },
+			{ NE, '-'  },
 		};
 
 
@@ -94,26 +94,26 @@ class Parser {
 		 */
 		//Order in offsetvalues: [0] - Left, [1] - straight, [2] - right
 		//x offsets
-		const map<Direction, offsetvalues> xOffsetMap = {
-			{E,  offsetvalues{{ -1,  0, +1 }}},
-			{SE, offsetvalues{{  0, +1, +1 }}},
-			{S,  offsetvalues{{ +1, +1, +1 }}},
-			{SW, offsetvalues{{ +1, +1,  0 }}},
-			{W,  offsetvalues{{ +1,  0, -1 }}},
-			{NW, offsetvalues{{  0, -1, -1 }}},
-			{N,  offsetvalues{{ -1, -1, -1 }}},
-			{NE, offsetvalues{{ -1, -1,  0 }}},
+		const map<Direction, offsetvalues> rowOffsetMap = {
+			{ E,  offsetvalues{{ -1,  0, +1 }} },
+			{ SE, offsetvalues{{  0, +1, +1 }} },
+			{ S,  offsetvalues{{ +1, +1, +1 }} },
+			{ SW, offsetvalues{{ +1, +1,  0 }} },
+			{ W,  offsetvalues{{ +1,  0, -1 }} },
+			{ NW, offsetvalues{{  0, -1, -1 }} },
+			{ N,  offsetvalues{{ -1, -1, -1 }} },
+			{ NE, offsetvalues{{ -1, -1,  0 }} },
 		};;
 		//y offsets:
-		const map<Direction, offsetvalues> yOffsetMap = {
-			{E,  offsetvalues{{ +1, +1, +1 }}},
-			{SE, offsetvalues{{ +1, +1,  0 }}},
-			{S,  offsetvalues{{ +1,  0, -1 }}},
-			{SW, offsetvalues{{  0, -1, -1 }}},
-			{W,  offsetvalues{{ -1, -1, -1 }}},
-			{NW, offsetvalues{{ -1, -1,  0 }}},
-			{N,  offsetvalues{{ -1,  0, +1 }}},
-			{NE, offsetvalues{{  0, +1, +1 }}},
+		const map<Direction, offsetvalues> colOffsetMap = {
+			{ E,  offsetvalues{{ +1, +1, +1 }} },
+			{ SE, offsetvalues{{ +1, +1,  0 }} },
+			{ S,  offsetvalues{{ +1,  0, -1 }} },
+			{ SW, offsetvalues{{  0, -1, -1 }} },
+			{ W,  offsetvalues{{ -1, -1, -1 }} },
+			{ NW, offsetvalues{{ -1, -1,  0 }} },
+			{ N,  offsetvalues{{ -1,  0, +1 }} },
+			{ NE, offsetvalues{{  0, +1, +1 }} },
 		};
 
 
@@ -124,7 +124,7 @@ class Parser {
 		//IMPORTANT: Note that in all occurences in this file x is the line and y is the position of the character in line x(basically the column)
 		//this is a little counter intuitive to a coordiante system since it is exactly the other way round(going right means increasing y value)
 		//this should probably be refactored in the future, or x and y should be called i and j (since these are more commonly used when indexing matrices)
-		int posX, posY; //, xlen, ylen;
+		int posRow, posCol;
 		Direction dir;
 		//char (*board)[1024];
 		shared_ptr<RailFunction> board;
@@ -134,7 +134,7 @@ class Parser {
 		std::shared_ptr<Node> currentNode;
 		int lastUsedId;
 		bool addNextNodeAsTruePathOfPreviousNode;
-		map<Direction,allowedChars> validRailMap;
+		map<Direction, allowedChars> validRailMap;
 
 
 
@@ -154,7 +154,7 @@ class Parser {
 		bool parseJunctions(Direction,int,int,Direction,Direction,string,Command::Type);
 		bool checkForValidCommandsInStraightDir(int,int);
 		int getNextUnusedId();
-		void setXY(int,int);
+		void setRowCol(int,int);
 		string readCharsUntil(char);
 	public:
 		string errorMessage;
