@@ -4,6 +4,7 @@
 
 #include <list>
 #include <map>
+#include <set>
 #include <string>
 #include <algorithm>
 #include <iostream>
@@ -56,6 +57,8 @@ class Parser{
 		char (*board)[1024];
 		std::shared_ptr<Adjacency_list> abstractSyntaxGraph;
 		std::shared_ptr<Node> currentNode;
+		int lastUsedId;
+		bool addNextNodeAsTruePathOfPreviousNode;
 		map<Direction,offsetvalues> xOffsetMap;
 		map<Direction,offsetvalues> yOffsetMap;
 		map<Direction,allowedChars> validRailMap;
@@ -64,19 +67,23 @@ class Parser{
 		string graphName;
 		bool parsingNotFinished;
 		void move();
-		void addToAbstractSyntaxGraph(string);
+		void addToAbstractSyntaxGraph(string,Command::Type);
 		void initializeOffsetMaps();
 		void initializeValidRailMap();
 		void initializeDirChangeMaps();
 		void turnLeft45Deg();
 		void turnRight45Deg();
 		void reverseDirection();
+		bool parseJunctions(Direction,int,int,Direction,Direction,string);
 		bool checkForValidCommandsInStraightDir(int,int);
+		int getNextUnusedId();
+		void setXY(int,int);
 		string readCharsUntil(char);
 	public:
 		string errorMessage;
 		Parser(BoardContainer,string);
 		shared_ptr<Adjacency_list> parseGraph();
+		shared_ptr<Adjacency_list> parseGraph(int,int,Direction);
 };
 
 #endif

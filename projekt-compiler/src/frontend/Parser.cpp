@@ -37,32 +37,32 @@ Parser::Parser(BoardContainer boardContainer,string graphName){
 
 }
 
+void Parser::setXY(int newX, int newY){
+	posX = newX;
+	posY = newY;
+}
+
 shared_ptr<Adjacency_list> Parser::parseGraph() {
-	cout << "Begin parsing..." << endl;
-	dir = SE;
-	posX=0;
-	posY=-1;
-
-//	cout << "-------------------------------------"<<endl;
-//	for(int i=0; i<=50; i++) {
-//		for(int n=0; n<=50; n++) {
-//			cout << board[i][n];
-//		}
-//		cout << endl;
-//	}
-//	cout << "-------------------------------------"<<endl;
-
+	addNextNodeAsTruePathOfPreviousNode = true;
+	int startPosY=-1;
 	//find $, initiate pos
 	for(int i =0;i<ylen;++i){
 		if(board[0][i]=='$'){
-			posY = i;
+			startPosY = i;
 			break;
 		}
 	}
-	if(posY==-1){
+	if(startPosY==-1){
 		errorMessage ="$ not found in function "+graphName;
 		return NULL;
 	}
+	return parseGraph(0,startPosY,SE);
+}
+
+shared_ptr<Adjacency_list> Parser::parseGraph(int startPosX, int startPosY, Direction startDir){
+	cout << "Begin parsing..." << endl;
+	setXY(startPosX,startPosY);
+	dir = startDir;
 	parsingNotFinished = true;
 	while(parsingNotFinished){
 		cout << "\t@(" << posX << ", " << posY << ", " << board[posX][posY] << ")" << endl;
@@ -100,9 +100,7 @@ void Parser::move(){
 		straightIsValidRail = std::find(allowedRails.begin(),allowedRails.end(),charAtStraight)!=allowedRails.end();
 		if(straightIsValidRail){
 			//if allowedRails contains charAtStraight just move forwards
-			//TODO: Richtungswechsel hier implementieren
-			posX = straightX;
-			posY = straightY;
+			setXY(straightX,straightY);
 			if(charAtStraight == leftDirChangeMap[dir]){
 				turnLeft45Deg();
 			}
@@ -117,7 +115,6 @@ void Parser::move(){
 			return;
 		}
 	}
-	//todo: check if straight is another char, like fname or blockbegin(bracket)
 	if(leftIsInBoardBounds){
 		char charAtLeft = board[leftX][leftY];
 		list<char> allowedRailsLeft = validRailMap[dir].left;
@@ -130,14 +127,12 @@ void Parser::move(){
 	}
 	//error handling begin
 	if(leftIsValidRail && rightIsValidRail){
-		//TODO: Direction mit ausgeben
 		std::stringstream sstm;
 		sstm << "abiguous move at line" << posX << ", character:" << posY;
 		errorMessage = sstm.str();
 		return;
 	}
 	if(!leftIsValidRail && !rightIsValidRail){
-		//TODO: Direction mit ausgeben
 		std::stringstream sstm;
 		sstm << "no valid move possible at line" << posX << ", character:" << posY;
 		errorMessage = sstm.str();
@@ -145,14 +140,12 @@ void Parser::move(){
 	}
 	//error handling end
 	if(leftIsValidRail){
-		posX = leftX;
-		posY = leftY;
+		setXY(leftX,leftY);
 		turnLeft45Deg();
 		return;
 	}
 	if(rightIsValidRail){
-		posX = rightX;
-		posY = rightY;
+		setXY(rightX,rightY);
 		turnRight45Deg();
 		return;
 	}
@@ -166,34 +159,41 @@ bool Parser::checkForValidCommandsInStraightDir(int straightX, int straightY){
 	string toPush;
 	switch(charAtStraight){
 	case 'o':
-		posX = straightX;
-		posY = straightY;
-		addToAbstractSyntaxGraph("o");
+		setXY(straightX,straightY);
+		addToAbstractSyntaxGraph("o",Command::Type::OUTPUT);
 		break;
 	case '[':
-		posX = straightX;
-		posY = straightY;
+		setXY(straightX,straightY);
 		//TODO: ueberpruefen ob notwendig: list<char> invalidCharList = listFromArray({'[','{','(',},);
 		toPush = readCharsUntil(']');
-		addToAbstractSyntaxGraph(toPush);
+		addToAbstractSyntaxGraph(toPush,Command::Type::PUSH_CONST);
 		//TODO: create pushNode in graph
 		break;
 	case ']':
-		posX = straightX;
-		posY = straightY;
+		setXY(straightX,straightY);
 		toPush = readCharsUntil('[');
-		addToAbstractSyntaxGraph(toPush);
+		addToAbstractSyntaxGraph(toPush,Command::Type::PUSH_CONST);
 		break;
 	case '@':
-		posX = straightX;
-		posY = straightY;
+		setXY(straightX,straightY);
 		reverseDirection();
 		break;
 	case '#':
-		posX = straightX;
-		posY = straightY;
-		addToAbstractSyntaxGraph("#");
+		setXY(straightX,straightY);
+		addToAbstractSyntaxGraph("#",Command::Type::FINISH);
 		parsingNotFinished = false;
+		break;
+	case '<':
+		didGoStraight = parseJunctions(E,straightX,straightY,SE,NE,"<");
+		break;
+	case '>':
+		didGoStraight = parseJunctions(W,straightX,straightY,NW,SW,">");
+		break;
+	case '^':
+		didGoStraight = parseJunctions(S,straightX,straightY,SW,SE,"^");
+		break;
+	case 'v':
+		didGoStraight = parseJunctions(N,straightX,straightY,NE,NW,"v");
 		break;
 	default:
 		didGoStraight = false;
@@ -205,25 +205,52 @@ bool Parser::checkForValidCommandsInStraightDir(int straightX, int straightY){
 	return didGoStraight;
 }
 
-void Parser::addToAbstractSyntaxGraph(string commandName){
+/*
+ * requiredDir: The direction the train has to have at the moment for this being a valid junction (for dir must be E for < junction)
+ * juncX/juncY are the coordinates of the junction
+ * truePathDir/falsePathDir are the starting directions of the true/false paths
+ * command name: the junction symbol as a string
+*/
+bool Parser::parseJunctions(Direction requiredDir,int juncX,int juncY,Direction truePathDir,Direction falsePathDir,string commandName){
+	if(dir==requiredDir){
+		addToAbstractSyntaxGraph(commandName,Command::Type::IF);
+		std::shared_ptr<Node> ifNode = currentNode;
+		parseGraph(juncX,juncY,truePathDir);
+		parsingNotFinished = true;
+		currentNode = ifNode;
+		addNextNodeAsTruePathOfPreviousNode = false;
+		parseGraph(juncX,juncY,falsePathDir);
+		parsingNotFinished = false;
+		return true;
+	} else{
+		return false;
+	}
+}
+
+void Parser::addToAbstractSyntaxGraph(string commandName,Command::Type type){
 	//debug
 	cout << "\tNode creation: " << commandName << endl;
-	//TODO: somehow pass this parameter since it is hardcoded for the first Milestone, this will need to change
-	bool isLeftPath = true;
 	std::shared_ptr<Node> node(new Node());
-	node->command = {Command::Type::PUSH_CONST,commandName};
+	node->command = {type,commandName};
 	//TODO:an Graph Schnittstelle anpassen
 	if(abstractSyntaxGraph == NULL){
 		//this is the first node that we meet create a new one
 		node->id = 1;
+		lastUsedId = 1;
 		abstractSyntaxGraph.reset(new Adjacency_list(graphName,node));
 	} else{
-		node->id = (*currentNode).id +1;
+		node->id = ++lastUsedId;
 		abstractSyntaxGraph->addNode(node);
-		abstractSyntaxGraph->addEdge(currentNode,node,isLeftPath);
+		abstractSyntaxGraph->addEdge(currentNode,node,addNextNodeAsTruePathOfPreviousNode);
+		if(!addNextNodeAsTruePathOfPreviousNode){
+			//restore default behavior: always add new nodes to the 'true' path of their predecessor
+			//unless it was set before the call of this method (in case an 'IF' was read and we parse the first node of the 'false' branch
+			addNextNodeAsTruePathOfPreviousNode = true;
+		}
 	}
 	currentNode = node;
 }
+
 
 //setzt position auf until falls er existiert, und gibt den gelesenen string inklusive anfangs und endzeichen zurueck
 //falls nicht wir ein leerer string zurueckgegeben und die fehlermeldung gesetzt
