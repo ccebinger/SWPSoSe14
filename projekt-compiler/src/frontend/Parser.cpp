@@ -184,16 +184,16 @@ bool Parser::checkForValidCommandsInStraightDir(int straightX, int straightY){
 		parsingNotFinished = false;
 		break;
 	case '<':
-		didGoStraight = parseJunctions(E,straightX,straightY,SE,NE,"<");
+		didGoStraight = parseJunctions(E,straightX,straightY,SE,NE,"<",Command::Type::EASTJUNC);
 		break;
 	case '>':
-		didGoStraight = parseJunctions(W,straightX,straightY,NW,SW,">");
+		didGoStraight = parseJunctions(W,straightX,straightY,NW,SW,">",Command::Type::WESTJUNC);
 		break;
 	case '^':
-		didGoStraight = parseJunctions(S,straightX,straightY,SW,SE,"^");
+		didGoStraight = parseJunctions(S,straightX,straightY,SW,SE,"^",Command::Type::SOUTHJUNC);
 		break;
 	case 'v':
-		didGoStraight = parseJunctions(N,straightX,straightY,NE,NW,"v");
+		didGoStraight = parseJunctions(N,straightX,straightY,NE,NW,"v",Command::Type::NORTHJUNC);
 		break;
 	default:
 		didGoStraight = false;
@@ -210,10 +210,11 @@ bool Parser::checkForValidCommandsInStraightDir(int straightX, int straightY){
  * juncX/juncY are the coordinates of the junction
  * truePathDir/falsePathDir are the starting directions of the true/false paths
  * command name: the junction symbol as a string
+ * juncType: ast.h Command::type enum value of the junction
 */
-bool Parser::parseJunctions(Direction requiredDir,int juncX,int juncY,Direction truePathDir,Direction falsePathDir,string commandName){
+bool Parser::parseJunctions(Direction requiredDir,int juncX,int juncY,Direction truePathDir,Direction falsePathDir,string commandName,Command::Type juncType){
 	if(dir==requiredDir){
-		addToAbstractSyntaxGraph(commandName,Command::Type::IF);
+		addToAbstractSyntaxGraph(commandName,juncType);
 		std::shared_ptr<Node> ifNode = currentNode;
 		parseGraph(juncX,juncY,truePathDir);
 		parsingNotFinished = true;

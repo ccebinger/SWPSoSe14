@@ -46,7 +46,10 @@ struct Command {
 		INPUT = 105,/**< i */
 		UNDERFLOW_CHECK = 117,/**< u */
 		TYPE_CHECK = 63,/**< ? */
-		IF = 60, /**<,>,v,^ */
+		EASTJUNC = 60, /**<*/
+		WESTJUNC = 62,/**>*/
+		NORTHJUNC = 118,/**v*/
+		SOUTHJUNC = 94,/**^*/
 	};
  /**
   * The type of the Rail command.
