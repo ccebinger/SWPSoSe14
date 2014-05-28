@@ -43,16 +43,17 @@ class Graph_Interface{
             Point *tmp3; = tmp;
             x = tmp2->getX(); y = tmp2->getY();
             while((tmp3 = tmp3->setString(tmp2->getColor())) != NULL || (x>0 && x<getMaxRow() && y>0 && getMaxColm() && (tmp3 = root->getPoint(x,y)))){
-
             }
             // TODO: undo string
+            // TODO: string setzung ändern auf erkennung für mehrere richtungen
+            // TODO: fixen bug für x  und y
         }
 	}
 	public:
 	void setSign(int x, int y, char sign){
 		tmp = root->getPoint(x,y);
 		undo->push(x,y,tmp->getSign(),0);
-		setSignIntern(x,y,sign);
+        setSignIntern(x,y,sign);
 	}
 	void makeUndo(void){
 		Stack *element = undo->pop();
