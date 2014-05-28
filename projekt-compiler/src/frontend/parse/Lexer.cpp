@@ -66,7 +66,7 @@ void Lexer::lex(std::string srcFile) {
 		// Add line if a RailFunction is active
 		if(act != NULL) {
 			// Add line to RailFunction
-			//FIXME switch between ASCII and UTF-8
+			//FIXME distinguish between ASCII and UTF-8
 			std::vector<uint32_t> data;
 			for(auto it=line.begin(); it<line.end(); ++it) {
 				data.push_back(*it);

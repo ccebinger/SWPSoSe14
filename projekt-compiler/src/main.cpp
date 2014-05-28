@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
 		Lexer lexer;
 		lexer.lex(srcFile);
 		std::shared_ptr<RailFunction> func = lexer.functions.at(0); //FIXME hardcoded number of functions
-
+		func->dump();
 
 
 		// "Parser"

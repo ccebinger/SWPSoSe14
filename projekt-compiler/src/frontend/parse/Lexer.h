@@ -11,10 +11,10 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <map>
 #include <memory>
 
 
+#include <common/Encoding.h>
 #include <frontend/IO_Exception.h>
 
 //const int MAX_CHARS_PER_LINE = 1024;
@@ -59,6 +59,19 @@ public:
 		}
 		return 0;
 	}
+
+	void dump() {
+		std::cout << "--- Lexed Rail Function -------------------------------------------------------" << std::endl;
+		for(auto it=data.begin(); it<data.end(); ++it) {
+			std::vector<uint32_t> line = *it;
+			for(auto itPos=line.begin(); itPos<line.end(); ++itPos) {
+				std::cout << Encoding::unicodeToUtf8(*itPos);
+			}
+			std::cout << std::endl;
+		}
+		std::cout << "-------------------------------------------------------------------------------" << std::endl;
+	}
+
 };
 
 

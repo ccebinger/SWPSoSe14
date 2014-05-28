@@ -1,7 +1,5 @@
 /*
-
-
-* Parser.cpp
+ * Parser.cpp
  *
  *  Created on: 30.04.2014
  *      Author: LeonBornemann
@@ -236,12 +234,12 @@ void Parser::addToAbstractSyntaxGraph(string commandName,Command::Type type){
 	std::shared_ptr<Node> node(new Node());
 	node->command = {type,commandName};
 	//TODO:an Graph Schnittstelle anpassen
-	if(abstractSyntaxGraph == NULL){
+	if(abstractSyntaxGraph == NULL) {
 		//this is the first node that we meet create a new one
 		node->id = 1;
 		lastUsedId = 1;
 		abstractSyntaxGraph.reset(new Adjacency_list(graphName,node));
-	} else{
+	} else {
 		node->id = ++lastUsedId;
 		abstractSyntaxGraph->addNode(node);
 		abstractSyntaxGraph->addEdge(currentNode,node,addNextNodeAsTruePathOfPreviousNode);
@@ -254,7 +252,7 @@ void Parser::addToAbstractSyntaxGraph(string commandName,Command::Type type){
 	currentNode = node;
 }
 
-
+//FIXME translate -> english
 //setzt position auf until falls er existiert, und gibt den gelesenen string inklusive anfangs und endzeichen zurueck
 //falls nicht wir ein leerer string zurueckgegeben und die fehlermeldung gesetzt
 string Parser::readCharsUntil(char until) {
