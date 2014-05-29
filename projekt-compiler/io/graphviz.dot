@@ -5,11 +5,16 @@ digraph G {
 	label="Rail ASG";
 	rankdir="TL";
 
-	funcmain [shape="invhouse",fillcolor="none",label="Function main"]
-	funcmain -> 1
-	1 [label="[€]"]
-	1 -> 2
+	func日本国 [shape="invhouse",fillcolor="none",label="Function 日本国"]
+	func日本国 -> 1
+	0 [label=""]
+	1 [label="日本国"]
+	1 -> 2 [label="true"]
+	1 -> 0 [label="false"]
 	2 [label="o"]
-	2 -> 3
+	2 -> 3 [label="true"]
+	2 -> 0 [label="false"]
 	3 [label="#"]
+	3 -> 0 [label="true"]
+	3 -> 0 [label="false"]
 }
