@@ -79,7 +79,7 @@ public:
 
 	Lexer();
 	virtual ~Lexer();
-	void lex(std::string srcFile);
+	void lex(std::string srcFile, bool asUtf8=false);
 };
 
 #endif /* LEXER_H_ */

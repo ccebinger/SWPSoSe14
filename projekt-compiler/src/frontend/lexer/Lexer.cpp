@@ -18,7 +18,7 @@ Lexer::~Lexer() {
 
 
 
-void Lexer::lex(std::string srcFile) {
+void Lexer::lex(std::string srcFile, bool asUtf8) {
 	// open source file
 	std::ifstream is;
 	is.open(srcFile);

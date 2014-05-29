@@ -45,7 +45,7 @@ Graphs::Graph_map::iterator Graphs::end()
   return graphs.end();
 }
 
-void Graphs::marshall(Graphs::str file) {
+void Graphs::marshall(Graphs::str file, char delimiter, bool asUtf8) {
 
 	// [function name]
 	// id ; cmd ; adj1 (true,default) ; adj2 (false, not present)
@@ -79,23 +79,23 @@ void Graphs::marshall(Graphs::str file) {
 			}
 
 			// id ; Command
-			ofh << node->id << ";" << node->command.arg;
+			ofh << node->id << delimiter << node->command.arg;
 
 			// Adjacency list
 			if(node->successor1) {
-				ofh << ";" << node->successor1->id;
+				ofh << delimiter << node->successor1->id;
 			}
 			else {
 				// Error state for Haskell-Group
-				ofh << ";0";
+				ofh << delimiter << "0";
 			}
 
 			if(node->successor2) {
-				ofh << ";" << node->successor2->id;
+				ofh << delimiter << node->successor2->id;
 			}
 			else {
 				// Error state for Haskell-Group
-				ofh << ";0";
+				ofh << delimiter << "0";
 			}
 
 			ofh << std::endl;
@@ -119,7 +119,7 @@ void Graphs::marshall(Graphs::str file) {
 	std::cout << "done..." << std::endl;
 }
 
-void Graphs::unmarshall(Graphs::str file, char delimiter)
+void Graphs::unmarshall(Graphs::str file, char delimiter, bool asUtf8)
 {
   std::cout << "Deserializing " << file << std::endl;
 

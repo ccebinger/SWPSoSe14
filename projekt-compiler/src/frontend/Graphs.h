@@ -117,7 +117,7 @@ class Graphs
     *
     * @param file       the name of the file in which the Graphs should be saved
     */
-    virtual void marshall(str file);
+    virtual void marshall(str file, char delimiter, bool asUtf8=false);
 
    /**
     * Unmarshalls (deserializes) the given csv file into the current Graphs object.
@@ -128,7 +128,7 @@ class Graphs
     * @param file             the name of the file which will be unmarshalled
     * @param delimeter        the delimeter which is used in the csv file
     */
-    virtual void unmarshall(str file, char delimeter);
+    virtual void unmarshall(str file, char delimeter, bool asUtf8=false);
 
    /**
     * Writes the current Graphs into a file in dot format in order to illustrate the graphs.
