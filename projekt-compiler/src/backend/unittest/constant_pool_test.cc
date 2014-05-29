@@ -27,12 +27,19 @@ bool testConstructor() {
   auto listInit = cp.getByteArray();
 
   cp.addClassRef("java/lang/system");
+  cp.addFieldRef("java.lang.system.out");
+  cp.addMethRef("Java.io.printStream.println");
+  cp.addMethRef("Main.java");
 
   auto listChange = cp.getByteArray();
 
   cout << "test add constant: "<< listInit.size()
        << "/" << listChange.size() <<endl;
-  return listChange.size() == listInit.size();
+
+  cout << "ClassRef: " << cp.countItemType(CLASS) << endl;
+  cout << "MethodRef: : " << cp.countItemType(METHOD) << endl;
+
+  return (listChange.size() == listInit.size() && listInit.size() != 0);
 }
 
 bool testAddClassReference() {
