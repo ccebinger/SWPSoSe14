@@ -52,13 +52,11 @@ void Lexer::lex(std::string srcFile) {
 			}
 			else {
 				/*
-				 * FIXME error handling: found a $ but no function name given
+				 * FIXME error handling: found a $ but no function name
 				 * Options
-				 * 		1. do nothing -> adds this line to the existing RailFunction
-				 * 		2. continue; -> skip the whole line
-				 * 		3. act = NULL; -> assume this is a new function (but misspelled -> ignore whole function)
+				 * 		1. do nothing -> adds this line to the actual RailFunction
+				 * 		2. act = NULL; -> assume this is a new function (misspelled -> ignore whole function)
 				 */
-				//continue;
 				act = NULL;
 			}
 		}
