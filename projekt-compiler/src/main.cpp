@@ -22,7 +22,6 @@ int main(int argc, char *argv[]) {
 
 
 	// Ensure existence of folder io
-	// Frage von Miro: Wer benutzt denn für das Projekt Windows?
 	if(access("io", F_OK) == -1) {
 #ifdef _WIN32
 		int rMkdir = mkdir("io");
@@ -41,7 +40,6 @@ int main(int argc, char *argv[]) {
 	string srcDeserialize = "";
 	string dstSerialize = "";
 	string dstGraphviz = "";
-	bool asUtf8 = false;
 
 
 	if(argc <= 1) {
@@ -69,16 +67,12 @@ int main(int argc, char *argv[]) {
 		else if(strcmp(argv[i], "-g") == 0) {
 			dstGraphviz = argv[++i];
 		}
-		else if(strcmp(argv[i], "-utf8") == 0) {
-			asUtf8 = true;
-		}
 		else if(strcmp(argv[i], "-h") == 0) {
 			cout << "Command line help:" << endl;
 			cout << " -i <file> specifies input sourcefile" << endl;
 			cout << " -s <file> serializes graph to <file>" << endl;
 			cout << " -d <file> deserialize csv to graph" << endl;
 			cout << " -g <file> create graphViz" << endl;
-			cout << " -utf8 read input as UTF-8" << endl;
 			cout << " -h help" << endl;
 			cout << "General:" << endl;
 			cout << " -d > -i" << endl;
@@ -100,7 +94,7 @@ int main(int argc, char *argv[]) {
 			cerr << "Csv-File not accessble: " << srcDeserialize << endl;
 			return -1;
 		}
-		graphs.unmarshall(srcDeserialize, ';', asUtf8);
+		graphs.unmarshall(srcDeserialize, ';');
 	}
 	else if(srcFile != "") {
 		if(access(srcFile.c_str(), F_OK) == -1) {
@@ -111,7 +105,7 @@ int main(int argc, char *argv[]) {
 
 		// Lexer
 		Lexer lexer;
-		lexer.lex(srcFile, asUtf8);
+		lexer.lex(srcFile);
 		std::shared_ptr<RailFunction> func = lexer.functions.at(0); //FIXME hardcoded number of functions
 		func->dump();
 
@@ -139,7 +133,7 @@ int main(int argc, char *argv[]) {
 
 	// Serialize
 	if(dstSerialize != "") {
-		graphs.marshall(dstSerialize, ';', asUtf8);
+		graphs.marshall(dstSerialize, ';');
 	}
 
 

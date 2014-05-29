@@ -45,7 +45,7 @@ Graphs::Graph_map::iterator Graphs::end()
   return graphs.end();
 }
 
-void Graphs::marshall(Graphs::str file, char delimiter, bool asUtf8) {
+void Graphs::marshall(Graphs::str file, char delimiter) {
 
 	// [function name]
 	// id ; cmd ; adj1 (true,default) ; adj2 (false, not present)
@@ -119,7 +119,7 @@ void Graphs::marshall(Graphs::str file, char delimiter, bool asUtf8) {
 	std::cout << "done..." << std::endl;
 }
 
-void Graphs::unmarshall(Graphs::str file, char delimiter, bool asUtf8)
+void Graphs::unmarshall(Graphs::str file, char delimiter)
 {
   std::cout << "Deserializing " << file << std::endl;
 

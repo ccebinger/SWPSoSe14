@@ -195,7 +195,7 @@ class Parser {
 		bool checkForValidCommandsInStraightDir(int,int);
 		int getNextUnusedId();
 		void setRowCol(int,int);
-		string readCharsUntil(unsigned char);
+		string readCharsUntil(uint32_t);
 	public:
 		string errorMessage;
 		Parser(shared_ptr<RailFunction> railFunction);

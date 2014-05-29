@@ -18,7 +18,7 @@ Lexer::~Lexer() {
 
 
 
-void Lexer::lex(std::string srcFile, bool asUtf8) {
+void Lexer::lex(std::string srcFile) {
 	// open source file
 	std::ifstream is;
 	is.open(srcFile);
@@ -64,16 +64,16 @@ void Lexer::lex(std::string srcFile, bool asUtf8) {
 		// Add line if a RailFunction is active
 		if(act != NULL) {
 			// Add line to RailFunction
-			//FIXME distinguish between ASCII and UTF-8
 			std::vector<uint32_t> data;
-			for(auto it=line.begin(); it<line.end(); ++it) {
+			std::deque<uint32_t> utf8line;
+			Encoding::utf8StringToUnicode(line, &utf8line, 0);
+			for(auto it=utf8line.begin(); it<utf8line.end(); ++it) {
 				data.push_back(*it);
 			}
 			act->data.push_back(data);
 
-
-			if(act->width < line.length()) {
-				act->width = line.length();
+			if(act->width < utf8line.size()) {
+				act->width = utf8line.size();
 			}
 			act->height++;
 		}

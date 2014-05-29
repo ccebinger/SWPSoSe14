@@ -146,51 +146,48 @@ void Parser::move() {
 	return;
 }
 
-bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol){
+bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol) {
 	char charAtStraight = board->get(straightRow, straightCol);
 	bool didGoStraight = true;
-	string toPush;
-	switch(charAtStraight){
-	case 'o':
-		setRowCol(straightRow,straightCol);
-		addToAbstractSyntaxGraph("o",Command::Type::OUTPUT);
-		break;
-	case '[':
-		setRowCol(straightRow,straightCol);
-		//TODO: ueberpruefen ob notwendig: list<char> invalidCharList = listFromArray({'[','{','(',},);
-		toPush = readCharsUntil(']');
-		addToAbstractSyntaxGraph(toPush,Command::Type::PUSH_CONST);
-		//TODO: create pushNode in graph
-		break;
-	case ']':
-		setRowCol(straightRow,straightCol);
-		toPush = readCharsUntil('[');
-		addToAbstractSyntaxGraph(toPush,Command::Type::PUSH_CONST);
-		break;
-	case '@':
-		setRowCol(straightRow,straightCol);
-		reverseDirection();
-		break;
-	case '#':
-		setRowCol(straightRow,straightCol);
-		addToAbstractSyntaxGraph("#",Command::Type::FINISH);
-		parsingNotFinished = false;
-		break;
-	case '<':
-		didGoStraight = parseJunctions(E,straightRow,straightCol,SE,NE,"<",Command::Type::EASTJUNC);
-		break;
-	case '>':
-		didGoStraight = parseJunctions(W,straightRow,straightCol,NW,SW,">",Command::Type::WESTJUNC);
-		break;
-	case '^':
-		didGoStraight = parseJunctions(S,straightRow,straightCol,SW,SE,"^",Command::Type::SOUTHJUNC);
-		break;
-	case 'v':
-		didGoStraight = parseJunctions(N,straightRow,straightCol,NE,NW,"v",Command::Type::NORTHJUNC);
-		break;
-	default:
-		didGoStraight = false;
-		break;
+	switch(charAtStraight) {
+		case 'o':
+			setRowCol(straightRow, straightCol);
+			addToAbstractSyntaxGraph("o", Command::Type::OUTPUT);
+			break;
+		case '[':
+			setRowCol(straightRow, straightCol);
+			//TODO: ueberpruefen ob notwendig: list<char> invalidCharList = listFromArray({'[','{','(',},);
+			addToAbstractSyntaxGraph(readCharsUntil(']'), Command::Type::PUSH_CONST);
+			//TODO: create pushNode in graph
+			break;
+		case ']':
+			setRowCol(straightRow, straightCol);
+			addToAbstractSyntaxGraph(readCharsUntil('['), Command::Type::PUSH_CONST);
+			break;
+		case '@':
+			setRowCol(straightRow, straightCol);
+			reverseDirection();
+			break;
+		case '#':
+			setRowCol(straightRow, straightCol);
+			addToAbstractSyntaxGraph("#", Command::Type::FINISH);
+			parsingNotFinished = false;
+			break;
+		case '<':
+			didGoStraight = parseJunctions(E, straightRow, straightCol, SE, NE, "<", Command::Type::EASTJUNC);
+			break;
+		case '>':
+			didGoStraight = parseJunctions(W, straightRow, straightCol, NW, SW, ">", Command::Type::WESTJUNC);
+			break;
+		case '^':
+			didGoStraight = parseJunctions(S, straightRow, straightCol, SW, SE, "^", Command::Type::SOUTHJUNC);
+			break;
+		case 'v':
+			didGoStraight = parseJunctions(N, straightRow, straightCol, NE, NW, "v", Command::Type::NORTHJUNC);
+			break;
+		default:
+			didGoStraight = false;
+			break;
 	}
 	if(errorMessage!=""){
 		//TODO:Error stuff?
@@ -207,13 +204,13 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 */
 bool Parser::parseJunctions(Direction requiredDir, int juncRow, int juncCol, Direction truePathDir, Direction falsePathDir, string commandName, Command::Type juncType) {
 	if(dir==requiredDir){
-		addToAbstractSyntaxGraph(commandName,juncType);
+		addToAbstractSyntaxGraph(commandName, juncType);
 		std::shared_ptr<Node> ifNode = currentNode;
-		parseGraph(juncRow,juncCol,truePathDir);
+		parseGraph(juncRow, juncCol, truePathDir);
 		parsingNotFinished = true;
 		currentNode = ifNode;
 		addNextNodeAsTruePathOfPreviousNode = false;
-		parseGraph(juncRow,juncCol,falsePathDir);
+		parseGraph(juncRow, juncCol, falsePathDir);
 		parsingNotFinished = false;
 		return true;
 	} else{
@@ -221,7 +218,7 @@ bool Parser::parseJunctions(Direction requiredDir, int juncRow, int juncCol, Dir
 	}
 }
 
-void Parser::addToAbstractSyntaxGraph(string commandName,Command::Type type){
+void Parser::addToAbstractSyntaxGraph(string commandName, Command::Type type) {
 	//debug
 	cout << "\tNode creation: " << commandName << endl;
 	std::shared_ptr<Node> node(new Node());
@@ -235,8 +232,8 @@ void Parser::addToAbstractSyntaxGraph(string commandName,Command::Type type){
 	} else {
 		node->id = ++lastUsedId;
 		abstractSyntaxGraph->addNode(node);
-		abstractSyntaxGraph->addEdge(currentNode,node,addNextNodeAsTruePathOfPreviousNode);
-		if(!addNextNodeAsTruePathOfPreviousNode){
+		abstractSyntaxGraph->addEdge(currentNode, node, addNextNodeAsTruePathOfPreviousNode);
+		if(!addNextNodeAsTruePathOfPreviousNode) {
 			//restore default behavior: always add new nodes to the 'true' path of their predecessor
 			//unless it was set before the call of this method (in case an 'IF' was read and we parse the first node of the 'false' branch
 			addNextNodeAsTruePathOfPreviousNode = true;
@@ -248,10 +245,14 @@ void Parser::addToAbstractSyntaxGraph(string commandName,Command::Type type){
 //FIXME translate -> english
 //setzt position auf until falls er existiert, und gibt den gelesenen string inklusive anfangs und endzeichen zurueck
 //falls nicht wir ein leerer string zurueckgegeben und die fehlermeldung gesetzt
-string Parser::readCharsUntil(unsigned char until) {
+string Parser::readCharsUntil(uint32_t until) {
 	string result = "";
-	result += board->get(posRow, posCol);
-	while(true){
+
+	//result += board->get(posRow, posCol);
+
+	// Can be decoded anyway - doesn't matter
+	result += Encoding::unicodeToUtf8(board->get(posRow, posCol));
+	while(true) {
 		uint32_t nextRow = posRow + rowOffsetMap.at(dir).offsets[STRAIGHT];
 		uint32_t nextCol = posCol + colOffsetMap.at(dir).offsets[STRAIGHT];
 		if(posRow >= board->getHeight() || nextCol >= board->getWidth()) {
@@ -263,11 +264,15 @@ string Parser::readCharsUntil(unsigned char until) {
 		}
 		posRow = nextRow;
 		posCol = nextCol;
-		result += board->get(posRow, posCol);
+
+		//result += board->get(posRow, posCol);
+		result += Encoding::unicodeToUtf8(board->get(posRow, posCol));
+
 		if(board->get(posRow, posCol) == until) {
 			break;
 		}
 	}
+	cout << "readCharsUntil: " << result << endl;
 	return result;
 }
 

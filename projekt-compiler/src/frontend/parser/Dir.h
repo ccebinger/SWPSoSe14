@@ -2,7 +2,7 @@
  * Dir.h
  *
  *  Created on: May 29, 2014
- *      Author: asd
+ *      Author: Miro B.
  */
 
 #ifndef DIR_H_
