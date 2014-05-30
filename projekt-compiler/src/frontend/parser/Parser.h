@@ -103,7 +103,7 @@ class Parser {
 			{ NW, offsetvalues{{  0, -1, -1 }} },
 			{ N,  offsetvalues{{ -1, -1, -1 }} },
 			{ NE, offsetvalues{{ -1, -1,  0 }} },
-		};;
+		};
 		//y offsets:
 		const map<Direction, offsetvalues> colOffsetMap = {
 			{ E,  offsetvalues{{ +1, +1, +1 }} },
@@ -168,13 +168,10 @@ class Parser {
 		const int LEFT = 0;
 		const int STRAIGHT = 1;
 		const int RIGHT = 2;
-		//IMPORTANT: Note that in all occurences in this file x is the line and y is the position of the character in line x(basically the column)
-		//this is a little counter intuitive to a coordiante system since it is exactly the other way round(going right means increasing y value)
-		//this should probably be refactored in the future, or x and y should be called i and j (since these are more commonly used when indexing matrices)
+
 		uint32_t posRow, posCol;
 		Direction dir;
 		shared_ptr<RailFunction> board;
-
 
 		std::shared_ptr<Adjacency_list> abstractSyntaxGraph;
 		std::shared_ptr<Node> currentNode;

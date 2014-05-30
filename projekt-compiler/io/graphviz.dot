@@ -5,11 +5,9 @@ digraph G {
 	label="Rail ASG";
 	rankdir="TL";
 
-	func日本国 [shape="invhouse",fillcolor="none",label="Function 日本国"]
-	func日本国 -> 1
-	1 [label="[吳語]"]
+	func本 [shape="invhouse",fillcolor="none",label="Function 本"]
+	func本 -> 1
+	1 [label="{日本国}"]
 	1 -> 2
-	2 [label="o"]
-	2 -> 3
-	3 [label="#"]
+	2 [label="#"]
 }
