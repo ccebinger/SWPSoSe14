@@ -31,17 +31,20 @@ void Lexer::lex(std::string srcFile) {
 	std::string line;
 	std::string functionName = "";
 
-	std::getline(is, line);
 
-
-	// BOM-test
-	if(line.length() > 2 && line[0] == 0xEF && line[1] == 0xBB && line[2] == 0xBF) {
-		// remove BOM
-		line = line.substr(3, line.length()-3);
+	// Skip BOM if present
+	if(is.get() != 0xEF || is.get() != 0xBB || is.get() != 0xBF) {
+		is.seekg(0);
 	}
+
+
 
 	RailFunction* act = NULL;
 	while(!is.eof()) {
+
+		// get next line
+		std::getline(is, line);
+
 
 		if(line.length() > 0 && line.at(0) == '$') {
 			// find function name
@@ -84,8 +87,7 @@ void Lexer::lex(std::string srcFile) {
 		}
 
 
-		// get next line
-		std::getline(is, line);
+
 	}
 
 
