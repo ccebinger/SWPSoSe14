@@ -31,17 +31,20 @@ void Lexer::lex(std::string srcFile) {
 	std::string line;
 	std::string functionName = "";
 
-	std::getline(is, line);
 
-
-	// BOM-test
-	if(line.length() > 2 && line[0] == 0xEF && line[1] == 0xBB && line[2] == 0xBF) {
-		// remove BOM
-		line = line.substr(3, line.length()-3);
+	// Skip BOM if present
+	if(is.get() != 0xEF || is.get() != 0xBB || is.get() != 0xBF) {
+		is.seekg(0);
 	}
+
+
 
 	RailFunction* act = NULL;
 	while(!is.eof()) {
+
+		// get next line
+		std::getline(is, line);
+
 
 		if(line.length() > 0 && line.at(0) == '$') {
 			// find function name
@@ -68,24 +71,26 @@ void Lexer::lex(std::string srcFile) {
 
 		// Add line if a RailFunction is active
 		if(act != NULL) {
-			// Add line to RailFunction
-			std::vector<uint32_t> data;
-			std::deque<uint32_t> utf8line;
-			Encoding::utf8StringToUnicode(line, &utf8line, 0);
-			for(auto it=utf8line.begin(); it<utf8line.end(); ++it) {
-				data.push_back(*it);
-			}
-			act->data.push_back(data);
+			// skip empty line if last line was empty too
+			if(line.length() != 0 || act->data.back().size() != 0) {
+				// Add line to RailFunction
+				std::vector<uint32_t> data;
+				std::deque<uint32_t> utf8line;
+				Encoding::utf8StringToUnicode(line, &utf8line, 0);
+				for(auto it=utf8line.begin(); it<utf8line.end(); ++it) {
+					data.push_back(*it);
+				}
+				act->data.push_back(data);
 
-			if(act->width < utf8line.size()) {
-				act->width = utf8line.size();
+				if(act->width < utf8line.size()) {
+					act->width = utf8line.size();
+				}
+				act->height++;
 			}
-			act->height++;
 		}
 
 
-		// get next line
-		std::getline(is, line);
+
 	}
 
 

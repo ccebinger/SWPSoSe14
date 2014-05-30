@@ -33,7 +33,7 @@ shared_ptr<Adjacency_list> Parser::parseGraph() {
 		}
 	}
 	if(startPosY==-1){
-		errorMessage ="$ not found in function " + board->getName();
+		errorMessage ="'" + board->getName() + "': $ not found";
 		return NULL;
 	}
 	return parseGraph(0,startPosY,SE);
@@ -41,7 +41,7 @@ shared_ptr<Adjacency_list> Parser::parseGraph() {
 
 shared_ptr<Adjacency_list> Parser::parseGraph(int startPosRow, int startPosCol, Direction startDir) {
 	cout << "Begin parsing..." << endl;
-	setRowCol(startPosRow,startPosCol);
+	setRowCol(startPosRow, startPosCol);
 	dir = startDir;
 	parsingNotFinished = true;
 	while(parsingNotFinished) {
@@ -82,7 +82,7 @@ void Parser::move() {
 		uint32_t charAtStraight = board->get(straightRow, straightCol);
 		list<uint32_t> allowedRails = validRailMap.at(dir).straight;
 		straightIsValidRail = std::find(allowedRails.begin(),allowedRails.end(),charAtStraight)!=allowedRails.end();
-		if(straightIsValidRail){
+		if(straightIsValidRail) {
 			//if allowedRails contains charAtStraight just move forwards
 			setRowCol(straightRow,straightCol);
 			if(charAtStraight == leftDirChangeMap.at(dir)){
@@ -94,8 +94,8 @@ void Parser::move() {
 			return;
 		}
 		//check for other symbols that are allowed
-		bool didGoStraight = checkForValidCommandsInStraightDir(straightRow,straightCol);
-		if(didGoStraight){
+		bool didGoStraight = checkForValidCommandsInStraightDir(straightRow, straightCol);
+		if(didGoStraight) {
 			return;
 		}
 	}
@@ -109,16 +109,19 @@ void Parser::move() {
 		list<uint32_t> allowedRailsRight = validRailMap.at(dir).right;
 		rightIsValidRail = std::find(allowedRailsRight.begin(),allowedRailsRight.end(),charAtRight)!=allowedRailsRight.end();
 	}
-	//error handling begin
+
+	// ---------------------------------------------------------------------
+	// Begin of error handling
+	// ---------------------------------------------------------------------
 	if(leftIsValidRail && rightIsValidRail) {
 		std::stringstream sstm;
-		sstm << "ambiguous move at line" << posRow << ", character:" << posCol;
+		sstm << "'" << board->getName() << "' (" << posRow+1 << ", " << posCol+1 << "): ambiguous move";
 		errorMessage = sstm.str();
 		return;
 	}
 	if(!leftIsValidRail && !rightIsValidRail) {
 		std::stringstream sstm;
-		sstm << "no valid move possible at line" << posRow << ", character:" << posCol;
+		sstm << "'" << board->getName() << "' (" << posRow+1 << ", " << posCol+1 << "): no valid move possible";
 		errorMessage = sstm.str();
 		return;
 	}
@@ -133,12 +136,15 @@ void Parser::move() {
 		turnRight45Deg();
 		return;
 	}
-	errorMessage = "end of move-function reached - this should never happen and is an internal error";
+	errorMessage = "'" + board->getName() + "' : end of move-function reached - this should never happen and is an internal error";
 	return;
 }
 
 bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol) {
-	char charAtStraight = board->get(straightRow, straightCol);
+	uint32_t charAtStraight = board->get(straightRow, straightCol);
+
+	//cout << "\tcheckForValidCommandsInStraightDir(" << straightRow << ", " << straightCol << ") " << Encoding::unicodeToUtf8(charAtStraight) << endl;
+
 	bool didGoStraight = true;
 	switch(charAtStraight) {
 		case 'o':
@@ -176,15 +182,25 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 		case 'v':
 			didGoStraight = parseJunctions(N, straightRow, straightCol, NE, NW, "v", Command::Type::NORTHJUNC);
 			break;
+		case '{':
+			setRowCol(straightRow, straightCol);
+			addToAbstractSyntaxGraph(readCharsUntil('}'), Command::Type::CALL);
+			break;
+		case '}':
+			setRowCol(straightRow, straightCol);
+			addToAbstractSyntaxGraph(readCharsUntil('{'), Command::Type::CALL);
+			break;
 		default:
 			didGoStraight = false;
 			break;
 	}
-	if(errorMessage!=""){
+	if(errorMessage!="") {
 		//TODO:Error stuff?
 	}
 	return didGoStraight;
 }
+
+
 
 /*
  * requiredDir: The direction the train has to have at the moment for this being a valid junction (for dir must be E for < junction)
@@ -249,7 +265,7 @@ string Parser::readCharsUntil(uint32_t until) {
 		if(posRow >= board->getHeight() || nextCol >= board->getWidth()) {
 			//TODO:Dir auch ausgeben
 			std::stringstream sstm;
-			sstm << "Parsing ran out of valid space for function in line" << posRow << ", character:" << posCol;
+			sstm << "'" << board->getName() << "' (" << posRow+1 << ", " << posCol+1 << "): Parsing ran out of valid space";
 			errorMessage = sstm.str();
 			return "";
 		}
@@ -263,7 +279,7 @@ string Parser::readCharsUntil(uint32_t until) {
 			break;
 		}
 	}
-	cout << "readCharsUntil: " << result << endl;
+	//cout << "readCharsUntil: " << result << endl;
 	return result;
 }
 

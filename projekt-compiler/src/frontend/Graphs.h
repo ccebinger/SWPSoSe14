@@ -136,6 +136,13 @@ class Graphs
     * @param file       the name of the file
     */
     void writeGraphViz(Graphs::str file);
+
+
+    /**
+     * Determine graphviz Node Styling based on the Node
+     */
+    std::string gvGetNodeStyles(std::shared_ptr<Node> node) const;
+
   private:
    /**
     * Finds a node with the given id in the given Graph.
