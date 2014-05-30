@@ -11,17 +11,32 @@ std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph
 
     switch(currentNode->command.type) {
     case Command::Type::PUSH_CONST:
-      indexInPool = constantPool.addString(currentNode->command.arg);
       // Emit
       // ldc indexInPool
+      indexInPool = constantPool.addString(currentNode->command.arg);
       result.push_back('\x12');
       result.push_back((indexInPool & 0xFF00U) >> 8);
       result.push_back(indexInPool & 0x00FFU);
     break;
     case Command::Type::OUTPUT:
       // Emit
-      //
-    // TODO
+      // astore_1
+      result.push_back('\x4c');
+
+      // getstatic <Field java/lang/System.out:Ljava/io/PrintStream;>
+      indexInPool = constantPool.addFieldRef("java/lang/System.out:Ljava/io/PrintStream;");
+      result.push_back('\xb2');
+      result.push_back((indexInPool & 0xFF00U) >> 8);
+      result.push_back(indexInPool & 0x00FFU);
+
+      // aload_1
+      result.push_back('\x2b');
+
+      // invokevirtual <Method java/io/PrintStream.print:(Ljava/lang/String;)V>
+      indexInPool = constantPool.addMethRef("java/io/PrintStream.print:(Ljava/lang/String;)V");
+      result.push_back('\xb6');
+      result.push_back((indexInPool & 0xFF00U) >> 8);
+      result.push_back(indexInPool & 0x00FFU);
     break;
     case Command::Type::ADD:
           // Emit
@@ -67,6 +82,8 @@ std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph
     // TODO errors etc.
     break;
     }
+
+    currentNode = currentNode->successor1;
   }
   // Emit
   // return
