@@ -31,14 +31,19 @@ void Lexer::lex(std::string srcFile) {
 	std::string line;
 	std::string functionName = "";
 
+	std::getline(is, line);
+
+
+	// BOM-test
+	if(line.length() > 2 && line[0] == 0xEF && line[1] == 0xBB && line[2] == 0xBF) {
+		// remove BOM
+		line = line.substr(3, line.length()-3);
+	}
 
 	RailFunction* act = NULL;
 	while(!is.eof()) {
 
-		std::getline(is, line);
-
-
-		if(line.at(0) == '$') {
+		if(line.length() > 0 && line.at(0) == '$') {
 			// find function name
 			size_t nameStart = line.find("'", 0);
 			size_t nameEnd = line.find("'", nameStart+1, 1);
@@ -52,7 +57,7 @@ void Lexer::lex(std::string srcFile) {
 			}
 			else {
 				/*
-				 * FIXME error handling: found a $ but no function name
+				 * Error handling: found a $ but no function name
 				 * Options
 				 * 		1. do nothing -> adds this line to the actual RailFunction
 				 * 		2. act = NULL; -> assume this is a new function (misspelled -> ignore whole function)
@@ -77,8 +82,17 @@ void Lexer::lex(std::string srcFile) {
 			}
 			act->height++;
 		}
+
+
+		// get next line
+		std::getline(is, line);
 	}
 
+
+
+	for(auto it=functions.begin(); it<functions.end(); ++it) {
+		(*it)->dump();
+	}
 
 	std::cout << "done" << std::endl;
 

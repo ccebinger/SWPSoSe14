@@ -107,37 +107,36 @@ void Parser::move() {
 			return;
 		}
 	}
-	if(leftIsInBoardBounds){
-
+	if(leftIsInBoardBounds) {
 		char charAtLeft = board->get(leftRow, leftCol);
 		list<char> allowedRailsLeft = validRailMap.at(dir).left;
-		leftIsValidRail = std::find(allowedRailsLeft.begin(),allowedRailsLeft.end(),charAtLeft)!=allowedRailsLeft.end();
+		leftIsValidRail = std::find(allowedRailsLeft.begin(), allowedRailsLeft.end(), charAtLeft) != allowedRailsLeft.end();
 	}
-	if(rightIsInBoardBounds){
+	if(rightIsInBoardBounds) {
 		char charAtRight = board->get(rightRow, rightCol);
 		list<char> allowedRailsRight = validRailMap.at(dir).right;
 		rightIsValidRail = std::find(allowedRailsRight.begin(),allowedRailsRight.end(),charAtRight)!=allowedRailsRight.end();
 	}
 	//error handling begin
-	if(leftIsValidRail && rightIsValidRail){
+	if(leftIsValidRail && rightIsValidRail) {
 		std::stringstream sstm;
-		sstm << "abiguous move at line" << posRow << ", character:" << posCol;
+		sstm << "ambiguous move at line" << posRow << ", character:" << posCol;
 		errorMessage = sstm.str();
 		return;
 	}
-	if(!leftIsValidRail && !rightIsValidRail){
+	if(!leftIsValidRail && !rightIsValidRail) {
 		std::stringstream sstm;
 		sstm << "no valid move possible at line" << posRow << ", character:" << posCol;
 		errorMessage = sstm.str();
 		return;
 	}
 	//error handling end
-	if(leftIsValidRail){
+	if(leftIsValidRail) {
 		setRowCol(leftRow,leftCol);
 		turnLeft45Deg();
 		return;
 	}
-	if(rightIsValidRail){
+	if(rightIsValidRail) {
 		setRowCol(rightRow,rightCol);
 		turnRight45Deg();
 		return;

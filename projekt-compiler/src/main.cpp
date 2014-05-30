@@ -106,8 +106,12 @@ int main(int argc, char *argv[]) {
 		// Lexer
 		Lexer lexer;
 		lexer.lex(srcFile);
+		if(lexer.functions.size() == 0) {
+			//FIXME error handling -> Exception
+			std::cout << "No Rail Functions found in " << srcFile << std::endl;
+			return -1;
+		}
 		std::shared_ptr<RailFunction> func = lexer.functions.at(0); //FIXME hardcoded number of functions
-		func->dump();
 
 
 		// "Parser"
