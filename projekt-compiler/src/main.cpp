@@ -3,7 +3,7 @@
 //#include <sys/types.h>
 #include <sys/stat.h>
 
-
+#include "backend/backend.h"
 #include <frontend/lexer/Lexer.h>
 #include <frontend/parser/Parser.h>
 #include <frontend/Graphs.h>
@@ -165,8 +165,10 @@ int main(int argc, char *argv[]) {
 	// BACKEND
 	// ------------------------------------------------------------------------
 
-
-
+  // TODO this is just a mockup...
+  ofstream outFile;
+  outFile.open("out.class");
+  Backend::Generate(graphs, outFile);
 
 	return 0;
 }
