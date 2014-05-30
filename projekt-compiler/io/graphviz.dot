@@ -5,9 +5,17 @@ digraph G {
 	label="Rail ASG";
 	rankdir="TL";
 
-	func本 [shape="invhouse",fillcolor="none",label="Function 本"]
-	func本 -> 1
-	1 [label="{日本国}"]
+	func_main [shape="invhouse",fillcolor="none",label="'main'"]
+	func_main -> 1
+	1 [label="{snd}",shape=diamond]
+	1 -> func_snd [label="CALL",style=dotted]
 	1 -> 2
-	2 [label="#"]
+	2 [label="#",shape=house,fillcolor=none]
+	func_snd [shape="invhouse",fillcolor="none",label="'snd'"]
+	func_snd -> 3
+	3 [label="[outStr]",shape=signature]
+	3 -> 4
+	4 [label="o",shape=rarrow]
+	4 -> 5
+	5 [label="#",shape=house,fillcolor=none]
 }

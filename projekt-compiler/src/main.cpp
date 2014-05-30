@@ -111,10 +111,10 @@ int main(int argc, char *argv[]) {
 			std::cout << "No Rail Functions found in " << srcFile << std::endl;
 			return -1;
 		}
+
+		// Parser
+		/*
 		std::shared_ptr<RailFunction> func = lexer.functions.at(0); //FIXME hardcoded number of functions
-
-
-		// "Parser"
 		Parser p(func);
 		shared_ptr<Adjacency_list> asg = p.parseGraph();
 		if(asg == NULL) {
@@ -122,9 +122,24 @@ int main(int argc, char *argv[]) {
 			pe.set_msg(p.errorMessage);
 			throw pe;
 		}
-
-		// Create Graphs
 		graphs.put(func->getName(), asg);
+		*/
+
+
+		// Parser
+		for(auto it=lexer.functions.begin(); it < lexer.functions.end(); ++it) {
+			Parser p(*it);
+			shared_ptr<Adjacency_list> asg = p.parseGraph();
+			if(asg == NULL) {
+				//FIXME error handling!
+				Parse_Exception pe;
+				pe.set_msg(p.errorMessage);
+				throw pe;
+			}
+			graphs.put((*it)->getName(), asg);
+		}
+
+
 	}
 	else {
 		cerr << "No source specified. Use either -i <file> or -d <file>." << endl;
