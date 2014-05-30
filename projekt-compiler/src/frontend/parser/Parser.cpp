@@ -112,13 +112,13 @@ void Parser::move() {
 	//error handling begin
 	if(leftIsValidRail && rightIsValidRail) {
 		std::stringstream sstm;
-		sstm << "ambiguous move at line" << posRow << ", character:" << posCol;
+		sstm << "ambiguous move at line " << posRow+1 << ", character " << posCol+1;
 		errorMessage = sstm.str();
 		return;
 	}
 	if(!leftIsValidRail && !rightIsValidRail) {
 		std::stringstream sstm;
-		sstm << "no valid move possible at line" << posRow << ", character:" << posCol;
+		sstm << "no valid move possible at line" << posRow+1 << ", character " << posCol+1;
 		errorMessage = sstm.str();
 		return;
 	}
@@ -249,7 +249,7 @@ string Parser::readCharsUntil(uint32_t until) {
 		if(posRow >= board->getHeight() || nextCol >= board->getWidth()) {
 			//TODO:Dir auch ausgeben
 			std::stringstream sstm;
-			sstm << "Parsing ran out of valid space for function in line" << posRow << ", character:" << posCol;
+			sstm << "Parsing ran out of valid space for function in line " << posRow+1 << ", character " << posCol+1;
 			errorMessage = sstm.str();
 			return "";
 		}
