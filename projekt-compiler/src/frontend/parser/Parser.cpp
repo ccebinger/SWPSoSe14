@@ -205,6 +205,29 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			setRowCol(straightRow, straightCol);
 			addToAbstractSyntaxGraph(Encoding::unicodeToUtf8(charAtStraight), Command::Type::PUSH_CONST);
 			break;
+
+		// Arithmetic
+		case 'a': // Add
+			setRowCol(straightRow, straightCol);
+			addToAbstractSyntaxGraph("a", Command::Type::ADD);
+			break;
+		case 'd': // Divide
+			setRowCol(straightRow, straightCol);
+			addToAbstractSyntaxGraph("d", Command::Type::DIV);
+			break;
+		case 'm': // Multiply
+			setRowCol(straightRow, straightCol);
+			addToAbstractSyntaxGraph("m", Command::Type::MULT);
+			break;
+		case 'r': // Remainder
+			setRowCol(straightRow, straightCol);
+			addToAbstractSyntaxGraph("r", Command::Type::MOD);
+			break;
+		case 's': // Subtract
+			setRowCol(straightRow, straightCol);
+			addToAbstractSyntaxGraph("s", Command::Type::SUB);
+			break;
+
 		default:
 			didGoStraight = false;
 			break;
