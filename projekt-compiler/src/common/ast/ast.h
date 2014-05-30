@@ -19,7 +19,7 @@ struct Command {
    * E.g. o -> 111 or a -> 97, thats makes the mapping much easier.
    */
 	enum Type {
-		PUSH_CONST = 0, /**< 0-9 or [...] */
+		PUSH_CONST = 0, /**< t,f, 0-9 or [...] */
 		CALL = 1, /**< {FUNC} */
 		OUTPUT = 111, /**< o */
 		ADD = 97, /**< a */

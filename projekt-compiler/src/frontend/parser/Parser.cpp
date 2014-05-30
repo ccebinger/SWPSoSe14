@@ -190,6 +190,21 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			setRowCol(straightRow, straightCol);
 			addToAbstractSyntaxGraph(readCharsUntil('{'), Command::Type::CALL);
 			break;
+		case 't':
+		case 'f':
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+			setRowCol(straightRow, straightCol);
+			addToAbstractSyntaxGraph(Encoding::unicodeToUtf8(charAtStraight), Command::Type::PUSH_CONST);
+			break;
 		default:
 			didGoStraight = false;
 			break;

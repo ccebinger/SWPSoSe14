@@ -65,7 +65,7 @@ void Graphs::marshall(Graphs::str file, char delimiter) {
 	for(it = this->graphs.begin(); it != this->graphs.end(); ++it) {
 		Graph_ptr gp = it->second;
 		std::size_t count = gp->nodeCount();
-		std::cout << "\t" << count << " nodes" << std::endl;
+		std::cout << "\t'" << it->first << "': " << count << " nodes" << std::endl;
 
 		// Function name
 		ofh << "[" << it->first <<"]" << std::endl;
@@ -281,12 +281,11 @@ void Graphs::writeGraphViz(Graphs::str file) {
 	fh << std::endl;
 
 
+	// ------------------------------------------------------------------------------------------
 	// Function
-
+	// ------------------------------------------------------------------------------------------
 	// id + gs = unique id
 	uint32_t gs = 0;
-
-
 	std::map<std::string, Graph_ptr>::iterator it;
 	for(it = this->graphs.begin(); it != this->graphs.end(); ++it) {
 		Graph_ptr gp = it->second;
@@ -333,7 +332,6 @@ void Graphs::writeGraphViz(Graphs::str file) {
 	}
 
 	fh << std::endl << "}";
-
 	fh.close();
 
 	std::cout << "done..." << std::endl;
@@ -344,21 +342,13 @@ void Graphs::writeGraphViz(Graphs::str file) {
 std::string Graphs::gvGetNodeStyles(std::shared_ptr<Node> node) const {
 
 	//FIXME command-based node style - requires a good testfile
-
-
-
-	// [label=\"" << node->command.arg << "\""<< style << "]"
-
 	bool useLabel = true;
 	std::string shape = "";
 	std::string fillColor = "";
 	switch(node->command.type) {
 
-
-
-
 		// Rail
-		case Command::Type::START:				break;
+		case Command::Type::START:				shape="plaintext"; break;
 		case Command::Type::FINISH:				shape="house"; fillColor="none"; break;
 		case Command::Type::BOOM:				useLabel=false; shape="proteasesite"; break;
 		case Command::Type::REFLECTOR:			break;
