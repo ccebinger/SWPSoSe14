@@ -44,9 +44,9 @@ struct offsetvalues {
 
 struct allowedChars {
 	//used to store the acceptable chars for looking left, straight or right
-	list<char> left;
-	list<char> straight;
-	list<char> right;
+	list<uint32_t> left;
+	list<uint32_t> straight;
+	list<uint32_t> right;
 };
 
 
@@ -62,7 +62,7 @@ class Parser {
 		 */
 		//if the train moves straight but reads a specific character the direction needs to be changesd
 		//when to turn left 45 deg
-		const map<Direction,char> leftDirChangeMap = {
+		const map<Direction, uint32_t> leftDirChangeMap = {
 			{ E,  '/'  },
 			{ SE, '-'  },
 			{ S,  '\\' },
@@ -74,7 +74,7 @@ class Parser {
 		};
 
 		//when to turn right 45 deg
-		const map<Direction,char> rightDirChangeMap = {
+		const map<Direction,uint32_t> rightDirChangeMap = {
 			{ E,  '\\' },
 			{ SE, '|'  },
 			{ S,  '/'  },
@@ -173,7 +173,6 @@ class Parser {
 		//this should probably be refactored in the future, or x and y should be called i and j (since these are more commonly used when indexing matrices)
 		uint32_t posRow, posCol;
 		Direction dir;
-		//char (*board)[1024];
 		shared_ptr<RailFunction> board;
 
 

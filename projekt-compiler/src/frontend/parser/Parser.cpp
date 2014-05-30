@@ -10,14 +10,6 @@
 #include <frontend/parser/Parser.h>
 
 
-std::list<char> listFromArray(char chars[], int size) {
-	std::list<char> myList;
-	for(int i=0; i<size; i++){
-		myList.push_back(chars[i]);
-	}
-	return myList;
-}
-
 Parser::Parser(std::shared_ptr<RailFunction> railFunction) {
 	this->board = railFunction;
 	//errorMessage - empty String: Everything is ok
@@ -87,8 +79,8 @@ void Parser::move() {
 	bool rightIsValidRail = false;
 	bool straightIsValidRail = false;
 	if(straightIsInBoardBounds) {
-		char charAtStraight = board->get(straightRow, straightCol);
-		list<char> allowedRails = validRailMap.at(dir).straight;
+		uint32_t charAtStraight = board->get(straightRow, straightCol);
+		list<uint32_t> allowedRails = validRailMap.at(dir).straight;
 		straightIsValidRail = std::find(allowedRails.begin(),allowedRails.end(),charAtStraight)!=allowedRails.end();
 		if(straightIsValidRail){
 			//if allowedRails contains charAtStraight just move forwards
@@ -108,13 +100,13 @@ void Parser::move() {
 		}
 	}
 	if(leftIsInBoardBounds) {
-		char charAtLeft = board->get(leftRow, leftCol);
-		list<char> allowedRailsLeft = validRailMap.at(dir).left;
+		uint32_t charAtLeft = board->get(leftRow, leftCol);
+		list<uint32_t> allowedRailsLeft = validRailMap.at(dir).left;
 		leftIsValidRail = std::find(allowedRailsLeft.begin(), allowedRailsLeft.end(), charAtLeft) != allowedRailsLeft.end();
 	}
 	if(rightIsInBoardBounds) {
-		char charAtRight = board->get(rightRow, rightCol);
-		list<char> allowedRailsRight = validRailMap.at(dir).right;
+		uint32_t charAtRight = board->get(rightRow, rightCol);
+		list<uint32_t> allowedRailsRight = validRailMap.at(dir).right;
 		rightIsValidRail = std::find(allowedRailsRight.begin(),allowedRailsRight.end(),charAtRight)!=allowedRailsRight.end();
 	}
 	//error handling begin
@@ -155,7 +147,7 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			break;
 		case '[':
 			setRowCol(straightRow, straightCol);
-			//TODO: ueberpruefen ob notwendig: list<char> invalidCharList = listFromArray({'[','{','(',},);
+			//TODO: ueberpruefen ob notwendig: list<char> invalidCharList = {'[','{','(',},;
 			addToAbstractSyntaxGraph(readCharsUntil(']'), Command::Type::PUSH_CONST);
 			//TODO: create pushNode in graph
 			break;
