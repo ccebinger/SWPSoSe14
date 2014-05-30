@@ -141,10 +141,8 @@ void ClassfileWriter::WriteFields() {
  * FIXME: The init and main is hard coded. Should be replaced later.
  */
 void ClassfileWriter::WriteMethods() {
-	/**
-	 * TODO: insert method_count dynamically (minimum 2 for init & main method for MS1)
-	 * TODO: use u2 (e.g. 2 methods = \x0002)
-	 */
+
+	out_ << constant_pool_.countItemType(METHOD);
 
 	/**
 	 * Inserts the bytecode for the method init.
@@ -163,11 +161,9 @@ void ClassfileWriter::WriteMethods() {
 						'\x2A', '\xB7', '\x00', '\x01', '\xB1',
 						'\x00', '\x00',	/* u2 exception_table_length=0 */
 						// TODO: call WriteAttributes to link method with its specific attributes
-						'\x00', '\x01',	/* u2 attributes_count=1 */
-						// TODO: insert reference from constant pool
-						'\x00', '\x0A',	/* u2 attribute_name_index=10, length=15; bytes="LineNumberTable" */
-						'\x00', '\x00', '\x00', '\x06',	/* u4 attribute_length=6 */
-						'\x00', '\x01', '\x00', '\x00', '\x00', '\x01'	/* Attribute bytes: */
+						// FIXME: May think about parameters for the WriteAttributes method to determin,
+						//			which attributes belong to which method.
+						// WriteAttributes();
 		};
 	out_.write(methodInit, sizeof(methodInit));
 
@@ -189,11 +185,6 @@ void ClassfileWriter::WriteMethods() {
 						'\xB2', '\x00', '\x02', '\x12', '\x03', '\xB6', '\x00', '\x04', '\xB1',
 						'\x00', '\x00',	/* u2 exception_table_length=0 */
 						// TODO: call WriteAttributes to link method with its specific attributes
-						'\x00', '\x01',	/* u2 attributes_count=1 */
-						// TODO: insert reference from constant pool
-						'\x00', '\x0A',	/* u2 attribute_name_index=10, length=15; bytes="LineNumberTable" */
-						'\x00', '\x00', '\x00', '\x0A',	/* u4 attribute_length=10 */
-						'\x00', '\x02', '\x00', '\x00', '\x00', '\x03', '\x00', '\x08', '\x00', '\x04'	/* Attribute bytes: */
 		};
 	out_.write(methodMain, sizeof(methodMain));
 }
@@ -205,6 +196,9 @@ void ClassfileWriter::WriteMethods() {
 void ClassfileWriter::WriteAttributes() {
 /**
  * TODO: 0. insert attribute_count (u2)
+
+	out_ << constant_pool_.countItemType(ATTRIBUTE);
+
  *  Code_attribute:
  * TODO: 1. call constant pool to get reference of attribute (u2)
  * 			-> attribute_name_index
@@ -221,6 +215,9 @@ void ClassfileWriter::WriteAttributes() {
 /**
  *  LineNumberTable:
  * TODO: 1. insert attribute_count (u2)
+
+	out_ << constant_pool_.countItemType(ATTRIBUTE);
+
  * TODO: 2. call constant pool to get reference of attribute (u2) = +1 of code_attribute
  * 			-> attributes_name_index
  * TODO: 3. indicate the length of the subsequent information in bytes (u4) (without 6 bytes of attribute_name_index)
