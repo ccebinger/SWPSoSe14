@@ -71,19 +71,22 @@ void Lexer::lex(std::string srcFile) {
 
 		// Add line if a RailFunction is active
 		if(act != NULL) {
-			// Add line to RailFunction
-			std::vector<uint32_t> data;
-			std::deque<uint32_t> utf8line;
-			Encoding::utf8StringToUnicode(line, &utf8line, 0);
-			for(auto it=utf8line.begin(); it<utf8line.end(); ++it) {
-				data.push_back(*it);
-			}
-			act->data.push_back(data);
+			// skip empty line if last line was empty too
+			if(line.length() != 0 || act->data.back().size() != 0) {
+				// Add line to RailFunction
+				std::vector<uint32_t> data;
+				std::deque<uint32_t> utf8line;
+				Encoding::utf8StringToUnicode(line, &utf8line, 0);
+				for(auto it=utf8line.begin(); it<utf8line.end(); ++it) {
+					data.push_back(*it);
+				}
+				act->data.push_back(data);
 
-			if(act->width < utf8line.size()) {
-				act->width = utf8line.size();
+				if(act->width < utf8line.size()) {
+					act->width = utf8line.size();
+				}
+				act->height++;
 			}
-			act->height++;
 		}
 
 
