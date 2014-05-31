@@ -39,29 +39,19 @@ std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph
       result.push_back(indexInPool & 0x00FFU);
     break;
     case Command::Type::ADD:
-          // Emit
-          //
-        // TODO: MS2
-        break;
+      result.push_back('\x60');  //iadd
+      break;
     case Command::Type::SUB:
-		  // Emit
-		  //
-		// TODO: MS2
-		break;
+		  result.push_back('\x64');  //isub
+      break;
     case Command::Type::MULT:
-		  // Emit
-		  //
-		// TODO: MS2
+		  result.push_back('\x68');  //imul
 		break;
     case Command::Type::DIV:
-		  // Emit
-		  //
-		// TODO: MS2
+      result.push_back('/x6c');  //idiv
 		break;
     case Command::Type::MOD:
-		  // Emit
-		  //
-		// TODO: MS2
+      result.push_back('/x70'); //irem
 		break;
     case Command::Type::CUT:
 		  // Emit
