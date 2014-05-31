@@ -1,0 +1,448 @@
+$'main'(--):
+ \
+  \
+   \
+    \--{System}--{Delimiters}--{Math}--{String}--{List}--{Conditional}--{Misc}--#
+
+
+
+$'System'(--):
+ \
+  \
+   \
+    \--{Boom}--{EOF}--{Input}--{Output}--{Underflow}--{Type}--#
+
+
+$'Boom'(--):
+ \
+  \
+   \
+    \--[Hello]-----#
+
+write <b> behind [...] to crash the program
+[Hello]---b--- 
+-> Crash: Custom error: Hello
+
+$'EOF'(--):
+ \
+  \ 
+   \             /----[NoMoreInput]---#
+    \---[3]--e--<
+                 \----[MoreInput]-----#
+
+False -> NoMoreInput
+
+
+$'Input'(--):
+ \
+  \
+   \
+    \---i---#
+
+
+$'Output'(--):
+ \
+  \
+   \
+    \---o---#
+
+
+Output from Input
+Default: $ in Interpreter
+
+
+$'Underflow'(--):
+ \
+  \
+   \
+    \---[HowManyElementsOnStack?]---u---#
+
+Current Result: 4
+
+
+$'Type'(--):
+ \
+  \
+   \
+    \---[IAmAString]---?---#
+
+
+Enter something into the braces
+types: String, Nil, List, Lambda
+
+Current Result: string
+
+
+
+$'Delimiters'(--):
+ \
+  \
+   \
+    \---{Braces}---{VarBind}---#
+
+
+$'Braces'(--):
+ \
+  \
+   \
+    \---[Hello]---]World[---#
+
+
+
+$'VarBind'(--):
+ \
+  \
+   \
+    \---[Bind]--(!BindMe!)---[Me]---)!MeToo!(---(BindMe)---(MeToo)---#
+
+[Bind] -> (BindMe)
+[Me] -> (MeToo)
+
+
+$'Math'(--):
+ \
+  \
+   \
+    \---{Add}---{Sub}---{Mult}---{Div}---{Mod}---{Calculate}---#
+
+
+$'Add'(--):
+ \
+  \
+   \
+    \---0---1---a---[215]---a---#
+
+0+1 = 1
+1+215 = 216
+
+
+$'Sub'(--):
+ \
+  \
+   \
+    \---2---1---s---[21]---s---#
+
+2-1 = 1
+1-21 = -20
+
+
+$'Mult'(--):
+ \
+  \
+   \
+    \---3---4---m---[10]---m---#
+
+3*4 = 12
+12 * 10 = 120
+
+
+$'Div'(--):
+ \
+  \
+   \
+    \---6---2---d---5---d---[30]---6---d---#
+
+6:2 = 3
+3:5 = 0
+30:6 = 5
+
+$'Mod'(--):
+ \
+  \
+   \
+    \---7---5---r---8---r---[854]---9---r---#
+
+7 'mod' 5 = 2
+2 'mod' 8 = 2
+854 'mod' 9 = 8
+
+$'Calculate'(--):
+ \
+  \
+   \---62s---1a---4m---2d---4r----#
+
+6-2 = 4
+4+1 = 5
+5*4 = 20
+20:2 = 10
+10 'mod' 4 = 2
+
+
+$'String'(--):
+ \
+  \
+   \
+    \---{Cut}---{Append}---{Size}---#
+
+
+
+$'Cut'(--):
+ \
+  \
+   \
+    \---[CutMeIntoPieces]---3---c---2---c---4---c---6---c---#
+
+Current Result:
+
+"CutMeIntoPieces"
+"MeIntoPieces"
+"IntoPieces"
+"Pieces"
+""
+
+$'Append'(--):
+ \
+  \
+   \
+    \---[Put]---[Me]---p---[Together]---p---#
+
+Current Result:
+
+"Put" "Me"
+"PutMe" "Together"
+"PutMeTogether"
+
+$'Size'(--):
+ \
+  \
+   \
+    \---[WhatSizeDoIHave?]---z---#
+
+Current Result: 16
+
+
+$'List'(--):
+ \
+  \
+   \
+    \---{Nil}---{Cons}---{Breakup}---#
+
+
+$'Nil'(--):
+ \
+  \
+   \
+    \---n---#
+
+
+$'Cons'(--):
+ \
+  \
+   \
+    \---[1]--2:--3:--4:--#
+
+(cons "2" "1")
+(cons "3" (cons "2" "1"))
+(cons "4" (cons "3" (cons "2" "1")))
+
+
+$'Breakup'(--):
+ \
+  \
+   \
+    \---~---#
+
+Current Result: 4
+
+
+$'Conditional'(--):
+ \
+  \
+   \
+    \---{False}---{True}---{Greater}---{Equal}---#
+
+
+$'False'(--):
+ \
+  \
+   \                 /----[False]----------------#
+    \----------f----<
+                     \----[SomethingWentWrong]---#
+
+
+$'True'(--):
+ \
+  \
+   \                /----[SomethingWentWrong]---#
+    \---------t----<
+                    \----[True]-----------------#
+
+
+
+$'Greater'(--):
+ \
+  \
+   \                 /---[NotGreater]---#
+    \---9---7---g---<
+                     \---[Greater]------#
+
+
+$'Equal'(--):
+ \
+  \
+   \                 /---[NotEqual]---#
+    \---8---8---q---<
+                     \---[Equal]------#
+
+
+$'Misc'(--):
+ \
+  \
+   \
+    \---{Reflect}---{Lambda}---{Junctions}---{Crossover}---{Recursive}---{CrossoverExt}---#
+
+
+$'Reflect'(--):
+ \
+  \
+   \                                         @
+    \                                       /
+     \                                     /
+      \         @-------------------------/
+       \                   \             / #----------------@
+        \                   \           /            /
+         \                   \         /            /
+          \-------------------\       /            /  
+                               \   @--------------/
+                                \                  
+                                 \   
+                                  @
+
+
+$'Lambda'(--):
+ \
+  \
+   \
+ /----&-[Anonymous Function]---#
+ |
+ \----------------{}#
+
+
+<closure ´Lambda´>
+-> "Anonymous Function"
+
+
+
+$'Junctions'(--):
+ \
+  \
+   \         /---[False]---\
+    \---f---<               \         /---[False]--------------------------\
+             \---[True]----------t---<              /                      |
+                                      \---[True]---/                       |
+                                                                           |
+                                       #                                   t
+                                       |                                   |
+                                       |                                   ^
+                                      /|                                  / \
+                                     / |                                  | | 
+                                     | |                                  [ [
+                                     ] |                                  T F
+                                     e ]                                  r a
+                                     s e                                  u l
+                                     l u                                  e s
+                                     a r                                  ] e
+                                     F T                                  | ]
+                                     [ [                                  | |    
+                                     | |                                  \ |
+                                     \ /                                   \|
+                                      v                                     |
+                                      |                                     |
+                                      f             /----[eurT]---\         |
+                                      |            /               >---t----/
+                                      \-----------------[eslaF]---/
+
+
+
+$'Crossover'(--):
+ \
+  \                                                           /---\ 
+   \                                      #                   |   |
+    \                                     |                    \ /
+     \                                    |                     x
+      \                                   |                    / \
+       \                                  |                    |  \
+        \                                 |    /-------\       |   |
+         \                                |   /        |       |   |
+          \                               |  /         |    /--+---/
+           \----------------------------\ | /          |   /   |
+                                         \|/           |   |   |
+                                     /----*------------+---*---+------\
+                                     |   /|\           |   |   |      |
+                                     |  / | \          |   |   |      |
+                                     | |  |  \         |   |   \------/
+                                     | |  |  |         |   |
+                                     | \--/  |         |  /
+                                     |       /         \-/ 
+                                     \------/
+
+
+
+
+$'Recursive'(--):
+ \
+  \ 
+   \---3--(!n!)--(n)--{fiborek}---#
+
+
+$ 'fiborek' (n--m):
+ \
+  \                                                    /----(n)2s-{fiborek}--(n)1s-{fiborek}-a----#
+   \                                                  /
+    \                             /---------(n)1q----<
+     \--(!n!)---------(n)0q------<                    \
+                                  \                    \----[1]---#
+                                   \
+                                    ----[0]--#
+
+Result: 2
+
+
+$'CrossoverExt'(--):
+ \
+  \
+  | 
+  |                                                                                  ---------\
+  |                                                                                 x         |
+  |                                                                                /          |
+  |                                                                         ------/           |                /-------------------------------------------------\
+  |                                                                        *                  *                |                                                 |
+  |                                                                       /                    \               \---                                              /
+  |                                                                      /                      \                  x                                            /
+  |                                                                     x                       |                   \                                          *
+  \                                                                    |                        |                    \                                     /---
+   \                                /---------                         |                         x                    \---                                /
+    \                              /          *                    /---/                          \                       *                              x
+     \                            *            \                  /                                \                       \                         /---
+      \                      /----              \----            *                                 |                        \                       /
+       \                    /                        x          |                                  |                         x                     *
+        \                  x                          \         |                                  *                          |                   |
+         \-----------------                            \--------/                                 /                           |                   |
+                                                                                                 /                             \                  /
+                                                                                                 |                              \                /
+                                                                                                 |                               *              x
+                                                                                                x                                 |            |
+                                                                                               /                                  |            |
+                                                                                              /                                  x             \
+                                                                                              |                                 /               \-------------------------\
+                                                                                              \                                /                                          |
+                                                                                               \                              |                                           |
+                                                                                                *                             |                                           |
+                                                                                                 ----------\                  *                                           |
+                                                                                                            \                /                                            |
+                                                                                                             x              /                                             |
+                                                                                                              ----\         |                                             |
+                                                                                                                   \        \                                             |
+                                                                                                                    *        \                             ---\           |
+                                                                                                                     |        x                           *    \          |
+                                                                                                                     |         |                         /      x         |
+                                                                                                                     \         |                     ---/        ---\     |
+                                                                                                                      \        \                    x                \    |
+                                                                                                                       x        *                  /                  *   |
+                                                                                                                        |        |                /                    ---/
+                                                                                                                        |        |               #
+                                                                                                                        \-------/
+
+{CrossoverExt} - crashes the interpreter and compiler
+if not yet implemented - leave it out
+                                                                                                                    
