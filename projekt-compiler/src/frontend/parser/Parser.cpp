@@ -206,7 +206,7 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			addToAbstractSyntaxGraph(Encoding::unicodeToUtf8(charAtStraight), Command::Type::PUSH_CONST);
 			break;
 
-		// Arithmetic
+		// Arithmetic Operations
 		case 'a': // Add
 			setRowCol(straightRow, straightCol);
 			addToAbstractSyntaxGraph("a", Command::Type::ADD);
@@ -228,6 +228,20 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			addToAbstractSyntaxGraph("s", Command::Type::SUB);
 			break;
 
+		// String Operations
+		case 'c': // Cut
+			setRowCol(straightRow, straightCol);
+			addToAbstractSyntaxGraph("c", Command::Type::CUT);
+			break;
+		case 'z': // Size
+			setRowCol(straightRow, straightCol);
+			addToAbstractSyntaxGraph("z", Command::Type::SIZE);
+			break;
+		case 'p': // Append
+			setRowCol(straightRow, straightCol);
+			addToAbstractSyntaxGraph("p", Command::Type::APPEND);
+			break;
+	
 		default:
 			didGoStraight = false;
 			break;
