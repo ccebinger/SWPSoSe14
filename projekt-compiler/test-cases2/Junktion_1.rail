@@ -1,0 +1,17 @@
+$ 'main' (--):
+ \
+  \                     /---------\
+   \                    |         |
+    \                   |         |
+     \                  |  /------/
+      \                 | / 
+       \                |/false
+        \---[]-e--------<
+                         \true   
+                          \----# Ende 
+
+
+Dieses Programm führt zu einem Crash. 
+Die Fehlermeldung lautet 'Type mismatch'.
+
+Damit wird ein '<' nicht als Gleis interpretiert.
