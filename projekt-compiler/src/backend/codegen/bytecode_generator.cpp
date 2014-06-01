@@ -2,23 +2,12 @@
 
 #include <cstdint>
 
-std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
-                               ConstantPool& constantPool) {
-  std::vector<char> result;
-  std::shared_ptr<Node> currentNode(graph->start());
-  while(currentNode && currentNode->command.type != Command::Type::FINISH) {
-    uint16_t indexInPool;
 
-    switch(currentNode->command.type) {
-    case Command::Type::PUSH_CONST:
-      // Emit
-      // ldc indexInPool
-      indexInPool = constantPool.addString(currentNode->command.arg);
-      result.push_back('\x12');
-      result.push_back((indexInPool & 0xFF00U) >> 8);
-      result.push_back(indexInPool & 0x00FFU);
-    break;
-    case Command::Type::OUTPUT:
+const std::map<Command::Type, BytecodeGenerator::func_ptr> BytecodeGenerator::CODE_FUNC_MAPPING = {{Command::Type::OUTPUT, &output_ByteCode}};
+
+void output_ByteCode(ConstantPool& constantPool, std::vector<char>& result)
+{
+  uint16_t indexInPool;
       // Emit
       // astore_1
       result.push_back('\x4c');
@@ -37,6 +26,25 @@ std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph
       result.push_back('\xb6');
       result.push_back((indexInPool & 0xFF00U) >> 8);
       result.push_back(indexInPool & 0x00FFU);
+}
+std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
+                               ConstantPool& constantPool) {
+  std::vector<char> result;
+  std::shared_ptr<Node> currentNode(graph->start());
+  while(currentNode && currentNode->command.type != Command::Type::FINISH) {
+    uint16_t indexInPool;
+    func_ptr f;
+    switch(currentNode->command.type) {
+    case Command::Type::PUSH_CONST:
+      // Emit
+      // ldc indexInPool
+      indexInPool = constantPool.addString(currentNode->command.arg);
+      result.push_back('\x12');
+      result.push_back((indexInPool & 0xFF00U) >> 8);
+      result.push_back(indexInPool & 0x00FFU);
+    break;
+    case Command::Type::OUTPUT:
+      f = &output_ByteCode;
     break;
     case Command::Type::ADD:
       result.push_back('\x60');  //iadd
@@ -72,7 +80,9 @@ std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph
     // TODO errors etc.
     break;
     }
-
+    if (f) {
+      f(constantPool, result);
+    }
     currentNode = currentNode->successor1;
   }
   // Emit
