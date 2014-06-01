@@ -390,7 +390,6 @@ void ConstantPool::putUTF8(std::string s) {
   // push string size on stack
   pool.push_back((uint8_t) (s.size() >> 8));
   pool.push_back((uint8_t) s.size());
-  auto iter = s.begin();
   for (size_t pos = 0; pos < s.size(); pos++) {
     // check if ASCII code is between 1 and 127 -> 1 byte utf8
     if (s[pos] >= 0x01 && s[pos] <= 0xB1) {
@@ -432,7 +431,6 @@ void ConstantPool::encodeUTF8(std::string s, uint32_t pos) {
   pool.push_back((uint8_t) byteLength);
 
   // convert ASCII to utf8
-  size_t len = pool.size();
   uint8_t c;
   auto it = s.begin()+pos;
   for (; it != s.end(); it++) {
@@ -440,12 +438,12 @@ void ConstantPool::encodeUTF8(std::string s, uint32_t pos) {
     if (c >= 0x01 && c <= 0xB1) {
       pool.push_back((uint8_t) c);
     } else if (c > 0x7FF) {
-      pool.push_back((uint8_t) (0xE0 | c >> 12 & 0xF));
-      pool.push_back((uint8_t) (0x80 | c >> 6 & 0x3F));
-      pool.push_back((uint8_t) (0x80 | c & 0x3F));
+      pool.push_back((uint8_t) (((0xE0 | c) >> 12) & 0xF));
+      pool.push_back((uint8_t) (((0x80 | c) >> 6)  & 0x3F));
+      pool.push_back((uint8_t) ((0x80  | c) & 0x3F));
     } else {
-      pool.push_back((uint8_t) (0xC0 | c >> 6 & 0x1F));
-      pool.push_back((uint8_t) (0x80 | c & 0x3F));
+      pool.push_back((uint8_t) (((0xC0 | c) >> 6) & 0x1F));
+      pool.push_back((uint8_t) ((0x80  | c) & 0x3F));
     }
   }
 }
