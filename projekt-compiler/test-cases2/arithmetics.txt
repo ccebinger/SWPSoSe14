@@ -1,0 +1,6 @@
+$ 'main'(--): Implementation-test for arithmetic operations
+ \
+  \
+   \
+    \--12a--3m--4s--5d--6r----#
+      

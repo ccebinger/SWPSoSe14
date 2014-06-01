@@ -3,13 +3,12 @@
 //#include <sys/types.h>
 #include <sys/stat.h>
 
-
-#include <frontend/parse/lexer.h>
-#include <frontend/Parser.h>
+#include "backend/backend.h"
+#include <frontend/lexer/Lexer.h>
+#include <frontend/parser/Parser.h>
 #include <frontend/Graphs.h>
 #include <frontend/Parse_Exception.h>
 #include <unistd.h>
-
 
 
 using namespace std;
@@ -23,7 +22,6 @@ int main(int argc, char *argv[]) {
 
 
 	// Ensure existence of folder io
-	// Frage von Miro: Wer benutzt denn für das Projekt Windows?
 	if(access("io", F_OK) == -1) {
 #ifdef _WIN32
 		int rMkdir = mkdir("io");
@@ -108,21 +106,40 @@ int main(int argc, char *argv[]) {
 		// Lexer
 		Lexer lexer;
 		lexer.lex(srcFile);
-		RailFunction func = lexer.functions.at(0); //FIXME hardcoded number of functions
+		if(lexer.functions.size() == 0) {
+			//FIXME error handling -> Exception
+			std::cout << "No Rail Functions found in " << srcFile << std::endl;
+			return -1;
+		}
 
-
-		// "Parser"
-		BoardContainer board{func.code, MAX_CHARS_PER_LINE, MAX_LINES_PER_FUNCTION};
-		Parser p(board, func.getName());
+		// Parser
+		/*
+		std::shared_ptr<RailFunction> func = lexer.functions.at(0); //FIXME hardcoded number of functions
+		Parser p(func);
 		shared_ptr<Adjacency_list> asg = p.parseGraph();
 		if(asg == NULL) {
 			Parse_Exception pe;
 			pe.set_msg(p.errorMessage);
 			throw pe;
 		}
+		graphs.put(func->getName(), asg);
+		*/
 
-		// Create Graphs
-		graphs.put(func.getName(), asg);
+
+		// Parser
+		for(auto it=lexer.functions.begin(); it < lexer.functions.end(); ++it) {
+			Parser p(*it);
+			shared_ptr<Adjacency_list> asg = p.parseGraph();
+			if(asg == NULL) {
+				//FIXME error handling!
+				Parse_Exception pe;
+				pe.set_msg(p.errorMessage);
+				throw pe;
+			}
+			graphs.put((*it)->getName(), asg);
+		}
+
+
 	}
 	else {
 		cerr << "No source specified. Use either -i <file> or -d <file>." << endl;
@@ -135,7 +152,7 @@ int main(int argc, char *argv[]) {
 
 	// Serialize
 	if(dstSerialize != "") {
-		graphs.marshall(dstSerialize);
+		graphs.marshall(dstSerialize, ';');
 	}
 
 
@@ -148,8 +165,10 @@ int main(int argc, char *argv[]) {
 	// BACKEND
 	// ------------------------------------------------------------------------
 
-
-
+  // TODO this is just a mockup...
+  ofstream outFile;
+  outFile.open("out.class");
+  Backend::Generate(graphs, outFile);
 
 	return 0;
 }

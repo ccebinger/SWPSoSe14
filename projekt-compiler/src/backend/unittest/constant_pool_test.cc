@@ -21,21 +21,31 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include <iostream>
 
 using namespace std;
+unsigned int cp_offset = 0;
 
 bool testConstructor() {
   ConstantPool cp;
   auto listInit = cp.getByteArray();
-
-  cp.addClassReference("java/lang/system");
+  cp_offset = listInit.size();
+  cp.addClassRef("java/lang/system");
+  cp.addFieldRef("java.lang.system.out");
+  cp.addMethRef("Java.io.printStream.println");
+  cp.addMethRef("Main.java");
 
   auto listChange = cp.getByteArray();
 
-  cout << "test add constant: "<< listInit.size()
-       << "/" << listChange.size() <<endl;
-  return listChange.size() == listInit.size();
+  cout << "[INFO] " << "test add constant: "<< listInit.size()
+       << "/" << listChange.size() << endl;
+
+  cout << "ClassRef: " << cp.countItemType(CLASS) << endl;
+  cout << "MethodRef: : " << cp.countItemType(METHOD) << endl;
+  return (listChange.size() == listInit.size() && listInit.size() > 0);
 }
 
 bool testAddClassReference() {
+  /*
+    dont know, what to test here 
+  */
   ConstantPool cp;
   return false;
 }
@@ -45,39 +55,33 @@ bool testAddClassReference() {
  *
  */
 bool testAddByte() {
+  /*
+  confused, addbyte has no effects anymore
+  */
   ConstantPool cp;
   for (int i = 0; i< 256; i++) {
     cp.addByte(i);
   }
-  return false;
-}
-/*
-  std::string str;
   auto list = cp.getByteArray();
-  iter = list.begin()+offset;
+  auto iter = list.begin();
 
   bool passed = true;
 
-  bakval = static_cast<char>(*iter++);;
-  for (; iter!= (list.begin()+offset+255); iter++) {
-    val = static_cast<char>(*iter);
+  string str;
+  char bakval = static_cast<char>(*iter++);;
+  for (; iter != list.end(); iter++) {
+    char val = static_cast<char>(*iter);
     str += val;
     if (!(val > bakval)) {
-      std::cout << val;
+      //cout << val;
       passed = false;
     }
     bakval = val;
   }
-} */
+  cout << "[INFO] constant pool string " << str << endl;
+  return passed;
+}
 
-  /*
-   *  2)	Integer
-   *
-   */
-//  for(int i=0; i<256;i++) {
-//	  cp.addInt(i);
-//  }
-//  	cp.addInt(0x10);
 /*
  *  2)	Integer
  *
@@ -86,12 +90,11 @@ bool testAddInt() {
   ConstantPool cp;
 
   cp.addInt(32);
-  cout << "test1: " << cp.addString("main.java") << endl;
   auto list = cp.getByteArray();
   int offset  = list.size();
-  //  cp.addInt(0x22);
-  //  cp.addInt(0x20);
-  //  cp.addInt(0x10);
+  cp.addInt(0x22);
+  cp.addInt(0x20);
+  cp.addInt(0x10);
 
   //  for(int i=0; i<256;i++) {
   //	  cp.addInt(i);
@@ -111,37 +114,28 @@ bool testAddInt() {
 bool testAddString() {
   ConstantPool cp;
 
-  string str;
-  auto list = cp.getByteArray();
-  auto iter = list.begin();
-
-  for (; iter!= list.end(); iter++) {
-    cout << *iter;
-  }
-  cout << str << endl;
-  return false;
 }
 
 int main(int argc, char** argv) {
   if (!testConstructor()) {
-    cout << "testConstructor failed all system off, everything falls apart ... boom\n";
+    cerr << "[ERROR] " << "testConstructor failed all system off, everything falls apart ... boom" << endl;
   }
 
-  if (!testAddClassReference()) {
-    cout << "testAddClassReference failed all system off, everything falls apart ... boom\n";
-  }
+/*  if (!testAddClassReference()) {
+    cerr << "[ERROR] " << "testAddClassReference failed all system off, everything falls apart ... boom" << endl;
+  } */
 
   if (!testAddByte()) {
-    cout << "testAddByte failed all system off, everything falls apart ... boom\n";
+    cerr << "[ERROR] " << "testAddByte failed all system off, everything falls apart ... boom" << endl;
   }
 
-  if (!testAddInt()) {
-    cout << "testAddInt failed all system off, everything falls apart ... boom\n";
-  }
+/*  if (!testAddInt()) {
+    cerr << "[ERROR] " << "testAddInt failed all system off, everything falls apart ... boom" << endl;
+  } */
 
-  if (!testAddString()) {
-    cout << "testAddString failed all system off, everything falls apart ... boom\n";
-  }
+/*  if (!testAddString()) {
+    cout << "[ERROR] " << "testAddString failed all system off, everything falls apart ... boom" << endl;
+  }*/
 }
 
 #endif

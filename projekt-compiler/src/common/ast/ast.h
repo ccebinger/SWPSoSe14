@@ -19,7 +19,7 @@ struct Command {
    * E.g. o -> 111 or a -> 97, thats makes the mapping much easier.
    */
 	enum Type {
-		PUSH_CONST = 0, /**< 0-9 or [...] */
+		PUSH_CONST = 0, /**< t,f, 0-9 or [...] */
 		CALL = 1, /**< {FUNC} */
 		OUTPUT = 111, /**< o */
 		ADD = 97, /**< a */
@@ -46,6 +46,10 @@ struct Command {
 		INPUT = 105,/**< i */
 		UNDERFLOW_CHECK = 117,/**< u */
 		TYPE_CHECK = 63,/**< ? */
+		EASTJUNC = 60, /**<*/
+		WESTJUNC = 62,/**>*/
+		NORTHJUNC = 118,/**v*/
+		SOUTHJUNC = 94,/**^*/
 	};
  /**
   * The type of the Rail command.

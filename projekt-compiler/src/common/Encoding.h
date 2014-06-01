@@ -2,10 +2,10 @@
  * Helper.h
  *
  *  Created on: 19.05.2014
- *      Author: mubu
+ *      Author: Miro B.
  */
 
-//FIXME to be replaced with codecvt (gcc lacks atm)
+//FIXME gcc lacks codecvt atm: to be replaced later on (~gcc 4.10)
 
 
 #ifndef ENCODING_H_
@@ -93,7 +93,15 @@ public:
 	}
 	
 	
-	static void unicodeToUtf8String(std::deque<int32_t>* unicode, std::string& result) {
+	static std::string unicodeToUtf8(uint32_t unicode) {
+		std::string result;
+		Encoding::unicodeToUtf8(unicode, result);
+		return result;
+	}
+
+
+
+	static void unicodeToUtf8String(std::deque<uint32_t>* unicode, std::string& result) {
 		for(auto i=unicode->begin(); i<unicode->end(); ++i) {
 			unicodeToUtf8(*i, result);
 		}
@@ -102,7 +110,7 @@ public:
 	
 	
 	
-	static uint8_t utf8ToUnicode(std::string str, int32_t start, int32_t* rune) {
+	static uint8_t utf8ToUnicode(std::string str, uint32_t start, uint32_t* rune) {
 		
 		// 1 byte
 		uint8_t a = str.at(start);
@@ -189,8 +197,8 @@ public:
 	
 
 
-	static void utf8StringToUnicode(std::string input, std::deque<int32_t>* result, uint32_t begin=0) {
-		int32_t rune;
+	static void utf8StringToUnicode(std::string input, std::deque<uint32_t>* result, uint32_t begin=0) {
+		uint32_t rune;
 		for(size_t i=begin; i < input.size(); ) {
 			i += utf8ToUnicode(input, i, &rune);
 			result->push_back(rune);

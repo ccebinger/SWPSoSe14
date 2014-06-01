@@ -178,5 +178,6 @@ void Lexer::lex(const string& filename) {
 		cout << "function " << functions[i].getName() << ":\n\n";
 		functions[i].printRails();
 	}*/
+
 }
 

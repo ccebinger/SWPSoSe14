@@ -1,0 +1,17 @@
+$ 'main' (--):
+ \
+  \        /---------\     #
+   \       |     false\   /
+    \      |          [1]/true
+     \     \------------v
+      \                 |
+       \                |
+        \---[]-e--------/
+
+Dieses Programm führt zu einem Crash. 
+Die Fehlermeldung lautet 'Type mismatch'.
+
+Damit wird ein 'v' nicht als Gleis interpretiert.
+
+Hier ist auch ersichtlich, dass der Interpreter kein anschließendes Gleis an die 
+Junktion benötigt. 

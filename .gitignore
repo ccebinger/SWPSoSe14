@@ -223,3 +223,8 @@ src/latex/
 src/html/
 
 
+#######################
+## Project specific
+#######################
+graphviz.dot
+serialized.csv
