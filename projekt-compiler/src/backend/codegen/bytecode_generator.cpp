@@ -68,7 +68,7 @@ void output_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Grap
   result.push_back(indexInPool & 0x00FFU);
 }
 
-<<<<<<< HEAD
+
 void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
   uint16_t indexInPool;
@@ -85,7 +85,7 @@ void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs
   result.push_back('\x3d');
 }
 
-=======
+
 void cut_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
 {
   code.push_back(BytecodeGenerator::ISTORE_0); //istore_0 to store the index for the cut
@@ -97,7 +97,7 @@ void cut_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr 
   code.push_back((index & 0xFF00U) >> 8);
   code.push_back(index & 0x00FFU);
 }
->>>>>>> 45bd8f272458673c6dd12e51fa041d8b9068eeb4
+
 std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
                                ConstantPool& constantPool) {
   std::vector<char> result;

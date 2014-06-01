@@ -44,11 +44,8 @@ void sub_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr 
 void mult_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
 void div_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
 void mod_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
-<<<<<<< HEAD
-=======
 //STRING OPERATIONS
 void cut_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
 void append_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
->>>>>>> 45bd8f272458673c6dd12e51fa041d8b9068eeb4
 void size_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
 #endif // BYTECODE_GENERATOR_H
