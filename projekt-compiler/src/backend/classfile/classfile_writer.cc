@@ -20,10 +20,10 @@ const char ClassfileWriter::kMagicNumber[] { '\xCA', '\xFE','\xBA', '\xBE' };
 const char ClassfileWriter::kNotRequired[] { '\x00', '\x00' };
 const char ClassfileWriter::kPublicAccessFlag[] { '\x00', '\x00','\x00', '\x01' };
 
-std::map<ClassfileWriter::ClassfileVersion, const std::array<const char, 4>>
+std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
     ClassfileWriter::kVersionNumbers {
     {ClassfileWriter::ClassfileVersion::JAVA_7,
-    std::array<const char, 4>{'\x00', '\x00', '\x00', '\x33'}}
+    std::array<char, 4>{'\x00', '\x00', '\x00', '\x33'}}
 };
 
 /*!
