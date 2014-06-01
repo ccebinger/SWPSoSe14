@@ -45,7 +45,11 @@ class ClassfileWriter {
    */
   static const char kMagicNumber[];
 
-  static std::map<ClassfileVersion, const std::array<const char, 4>> kVersionNumbers;
+  /**
+   * Eine Map die Java-Versionsnummern auf den entsprechenden
+   * Classfile-Versionsnummer-Eintrag (4 byte) mappt.
+   */
+  static std::map<ClassfileVersion, std::array<char, 4>> kVersionNumbers;
 
   /**
    * Der Ausgabestream auf den wir die Datei schreiben.
