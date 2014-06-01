@@ -11,7 +11,8 @@ const std::map<Command::Type, BytecodeGenerator::func_ptr> BytecodeGenerator::CO
   {Command::Type::SUB, &sub_ByteCode},
   {Command::Type::MULT, &mult_ByteCode},
   {Command::Type::DIV, &div_ByteCode},
-  {Command::Type::MOD, &mod_ByteCode}
+  {Command::Type::MOD, &mod_ByteCode},
+  {Command::Type::SIZE, &size_ByteCode}
 };
 
 
@@ -66,6 +67,23 @@ void output_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Grap
   result.push_back((indexInPool & 0xFF00U) >> 8);
   result.push_back(indexInPool & 0x00FFU);
 }
+
+void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
+{
+  uint16_t indexInPool;
+  // aload_1
+  result.push_back('\x2b');
+
+  // invokevirtual <Method java/lang/String.length:()I>
+  indexInPool = constantPool.addMethRef("java/lang/String.length:()I");
+  result.push_back('\xb6');
+  result.push_back((indexInPool & 0xFF00U) >> 8);
+  result.push_back(indexInPool & 0x00FFU);
+
+  //istore_2
+  result.push_back('\x3d');
+}
+
 std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
                                ConstantPool& constantPool) {
   std::vector<char> result;
