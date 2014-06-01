@@ -66,6 +66,18 @@ void output_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Grap
   result.push_back((indexInPool & 0xFF00U) >> 8);
   result.push_back(indexInPool & 0x00FFU);
 }
+
+void cut_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+  code.push_back('\x3b'); //istore_0 to store the index for the cut
+  code.push_back('\x03'); //iconst_0 for the begin of the string
+  code.push_back('\x1a'); //iload_0 to add the index until the cut should happend
+
+  uint16_t index = pool.addMethRef("java/util/String.substring:(II)Ljava/lang/String"); //import substring method
+  code.push_back('\xb6'); //invokevirtual
+  code.push_back((index & 0xFF00U) >> 8);
+  code.push_back(index & 0x00FFU);
+}
 std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
                                ConstantPool& constantPool) {
   std::vector<char> result;
