@@ -92,8 +92,9 @@ void ClassfileWriter::WriteVersionNumber() {
   //
   //ZELLDON
   //
-  out_.write(kVersionNumbers[version_].data()
+  out_.write(kVersionNumbers[version_].data(),
              kVersionNumbers[version_].size());
+
 }
 
 /*!
