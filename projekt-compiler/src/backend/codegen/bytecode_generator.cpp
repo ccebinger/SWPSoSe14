@@ -21,53 +21,54 @@ void push_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs
   uint16_t indexInPool;
   // ldc indexInPool
   indexInPool = constantPool.addString(current_node->command.arg);
-  result.push_back('\x12');
+  result.push_back(BytecodeGenerator::LDC);
   result.push_back((indexInPool & 0xFF00U) >> 8);
   result.push_back(indexInPool & 0x00FFU);
 }
 void add_ByteCode(ConstantPool& pool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-  result.push_back('\x60');  //iadd
+  result.push_back(BytecodeGenerator::IADD);  //iadd
 }
 void sub_ByteCode(ConstantPool& pool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-  result.push_back('\x64');  //isub
+  result.push_back(BytecodeGenerator::ISUB);  //isub
 }
 void mult_ByteCode(ConstantPool& pool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-  result.push_back('\x68');  //imul
+  result.push_back(BytecodeGenerator::IMULT);  //imul
 }
 void div_ByteCode(ConstantPool& pool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-  result.push_back('/x6c');  //idiv
+  result.push_back(BytecodeGenerator::IDIV);  //idiv
 }
 void mod_ByteCode(ConstantPool& pool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-  result.push_back('/x70'); //irem
+  result.push_back(BytecodeGenerator::IREM); //irem
 }
 
 void output_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
   uint16_t indexInPool;
   // astore_1
-  result.push_back('\x4c');
+  result.push_back(BytecodeGenerator::ASTORE_1);
 
   // getstatic <Field java/lang/System.out:Ljava/io/PrintStream;>
   indexInPool = constantPool.addFieldRef("java/lang/System.out:Ljava/io/PrintStream;");
-  result.push_back('\xb2');
+  result.push_back(BytecodeGenerator::GET_STATIC);
   result.push_back((indexInPool & 0xFF00U) >> 8);
   result.push_back(indexInPool & 0x00FFU);
 
   // aload_1
-  result.push_back('\x2b');
+  result.push_back(BytecodeGenerator::ALOAD_1);
 
   // invokevirtual <Method java/io/PrintStream.print:(Ljava/lang/String;)V>
   indexInPool = constantPool.addMethRef("java/io/PrintStream.print:(Ljava/lang/String;)V");
-  result.push_back('\xb6');
+  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
   result.push_back((indexInPool & 0xFF00U) >> 8);
   result.push_back(indexInPool & 0x00FFU);
 }
 
+<<<<<<< HEAD
 void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
   uint16_t indexInPool;
@@ -84,6 +85,19 @@ void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs
   result.push_back('\x3d');
 }
 
+=======
+void cut_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+  code.push_back(BytecodeGenerator::ISTORE_0); //istore_0 to store the index for the cut
+  code.push_back(BytecodeGenerator::ICONST_0); //iconst_0 for the begin of the string
+  code.push_back(BytecodeGenerator::ILOAD_0); //iload_0 to add the index until the cut should happend
+
+  uint16_t index = pool.addMethRef("java/util/String.substring:(II)Ljava/lang/String"); //import substring method
+  code.push_back(BytecodeGenerator::INVOKE_VIRTUAL); //invokevirtual
+  code.push_back((index & 0xFF00U) >> 8);
+  code.push_back(index & 0x00FFU);
+}
+>>>>>>> 45bd8f272458673c6dd12e51fa041d8b9068eeb4
 std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
                                ConstantPool& constantPool) {
   std::vector<char> result;
@@ -98,6 +112,6 @@ std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph
   }
   // Emit
   // return
-  result.push_back('\xb1');
+  result.push_back(BytecodeGenerator::RETURN);
   return result;
 }
