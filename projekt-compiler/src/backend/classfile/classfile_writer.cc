@@ -76,22 +76,6 @@ void ClassfileWriter::WriteMagicNumber() {
  * \brief Write the java version number (e.g. 0x00000033 for v.7)
  */
 void ClassfileWriter::WriteVersionNumber() {
-  //TODO #55 Bei mir (Zelldon/Chris) compiliert die Methode leider nicht?!
-  //Vllt. lieber so?
-  //for (auto kv : kVersionNumbers)
-  //{
-  //  for (auto v : kv.second)
-  //    out_ << v;//value
-  //}
-  //
-  // ODER einfach das const von dem array entfernen also kein const char
-  // d.h. :
-  // => std::array<const char, 4> zu std::array<char, 4>
-  // beide Loesungen compilieren dann.
-  // Bin ich der einzige der dieses Problem hat?
-  //
-  //ZELLDON
-  //
   out_.write(kVersionNumbers[version_].data(),
              kVersionNumbers[version_].size());
 
