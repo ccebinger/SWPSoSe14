@@ -1,3 +1,4 @@
+#include <stddef.h>
 #ifndef STACK_H
 #define STACK_H
 
@@ -12,8 +13,8 @@ class Stack{
 
 	public:
 	Stack(void){
-		next = NULL;
-		parent = NULL;
+        next = NULL;
+        parent = NULL;
 	}
 	Stack(int x, int y,char sign,int color,Stack *parent){
 		this->x = x;
@@ -21,21 +22,21 @@ class Stack{
 		this->sign = sign;
 		this->color = color;
 		this->parent = parent;
-		next = NULL;
+        next = NULL;
 	}
 	~Stack(void){
-		if(next != NULL)delete next;
+        if(next != NULL)delete next;
 	}
 	void push(int x,int y,char sign, int color){
 		this->next = new Stack(x,y,sign,color,this);
 	}
 	Stack* pop(void){
 		Stack *tmp;
-		if(next != NULL){
+        if(next != NULL){
 			tmp = next;
 			next = tmp->getNext();
 			return tmp;
-		} return NULL;
+        } return NULL;
 	}
 	int getX(void){
 		return x;
