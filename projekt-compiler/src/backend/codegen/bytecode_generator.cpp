@@ -5,6 +5,7 @@
 
 const char BytecodeGenerator::ILOAD_0 = '\x1a';
 const char BytecodeGenerator::ICONST_0 = '\x03';
+const char BytecodeGenerator::ICONST_1 = '\x04';
 const char BytecodeGenerator::ISTORE_0 = '\x3b';
 const char BytecodeGenerator::ALOAD_1 = '\x2b';
 const char BytecodeGenerator::ALOAD_2 = '\x2c';
@@ -194,7 +195,7 @@ void list_pop_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node
 //BOOLEAN ARITHMETIC
 void false_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
 {
-
+  code.push_back(BytecodeGenerator::ICONST_0);
 }
 void greater_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
 {
@@ -206,7 +207,7 @@ void equal_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_pt
 }
 void true_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
 {
-
+  code.push_back(BytecodeGenerator::ICONST_1);
 }
 //IO OPERATIONS
 void boom_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)

@@ -25,6 +25,7 @@ private:
 public:
   static const char ILOAD_0;
   static const char ICONST_0;
+  static const char ICONST_1;
   static const char ISTORE_0;
   static const char ALOAD_1;
   static const char ALOAD_2;
