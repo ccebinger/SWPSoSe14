@@ -1,7 +1,26 @@
-#include "backend/codegen/bytecode_generator.h"
-
+#include <backend/codegen/bytecode_generator.h>
 #include <cstdint>
 
+
+
+const char BytecodeGenerator::ILOAD_0 = '\x1a';
+const char BytecodeGenerator::ICONST_0 = '\x03';
+const char BytecodeGenerator::ISTORE_0 = '\x3b';
+const char BytecodeGenerator::ALOAD_1 = '\x2b';
+const char BytecodeGenerator::ALOAD_2 = '\x2c';
+const char BytecodeGenerator::ASTORE_1 = '\x4c';
+const char BytecodeGenerator::ASTORE_2 = '\x4d';
+const char BytecodeGenerator::NEW = '\xbb';
+const char BytecodeGenerator::INVOKE_VIRTUAL = '\xb6';
+const char BytecodeGenerator::GET_STATIC = '\xb2';
+const char BytecodeGenerator::RETURN = '\xb1';
+const char BytecodeGenerator::LDC = '\x12';
+const char BytecodeGenerator::DUP = '\x59';
+const char BytecodeGenerator::IADD = '\x60';
+const char BytecodeGenerator::ISUB = '\x64';
+const char BytecodeGenerator::IMULT = '\x68';
+const char BytecodeGenerator::IDIV = '\x6c';
+const char BytecodeGenerator::IREM = '\x70';
 
 const std::map<Command::Type, BytecodeGenerator::func_ptr> BytecodeGenerator::CODE_FUNC_MAPPING =
 {
@@ -19,10 +38,11 @@ const std::map<Command::Type, BytecodeGenerator::func_ptr> BytecodeGenerator::CO
 
 void output_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
+
   // astore_1
   result.push_back(BytecodeGenerator::ASTORE_1);
 
-  // getstatic <Field java/lang/System.out:Ljava/io/PrintStream;>
+  // get <Field java/lang/System.out:Ljava/io/PrintStream;>
   uint16_t indexInPool = constantPool.addFieldRef("java/lang/System.out:Ljava/io/PrintStream;");
   result.push_back(BytecodeGenerator::GET_STATIC);
   result.push_back((indexInPool & 0xFF00U) >> 8);
@@ -105,7 +125,7 @@ void append_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Grap
   result.push_back(BytecodeGenerator::DUP);
 
   // init StringBuilder
-  indexInPool = constantPool.addMethRef("java/lang/StringBuilder.'<init>':()V")
+  indexInPool = constantPool.addMethRef("java/lang/StringBuilder.'<init>':()V");
   result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
   result.push_back((indexInPool & 0xFF00U) >> 8);
   result.push_back(indexInPool & 0x00FFU);
@@ -114,7 +134,7 @@ void append_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Grap
   result.push_back(BytecodeGenerator::ALOAD_1);
 
   // invokevirtual <Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder>
-  indexInPool = constantPool.addMethRef("java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;")
+  indexInPool = constantPool.addMethRef("java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;");
   result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
   result.push_back((indexInPool & 0xFF00U) >> 8);
   result.push_back(indexInPool & 0x00FFU);
@@ -123,13 +143,13 @@ void append_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Grap
   result.push_back(BytecodeGenerator::ALOAD_2);
 
   // invokevirtual <Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder>
-  indexInPool = constantPool.addMethRef("java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;")
+  indexInPool = constantPool.addMethRef("java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;");
   result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
   result.push_back((indexInPool & 0xFF00U) >> 8);
   result.push_back(indexInPool & 0x00FFU);
 
   // invokevirtual <Method java/lang/StringBuilder.toString:()Ljava/lang/String>
-  indexInPool = constantPool.addMethRef("java/lang/StringBuilder.toString:()Ljava/lang/String;")
+  indexInPool = constantPool.addMethRef("java/lang/StringBuilder.toString:()Ljava/lang/String;");
   result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
   result.push_back((indexInPool & 0xFF00U) >> 8);
   result.push_back(indexInPool & 0x00FFU);
