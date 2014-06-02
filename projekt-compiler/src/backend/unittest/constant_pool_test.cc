@@ -52,17 +52,19 @@ bool testAddClassReference() {
 
 /*
  *  1)	Byte
- *
+ *			got obsolete, due addByte is not implemented anymore…
+ *  2)
  */
-bool testAddByte() {
+bool testAddInt() {
   /*
   confused, addbyte has no effects anymore
   */
   ConstantPool cp;
-  for (int i = 0; i< 256; i++) {
-    cp.addByte(i);
-  }
-  auto list = cp.getByteArray();
+  
+	cp.addInt(0xcafebabe);
+  cp.addInt(0xdeadbeef);
+
+	auto list = cp.getByteArray();
   auto iter = list.begin();
 
   bool passed = true;
@@ -82,30 +84,6 @@ bool testAddByte() {
   return passed;
 }
 
-/*
- *  2)	Integer
- *
- */
-bool testAddInt() {
-  ConstantPool cp;
-
-  cp.addInt(32);
-  auto list = cp.getByteArray();
-  int offset  = list.size();
-  cp.addInt(0x22);
-  cp.addInt(0x20);
-  cp.addInt(0x10);
-
-  //  for(int i=0; i<256;i++) {
-  //	  cp.addInt(i);
-  //  }
-  //  	cp.addInt(0x10);
-  /*
-   *  3)	Integer
-   *
-   */
-  return false;
-}
 
 /*
  *  4)	String
@@ -125,13 +103,9 @@ int main(int argc, char** argv) {
     cerr << "[ERROR] " << "testAddClassReference failed all system off, everything falls apart ... boom" << endl;
   } */
 
-  if (!testAddByte()) {
-    cerr << "[ERROR] " << "testAddByte failed all system off, everything falls apart ... boom" << endl;
-  }
-
-/*  if (!testAddInt()) {
+  if (!testAddInt()) {
     cerr << "[ERROR] " << "testAddInt failed all system off, everything falls apart ... boom" << endl;
-  } */
+	}
 
 /*  if (!testAddString()) {
     cout << "[ERROR] " << "testAddString failed all system off, everything falls apart ... boom" << endl;
