@@ -38,7 +38,7 @@ struct Command {
 		EQUAL			= 113,	/**< q */
 		TRUE			= 116,	/**< t */
 		REFLECTOR		= 64,	/**< @ */
-		START			=  36,	/**< $ */
+		START			= 36,	/**< $ */
 		FINISH			= 35,	/**< \# */
 		LAMBDA			= 38,	/**< &amp; */
 		BOOM			= 98,	/**< b */

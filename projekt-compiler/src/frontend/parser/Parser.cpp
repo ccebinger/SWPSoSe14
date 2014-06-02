@@ -241,6 +241,8 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			setRowCol(straightRow, straightCol);
 			addToAbstractSyntaxGraph("p", Command::Type::APPEND);
 			break;
+
+		// Variables
 		case '(':
 			setRowCol(straightRow, straightCol);
 			parseVariable(readCharsUntil(')'));
@@ -253,7 +255,7 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			didGoStraight = false;
 			break;
 	}
-	if(errorMessage!="") {
+	if(errorMessage != "") {
 		//TODO:Error stuff?
 	}
 	return didGoStraight;
@@ -265,31 +267,44 @@ void Parser::parseVariable(string data) {
 	// Filter invalid Variable names
 	if(data.length() < 3) {
 		// Too short
+		errorMessage = "Syntax Error: Invaild variable action " + data + ": too short";
+		return;
 	}
-	if(data.find('{', 0) != string::npos || data.find('}', 0) != string::npos) {
-		//FIXME Exception
+
+	// Filter {, } within name
+	if(data.find('{') != string::npos || data.find('}') != string::npos) {
+		errorMessage = "Syntax Error: Invaild variable action " + data + ": must not contain { or }";
+		return;
 	}
 
-	//FIXME filter ! within name
-	//FIXME filter () within name
+	// Filter () within name
+	string noBraces = data.substr(1, data.length()-2);
+	if(noBraces.find('(') != string::npos || noBraces.find(')') != string::npos) {
+		errorMessage = "Syntax Error: Invaild variable action " + data + ": Variable name must not contain ( or )";
+		return;
+	}
 
 
-	if(data.find('!', 0) != string::npos) {
-		// must be a pop (var names must not contain ! as a character)
+	if(data.find('!') != string::npos) {
 
 		if(data[1] != '!' || data[data.length()-2] != '!') {
-			//cout << "## Invalid Variable action: " << data << " with " << data[1] << " and " << data[data.length()-2] << endl;
-			//FIXME Exception
+			errorMessage = "Syntax Error: Invaild variable action " + data + ": (!name!) required";
+			return;
 		}
 
-		// Valid variable pop action
-		//cout << "## Valid pop: " << data << " with " << data[1] << " and " << data[data.length()-2] << endl;
-		//addToAbstractSyntaxGraph(data, Command::Type::VAR_POP);
+		// Filter ! within name
+		string noExcl = data.substr(2, data.length()-4);
+		if(noExcl.find('!') != string::npos) {
+			errorMessage = "Syntax Error: Invaild variable action " + data + ": Variable name must not contain '!'";
+			return;
+		}
+
+		// Variable pop action
+		addToAbstractSyntaxGraph(data, Command::Type::VAR_POP);
 	}
 	else {
-		// variable push action
-		//cout << "## Valid push: " << data << endl;
-		//addToAbstractSyntaxGraph(data, Command::Type::VAR_PUSH);
+		// Variable push action
+		addToAbstractSyntaxGraph(data, Command::Type::VAR_PUSH);
 	}
 }
 
