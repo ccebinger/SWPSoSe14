@@ -71,7 +71,6 @@ class ConstantPool {
  public:
   ConstantPool();
 
-  size_t addByte(uint8_t value);
   size_t addInt(int32_t value);
   size_t addLong(int64_t value);
   size_t addString(const std::string &value);

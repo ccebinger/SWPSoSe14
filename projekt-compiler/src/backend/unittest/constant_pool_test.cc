@@ -51,6 +51,7 @@ bool testAddClassReference() {
 }
 
 /*
+<<<<<<< HEAD
  *  1)	Byte
  *			got obsolete, due addByte is not implemented anymore…
  *  2)
@@ -84,6 +85,31 @@ bool testAddInt() {
   return passed;
 }
 
+=======
+ *  2)	Integer
+ *
+ */
+bool testAddInt() {
+  ConstantPool cp;
+
+  cp.addInt(32);
+  auto list = cp.getByteArray();
+  int offset  = list.size();
+  cp.addInt(0x22);
+  cp.addInt(0x20);
+  cp.addInt(0x10);
+
+  //  for(int i=0; i<256;i++) {
+  //	  cp.addInt(i);
+  //  }
+  //  	cp.addInt(0x10);
+  /*
+   *  3)	Integer
+   *
+   */
+  return false;
+}
+>>>>>>> ddcb2ed3ecd111ac67b4a3850b683486297125e7
 
 /*
  *  4)	String
@@ -103,7 +129,11 @@ int main(int argc, char** argv) {
     cerr << "[ERROR] " << "testAddClassReference failed all system off, everything falls apart ... boom" << endl;
   } */
 
+<<<<<<< HEAD
   if (!testAddInt()) {
+=======
+/*  if (!testAddInt()) {
+>>>>>>> ddcb2ed3ecd111ac67b4a3850b683486297125e7
     cerr << "[ERROR] " << "testAddInt failed all system off, everything falls apart ... boom" << endl;
 	}
 
