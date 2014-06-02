@@ -72,10 +72,8 @@ void output_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Grap
 
 void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-  uint16_t indexInPool;
-
   // invokevirtual <Method java/lang/String.length:()I>
-  indexInPool 	= constantPool.addMethRef("java/lang/String.length:()I");
+  uint16_t indexInPool 	= constantPool.addMethRef("java/lang/String.length:()I");
   result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
   result.push_back((indexInPool & 0xFF00U) >> 8);
   result.push_back(indexInPool & 0x00FFU);
@@ -91,6 +89,52 @@ void cut_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr 
   code.push_back(BytecodeGenerator::INVOKE_VIRTUAL); //invokevirtual
   code.push_back((index & 0xFF00U) >> 8);
   code.push_back(index & 0x00FFU);
+}
+
+void append_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+  // initial situation: the two strings are on the stacks
+  code.push_back(BytecodeGenerator::ASTORE_1); //astore_1 to store the first string
+  code.push_back(BytecodeGenerator::ASTORE_2); //astore_2 to store the second string
+
+  // create new object of class java/lang/StringBuilder
+  uint16_t indexInPool = pool.addClassRef("java/lang/StringBuilder");
+  code.push_back(BytecodeGenerator::NEW);
+  code.push_back((indexInPool & 0xFF00U) >> 8);
+  code.push_back(indexInPool & 0x00FFU);
+
+  // duplicate object
+  code.push_back(BytecodeGenerator::DUP);
+
+  // init StringBuilder
+  indexInPool = pool.addMethRef("java/lang/StringBuilder.'<init>':()V")
+  code.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
+  code.push_back((indexInPool & 0xFF00U) >> 8);
+  code.push_back(indexInPool & 0x00FFU);
+
+  // load first string
+  code.push_back(BytecodeGenerator::ALOAD_1);
+
+  // invokevirtual <Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder>
+  indexInPool = pool.addMethRef("java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder")
+  code.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
+  code.push_back((indexInPool & 0xFF00U) >> 8);
+  code.push_back(indexInPool & 0x00FFU);
+
+  // load second string
+  code.push_back(BytecodeGenerator::ALOAD_2);
+
+  // invokevirtual <Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder>
+  indexInPool = pool.addMethRef("java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder")
+  code.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
+  code.push_back((indexInPool & 0xFF00U) >> 8);
+  code.push_back(indexInPool & 0x00FFU);
+
+  // invokevirtual <Method java/lang/StringBuilder.toString:()Ljava/lang/String>
+  indexInPool = pool.addMethRef("java/lang/StringBuilder.toString:()Ljava/lang/String")
+  code.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
+  code.push_back((indexInPool & 0xFF00U) >> 8);
+  code.push_back(indexInPool & 0x00FFU);
 }
 
 std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,

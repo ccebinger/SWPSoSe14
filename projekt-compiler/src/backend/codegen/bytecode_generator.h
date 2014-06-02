@@ -24,11 +24,15 @@ private:
   static const char ICONST_0 = '\x03';
   static const char ISTORE_0 = '\x3b';
   static const char ALOAD_1 = '\x2b';
+  static const char ALOAD_2 = '\x2c';
   static const char ASTORE_1 = '\x4c';
+  static const char ASTORE_2 = '\x4d';
+  static const char NEW = '\xbb';
   static const char INVOKE_VIRTUAL = '\xb6';
   static const char GET_STATIC = '\xb2';
   static const char RETURN = '\xb1';
   static const char LDC = '\x12';
+  static const char DUP = '\x59';
   static const char IADD = '\x60';
   static const char ISUB = '\x64';
   static const char IMULT = '\x68';
