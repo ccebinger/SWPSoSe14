@@ -10,6 +10,10 @@ class BytecodeGenerator
 public:
   static std::vector<char> GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
                                ConstantPool& constantPool);
+  static void add_invoke_virtual(const std::string& method, ConstantPool& pool, std::vector<char>& code);
+  static void add_static_field(const std::string& field, ConstantPool& pool, std::vector<char>& code);
+  static void add_new_object(const std::string& class_name, ConstantPool& pool, std::vector<char>& code);
+  static void add_index(uint16_t indexInPool, std::vector<char>& result);
 private:
   /**
    * Nur statische Methoden.

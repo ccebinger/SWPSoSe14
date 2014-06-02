@@ -57,6 +57,29 @@ const std::map<Command::Type, BytecodeGenerator::func_ptr> BytecodeGenerator::CO
   {Command::Type::SOUTHJUNC, &if_or_while_ByteCode}
 };
 
+void BytecodeGenerator::add_invoke_virtual(const std::string& method, ConstantPool& constantPool, std::vector<char>& result)
+{
+  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
+  add_index(constantPool.addMethRef(method), result);
+}
+
+void BytecodeGenerator::add_index(uint16_t indexInPool, std::vector<char>& result)
+{
+  result.push_back((indexInPool & 0xFF00U) >> 8);
+  result.push_back(indexInPool & 0x00FFU);
+}
+
+void BytecodeGenerator::add_static_field(const std::string& field, ConstantPool& constantPool, std::vector<char>& result)
+{
+  result.push_back(BytecodeGenerator::GET_STATIC);
+  add_index(constantPool.addFieldRef(field), result);
+}
+void BytecodeGenerator::add_new_object(const std::string& class_name, ConstantPool& constantPool, std::vector<char>& result)
+{
+  result.push_back(BytecodeGenerator::NEW);
+  add_index(constantPool.addClassRef(class_name), result);
+}
+
 void output_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
 
@@ -64,19 +87,13 @@ void output_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Grap
   result.push_back(BytecodeGenerator::ASTORE_1);
 
   // get <Field java/lang/System.out:Ljava/io/PrintStream;>
-  uint16_t indexInPool = constantPool.addFieldRef("java/lang/System.out:Ljava/io/PrintStream;");
-  result.push_back(BytecodeGenerator::GET_STATIC);
-  result.push_back((indexInPool & 0xFF00U) >> 8);
-  result.push_back(indexInPool & 0x00FFU);
+  BytecodeGenerator::add_static_field("java/lang/System.out:Ljava/io/PrintStream;", constantPool, result);
 
   // aload_1
   result.push_back(BytecodeGenerator::ALOAD_1);
 
   // invokevirtual <Method java/io/PrintStream.print:(Ljava/lang/String;)V>
-  indexInPool = constantPool.addMethRef("java/io/PrintStream.print:(Ljava/lang/String;)V");
-  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
-  result.push_back((indexInPool & 0xFF00U) >> 8);
-  result.push_back(indexInPool & 0x00FFU);
+  BytecodeGenerator::add_invoke_virtual("java/io/PrintStream.print:(Ljava/lang/String;)V", constantPool, result);
 }
 
 void push_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
