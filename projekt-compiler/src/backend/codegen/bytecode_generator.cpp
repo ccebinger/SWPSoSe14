@@ -69,13 +69,24 @@ void mod_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs:
 void cut_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
   result.push_back(BytecodeGenerator::ISTORE_0); //istore_0 to store the index for the cut
+  result.push_back(BytecodeGenerator::ASTORE_1); //astore_1 to store the begin string
+  result.push_back(BytecodeGenerator::ALOAD_1); //load begin string
   result.push_back(BytecodeGenerator::ICONST_0); //iconst_0 for the begin of the string
   result.push_back(BytecodeGenerator::ILOAD_0); //iload_0 to add the index until the cut should happend
 
-  uint16_t indexInPool = constantPool.addMethRef("java/util/String.substring:(II)Ljava/lang/String"); //import substring method
-  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL); //invokevirtual
+  uint16_t indexInPool = constantPool.addMethRef("java/lang/String.substring:(II)Ljava/lang/String;"); //import substring method
+  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL); //invokevirtual String.substring(from, to)
   result.push_back((indexInPool & 0xFF00U) >> 8);
   result.push_back(indexInPool & 0x00FFU);
+
+  result.push_back(BytecodeGenerator::ALOAD_1); //to get begin string
+  result.push_back(BytecodeGenerator::ILOAD_0); //index for cut
+
+  indexInPool = constantPool.addIMethRef("java/lang/String.substring:(I)Ljava/lang/String;");
+  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL); //invokevirtual String.substring(from);
+  result.push_back((indexInPool & 0xFF00U) >> 8);
+  result.push_back(indexInPool & 0x00FFU);
+
 }
 
 void append_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
