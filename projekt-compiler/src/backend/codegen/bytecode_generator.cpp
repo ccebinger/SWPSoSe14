@@ -33,7 +33,28 @@ const std::map<Command::Type, BytecodeGenerator::func_ptr> BytecodeGenerator::CO
   {Command::Type::MOD, &mod_ByteCode},
   {Command::Type::CUT, &cut_ByteCode},
   {Command::Type::APPEND, &append_ByteCode},
-  {Command::Type::SIZE, &size_ByteCode}
+  {Command::Type::SIZE, &size_ByteCode},
+  {Command::Type::CALL , &call_ByteCode},
+  {Command::Type::NIL, &null_ByteCode},
+  {Command::Type::LIST_CONS, &list_push_ByteCode},
+  {Command::Type::LIST_BREAKUP, &list_pop_ByteCode},
+  {Command::Type::FALSE, &false_ByteCode},
+  {Command::Type::GREATER, &greater_ByteCode},
+  {Command::Type::EQUAL, &equal_ByteCode},
+  {Command::Type::TRUE, &true_ByteCode},
+		//Command::Type::REFLECTOR
+		//Command::Type::START
+		//Command::Type::FINISH
+    //Command::Type::LAMBDA
+  {Command::Type::BOOM, &boom_ByteCode},
+  {Command::Type::EOF_CHECK, &eof_ByteCode},
+  {Command::Type::INPUT, &input_ByteCode},
+  {Command::Type::UNDERFLOW_CHECK, &underflow_ByteCode},
+  {Command::Type::TYPE_CHECK, &type_ByteCode},
+  {Command::Type::EASTJUNC, &if_or_while_ByteCode},
+  {Command::Type::WESTJUNC, &if_or_while_ByteCode},
+  {Command::Type::NORTHJUNC, &if_or_while_ByteCode},
+  {Command::Type::SOUTHJUNC, &if_or_while_ByteCode}
 };
 
 void output_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
@@ -163,6 +184,70 @@ void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs
   result.push_back((indexInPool & 0xFF00U) >> 8);
   result.push_back(indexInPool & 0x00FFU);
 }
+
+
+//CALL
+void call_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+
+}
+// LIST OPERATIONS
+void null_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+
+}
+void list_push_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+
+}
+void list_pop_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+
+}
+//BOOLEAN ARITHMETIC
+void false_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+
+}
+void greater_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+
+}
+void equal_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+
+}
+void true_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+
+}
+//IO OPERATIONS
+void boom_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+
+}
+void eof_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+
+}
+void input_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+
+}
+void underflow_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+
+}
+void type_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+
+}
+//CONTROL STRUCTURE
+void if_or_while_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+
+}
+
 
 std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
                                ConstantPool& constantPool) {

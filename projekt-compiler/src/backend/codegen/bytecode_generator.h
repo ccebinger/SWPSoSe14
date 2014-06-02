@@ -52,4 +52,23 @@ void mod_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr 
 void cut_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
 void append_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
 void size_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
+//CALL
+void call_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
+// LIST OPERATIONS
+void null_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
+void list_push_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
+void list_pop_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
+//BOOLEAN ARITHMETIC
+void false_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
+void greater_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
+void equal_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
+void true_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
+//IO OPERATIONS
+void boom_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
+void eof_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
+void input_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
+void underflow_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
+void type_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
+//CONTROL STRUCTURE
+void if_or_while_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
 #endif // BYTECODE_GENERATOR_H
