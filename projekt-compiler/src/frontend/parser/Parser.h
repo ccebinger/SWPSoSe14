@@ -11,7 +11,6 @@
 #include <sstream>
 
 
-
 #include <common/Encoding.h>
 #include <frontend/adjacency_list.h>
 

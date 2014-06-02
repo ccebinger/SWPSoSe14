@@ -293,8 +293,7 @@ void Parser::parseVariable(string data) {
 		}
 
 		// Filter ! within name
-		string noExcl = data.substr(2, data.length()-4);
-		if(noExcl.find('!') != string::npos) {
+		if(data.substr(2, data.length()-4).find('!') != string::npos) {
 			errorMessage = "Syntax Error: Invaild variable action " + data + ": Variable name must not contain '!'";
 			return;
 		}

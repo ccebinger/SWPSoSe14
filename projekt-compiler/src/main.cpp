@@ -170,7 +170,7 @@ int main(int argc, char *argv[]) {
 	// TODO this is just a mockup...
 	cout << "--- Begin Backend ------------------------------------------------" << endl;
 	ofstream outFile;
-	outFile.open("out.class");
+	outFile.open("io/out.class");
 	Backend::Generate(graphs, outFile);
 
 	return 0;
