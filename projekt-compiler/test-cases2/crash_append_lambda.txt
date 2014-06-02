@@ -1,0 +1,13 @@
+$'main'(--):
+ \
+  \
+   \
+    \
+     \
+    ----[Crash]--&---[Crash]---#
+   /
+   |
+   \---p---{}--#
+
+
+Crash: Type mismatch
