@@ -51,38 +51,6 @@ bool testAddClassReference() {
 }
 
 /*
- *  1)	Byte
- *
- */
-bool testAddByte() {
-  /*
-  confused, addbyte has no effects anymore
-  */
-  ConstantPool cp;
-  for (int i = 0; i< 256; i++) {
-    cp.addByte(i);
-  }
-  auto list = cp.getByteArray();
-  auto iter = list.begin();
-
-  bool passed = true;
-
-  string str;
-  char bakval = static_cast<char>(*iter++);;
-  for (; iter != list.end(); iter++) {
-    char val = static_cast<char>(*iter);
-    str += val;
-    if (!(val > bakval)) {
-      //cout << val;
-      passed = false;
-    }
-    bakval = val;
-  }
-  cout << "[INFO] constant pool string " << str << endl;
-  return passed;
-}
-
-/*
  *  2)	Integer
  *
  */
@@ -124,10 +92,6 @@ int main(int argc, char** argv) {
 /*  if (!testAddClassReference()) {
     cerr << "[ERROR] " << "testAddClassReference failed all system off, everything falls apart ... boom" << endl;
   } */
-
-  if (!testAddByte()) {
-    cerr << "[ERROR] " << "testAddByte failed all system off, everything falls apart ... boom" << endl;
-  }
 
 /*  if (!testAddInt()) {
     cerr << "[ERROR] " << "testAddInt failed all system off, everything falls apart ... boom" << endl;
