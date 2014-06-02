@@ -72,19 +72,13 @@ void output_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Grap
 void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
   uint16_t indexInPool;
-  // aload_1
-  result.push_back('\x2b');
 
   // invokevirtual <Method java/lang/String.length:()I>
-  indexInPool = constantPool.addMethRef("java/lang/String.length:()I");
-  result.push_back('\xb6');
+  indexInPool 	= constantPool.addMethRef("java/lang/String.length:()I");
+  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
   result.push_back((indexInPool & 0xFF00U) >> 8);
   result.push_back(indexInPool & 0x00FFU);
-
-  //istore_2
-  result.push_back('\x3d');
 }
-
 
 void cut_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
 {
