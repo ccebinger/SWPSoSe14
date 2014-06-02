@@ -228,3 +228,4 @@ src/html/
 #######################
 graphviz.dot
 serialized.csv
+*.class
