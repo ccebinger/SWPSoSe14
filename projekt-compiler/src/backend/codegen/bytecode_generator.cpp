@@ -17,45 +17,13 @@ const std::map<Command::Type, BytecodeGenerator::func_ptr> BytecodeGenerator::CO
   {Command::Type::SIZE, &size_ByteCode}
 };
 
-
-void push_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
-{
-  uint16_t indexInPool;
-  // ldc indexInPool
-  indexInPool = constantPool.addString(current_node->command.arg);
-  result.push_back(BytecodeGenerator::LDC);
-  result.push_back((indexInPool & 0xFF00U) >> 8);
-  result.push_back(indexInPool & 0x00FFU);
-}
-void add_ByteCode(ConstantPool& pool, std::vector<char>& result, Graphs::Node_ptr current_node)
-{
-  result.push_back(BytecodeGenerator::IADD);  //iadd
-}
-void sub_ByteCode(ConstantPool& pool, std::vector<char>& result, Graphs::Node_ptr current_node)
-{
-  result.push_back(BytecodeGenerator::ISUB);  //isub
-}
-void mult_ByteCode(ConstantPool& pool, std::vector<char>& result, Graphs::Node_ptr current_node)
-{
-  result.push_back(BytecodeGenerator::IMULT);  //imul
-}
-void div_ByteCode(ConstantPool& pool, std::vector<char>& result, Graphs::Node_ptr current_node)
-{
-  result.push_back(BytecodeGenerator::IDIV);  //idiv
-}
-void mod_ByteCode(ConstantPool& pool, std::vector<char>& result, Graphs::Node_ptr current_node)
-{
-  result.push_back(BytecodeGenerator::IREM); //irem
-}
-
 void output_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-  uint16_t indexInPool;
   // astore_1
   result.push_back(BytecodeGenerator::ASTORE_1);
 
   // getstatic <Field java/lang/System.out:Ljava/io/PrintStream;>
-  indexInPool = constantPool.addFieldRef("java/lang/System.out:Ljava/io/PrintStream;");
+  uint16_t indexInPool = constantPool.addFieldRef("java/lang/System.out:Ljava/io/PrintStream;");
   result.push_back(BytecodeGenerator::GET_STATIC);
   result.push_back((indexInPool & 0xFF00U) >> 8);
   result.push_back(indexInPool & 0x00FFU);
@@ -70,6 +38,92 @@ void output_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Grap
   result.push_back(indexInPool & 0x00FFU);
 }
 
+void push_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
+{
+  // ldc indexInPool
+  uint16_t indexInPool = constantPool.addString(current_node->command.arg);
+  result.push_back(BytecodeGenerator::LDC);
+  result.push_back((indexInPool & 0xFF00U) >> 8);
+  result.push_back(indexInPool & 0x00FFU);
+}
+void add_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
+{
+  result.push_back(BytecodeGenerator::IADD);  //iadd
+}
+void sub_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
+{
+  result.push_back(BytecodeGenerator::ISUB);  //isub
+}
+void mult_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
+{
+  result.push_back(BytecodeGenerator::IMULT);  //imul
+}
+void div_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
+{
+  result.push_back(BytecodeGenerator::IDIV);  //idiv
+}
+void mod_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
+{
+  result.push_back(BytecodeGenerator::IREM); //irem
+}
+void cut_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
+{
+  result.push_back(BytecodeGenerator::ISTORE_0); //istore_0 to store the index for the cut
+  result.push_back(BytecodeGenerator::ICONST_0); //iconst_0 for the begin of the string
+  result.push_back(BytecodeGenerator::ILOAD_0); //iload_0 to add the index until the cut should happend
+
+  uint16_t indexInPool = constantPool.addMethRef("java/util/String.substring:(II)Ljava/lang/String"); //import substring method
+  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL); //invokevirtual
+  result.push_back((indexInPool & 0xFF00U) >> 8);
+  result.push_back(indexInPool & 0x00FFU);
+}
+
+void append_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
+{
+  // initial situation: the two strings are on the stacks
+  result.push_back(BytecodeGenerator::ASTORE_1); //astore_1 to store the first string
+  result.push_back(BytecodeGenerator::ASTORE_2); //astore_2 to store the second string
+
+  // create new object of class java/lang/StringBuilder
+  uint16_t indexInPool = constantPool.addClassRef("java/lang/StringBuilder");
+  result.push_back(BytecodeGenerator::NEW);
+  result.push_back((indexInPool & 0xFF00U) >> 8);
+  result.push_back(indexInPool & 0x00FFU);
+
+  // duplicate object
+  result.push_back(BytecodeGenerator::DUP);
+
+  // init StringBuilder
+  indexInPool = constantPool.addMethRef("java/lang/StringBuilder.'<init>':()V")
+  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
+  result.push_back((indexInPool & 0xFF00U) >> 8);
+  result.push_back(indexInPool & 0x00FFU);
+
+  // load first string
+  result.push_back(BytecodeGenerator::ALOAD_1);
+
+  // invokevirtual <Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder>
+  indexInPool = constantPool.addMethRef("java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;")
+  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
+  result.push_back((indexInPool & 0xFF00U) >> 8);
+  result.push_back(indexInPool & 0x00FFU);
+
+  // load second string
+  result.push_back(BytecodeGenerator::ALOAD_2);
+
+  // invokevirtual <Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder>
+  indexInPool = constantPool.addMethRef("java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;")
+  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
+  result.push_back((indexInPool & 0xFF00U) >> 8);
+  result.push_back(indexInPool & 0x00FFU);
+
+  // invokevirtual <Method java/lang/StringBuilder.toString:()Ljava/lang/String>
+  indexInPool = constantPool.addMethRef("java/lang/StringBuilder.toString:()Ljava/lang/String;")
+  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
+  result.push_back((indexInPool & 0xFF00U) >> 8);
+  result.push_back(indexInPool & 0x00FFU);
+}
+
 void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
   // invokevirtual <Method java/lang/String.length:()I>
@@ -77,64 +131,6 @@ void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs
   result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
   result.push_back((indexInPool & 0xFF00U) >> 8);
   result.push_back(indexInPool & 0x00FFU);
-}
-
-void cut_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
-{
-  code.push_back(BytecodeGenerator::ISTORE_0); //istore_0 to store the index for the cut
-  code.push_back(BytecodeGenerator::ICONST_0); //iconst_0 for the begin of the string
-  code.push_back(BytecodeGenerator::ILOAD_0); //iload_0 to add the index until the cut should happend
-
-  uint16_t index = pool.addMethRef("java/util/String.substring:(II)Ljava/lang/String"); //import substring method
-  code.push_back(BytecodeGenerator::INVOKE_VIRTUAL); //invokevirtual
-  code.push_back((index & 0xFF00U) >> 8);
-  code.push_back(index & 0x00FFU);
-}
-
-void append_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
-{
-  // initial situation: the two strings are on the stacks
-  code.push_back(BytecodeGenerator::ASTORE_1); //astore_1 to store the first string
-  code.push_back(BytecodeGenerator::ASTORE_2); //astore_2 to store the second string
-
-  // create new object of class java/lang/StringBuilder
-  uint16_t indexInPool = pool.addClassRef("java/lang/StringBuilder");
-  code.push_back(BytecodeGenerator::NEW);
-  code.push_back((indexInPool & 0xFF00U) >> 8);
-  code.push_back(indexInPool & 0x00FFU);
-
-  // duplicate object
-  code.push_back(BytecodeGenerator::DUP);
-
-  // init StringBuilder
-  indexInPool = pool.addMethRef("java/lang/StringBuilder.'<init>':()V")
-  code.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
-  code.push_back((indexInPool & 0xFF00U) >> 8);
-  code.push_back(indexInPool & 0x00FFU);
-
-  // load first string
-  code.push_back(BytecodeGenerator::ALOAD_1);
-
-  // invokevirtual <Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder>
-  indexInPool = pool.addMethRef("java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder")
-  code.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
-  code.push_back((indexInPool & 0xFF00U) >> 8);
-  code.push_back(indexInPool & 0x00FFU);
-
-  // load second string
-  code.push_back(BytecodeGenerator::ALOAD_2);
-
-  // invokevirtual <Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder>
-  indexInPool = pool.addMethRef("java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder")
-  code.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
-  code.push_back((indexInPool & 0xFF00U) >> 8);
-  code.push_back(indexInPool & 0x00FFU);
-
-  // invokevirtual <Method java/lang/StringBuilder.toString:()Ljava/lang/String>
-  indexInPool = pool.addMethRef("java/lang/StringBuilder.toString:()Ljava/lang/String")
-  code.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
-  code.push_back((indexInPool & 0xFF00U) >> 8);
-  code.push_back(indexInPool & 0x00FFU);
 }
 
 std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
