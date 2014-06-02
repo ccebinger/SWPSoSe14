@@ -19,37 +19,42 @@ struct Command {
    * E.g. o -> 111 or a -> 97, thats makes the mapping much easier.
    */
 	enum Type {
-		PUSH_CONST = 0, /**< t,f, 0-9 or [...] */
-		CALL = 1, /**< {FUNC} */
-		OUTPUT = 111, /**< o */
-		ADD = 97, /**< a */
-		SUB = 115,  /**< s */
-		MULT = 109, /**< m */
-		DIV = 100, /**<  d */
-		MOD = 114, /**<  r */
-		CUT = 99, /**<  c */
-		APPEND = 112,/**< p */
-		SIZE = 122,/**< z */
-		NIL = 110,/**< n */
-		LIST_CONS = 58,/**< : */
-		LIST_BREAKUP = 126, /**< ~ */
-		FALSE = 102,/**< f */
-		GREATER = 103,/**< g */
-		EQUAL = 113, /**< q */
-		TRUE = 116,/**< t */
-		REFLECTOR = 64,/**< @ */
-		START =  36,/**< $ */
-		FINISH = 35,/**< \# */
-		LAMBDA = 38,/**< &amp; */
-		BOOM = 98,/**< b */
-		EOF_CHECK = 101,/**< e */
-		INPUT = 105,/**< i */
-		UNDERFLOW_CHECK = 117,/**< u */
-		TYPE_CHECK = 63,/**< ? */
-		EASTJUNC = 60, /**<*/
-		WESTJUNC = 62,/**>*/
-		NORTHJUNC = 118,/**v*/
-		SOUTHJUNC = 94,/**^*/
+		PUSH_CONST		= 0,	/**< t,f, 0-9 or [...] */
+		CALL			= 1,	/**< {FUNC} */
+		OUTPUT			= 111,	/**< o */
+		ADD				= 97,	/**< a */
+		SUB				= 115,	/**< s */
+		MULT			= 109,	/**< m */
+		DIV				= 100,	/**<  d */
+		MOD				= 114,	/**<  r */
+		CUT				= 99,	/**<  c */
+		APPEND			= 112,	/**< p */
+		SIZE			= 122,	/**< z */
+		NIL				= 110,	/**< n */
+		LIST_CONS		= 58,	/**< : */
+		LIST_BREAKUP	= 126,	/**< ~ */
+		FALSE			= 102,	/**< f */
+		GREATER			= 103,	/**< g */
+		EQUAL			= 113,	/**< q */
+		TRUE			= 116,	/**< t */
+		REFLECTOR		= 64,	/**< @ */
+		START			=  36,	/**< $ */
+		FINISH			= 35,	/**< \# */
+		LAMBDA			= 38,	/**< &amp; */
+		BOOM			= 98,	/**< b */
+		EOF_CHECK		= 101,	/**< e */
+		INPUT			= 105,	/**< i */
+		UNDERFLOW_CHECK	= 117,	/**< u */
+		TYPE_CHECK		= 63,	/**< ? */
+		EASTJUNC		= 60,	/**<*/
+		WESTJUNC		= 62,	/**>*/
+		NORTHJUNC		= 118,	/**v*/
+		SOUTHJUNC		= 94,	/**^*/
+
+		//FIXME those won't work with unmarshall by default
+		VAR_PUSH		= 2,
+		VAR_POP			= 3,
+
 	};
  /**
   * The type of the Rail command.

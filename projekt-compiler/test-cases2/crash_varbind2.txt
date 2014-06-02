@@ -1,0 +1,8 @@
+$'main'(--):
+ \
+  \
+   \---9---(!n)---(n)---#
+
+
+crash: invalid character in variable name
+
