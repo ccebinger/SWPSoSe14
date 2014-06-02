@@ -82,7 +82,6 @@ void BytecodeGenerator::add_new_object(const std::string& class_name, ConstantPo
 
 void output_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-
   // astore_1
   result.push_back(BytecodeGenerator::ASTORE_1);
 
@@ -99,10 +98,8 @@ void output_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Grap
 void push_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
   // ldc indexInPool
-  uint16_t indexInPool = constantPool.addString(current_node->command.arg);
   result.push_back(BytecodeGenerator::LDC);
-  result.push_back((indexInPool & 0xFF00U) >> 8);
-  result.push_back(indexInPool & 0x00FFU);
+  BytecodeGenerator::add_index(constantPool.addString(current_node->command.arg), result);
 }
 void add_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
@@ -132,19 +129,12 @@ void cut_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs:
   result.push_back(BytecodeGenerator::ICONST_0); //iconst_0 for the begin of the string
   result.push_back(BytecodeGenerator::ILOAD_0); //iload_0 to add the index until the cut should happend
 
-  uint16_t indexInPool = constantPool.addMethRef("java/lang/String.substring:(II)Ljava/lang/String;"); //import substring method
-  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL); //invokevirtual String.substring(from, to)
-  result.push_back((indexInPool & 0xFF00U) >> 8);
-  result.push_back(indexInPool & 0x00FFU);
+  BytecodeGenerator::add_invoke_virtual("java/lang/String.substring:(II)Ljava/lang/String;", constantPool, result);
 
   result.push_back(BytecodeGenerator::ALOAD_1); //to get begin string
   result.push_back(BytecodeGenerator::ILOAD_0); //index for cut
 
-  indexInPool = constantPool.addIMethRef("java/lang/String.substring:(I)Ljava/lang/String;");
-  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL); //invokevirtual String.substring(from);
-  result.push_back((indexInPool & 0xFF00U) >> 8);
-  result.push_back(indexInPool & 0x00FFU);
-
+  BytecodeGenerator::add_invoke_virtual("java/lang/String.substring:(I)Ljava/lang/String;", constantPool, result);
 }
 
 void append_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
@@ -154,52 +144,32 @@ void append_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Grap
   result.push_back(BytecodeGenerator::ASTORE_2); //astore_2 to store the second string
 
   // create new object of class java/lang/StringBuilder
-  uint16_t indexInPool = constantPool.addClassRef("java/lang/StringBuilder");
-  result.push_back(BytecodeGenerator::NEW);
-  result.push_back((indexInPool & 0xFF00U) >> 8);
-  result.push_back(indexInPool & 0x00FFU);
-
+  BytecodeGenerator::add_new_object("java/lang/StringBuilder", constantPool, result);
   // duplicate object
   result.push_back(BytecodeGenerator::DUP);
 
   // init StringBuilder
-  indexInPool = constantPool.addMethRef("java/lang/StringBuilder.'<init>':()V");
-  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
-  result.push_back((indexInPool & 0xFF00U) >> 8);
-  result.push_back(indexInPool & 0x00FFU);
-
+  BytecodeGenerator::add_invoke_virtual("java/lang/StringBuilder.'<init>':()V", constantPool, result);
   // load first string
   result.push_back(BytecodeGenerator::ALOAD_1);
 
   // invokevirtual <Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder>
-  indexInPool = constantPool.addMethRef("java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;");
-  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
-  result.push_back((indexInPool & 0xFF00U) >> 8);
-  result.push_back(indexInPool & 0x00FFU);
+  BytecodeGenerator::add_invoke_virtual("java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;", constantPool, result);
 
   // load second string
   result.push_back(BytecodeGenerator::ALOAD_2);
 
   // invokevirtual <Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder>
-  indexInPool = constantPool.addMethRef("java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;");
-  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
-  result.push_back((indexInPool & 0xFF00U) >> 8);
-  result.push_back(indexInPool & 0x00FFU);
+  BytecodeGenerator::add_invoke_virtual("java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;", constantPool, result);
 
   // invokevirtual <Method java/lang/StringBuilder.toString:()Ljava/lang/String>
-  indexInPool = constantPool.addMethRef("java/lang/StringBuilder.toString:()Ljava/lang/String;");
-  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
-  result.push_back((indexInPool & 0xFF00U) >> 8);
-  result.push_back(indexInPool & 0x00FFU);
+  BytecodeGenerator::add_invoke_virtual("java/lang/StringBuilder.toString:()Ljava/lang/String;", constantPool, result);
 }
 
 void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
   // invokevirtual <Method java/lang/String.length:()I>
-  uint16_t indexInPool 	= constantPool.addMethRef("java/lang/String.length:()I");
-  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
-  result.push_back((indexInPool & 0xFF00U) >> 8);
-  result.push_back(indexInPool & 0x00FFU);
+  BytecodeGenerator::add_invoke_virtual("java/lang/String.length:()I", constantPool, result);
 }
 
 
