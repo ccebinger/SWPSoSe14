@@ -241,7 +241,14 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			setRowCol(straightRow, straightCol);
 			addToAbstractSyntaxGraph("p", Command::Type::APPEND);
 			break;
-	
+		case '(':
+			setRowCol(straightRow, straightCol);
+			parseVariable(readCharsUntil(')'));
+			break;
+		case ')':
+			setRowCol(straightRow, straightCol);
+			parseVariable(readCharsUntil('('));
+			break;
 		default:
 			didGoStraight = false;
 			break;
@@ -250,6 +257,40 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 		//TODO:Error stuff?
 	}
 	return didGoStraight;
+}
+
+
+void Parser::parseVariable(string data) {
+
+	// Filter invalid Variable names
+	if(data.length() < 3) {
+		// Too short
+	}
+	if(data.find('{', 0) != string::npos || data.find('}', 0) != string::npos) {
+		//FIXME Exception
+	}
+
+	//FIXME filter ! within name
+	//FIXME filter () within name
+
+
+	if(data.find('!', 0) != string::npos) {
+		// must be a pop (var names must not contain ! as a character)
+
+		if(data[1] != '!' || data[data.length()-2] != '!') {
+			//cout << "## Invalid Variable action: " << data << " with " << data[1] << " and " << data[data.length()-2] << endl;
+			//FIXME Exception
+		}
+
+		// Valid variable pop action
+		//cout << "## Valid pop: " << data << " with " << data[1] << " and " << data[data.length()-2] << endl;
+		//addToAbstractSyntaxGraph(data, Command::Type::VAR_POP);
+	}
+	else {
+		// variable push action
+		//cout << "## Valid push: " << data << endl;
+		//addToAbstractSyntaxGraph(data, Command::Type::VAR_PUSH);
+	}
 }
 
 

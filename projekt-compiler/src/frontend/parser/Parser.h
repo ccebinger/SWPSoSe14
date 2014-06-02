@@ -187,6 +187,7 @@ class Parser {
 		void turnLeft45Deg();
 		void turnRight45Deg();
 		void reverseDirection();
+		void parseVariable(string data);
 		bool parseJunctions(Direction,int,int,Direction,Direction,string,Command::Type);
 		bool checkForValidCommandsInStraightDir(int,int);
 		int getNextUnusedId();
