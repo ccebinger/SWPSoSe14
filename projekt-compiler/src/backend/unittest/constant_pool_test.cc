@@ -51,7 +51,6 @@ bool testAddClassReference() {
 }
 
 /*
-<<<<<<< HEAD
  *  1)	Byte
  *			got obsolete, due addByte is not implemented anymore…
  *  2)
@@ -84,12 +83,10 @@ bool testAddInt() {
   cout << "[INFO] constant pool string " << str << endl;
   return passed;
 }
-
-=======
- *  2)	Integer
+ /*  2)	Integer
  *
  */
-bool testAddInt() {
+/*bool testAddInt() {
   ConstantPool cp;
 
   cp.addInt(32);
@@ -103,13 +100,12 @@ bool testAddInt() {
   //	  cp.addInt(i);
   //  }
   //  	cp.addInt(0x10);
-  /*
+
    *  3)	Integer
    *
-   */
+
   return false;
-}
->>>>>>> ddcb2ed3ecd111ac67b4a3850b683486297125e7
+}*/
 
 /*
  *  4)	String
@@ -129,9 +125,9 @@ int main(int argc, char** argv) {
     cerr << "[ERROR] " << "testAddClassReference failed all system off, everything falls apart ... boom" << endl;
   } */
 
-<<<<<<< HEAD
+
   if (!testAddInt()) {
-=======
+
 /*  if (!testAddInt()) {
 >>>>>>> ddcb2ed3ecd111ac67b4a3850b683486297125e7
     cerr << "[ERROR] " << "testAddInt failed all system off, everything falls apart ... boom" << endl;
@@ -140,6 +136,7 @@ int main(int argc, char** argv) {
 /*  if (!testAddString()) {
     cout << "[ERROR] " << "testAddString failed all system off, everything falls apart ... boom" << endl;
   }*/
+  }
 }
 
 #endif
