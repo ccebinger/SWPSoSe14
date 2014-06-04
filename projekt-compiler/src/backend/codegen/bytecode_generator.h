@@ -32,6 +32,7 @@ public:
   static const char ISTORE_1;
   static const char ISTORE_2;
   static const char IF_ICMPLE;
+  static const char IF_ICMPNE;
   static const char ALOAD_1;
   static const char ALOAD_2;
   static const char ASTORE_1;
