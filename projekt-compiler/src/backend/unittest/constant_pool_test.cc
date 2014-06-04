@@ -52,17 +52,19 @@ bool testAddClassReference() {
 
 /*
  *  1)	Byte
- *
+ *			got obsolete, due addByte is not implemented anymore…
+ *  2)
  */
-bool testAddByte() {
+bool testAddInt() {
   /*
   confused, addbyte has no effects anymore
   */
   ConstantPool cp;
-  for (int i = 0; i< 256; i++) {
-    cp.addByte(i);
-  }
-  auto list = cp.getByteArray();
+  
+	cp.addInt(0xcafebabe);
+  cp.addInt(0xdeadbeef);
+
+	auto list = cp.getByteArray();
   auto iter = list.begin();
 
   bool passed = true;
@@ -81,12 +83,10 @@ bool testAddByte() {
   cout << "[INFO] constant pool string " << str << endl;
   return passed;
 }
-
-/*
- *  2)	Integer
+ /*  2)	Integer
  *
  */
-bool testAddInt() {
+/*bool testAddInt() {
   ConstantPool cp;
 
   cp.addInt(32);
@@ -100,12 +100,12 @@ bool testAddInt() {
   //	  cp.addInt(i);
   //  }
   //  	cp.addInt(0x10);
-  /*
+
    *  3)	Integer
    *
-   */
+
   return false;
-}
+}*/
 
 /*
  *  4)	String
@@ -125,17 +125,18 @@ int main(int argc, char** argv) {
     cerr << "[ERROR] " << "testAddClassReference failed all system off, everything falls apart ... boom" << endl;
   } */
 
-  if (!testAddByte()) {
-    cerr << "[ERROR] " << "testAddByte failed all system off, everything falls apart ... boom" << endl;
-  }
+
+  if (!testAddInt()) {
 
 /*  if (!testAddInt()) {
+>>>>>>> ddcb2ed3ecd111ac67b4a3850b683486297125e7
     cerr << "[ERROR] " << "testAddInt failed all system off, everything falls apart ... boom" << endl;
-  } */
+	}
 
 /*  if (!testAddString()) {
     cout << "[ERROR] " << "testAddString failed all system off, everything falls apart ... boom" << endl;
   }*/
+  }
 }
 
 #endif

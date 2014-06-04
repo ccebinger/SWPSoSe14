@@ -4,8 +4,15 @@
 
 
 const char BytecodeGenerator::ILOAD_0 = '\x1a';
+const char BytecodeGenerator::ILOAD_1 = '\x1b';
+const char BytecodeGenerator::ILOAD_2 = '\x1c';
 const char BytecodeGenerator::ICONST_0 = '\x03';
+const char BytecodeGenerator::ICONST_1 = '\x04';
 const char BytecodeGenerator::ISTORE_0 = '\x3b';
+const char BytecodeGenerator::ISTORE_1 = '\x3c';
+const char BytecodeGenerator::ISTORE_2 = '\x3d';
+const char BytecodeGenerator::IF_ICMPLE = '\xa4';
+const char BytecodeGenerator::IF_ICMPNE = '\xa6';
 const char BytecodeGenerator::ALOAD_1 = '\x2b';
 const char BytecodeGenerator::ALOAD_2 = '\x2c';
 const char BytecodeGenerator::ASTORE_1 = '\x4c';
@@ -13,6 +20,7 @@ const char BytecodeGenerator::ASTORE_2 = '\x4d';
 const char BytecodeGenerator::NEW = '\xbb';
 const char BytecodeGenerator::INVOKE_VIRTUAL = '\xb6';
 const char BytecodeGenerator::GET_STATIC = '\xb2';
+const char BytecodeGenerator::GOTO = '\xa7';
 const char BytecodeGenerator::RETURN = '\xb1';
 const char BytecodeGenerator::LDC = '\x12';
 const char BytecodeGenerator::DUP = '\x59';
@@ -194,19 +202,70 @@ void list_pop_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node
 //BOOLEAN ARITHMETIC
 void false_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
 {
-
+  code.push_back(BytecodeGenerator::ICONST_0);
 }
 void greater_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
 {
+  // store the two integers and load them to get the right order
+  code.push_back(BytecodeGenerator::ISTORE_1);
+  code.push_back(BytecodeGenerator::ISTORE_2);
+  code.push_back(BytecodeGenerator::ILOAD_1);
+  code.push_back(BytecodeGenerator::ILOAD_2);
 
+  code.push_back(BytecodeGenerator::IF_ICMPLE);
+  /* FIXME:
+   * Couldn't really find out the meaning of the Hex 0x0007.
+   * Should be the label to jump for the IF_ICMPLE, but can't
+   * explain why it is always the same (Hex 0x0007).
+   */
+  code.push_back('\x00');
+  code.push_back('\x07');
+  code.push_back(BytecodeGenerator::ICONST_1);
+
+  code.push_back(BytecodeGenerator::GOTO);
+  /* FIXME:
+     * Couldn't really find out the meaning of the Hex 0x0004.
+     * Should be the label to jump for the GOTO, but can't
+     * explain why it is always the same (Hex 0x0004).
+     */
+  code.push_back('\x00');
+  code.push_back('\x04');
+  code.push_back(BytecodeGenerator::ICONST_0);
 }
 void equal_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
 {
+/*
+ * TODO: typecheck missing
+ */
+// store the two integers and load them to get the right order
+  code.push_back(BytecodeGenerator::ISTORE_1);
+  code.push_back(BytecodeGenerator::ISTORE_2);
+  code.push_back(BytecodeGenerator::ILOAD_1);
+  code.push_back(BytecodeGenerator::ILOAD_2);
 
+  code.push_back(BytecodeGenerator::IF_ICMPNE);
+  /* FIXME:
+   * Couldn't really find out the meaning of the Hex 0x0007.
+   * Should be the label to jump for the IF_ICMPNE, but can't
+   * explain why it is always the same (Hex 0x0007).
+   */
+  code.push_back('\x00');
+  code.push_back('\x07');
+  code.push_back(BytecodeGenerator::ICONST_1);
+
+  code.push_back(BytecodeGenerator::GOTO);
+  /* FIXME:
+	 * Couldn't really find out the meaning of the Hex 0x0004.
+	 * Should be the label to jump for the GOTO, but can't
+	 * explain why it is always the same (Hex 0x0004).
+	 */
+  code.push_back('\x00');
+  code.push_back('\x04');
+  code.push_back(BytecodeGenerator::ICONST_0);
 }
 void true_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
 {
-
+  code.push_back(BytecodeGenerator::ICONST_1);
 }
 //IO OPERATIONS
 void boom_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)

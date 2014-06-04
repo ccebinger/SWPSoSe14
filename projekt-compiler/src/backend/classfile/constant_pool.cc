@@ -15,7 +15,6 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 
 #include <backend/classfile/constant_pool.h>
 #include <algorithm>
-//#include <codecvt>
 
 ////////////////////////////////////////////////////////////////////////
 /// default constructor does nothing, bud is needed because we have other
@@ -61,12 +60,17 @@ Item::Item(uint16_t _index, const Item &i) {
 ////////////////////////////////////////////////////////////////////////
 bool Item::operator==(const Item& i)const {
   switch (type) {
+    case UTF8:
+    case CLASS:
     case STR:
       return i.strVal == strVal;
     case LONG:
       return i.longVal == longVal;
     case INT:
       return i.intVal == intVal;
+    // case FIELD:
+    // case METHOD:
+    // case IMETHOD:
     default:
       return i.strVal == strVal;
   }
@@ -126,24 +130,6 @@ ConstantPool::ConstantPool(): items(256) {
   addMethRef("Java.io.printStream.println");
   // Method reference Main.java
   addMethRef("Main.java");
-}
-
-////////////////////////////////////////////////////////////////////////
-/// method to put a string into the pool
-/// \param value value to add to pool
-/// \return index of the string in pool
-////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addByte(uint8_t value) {
-  Item i;
-  size_t index = 0;
-  i.set(value);
-  if (!check(i)) {
-    index = put(i);
-    putByte(value);
-  } else {
-    index = get(i).index;
-  }
-  return index;
 }
 
 ////////////////////////////////////////////////////////////////////////

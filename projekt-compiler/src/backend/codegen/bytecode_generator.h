@@ -24,8 +24,15 @@ private:
   static const std::map<Command::Type, func_ptr> CODE_FUNC_MAPPING;
 public:
   static const char ILOAD_0;
+  static const char ILOAD_1;
+  static const char ILOAD_2;
   static const char ICONST_0;
+  static const char ICONST_1;
   static const char ISTORE_0;
+  static const char ISTORE_1;
+  static const char ISTORE_2;
+  static const char IF_ICMPLE;
+  static const char IF_ICMPNE;
   static const char ALOAD_1;
   static const char ALOAD_2;
   static const char ASTORE_1;
@@ -33,6 +40,7 @@ public:
   static const char NEW;
   static const char INVOKE_VIRTUAL;
   static const char GET_STATIC;
+  static const char GOTO;
   static const char RETURN ;
   static const char LDC;
   static const char DUP;
