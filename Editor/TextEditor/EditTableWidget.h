@@ -10,7 +10,7 @@ public:
     explicit EditTableWidget(QWidget *parent = 0);
 
 signals:
-    void cursorPositionChanged(int x, int y);
+    void cursorPositionChanged(int row, int col);
     void textChanged();
 
 public:
@@ -18,6 +18,9 @@ public:
     QPoint cursorPos() const;
     void clear();
     void setPlainText(QString text);
+
+    void undo();
+    void redo();
 
 private:
     void mousePressEvent(QMouseEvent *mouseEvent);
@@ -28,10 +31,16 @@ private:
     void removeSign();
     void inputMethodEvent(QInputMethodEvent *event);
 
+private slots:
+    //void parse();
+
 private:
-    int m_cursorXPos, m_cursorYPos;
-    int m_textMaxX, m_textMaxY; //
+    int m_cursorRowPos, m_cursorColPos;
+    int m_textMaxRow, m_textMaxCol;
     const int m_elementHeight, m_elementWidth;
+
+    /*QTimer m_parserTimer;
+    QThread *m_parserThread;*/
 
     void calculateDimensions();
 };

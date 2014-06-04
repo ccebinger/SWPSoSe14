@@ -17,6 +17,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->ui_insertModeGroupBox->hide();
+    ui->ui_writeDirectionGroupBox->hide();
+
     QFont f("unexistent");
     f.setStyleHint(QFont::Monospace);
     ui->ui_inputPlainTextEdit->setFont(f);
@@ -87,10 +90,10 @@ void MainWindow::closeEvent(QCloseEvent *closeEvent)
     }
 }
 
-void MainWindow::cursorPositionChanged(int x, int y)
+void MainWindow::cursorPositionChanged(int row, int col)
 {
-    ui->ui_rowValueLabel->setText(QString::number(x + 1));
-    ui->ui_columnValueLabel->setText(QString::number(y + 1));
+    ui->ui_rowValueLabel->setText(QString::number(row + 1));
+    ui->ui_columnValueLabel->setText(QString::number(col + 1));
 }
 
 void MainWindow::textChanged()

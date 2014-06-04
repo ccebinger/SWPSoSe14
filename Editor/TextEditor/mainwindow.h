@@ -31,7 +31,7 @@ private:
 
 
 private slots:
-    void cursorPositionChanged(int x, int y);
+    void cursorPositionChanged(int row, int col);
     void textChanged();
     void newFile();
     void openFile();
@@ -40,6 +40,11 @@ private slots:
 
     void setInterpreter();
     void runInterpreter();
+
+    /*void undo();
+    void redo();
+    void undoAvailable(bool available);
+    void redoAvalable(bool available);*/
 };
 
 #endif // MAINWINDOW_H
