@@ -1,7 +1,13 @@
 #ifndef POINT_H
 #define POINT_H
+
+#include "InterStack.h"
+#include "Stack.h"
+#include <iostream>
+#include <QDebug>
+
 // Interne Repräsentation, wird nur von Graph_Interface verwendet
-// color bytemask: Red: 128,Grey: 64, Blue:32, Green: 16, Fet:8, Kursiv: 4
+// color bytemask: Red: 128,Grey: 64, Blue:32, Green: 16, Fett:8, Kursiv: 4
 // colors Red: commend, Green: Funktion, Black: Connected Rail, Grey: unconnectetd Rail, Blue: String, Blue+Fet: String+Funktion, Kursiv: not used yet, if no color is set color is black.
 class Point{
 	private:
@@ -113,6 +119,7 @@ class Point{
         color = 0;
         this->x = x;
         this->y = y;
+        bCons = 0;
     }
     Point(Point *next, char sign, int x, int y){
 		bCons = 8;
@@ -126,7 +133,7 @@ class Point{
         this->x = x;
         this->y = y;
 	}
-	Point* getPoint (int x, int y){
+    Point* getPoint (int x, int y){
 		if((bool)y){
 			if(bCons & 2)
 				return cons[6]->getPoint(x,y-1);

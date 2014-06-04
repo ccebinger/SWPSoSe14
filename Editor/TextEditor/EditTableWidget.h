@@ -1,6 +1,8 @@
 #ifndef EDITTABLEWIDGET_H
 #define EDITTABLEWIDGET_H
 
+#include "Graph_Interface.h"
+
 #include <QTableWidget>
 
 class EditTableWidget : public QTableWidget
@@ -31,16 +33,14 @@ private:
     void removeSign();
     void inputMethodEvent(QInputMethodEvent *event);
 
-private slots:
-    //void parse();
+    void applyStyleChanges( Stack *stack );
+    void setSignStyle(int row, int col, int byteMask);
 
 private:
     int m_cursorRowPos, m_cursorColPos;
     int m_textMaxRow, m_textMaxCol;
     const int m_elementHeight, m_elementWidth;
-
-    /*QTimer m_parserTimer;
-    QThread *m_parserThread;*/
+    Graph_Interface m_graph;
 
     void calculateDimensions();
 };

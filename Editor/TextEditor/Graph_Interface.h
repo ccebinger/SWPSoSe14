@@ -1,6 +1,11 @@
 #ifndef GRAPHINTERFACE_H
 #define GRAPHINTERFACE_H
 
+
+#include "Point.h"
+#include "InterStack.h"
+#include "Stack.h"
+
 //Nur diese Klasse verwenden um auf die Interne Repräsentation zuzugreifen
 
 
@@ -35,7 +40,7 @@ class Graph_Interface{
 		if(!(bCons & 1))tmp->setCons(1,root->getPoint(x+1,y+1));
         InternStack* change = new InternStack();
         tmp->makeCons(change);
-        return NULL;
+        return new Stack();
 	}
 	public:
     Stack* setSign(int x, int y, char sign){

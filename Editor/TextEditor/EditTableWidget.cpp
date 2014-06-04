@@ -1,6 +1,8 @@
 #include "EditTableWidget.h"
+#include "Graph_Interface.h"
 
 #include <QString>
+#include <QChar>
 #include <QEvent>
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -130,8 +132,7 @@ void EditTableWidget::setPosition(int row, int col)
 
 void EditTableWidget::setSign(QChar c)
 {
-    // get the insert mode and the write direction
-    // TODO: later replace with enums
+    // TODO: generate undo/redo-element
     QWidget *w = this->cellWidget(m_cursorRowPos, m_cursorColPos);
     QString color;
     if(c == '$')
@@ -171,14 +172,24 @@ void EditTableWidget::setSign(QChar c)
         assert(l);
         l->setText(text);
     }
+
     l->setStyleSheet("QLabel { color: " + color + "; };");
     m_textMaxRow = std::max(m_textMaxRow, m_cursorRowPos);
     m_textMaxCol = std::max(m_textMaxCol, m_cursorColPos);
+
+    Stack *stack = m_graph.setSign(m_cursorColPos, m_cursorRowPos, text.at(0).toLatin1());
+    applyStyleChanges(stack);
+
+    if(stack != NULL)
+    {
+        delete stack;
+    }
     emit textChanged();
 }
 
 void EditTableWidget::removeSign()
 {
+    // TODO: generate undo/redo-element
     QWidget *w = this->cellWidget(m_cursorRowPos, m_cursorColPos);
     if(w != NULL)
     {
@@ -223,8 +234,32 @@ void EditTableWidget::removeSign()
                 m_textMaxRow = 0;
             }
         }
+        /*Stack *stack = m_graph.deleteSign(m_cursorColPos, m_cursorRowPos);
+        applyStyleChanges(stack);
+        if(stack != NULL)
+        {
+            delete stack;
+        }*/
+
         emit textChanged();
     }
+}
+
+void EditTableWidget::applyStyleChanges(Stack *stack)
+{
+    Stack *tmp;
+    while((tmp = stack->pop()) != NULL)
+    {
+        setSignStyle(stack->getY(), stack->getY(), stack->getColor());
+
+        delete tmp;
+    }
+}
+
+void EditTableWidget::setSignStyle(int row, int col, int byteMask)
+{
+    // TODO: retrieve styles
+    //bool bold =
 }
 
 QString EditTableWidget::toPlainText() const
