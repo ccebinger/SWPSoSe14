@@ -1,5 +1,3 @@
-#include <iostream>
-#include "Stack.h"
 #ifndef POINT_H
 #define POINT_H
 // Interne Repräsentation, wird nur von Graph_Interface verwendet
@@ -8,7 +6,7 @@
 class Point{
 	private:
     enum type { RAIL, COM, STRING, FUNC, EMPTY };
-    int muster, connections, bCons, color;
+    int muster, connections, bCons, color, x , y;
 	char sign;
 	Point* cons[8];
     bool string;
@@ -95,7 +93,7 @@ class Point{
 		}
 	}
 	public:
-	Point(char sign){
+    Point(char sign, int x, int y){
 		this->sign = sign;
 		setMuster();
 		bCons = 0;
@@ -103,16 +101,20 @@ class Point{
         if(type == STRING) string = true;
         else string = false;
         color = 0;
+        this->x = x;
+        this->y = y;
 	}
-    Point(){
+    Point(int x, int y){
         sign = ' ';
         setMuster();
         connections = 0;
         if(type == STRING) string = true;
         else string = false;
         color = 0;
+        this->x = x;
+        this->y = y;
     }
-	Point(Point *next, char sign){
+    Point(Point *next, char sign, int x, int y){
 		bCons = 8;
 		cons[4] = next;
 		this->sign = sign;
@@ -121,6 +123,8 @@ class Point{
         if(type == STRING) string = true;
         else string = false;
         color = 0;
+        this->x = x;
+        this->y = y;
 	}
 	Point* getPoint (int x, int y){
 		if((bool)y){
@@ -128,7 +132,7 @@ class Point{
 				return cons[6]->getPoint(x,y-1);
 			else {
 				bCons |= 2;
-				cons[6] = new Point();
+                cons[6] = new Point(this->x,this->y+1);
 				return cons[6]->getPoint(x,y-1);
 			} }
 		else if((bool)x){
@@ -136,7 +140,7 @@ class Point{
 				return cons[4]->getPoint(x-1,y);
 			else {
 				bCons |= 8;
-				cons[4] = new Point();
+                cons[4] = new Point(this->x+1,this->y);
 				return cons[4]->getPoint(x-1,y);
 			} }
 		else
@@ -181,7 +185,7 @@ class Point{
 	int getMuster(void){
 		return muster;
 	}
-    void setConnections(int connections, bool mode,Stack *change, int x, int y){
+    void setConnections(int connections, bool mode,InternStack *change){
         int old = this->connections, count = 0;
         (mode)?this->connections |= connections:this->connections &= (~connections);
         if((old&muster) != (muster&this->connections)){
@@ -220,12 +224,11 @@ class Point{
                     break;
                 }
             }
-            change->push(x,y,sign,color);
+            change->push(this);
         }
 	}
 	void testConnections(void){
-		// TODO: set connections
-		std::cout << (connections&muster) << " ";
+        // TODO: set connections
 	}
 	int getConnections(void){
 		return connections&muster ? 1 : 0;
@@ -281,16 +284,16 @@ class Point{
         if(connections & 1)directions->push(x-1,y-1,' ',1);
     }
 
-    void makeCons(int x, int y, Stack *change){
+    void makeCons(InternStack *change){
 		int tmp = bCons;
-        if(tmp & 128)cons[0]->setConnections(1,(muster&128)?true:false,change,x,y);
-        if(tmp & 64)cons[1]->setConnections(2,(muster&64)?true:false,change,x,y);
-        if(tmp & 32)cons[2]->setConnections(4,(muster&32)?true:false,change,x,y);
-        if(tmp & 16)cons[3]->setConnections(8,(muster&16)?true:false,change,x,y);
-        if(tmp & 8)cons[4]->setConnections(16,(muster&8)?true:false,change,x,y);
-        if(tmp & 4)cons[5]->setConnections(32,(muster&4)?true:false,change,x,y);
-        if(tmp & 2)cons[6]->setConnections(64,(muster&2)?true:false,change,x,y);
-        if(tmp & 1)cons[7]->setConnections(128,(muster&1)?true:false,change,x,y);
+        if(tmp & 128)cons[0]->setConnections(1,(muster&128)?true:false,change);
+        if(tmp & 64)cons[1]->setConnections(2,(muster&64)?true:false,change);
+        if(tmp & 32)cons[2]->setConnections(4,(muster&32)?true:false,change);
+        if(tmp & 16)cons[3]->setConnections(8,(muster&16)?true:false,change);
+        if(tmp & 8)cons[4]->setConnections(16,(muster&8)?true:false,change);
+        if(tmp & 4)cons[5]->setConnections(32,(muster&4)?true:false,change);
+        if(tmp & 2)cons[6]->setConnections(64,(muster&2)?true:false,change);
+        if(tmp & 1)cons[7]->setConnections(128,(muster&1)?true:false,change);
 	}
 	protected:
 	Point* getNextRight(void){
@@ -308,24 +311,4 @@ class Point{
 		bCons |= 2;
 	}
 };
-
-void Point::clear(void){
-	if(bCons & 8)cons[4]->clear();
-	if(bCons & 2)cons[6]->clear();
-	delete this;
-};
-void Point::clone(Point *akk){
-	Point *tmp;
-	akk->setSign(getSign());
-	if(bCons & 8){
-		tmp = new Point();
-		akk->setNextRight(tmp);
-		cons[4]->clone(tmp);
-	}
-	if(bCons & 2){
-		tmp = new Point();
-		akk->setNextBottem(tmp);
-		cons[2]->clone(tmp);
-	}
-}
 #endif // POINT_H

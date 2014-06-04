@@ -1,10 +1,7 @@
-#include <iostream>
 #ifndef GRAPHINTERFACE_H
 #define GRAPHINTERFACE_H
 
 //Nur diese Klasse verwenden um auf die Interne Repräsentation zuzugreifen
-#include "Point.h"
-#include "Stack.h"
 
 
 // TODO: UNDO STring
@@ -18,7 +15,7 @@ class Graph_Interface{
 
 	public:
 	Graph_Interface(){
-		root = new Point();
+        root = new Point(0,0);
 		undo = new Stack();
 	}
 	Graph_Interface(Point* root){
@@ -36,18 +33,8 @@ class Graph_Interface{
 		if(!(bCons & 4) && x-1 >= 0)tmp->setCons(4,root->getPoint(x-1,y+1));
 		if(!(bCons & 2))tmp->setCons(2,root->getPoint(x,y+1));
 		if(!(bCons & 1))tmp->setCons(1,root->getPoint(x+1,y+1));
-		tmp->makeCons();
-        Stack *directions = new Stack(), *tmp2;
-        tmp2->getStringDirection(directions,x,y);
-        while((tmp2 = directions->pop()) != NULL){
-            Point *tmp3; = tmp;
-            x = tmp2->getX(); y = tmp2->getY();
-            while((tmp3 = tmp3->setString(tmp2->getColor())) != NULL || (x>0 && x<getMaxRow() && y>0 && getMaxColm() && (tmp3 = root->getPoint(x,y)))){
-            }
-            // TODO: undo string
-            // TODO: string setzung ändern auf erkennung für mehrere richtungen
-            // TODO: fixen bug für x  und y
-        }
+        InternStack* change = new InternStack();
+        tmp->makeCons(change);
         return NULL;
 	}
 	public:
@@ -83,13 +70,13 @@ class Graph_Interface{
 	}
 	void clear(void){
 		root->clear();
-		root = new Point();
+        root = new Point(0,0);
 	}
 	char* deleteSign(int x, int y){
 		// TODO: DELETE SIGN
 	}
 	Graph_Interface* clone(void){
-		tmp = new Point();
+        tmp = new Point(0,0);
 		root->clone(tmp);
 		return new Graph_Interface(tmp);
 	}
@@ -122,7 +109,7 @@ class Graph_Interface{
 		for(int y=0;y<maxY;y++){
 			for(int x=0;x<maxX;x++){
 				root->getPoint(x,y)->testConnections();
-			} std::cout << "\n";
+            }
 		} 
 	}
 };
