@@ -94,7 +94,7 @@
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="QGroupBox" name="groupBox">
+          <widget class="QGroupBox" name="ui_insertModeGroupBox">
            <property name="title">
             <string>Insert Mode</string>
            </property>
@@ -171,7 +171,7 @@
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QGroupBox" name="groupBox_2">
+          <widget class="QGroupBox" name="ui_writeDirectionGroupBox">
            <property name="title">
             <string>Write Direction</string>
            </property>

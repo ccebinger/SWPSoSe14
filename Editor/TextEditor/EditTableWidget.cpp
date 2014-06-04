@@ -1,6 +1,8 @@
 #include "EditTableWidget.h"
+#include "Graph_Interface.h"
 
 #include <QString>
+#include <QChar>
 #include <QEvent>
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -21,8 +23,8 @@ EditTableWidget::EditTableWidget(QWidget *parent) :
     m_elementHeight(20),
     m_elementWidth(12)
 {
-    m_cursorXPos = -1;
-    m_cursorYPos = -1;
+    m_cursorRowPos = -1;
+    m_cursorColPos = -1;
     setPosition(0, 0);
 
     QHeaderView *verticalHeader = this->verticalHeader();
@@ -36,10 +38,10 @@ void EditTableWidget::mousePressEvent(QMouseEvent *mouseEvent)
 {
     mouseEvent->accept();
     QPoint pos = mouseEvent->pos();
-    int cellX, cellY;
-    cellX = ceil((double)pos.x() / (double)m_elementWidth);
-    cellY = ceil((double)pos.y() / (double)m_elementHeight);
-    setPosition(cellX - 1, cellY - 1);
+    int cellRow, cellCol;
+    cellRow = ceil((double)pos.y() / (double)m_elementHeight);
+    cellCol = ceil((double)pos.x() / (double)m_elementWidth);
+    setPosition(cellRow - 1, cellCol - 1);
 }
 
 void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
@@ -51,18 +53,18 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
     {
         if(key == Qt::Key_Enter || key == Qt::Key_Return)
         {
-            setPosition(0, m_cursorYPos + 1);
+            setPosition(m_cursorRowPos + 1, 0);
         }
         else if(key == Qt::Key_Backspace)
         {
-            if(m_cursorXPos > 0)
+            if(m_cursorColPos > 0)
             {
-                setPosition(m_cursorXPos - 1, m_cursorYPos);
+                setPosition(m_cursorRowPos, m_cursorColPos - 1);
                 removeSign();
             }
-            else if(m_cursorYPos > 0)
+            else if(m_cursorRowPos > 0)
             {
-                setPosition(this->columnCount(), m_cursorYPos - 1);
+                setPosition(m_cursorRowPos - 1,this->columnCount());
                 removeSign();
             }
         }
@@ -73,28 +75,28 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
         else if(key != Qt::Key_Escape)
         {
             setSign(keyEvent->text().at(0));
-            setPosition(m_cursorXPos + 1, m_cursorYPos);
+            setPosition(m_cursorRowPos, m_cursorColPos + 1);
         }
     }
     else
     {
         if(key == Qt::Key_Right)
         {
-            setPosition(m_cursorXPos + 1, m_cursorYPos);
+            setPosition(m_cursorRowPos, m_cursorColPos + 1);
         }
         else if(key == Qt::Key_Left)
         {
-            int xPos = std::max(0, m_cursorXPos-1);
-            setPosition(xPos, m_cursorYPos);
+            int colPos = std::max(0, m_cursorColPos - 1);
+            setPosition(m_cursorRowPos, colPos);
         }
         else if(key == Qt::Key_Up)
         {
-            int yPos = std::max(0, m_cursorYPos-1);
-            setPosition(m_cursorXPos, yPos);
+            int rowPos = std::max(0, m_cursorRowPos - 1);
+            setPosition(rowPos, m_cursorColPos);
         }
         else if(key == Qt::Key_Down)
         {
-            setPosition(m_cursorXPos, m_cursorYPos + 1);
+            setPosition(m_cursorRowPos + 1, m_cursorColPos);
         }
     }
 }
@@ -108,31 +110,30 @@ void EditTableWidget::inputMethodEvent(QInputMethodEvent *event)
     event->accept();
 }
 
-void EditTableWidget::setPosition(int x, int y)
+void EditTableWidget::setPosition(int row, int col)
 {
-    assert(x >= 0);
-    assert(y >= 0);
-    if(x != m_cursorXPos || y != m_cursorYPos)
+    assert(row >= 0);
+    assert(col >= 0);
+    if(row != m_cursorRowPos || col != m_cursorColPos)
     {
-        this->setCurrentCell(m_cursorYPos, m_cursorXPos, QItemSelectionModel::Deselect);
-        m_cursorXPos = x;
-        m_cursorYPos = y;
+        this->setCurrentCell(m_cursorRowPos, m_cursorColPos, QItemSelectionModel::Deselect);
+        m_cursorRowPos = row;
+        m_cursorColPos = col;
 
-        int columnCount = std::max(m_cursorXPos, m_textMaxX);
-        int rowCount = std::max(m_cursorYPos, m_textMaxY);
-        this->setColumnCount(columnCount + 1);
+        int rowCount = std::max(m_cursorRowPos, m_textMaxRow);
+        int columnCount = std::max(m_cursorColPos, m_textMaxCol);
         this->setRowCount(rowCount + 1);
+        this->setColumnCount(columnCount + 1);
 
-        this->setCurrentCell(m_cursorYPos, m_cursorXPos, QItemSelectionModel::Select);
-        emit cursorPositionChanged(x, y);
+        this->setCurrentCell(m_cursorRowPos, m_cursorColPos, QItemSelectionModel::Select);
+        emit cursorPositionChanged(row, col);
     }
 }
 
 void EditTableWidget::setSign(QChar c)
 {
-    // get the insert mode and the write direction
-    // TODO: later replace with enums
-    QWidget *w = this->cellWidget(m_cursorYPos, m_cursorXPos);
+    // TODO: generate undo/redo-element
+    QWidget *w = this->cellWidget(m_cursorRowPos, m_cursorColPos);
     QString color;
     if(c == '$')
     {
@@ -163,7 +164,7 @@ void EditTableWidget::setSign(QChar c)
         l = new QLabel(text);
         l->setFont(f);
         l->setAlignment(Qt::AlignCenter);
-        this->setCellWidget(m_cursorYPos, m_cursorXPos, l);
+        this->setCellWidget(m_cursorRowPos, m_cursorColPos, l);
     }
     else
     {
@@ -171,21 +172,31 @@ void EditTableWidget::setSign(QChar c)
         assert(l);
         l->setText(text);
     }
+
     l->setStyleSheet("QLabel { color: " + color + "; };");
-    m_textMaxX = std::max(m_textMaxX, m_cursorXPos);
-    m_textMaxY = std::max(m_textMaxY, m_cursorYPos);
+    m_textMaxRow = std::max(m_textMaxRow, m_cursorRowPos);
+    m_textMaxCol = std::max(m_textMaxCol, m_cursorColPos);
+
+    Stack *stack = m_graph.setSign(m_cursorColPos, m_cursorRowPos, text.at(0).toLatin1());
+    applyStyleChanges(stack);
+
+    if(stack != NULL)
+    {
+        delete stack;
+    }
     emit textChanged();
 }
 
 void EditTableWidget::removeSign()
 {
-    QWidget *w = this->cellWidget(m_cursorYPos, m_cursorXPos);
+    // TODO: generate undo/redo-element
+    QWidget *w = this->cellWidget(m_cursorRowPos, m_cursorColPos);
     if(w != NULL)
     {
-        removeCellWidget(m_cursorYPos, m_cursorXPos);
+        removeCellWidget(m_cursorRowPos, m_cursorColPos);
         // TODO: move all elements on the right one position to the left(?)
         bool newMaxFound;
-        if(m_cursorXPos == m_textMaxX)
+        if(m_cursorColPos == m_textMaxCol)
         {
             newMaxFound = false;
             for(int col = this->columnCount(); col >= 0 && !newMaxFound; col--)
@@ -194,17 +205,17 @@ void EditTableWidget::removeSign()
                 {
                     if(this->cellWidget(row, col))
                     {
-                        m_textMaxX = col;
+                        m_textMaxCol = col;
                         newMaxFound = true;
                     }
                 }
             }
             if(!newMaxFound)
             {
-                m_textMaxX = 0;
+                m_textMaxCol = 0;
             }
         }
-        if(m_cursorYPos == m_textMaxY)
+        if(m_cursorRowPos == m_textMaxRow)
         {
             newMaxFound = false;
             for(int row = this->rowCount(); row >= 0 && !newMaxFound; row--)
@@ -213,18 +224,42 @@ void EditTableWidget::removeSign()
                 {
                     if(this->cellWidget(row, col))
                     {
-                        m_textMaxY = row;
+                        m_textMaxRow = row;
                         newMaxFound = true;
                     }
                 }
             }
             if(!newMaxFound)
             {
-                m_textMaxY = 0;
+                m_textMaxRow = 0;
             }
         }
+        /*Stack *stack = m_graph.deleteSign(m_cursorColPos, m_cursorRowPos);
+        applyStyleChanges(stack);
+        if(stack != NULL)
+        {
+            delete stack;
+        }*/
+
         emit textChanged();
     }
+}
+
+void EditTableWidget::applyStyleChanges(Stack *stack)
+{
+    Stack *tmp;
+    while((tmp = stack->pop()) != NULL)
+    {
+        setSignStyle(stack->getY(), stack->getY(), stack->getColor());
+
+        delete tmp;
+    }
+}
+
+void EditTableWidget::setSignStyle(int row, int col, int byteMask)
+{
+    // TODO: retrieve styles
+    //bool bold =
 }
 
 QString EditTableWidget::toPlainText() const
@@ -256,8 +291,8 @@ void EditTableWidget::clear()
 {
     this->setRowCount(0);
     this->setColumnCount(0);
-    m_textMaxX = 0;
-    m_textMaxY = 0;
+    m_textMaxRow = 0;
+    m_textMaxCol = 0;
     setPosition(0, 0);
 }
 
@@ -270,12 +305,12 @@ void EditTableWidget::setPlainText(QString text)
         QChar c = text.at(i);
         if(c == '\n')
         {
-            setPosition(0, m_cursorYPos + 1);
+            setPosition(0, m_cursorColPos + 1);
         }
         else
         {
             setSign(c);
-            setPosition(m_cursorXPos + 1, m_cursorYPos);
+            setPosition(m_cursorRowPos + 1, m_cursorRowPos);
         }
     }
     this->blockSignals(false);
