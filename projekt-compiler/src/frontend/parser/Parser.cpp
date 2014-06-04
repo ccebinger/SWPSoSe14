@@ -247,6 +247,10 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			setRowCol(straightRow, straightCol);
 			addToAbstractSyntaxGraph("g", Command::Type::GREATER);
 			break;
+		case 'q': // Is Equal
+			setRowCol(straightRow, straightCol);
+			addToAbstractSyntaxGraph("q", Command::Type::EQUAL);
+			break;
 
 		// Variables
 		case '(':
