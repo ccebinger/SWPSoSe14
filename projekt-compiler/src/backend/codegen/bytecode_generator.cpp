@@ -107,7 +107,17 @@ void push_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs
 {
   // ldc indexInPool
   result.push_back(BytecodeGenerator::LDC);
-  BytecodeGenerator::add_index(constantPool.addString(current_node->command.arg), result);
+  std::string value = current_node->command.arg;
+  try
+  {
+    int int_val = std::stoi(value);
+    BytecodeGenerator::add_index(constantPool.addInt(int_val), result);
+  }
+  catch (const std::invalid_argument& ia) //the value is a string
+  {
+    BytecodeGenerator::add_index(constantPool.addString(current_node->command.arg), result);
+  }
+
 }
 void add_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
@@ -307,8 +317,6 @@ std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph
     }
     current_node = current_node->successor1;
   }
-  // Emit
-  // return
   result.push_back(BytecodeGenerator::RETURN);
   return result;
 }

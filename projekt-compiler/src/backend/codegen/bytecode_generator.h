@@ -5,6 +5,8 @@
 #include <common/ast/ast.h>
 #include <frontend/Graphs.h>
 
+#include <stdexcept>
+
 class BytecodeGenerator
 {
 public:
