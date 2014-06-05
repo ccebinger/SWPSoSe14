@@ -31,6 +31,7 @@ public:
         Point* h = first->get();
         delete first;
         first = tmp;
+        return h;
     }
 };
 

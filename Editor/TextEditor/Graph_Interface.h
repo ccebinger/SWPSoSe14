@@ -79,7 +79,9 @@ class Graph_Interface{
 	}
 	char* deleteSign(int x, int y){
 		// TODO: DELETE SIGN
+        return NULL;
 	}
+
 	Graph_Interface* clone(void){
         tmp = new Point(0,0);
 		root->clone(tmp);
