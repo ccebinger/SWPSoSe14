@@ -29,7 +29,10 @@ const char BytecodeGenerator::ISUB = '\x64';
 const char BytecodeGenerator::IMULT = '\x68';
 const char BytecodeGenerator::IDIV = '\x6c';
 const char BytecodeGenerator::IREM = '\x70';
-
+const char BytecodeGenerator::INSTANCE_OF = '\xc1';
+const char BytecodeGenerator::ATHROW = '\xbf';
+const char BytecodeGenerator::IFEQ = '\x99';
+const char BytecodeGenerator::IFNE = '\x9a';
 const std::map<Command::Type, BytecodeGenerator::func_ptr> BytecodeGenerator::CODE_FUNC_MAPPING =
 {
   {Command::Type::OUTPUT, &output_ByteCode},
@@ -88,6 +91,32 @@ void BytecodeGenerator::add_new_object(const std::string& class_name, ConstantPo
   add_index(constantPool.addClassRef(class_name), result);
 }
 
+void BytecodeGenerator::add_class(const std::string& class_name, ConstantPool& constantPool, std::vector<char>& result)
+{
+  add_index(constantPool.addClassRef(class_name), result);
+}
+
+void BytecodeGenerator::add_instance_of(const std::string& class_name, ConstantPool& constantPool, std::vector<char>& result)
+{
+  result.push_back(BytecodeGenerator::INSTANCE_OF);
+  add_class(class_name, constantPool, result);
+}
+
+void BytecodeGenerator::add_type_check(const std::string& class_name, ConstantPool& constantPool, std::vector<char>& result)
+{
+  add_instance_of(class_name, constantPool, result);
+  result.push_back(BytecodeGenerator::IFNE);
+  //add_index()  TODO ADD index for if eq branch to jump after throw statement
+  add_throw_exception("java/lang/IllegalArgumentException", constantPool, result);
+  //jump here
+}
+
+void BytecodeGenerator::add_throw_exception(const std::string& class_name, ConstantPool& constantPool, std::vector<char>& result)
+{
+  add_new_object(class_name, constantPool, result);
+  result.push_back(BytecodeGenerator::ATHROW);
+}
+
 void output_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
   // astore_1
@@ -119,6 +148,9 @@ void push_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs
   }
 
 }
+
+
+
 void add_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
   result.push_back(BytecodeGenerator::IADD);  //iadd

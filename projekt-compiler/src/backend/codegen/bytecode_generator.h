@@ -16,6 +16,10 @@ public:
   static void add_static_field(const std::string& field, ConstantPool& pool, std::vector<char>& code);
   static void add_new_object(const std::string& class_name, ConstantPool& pool, std::vector<char>& code);
   static void add_index(uint16_t indexInPool, std::vector<char>& result);
+  static void add_class(const std::string& class_name, ConstantPool& constantPool, std::vector<char>& result);
+  static void add_instance_of(const std::string& class_name, ConstantPool& constantPool, std::vector<char>& result);
+  static void add_type_check(const std::string& class_name, ConstantPool& constantPool, std::vector<char>& result);
+  static void add_throw_exception(const std::string& class_name, ConstantPool& constantPool, std::vector<char>& result);
 private:
   /**
    * Nur statische Methoden.
@@ -51,7 +55,10 @@ public:
   static const char IMULT;
   static const char IDIV;
   static const char IREM;
-
+  static const char INSTANCE_OF;
+  static const char ATHROW;
+  static const char IFEQ;
+  static const char IFNE;
 };
 
 void output_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
