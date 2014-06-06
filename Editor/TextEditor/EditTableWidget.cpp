@@ -256,7 +256,7 @@ void EditTableWidget::applyStyleChanges(Stack *stack)
     Stack *tmp;
     while((tmp = stack->pop()) != NULL)
     {
-        setSignStyle(stack->getY(), stack->getY(), stack->getColor());
+        setSignStyle(tmp->getY(), tmp->getX(), tmp->getColor());
 
         delete tmp;
     }

@@ -5,7 +5,7 @@
 class Stack{
 
 	private:
-	Stack *next, *parent;
+    Stack *next;
 	int count;
 	int x,y;
 	char sign;
@@ -14,21 +14,18 @@ class Stack{
 	public:
 	Stack(void){
         next = NULL;
-        parent = NULL;
 	}
-	Stack(int x, int y,char sign,int color,Stack *parent){
+    Stack(int x, int y,char sign,int color,Stack *next){
 		this->x = x;
 		this->y = y;
 		this->sign = sign;
-		this->color = color;
-		this->parent = parent;
-        next = NULL;
+        this->color = color;
+        this->next = next;
 	}
-	~Stack(void){
-        if(next != NULL)delete next;
+    ~Stack(void){
 	}
 	void push(int x,int y,char sign, int color){
-		this->next = new Stack(x,y,sign,color,this);
+        this->next = new Stack(x,y,sign,color,next);
 	}
 	Stack* pop(void){
 		Stack *tmp;
