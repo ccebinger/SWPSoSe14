@@ -16,16 +16,20 @@ class Graph_Interface{
 	private:
 	Point *root, *tmp;
 	Stack *undo;
+    DoubleCheck *check;
 	
 
 	public:
 	Graph_Interface(){
         root = new Point(0,0);
 		undo = new Stack();
+        check = new DoubleCheck();
 	}
+    // dont use clone at the moment not safe;
 	Graph_Interface(Point* root){
 		this->root = root;
 		undo = new Stack();
+        check = new DoubleCheck();
 	}
 	private:
     Stack* setSignIntern(int x,int y, char sign){
@@ -42,8 +46,11 @@ class Graph_Interface{
         InternStack* change = new InternStack();
         do{
         tmp->makeCons(change);
-        retStack->push(tmp->getRow(),tmp->getCol(),tmp->getSign(), tmp->getStyle());
+        check->add(tmp);
         }while((tmp = change->pop()) != NULL);
+        while((tmp = check->get()) != NULL){
+            retStack->push(tmp->getRow(),tmp->getCol(),tmp->getSign(), tmp->getStyle());
+        }
         return retStack;
 	}
 	public:

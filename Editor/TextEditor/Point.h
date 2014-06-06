@@ -243,9 +243,8 @@ public:
         else if (!start && (connections & this->start) && (sign != '$')) {
             this->start = this->start & (~connections);
         }
-        if(this->start != old){
+        if(!((bool)(this->start&muster) == (bool)(old&muster))){
             change->push(this);
-            color = 0xFF000000;
         }
 	}
 	void testConnections(void){
@@ -308,14 +307,14 @@ public:
     void makeCons(InternStack *change){
         if(start&muster) makeColor();
         else color = 0xFF000000;
-        if(bCons & 128)cons[0]->setConnections(1,(muster&128)?true:false,change,(((~128) & start) && (start & muster) && (muster & 128))?1:0);
-        if(bCons & 64)cons[1]->setConnections(2,(muster&64)?true:false,change,(((~64) & start) && (start & muster) && (muster & 64))?2:0);
-        if(bCons & 32)cons[2]->setConnections(4,(muster&32)?true:false,change,(((~32) & start) && (start & muster) && (muster & 32))?4:0);
-        if(bCons & 16)cons[3]->setConnections(8,(muster&16)?true:false,change,(((~16) & start) && (start & muster) && (muster & 16))?8:0);
-        if(bCons & 8)cons[4]->setConnections(16,(muster&8)?true:false,change,(((~8) & start) && (start & muster) && (muster & 8))?16:0);
-        if(bCons & 4)cons[5]->setConnections(32,(muster&4)?true:false,change,(((~4) & start) && (start & muster) && (muster & 4))?32:0);
-        if(bCons & 2)cons[6]->setConnections(64,(muster&2)?true:false,change,(((~2) & start) && (start & muster) && (muster & 2))?64:0);
-        if(bCons & 1)cons[7]->setConnections(128,(muster&1)?true:false,change,(((~1) & start) && (start & muster) && (muster & 1))?128:0);
+        if(bCons & 128)cons[0]->setConnections(1,(muster&128)?true:false,change,(((~128) & start & muster) && (muster & 128))?1:0);
+        if(bCons & 64)cons[1]->setConnections(2,(muster&64)?true:false,change,(((~64) & start & muster) && (muster & 64))?2:0);
+        if(bCons & 32)cons[2]->setConnections(4,(muster&32)?true:false,change,(((~32) & start & muster) && (muster & 32))?4:0);
+        if(bCons & 16)cons[3]->setConnections(8,(muster&16)?true:false,change,(((~16) & start & muster) && (muster & 16))?8:0);
+        if(bCons & 8)cons[4]->setConnections(16,(muster&8)?true:false,change,(((~8) & start & muster) && (muster & 8))?16:0);
+        if(bCons & 4)cons[5]->setConnections(32,(muster&4)?true:false,change,(((~4) & start & muster) && (muster & 4))?32:0);
+        if(bCons & 2)cons[6]->setConnections(64,(muster&2)?true:false,change,(((~2) & start & muster) && (muster & 2))?64:0);
+        if(bCons & 1)cons[7]->setConnections(128,(muster&1)?true:false,change,(((~1) & start & muster) && (muster & 1))?128:0);
 	}
     int getRow(void){
         return x;
