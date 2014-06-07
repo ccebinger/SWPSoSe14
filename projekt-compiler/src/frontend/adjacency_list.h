@@ -3,6 +3,7 @@
 
 #include <iterator>
 #include <iostream>
+#include <map>
 #include <common/ast/ast.h>
 
 /**
@@ -22,6 +23,11 @@ class Adjacency_list : public Graph {
   * Represents a type of const std::string, named str.
   */
   typedef const std::string str;
+
+ /**
+  * Represents the type of map with std::string as key and Grahp::Variable_Type as value.
+  */
+  typedef std::map<std::string, Graph::Variable_Type> Variable_Map;
  /**
   * The name of the ASG, respectively of the Rail function.
   */
@@ -30,6 +36,11 @@ class Adjacency_list : public Graph {
   * The nodes of the ASG, respectively the commands of the corresponding Rail function.
   */
   NODES nodes;
+
+ /**
+  * The symbol table which contains the variable declarations for the current graph (Rail function).
+  */
+  Variable_Map symbol_table;
  public:
  /**
   * The ctor of the adjacency list, which gets the name of the Rail function.
@@ -66,6 +77,9 @@ class Adjacency_list : public Graph {
   virtual std::size_t nodeCount() const;
   virtual std::shared_ptr<Node> find(int id) const;
 	virtual std::string name() const;
+	virtual void putVariable(const std::string& identifier);
+	virtual void putVariable(const std::string& identifier, Variable_Type type);
+	virtual Variable_Type getVariable(const std::string& identifier);
 };
 
 #endif /* ADJACENCY_LIST_H */

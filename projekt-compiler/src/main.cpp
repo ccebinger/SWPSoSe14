@@ -2,13 +2,15 @@
 #include <string.h>
 //#include <sys/types.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 
-#include <frontend/parse/lexer.h>
-#include <frontend/Parser.h>
+#include <common/Status.h>
+#include <frontend/lexer/Lexer.h>
+#include <frontend/parser/Parser.h>
 #include <frontend/Graphs.h>
 #include <frontend/Parse_Exception.h>
-#include <unistd.h>
+#include <backend/backend.h>
 
 
 
@@ -24,13 +26,17 @@ int main(int argc, char *argv[]) {
 
 	// Ensure existence of folder io
 	if(access("io", F_OK) == -1) {
-		if(mkdir("io", 0777) == -1) {
+#ifdef _WIN32
+		int rMkdir = mkdir("io");
+#else
+		int rMkdir = mkdir("io", 0777);
+#endif
+		if(rMkdir == -1) {
 			IO_Exception ie;
 			ie.set_file("io");
 			throw ie;
 		}
 	}
-
 
 
 	string srcFile = "";
@@ -103,34 +109,35 @@ int main(int argc, char *argv[]) {
 		// Lexer
 		Lexer lexer;
 		lexer.lex(srcFile);
-		RailFunction func = lexer.functions.at(0); //FIXME hardcoded number of functions
-
-
-		// "Parser"
-		BoardContainer board{func.code, MAX_CHARS_PER_LINE, MAX_LINES_PER_FUNCTION};
-		Parser p(board, func.getName());
-		shared_ptr<Adjacency_list> asg = p.parseGraph();
-		if(asg == NULL) {
-			Parse_Exception pe;
-			pe.set_msg(p.errorMessage);
-			throw pe;
+		if(lexer.functions.size() == 0) {
+			//FIXME error handling -> Exception
+			std::cout << "No Rail Functions found in " << srcFile << std::endl;
+			return -1;
 		}
 
-		// Create Graphs
-		graphs.put(func.getName(), asg);
+		// Parser
+		for(auto it=lexer.functions.begin(); it < lexer.functions.end(); ++it) {
+			Parser p(*it);
+			shared_ptr<Adjacency_list> asg = p.parseGraph();
+			if(asg == NULL) {
+				//FIXME error handling!
+				Parse_Exception pe;
+				pe.set_msg(p.errorMessage);
+				throw pe;
+			}
+			graphs.put((*it)->getName(), asg);
+		}
+
+
 	}
 	else {
 		cerr << "No source specified. Use either -i <file> or -d <file>." << endl;
 	}
 
 
-
-
-
-
 	// Serialize
 	if(dstSerialize != "") {
-		graphs.marshall(dstSerialize);
+		graphs.marshall(dstSerialize, ';');
 	}
 
 
@@ -139,12 +146,15 @@ int main(int argc, char *argv[]) {
 		graphs.writeGraphViz(dstGraphviz);
 	}
 
+
+
 	// ------------------------------------------------------------------------
 	// BACKEND
 	// ------------------------------------------------------------------------
-
-
-
+	// TODO this is just a mockup...
+	cout << "--- Begin Backend ------------------------------------------------" << endl;
+	ofstream outFile("io/out.class", std::ofstream::binary);
+	Backend::Generate(graphs, outFile);
 
 	return 0;
 }

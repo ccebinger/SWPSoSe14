@@ -1,0 +1,29 @@
+$ 'main' (--):
+ \
+  \
+   \
+    \
+     \           
+      \        /-----\
+       \       |     |
+        \      |     |
+         \     \     |
+          \----------/ --------#
+
+
+
+
+Wie sollte am Besten eine Endlosschleife gelöst werden? 
+Idee:
+
+- für Pfade mit Knoten: 
+einfach Knoten betrachten, ob bereits besucht.Wenn ja, dann ist eine Schleife vorhanden.
+
+- für Pfade ohen Knoten (nur Gleise):
+Position(Koordinaten) und die Richtung merken. Wenn man wieder auf die selben Daten stößt, 
+weiß man, dass dieses Gleis bereits geparst wurde. 
+
+Nachteil: Jedes Gleis und ihre Position muss gespeichert werden
+
+- Alternative: Anzahl Zeichen Speichern. Und wenn Anzahl der geparsten Zeichen Parsten Zeichen 
+länger als die Anzahl aller Zeichen ist, weiß man dass dort eine Endlosschleife vorhanden ist. 

@@ -19,33 +19,42 @@ struct Command {
    * E.g. o -> 111 or a -> 97, thats makes the mapping much easier.
    */
 	enum Type {
-		PUSH_CONST = 0, /**< 0-9 or [...] */
-		CALL = 1, /**< {FUNC} */
-		OUTPUT = 111, /**< o */
-		ADD = 97, /**< a */
-		SUB = 115,  /**< s */
-		MULT = 109, /**< m */
-		DIV = 100, /**<  d */
-		MOD = 114, /**<  r */
-		CUT = 99, /**<  c */
-		APPEND = 112,/**< p */
-		SIZE = 122,/**< z */
-		NIL = 110,/**< n */
-		LIST_CONS = 58,/**< : */
-		LIST_BREAKUP = 126, /**< ~ */
-		FALSE = 102,/**< f */
-		GREATER = 103,/**< g */
-		EQUAL = 113, /**< q */
-		TRUE = 116,/**< t */
-		REFLECTOR = 64,/**< @ */
-		START =  36,/**< $ */
-		FINISH = 35,/**< \# */
-		LAMBDA = 38,/**< &amp; */
-		BOOM = 98,/**< b */
-		EOF_CHECK = 101,/**< e */
-		INPUT = 105,/**< i */
-		UNDERFLOW_CHECK = 117,/**< u */
-		TYPE_CHECK = 63,/**< ? */
+		PUSH_CONST		= 0,	/**< t,f, 0-9 or [...] */
+		CALL			= 1,	/**< {FUNC} */
+		OUTPUT			= 111,	/**< o */
+		ADD				= 97,	/**< a */
+		SUB				= 115,	/**< s */
+		MULT			= 109,	/**< m */
+		DIV				= 100,	/**<  d */
+		MOD				= 114,	/**<  r */
+		CUT				= 99,	/**<  c */
+		APPEND			= 112,	/**< p */
+		SIZE			= 122,	/**< z */
+		NIL				= 110,	/**< n */
+		LIST_CONS		= 58,	/**< : */
+		LIST_BREAKUP	= 126,	/**< ~ */
+		FALSE			= 102,	/**< f */
+		GREATER			= 103,	/**< g */
+		EQUAL			= 113,	/**< q */
+		TRUE			= 116,	/**< t */
+		REFLECTOR		= 64,	/**< @ */
+		START			= 36,	/**< $ */
+		FINISH			= 35,	/**< \# */
+		LAMBDA			= 38,	/**< &amp; */
+		BOOM			= 98,	/**< b */
+		EOF_CHECK		= 101,	/**< e */
+		INPUT			= 105,	/**< i */
+		UNDERFLOW_CHECK	= 117,	/**< u */
+		TYPE_CHECK		= 63,	/**< ? */
+		EASTJUNC		= 60,	/**<*/
+		WESTJUNC		= 62,	/**>*/
+		NORTHJUNC		= 118,	/**v*/
+		SOUTHJUNC		= 94,	/**^*/
+
+		//FIXME those won't work with unmarshall by default
+		VAR_PUSH		= 2,
+		VAR_POP			= 3,
+
 	};
  /**
   * The type of the Rail command.
@@ -189,6 +198,37 @@ public:
 	 * @return      the name of the ASG
    */
 	virtual std::string name() const = 0;
+
+ /**
+  * The existing types for the Variables of an Rail program.
+  */
+	enum Variable_Type
+	{
+	  INTEGER,
+	  STRING
+	};
+
+ /**
+	* Puts an variable identifier to the symbol table of the graph.
+	* The variable type is per default Variable_Type::String.
+	* @param identifier       the identifier of the variable
+	*/
+	virtual void putVariable(const std::string& identifier) = 0;
+ /**
+	* Puts an variable identifier with his given type to the symbol table of the graph.
+	*
+	* @param identifier       the identifier of the variable
+	* @param type             the type of the variable
+	*/
+	virtual void putVariable(const std::string& identifier, Variable_Type type) = 0;
+
+ /**
+	* Returns the type of the requested variable, if the variable
+	* with the given identifier not exists a exception will be thrown.
+	* @param identifier         the identifier of the searched variable
+	* @return                   the type of the searched variable
+	*/
+	virtual Variable_Type getVariable(const std::string& identifier) = 0;
 };
 
 #endif /* AST_H_ */

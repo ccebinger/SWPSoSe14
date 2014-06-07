@@ -20,20 +20,143 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include <sstream>
 #include <iostream>
 
-int main(int argc, char** argv) {
+using namespace std;
+unsigned int cp_offset = 0;
+
+bool testConstructor() {
   ConstantPool cp;
-  std::ostringstream os;
+  auto listInit = cp.getByteArray();
+  cp_offset = listInit.size();
+  cp.addClassRef("java/lang/system");
+  cp.addFieldRef("java.lang.system.out");
+  cp.addMethRef("Java.io.printStream.println");
+  cp.addMethRef("Main.java");
 
-  cp.addInt(32);
-  std::vector<uint8_t> list = cp.getByteArray();
-  std::string str;
+  auto listChange = cp.getByteArray();
 
+  cout << "[INFO] " << "test add constant: "<< listInit.size()
+       << "/" << listChange.size() << endl;
+
+  cout << "ClassRef: " << cp.countItemType(CLASS) << endl;
+  cout << "MethodRef: : " << cp.countItemType(METHOD) << endl;
+  return (listChange.size() == listInit.size() && listInit.size() > 0);
+}
+
+bool testAddClassReference() {
+  /*
+    dont know, what to test here 
+  */
+  ConstantPool cp;
+  return false;
+}
+
+/*
+ *  1)	Byte
+ *			got obsolete, due addByte is not implemented anymore…
+ *  2)
+ */
+bool testAddInt() {
+  /*
+  confused, addInt has no effects anymore
+	same troubles as with addInt
+  */
+  ConstantPool cp;
+  
+	cp.addInt(0xcafebabe);
+  cp.addInt(0xdeadbeef);
+
+	auto list = cp.getByteArray();
   auto iter = list.begin();
-  for (; iter!= list.end(); iter++) {
-    str+=static_cast<char>(*iter);
+
+  bool passed = true;
+
+  string str;
+  char bakval = static_cast<char>(*iter++);;
+  for (; iter != list.end(); iter++) {
+    char val = static_cast<char>(*iter);
+    str += val;
+    if (!(val > bakval)) {
+      //cout << val;
+      passed = false;
+    }
+    bakval = val;
+  }
+  cout << "[INFO] constant pool string " << str << endl;
+  return passed;
+}
+
+/*
+ *  4)	String
+ *
+ */
+bool testAddString() {
+
+	// initialisiere cases
+	std::vector<string> cases = {"Clemens", "Maurice", "Paul", "Till",
+															"Leon", "Miro", "Jonas", "Sandra",
+															"Christopher", "Sascha" ,"Vincent", "ACME", 
+															"TertiumNonDatur", "Kellerspeicher", "UniverseOfDiscourse", "SeparationOfConcerns",
+															"kontextfrei", "links-regulaer", "comma-separated-values", "\r\n\t\t\tFUB"};
+	
+
+
+  ConstantPool cp;
+	auto list = cp.getByteArray();
+	int off = list.size();
+	
+	for(auto zeiger=cases.begin(); zeiger!=cases.end(); zeiger++) {
+		cp.addString((*zeiger));
+	}
+	
+	
+	list = cp.getByteArray();
+  auto iter = list.begin()+off;
+
+  bool passed = true;
+
+ string str;
+//for (; iter != list.end(); iter++) {
+//    char val = static_cast<char>(*iter);
+//  str += val;
+//}
+  
+	for(auto zeiger=cases.begin(); zeiger!=cases.end(); zeiger++) {
+		string in =  *zeiger; 
+		string out;
+		int l = (*zeiger).length();
+		int i = 0;
+		for(; i<l; i++) {
+			char val = static_cast<char>(*(iter++));
+			out += val;
+	  }	
+		cout << in << "vs." << out << " [" << i << " / " << l << "] " << endl;
+		str+=out;
+	}
+	
+	
+	cout << "[INFO] constant pool string " << str << endl; 
+
+  return passed;
+}
+
+int main(int argc, char** argv) {
+  if (!testConstructor()) {
+    cerr << "[ERROR] " << "testConstructor failed all system off, everything falls apart ... boom" << endl;
   }
 
-  std::cout << "test: " << str << ", length: " << list.size() << std::endl;
+/*  if (!testAddClassReference()) {
+    cerr << "[ERROR] " << "testAddClassReference failed all system off, everything falls apart ... boom" << endl;
+  } */
+
+
+
+  if (!testAddInt()) {
+    cerr << "[ERROR] " << "testAddInt failed all system off, everything falls apart ... boom" << endl;
+	}
+
+ if (!testAddString()) {
+    cout << "[ERROR] " << "testAddString failed all system off, everything falls apart ... boom" << endl;
+  }
 }
 
 #endif

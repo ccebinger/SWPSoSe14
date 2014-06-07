@@ -1,0 +1,15 @@
+Interessantes zu Junktion:
+- keines der Junktions ('<', '>', '^' und 'v') kann als Rails genutzt werden 
+- falls ein Gleis nicht zum spitzem Ende der Funktion führen sollte, crasht der Interpreter 
+immer und gibt die Fehlermeldung "Type missmatch" zurück 
+- das heißt es liegt nicht an falsch gesetzten Gleisen, sondern daran, dass die Junktions als 'ifs' 
+interpretiert werden.
+
+- Es ist auch nicht möglich mit einem Reflektor (@) zurück in die Funktion zu fahren.
+- Bei der Junktion 'v' wird vom Interpreter nur 'v' und nicht das große 'V' akzeptiert. Daraus folgt ebenfalls 
+die Fehlermeldung vom "Type missmatch"
+
+- Auf der Esolang-Seite zu Rail steht zwar, dass nach einer Junktion immer min. ein Gleis folgen muss, jedoch 
+akzeptiert der Interpreter auch Eingaben, wo kein Gleis unmittelbar nach der Funktion folgt. Es wurde beschlossen 
+sich am eher am Interpreter zu orientieren. 
+

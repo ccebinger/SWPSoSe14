@@ -45,7 +45,7 @@ Graphs::Graph_map::iterator Graphs::end()
   return graphs.end();
 }
 
-void Graphs::marshall(Graphs::str file) {
+void Graphs::marshall(Graphs::str file, char delimiter) {
 
 	// [function name]
 	// id ; cmd ; adj1 (true,default) ; adj2 (false, not present)
@@ -65,7 +65,7 @@ void Graphs::marshall(Graphs::str file) {
 	for(it = this->graphs.begin(); it != this->graphs.end(); ++it) {
 		Graph_ptr gp = it->second;
 		std::size_t count = gp->nodeCount();
-		std::cout << "\t" << count << " nodes" << std::endl;
+		std::cout << "\t'" << it->first << "': " << count << " nodes" << std::endl;
 
 		// Function name
 		ofh << "[" << it->first <<"]" << std::endl;
@@ -79,23 +79,23 @@ void Graphs::marshall(Graphs::str file) {
 			}
 
 			// id ; Command
-			ofh << node->id << ";" << node->command.arg;
+			ofh << node->id << delimiter << node->command.arg;
 
 			// Adjacency list
 			if(node->successor1) {
-				ofh << ";" << node->successor1->id;
+				ofh << delimiter << node->successor1->id;
 			}
 			else {
 				// Error state for Haskell-Group
-				ofh << ";0";
+				ofh << delimiter << "0";
 			}
 
 			if(node->successor2) {
-				ofh << ";" << node->successor2->id;
+				ofh << delimiter << node->successor2->id;
 			}
 			else {
 				// Error state for Haskell-Group
-				ofh << ";0";
+				ofh << delimiter << "0";
 			}
 
 			ofh << std::endl;
@@ -225,9 +225,11 @@ Command Graphs::getCommand(std::string& cmd)
     else
       c.type = static_cast<Command::Type>(cmd[0]);
   } else if (containsBeginAndEndChar(cmd, '[', ']') ||
-             containsBeginAndEndChar(cmd, '{', '}'))
+             containsBeginAndEndChar(cmd, '{', '}') ||
+             containsBeginAndEndChar(cmd, ']', '[') ||
+             containsBeginAndEndChar(cmd, '}', '{'))
   {
-    if (cmd[0] == '[')
+    if (cmd[0] == '[' || cmd[0] == ']')
       c.type = Command::Type::PUSH_CONST;
     else
       c.type = Command::Type::CALL;
@@ -279,17 +281,22 @@ void Graphs::writeGraphViz(Graphs::str file) {
 	fh << std::endl;
 
 
+	// ------------------------------------------------------------------------------------------
 	// Function
+	// ------------------------------------------------------------------------------------------
+	// id + gs = unique id
+	uint32_t gs = 0;
 	std::map<std::string, Graph_ptr>::iterator it;
 	for(it = this->graphs.begin(); it != this->graphs.end(); ++it) {
 		Graph_ptr gp = it->second;
 		std::size_t count = gp->nodeCount();
 
 		// Function name
-		fh << std::endl << "\tfunc" << it->first << " [shape=\"invhouse\",fillcolor=\"none\",label=\"Function " << it->first << "\"]";
+		fh << std::endl << "\tfunc_" << it->first << " [shape=\"invhouse\",fillcolor=\"none\",label=\"'" << it->first << "'\"]";
 
 		// Function -> first node
-		fh << std::endl << "\tfunc" << it->first << " -> 1";
+
+		fh << std::endl << "\tfunc_" << it->first << " -> " << (gs == 0 ? 1 : gs+1);
 
 
 		// Nodes
@@ -300,27 +307,119 @@ void Graphs::writeGraphViz(Graphs::str file) {
 			}
 
 			// Node
-			//FIXME command-based node shapes
-			fh << std::endl << "\t" << node->id << " [label=\"" << node->command.arg << "\"]";
+			fh << std::endl << "\t" << node->id+gs << " " << gvGetNodeStyles(node);
+
+			// Function calls: Node -> Function
+			if(node->command.type == Command::Type::CALL) {
+				std::string funcName = node->command.arg.substr(1, node->command.arg.length()-2);
+				fh << std::endl << "\t" << node->id+gs << " -> func_" << funcName << " [label=\"CALL\",style=dotted]";
+			}
+
 
 			// Edges
 			if(node->successor1) {
-				fh << std::endl << "\t" << node->id << " -> " << node->successor1->id;
+				fh << std::endl << "\t" << node->id+gs << " -> " << node->successor1->id+gs;
 				fh << (node->successor1 && node->successor2 ? " [label=\"true\"]" : "");
 			}
 			if(node->successor2) {
-				fh << std::endl << "\t" << node->id << " -> " << node->successor2->id;
+				fh << std::endl << "\t" << node->id+gs << " -> " << node->successor2->id+gs;
 				fh << (node->successor1 && node->successor2 ? " [label=\"false\"]" : "");
 			}
 		}
+
+
+		gs += count;
 	}
 
 	fh << std::endl << "}";
-
 	fh.close();
 
 	std::cout << "done..." << std::endl;
 }
+
+
+
+std::string Graphs::gvGetNodeStyles(std::shared_ptr<Node> node) const {
+
+	//FIXME command-based node style - requires a good testfile
+	bool useLabel = true;
+	std::string shape = "";
+	std::string fillColor = "";
+	switch(node->command.type) {
+
+		// Rail
+		case Command::Type::START:				shape="plaintext"; break;
+		case Command::Type::FINISH:				shape="house"; fillColor="none"; break;
+		case Command::Type::BOOM:				useLabel=false; shape="proteasesite"; break;
+		case Command::Type::REFLECTOR:			break;
+		case Command::Type::LAMBDA:				break;
+		case Command::Type::CALL:				shape="diamond"; break;
+
+
+		// Stack
+		case Command::Type::PUSH_CONST:			shape="signature"; break;
+		case Command::Type::TRUE:				shape="signature"; fillColor="green"; break;
+		case Command::Type::FALSE:				shape="signature"; fillColor="red"; break;
+
+
+		// IO
+		case Command::Type::INPUT:				shape="larrow"; break;
+		case Command::Type::OUTPUT:				shape="rarrow"; break;
+
+		// List
+		case Command::Type::APPEND:				break;
+		case Command::Type::CUT:				break;
+		case Command::Type::LIST_BREAKUP:		break;
+		case Command::Type::LIST_CONS:			break;
+		case Command::Type::NIL:				break;
+		case Command::Type::SIZE:				break;
+
+
+
+		// Math
+		case Command::Type::ADD:
+		case Command::Type::DIV:
+		case Command::Type::MOD:
+		case Command::Type::MULT:
+		case Command::Type::SUB:				shape="note"; break;
+
+		// Compare
+		case Command::Type::EQUAL:				break;
+		case Command::Type::GREATER:			break;
+		case Command::Type::EOF_CHECK:			shape="assembly"; break;
+		case Command::Type::TYPE_CHECK:			break;
+		case Command::Type::UNDERFLOW_CHECK:	break;
+
+		// Junction
+		case Command::Type::EASTJUNC:
+		case Command::Type::NORTHJUNC:
+		case Command::Type::SOUTHJUNC:
+		case Command::Type::WESTJUNC:			shape="triangle"; break;
+
+		default: break;
+	}
+
+
+
+	std::string style = "[";
+
+	style += "label=\"" + (useLabel ? node->command.arg : "") + "\"";
+
+	if(shape != "") {
+		style += ",shape=" + shape;
+	}
+
+	if(fillColor != "") {
+		style += ",fillcolor=" + fillColor;
+	}
+
+
+	style += "]";
+
+	//std::cout << "NODE STYLE: " << style << std::endl;
+	return style;
+}
+
 
 
 
