@@ -5,6 +5,7 @@
 #include <unistd.h>
 
 
+#include <common/Status.h>
 #include <frontend/lexer/Lexer.h>
 #include <frontend/parser/Parser.h>
 #include <frontend/Graphs.h>

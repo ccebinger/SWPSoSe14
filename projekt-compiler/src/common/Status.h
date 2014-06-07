@@ -9,9 +9,10 @@
 #define STATUS_H_
 
 #include <vector>
+#include <sstream>
 
 
-enum Source : std::string {
+enum Source {
 	FRONTEND,
 	FRONTEND_LEXER,
 	FRONTEND_PARSER,
@@ -78,14 +79,16 @@ public:
 private:
 
 	inline std::string getLineString(int32_t line=-1, int32_t pos=-1) const {
+		std::stringstream s;
 		if(line >= 0 && pos >= 0) {
-			return "[@ " + line + "," + pos + "]";
+			s << "[@ " << line << "," << pos << "]";
+
 		}
-		return "";
+		return s.str();
 	}
 
 	inline std::string source2String(Source src) const {
-		switch(Source) {
+		switch(src) {
 			case FRONTEND:                  return "fe    ";
 			case FRONTEND_LEXER:            return "fe-l  ";
 			case FRONTEND_PARSER:           return "fe-p  ";
