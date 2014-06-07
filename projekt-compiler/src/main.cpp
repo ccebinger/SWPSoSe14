@@ -116,20 +116,6 @@ int main(int argc, char *argv[]) {
 		}
 
 		// Parser
-		/*
-		std::shared_ptr<RailFunction> func = lexer.functions.at(0); //FIXME hardcoded number of functions
-		Parser p(func);
-		shared_ptr<Adjacency_list> asg = p.parseGraph();
-		if(asg == NULL) {
-			Parse_Exception pe;
-			pe.set_msg(p.errorMessage);
-			throw pe;
-		}
-		graphs.put(func->getName(), asg);
-		*/
-
-
-		// Parser
 		for(auto it=lexer.functions.begin(); it < lexer.functions.end(); ++it) {
 			Parser p(*it);
 			shared_ptr<Adjacency_list> asg = p.parseGraph();
