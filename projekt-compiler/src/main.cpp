@@ -148,10 +148,6 @@ int main(int argc, char *argv[]) {
 	}
 
 
-
-
-
-
 	// Serialize
 	if(dstSerialize != "") {
 		graphs.marshall(dstSerialize, ';');
@@ -163,10 +159,11 @@ int main(int argc, char *argv[]) {
 		graphs.writeGraphViz(dstGraphviz);
 	}
 
+
+
 	// ------------------------------------------------------------------------
 	// BACKEND
 	// ------------------------------------------------------------------------
-
 	// TODO this is just a mockup...
 	cout << "--- Begin Backend ------------------------------------------------" << endl;
 	ofstream outFile;
