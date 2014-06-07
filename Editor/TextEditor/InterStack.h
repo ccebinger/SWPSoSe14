@@ -89,6 +89,14 @@ public:
         return h;}
         return NULL;
     }
+    void clear(void){
+        Node* tmp = first->getNext();
+        while(tmp != NULL){
+            first = tmp->getNext();
+            delete tmp;
+            tmp = first;
+        }
+    }
 };
 class DoubleCheck{
 private:
