@@ -82,8 +82,8 @@ void Lexer::lex(std::string srcFile) {
 				}
 				act->data.push_back(data);
 
-				if(act->width < utf8line.size()) {
-					act->width = utf8line.size();
+				if(act->width < (int32_t)utf8line.size()) {
+					act->width = (int32_t)utf8line.size();
 				}
 				act->height++;
 			}
