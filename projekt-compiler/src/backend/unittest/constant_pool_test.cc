@@ -60,13 +60,15 @@ bool testAddInt() {
   confused, addbyte has no effects anymore
   */
   ConstantPool cp;
-  
-	cp.addInt(0xcafebabe);
+
+  cp.addInt(0xcafebabe);
   cp.addInt(0xdeadbeef);
 
-	auto list = cp.getByteArray();
+  auto list = cp.getByteArray();
   auto iter = list.begin();
 
+  for (auto i = cp.items.begin(); i != cp.ends(); i++) {
+  }
   bool passed = true;
 
   string str;
@@ -113,7 +115,6 @@ bool testAddInt() {
  */
 bool testAddString() {
   ConstantPool cp;
-
 }
 
 int main(int argc, char** argv) {
@@ -125,18 +126,12 @@ int main(int argc, char** argv) {
     cerr << "[ERROR] " << "testAddClassReference failed all system off, everything falls apart ... boom" << endl;
   } */
 
-
   if (!testAddInt()) {
-
-/*  if (!testAddInt()) {
->>>>>>> ddcb2ed3ecd111ac67b4a3850b683486297125e7
     cerr << "[ERROR] " << "testAddInt failed all system off, everything falls apart ... boom" << endl;
-	}
-
+  }
 /*  if (!testAddString()) {
     cout << "[ERROR] " << "testAddString failed all system off, everything falls apart ... boom" << endl;
   }*/
-  }
 }
 
 #endif
