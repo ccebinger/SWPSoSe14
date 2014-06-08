@@ -15,6 +15,7 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 
 #include <backend/classfile/constant_pool.h>
 #include <algorithm>
+#include <iostream>
 
 ////////////////////////////////////////////////////////////////////////
 /// default constructor does nothing, bud is needed because we have other
@@ -66,8 +67,10 @@ bool Item::operator==(const Item& i)const {
       return i.strVal == strVal;
     case LONG:
       return i.longVal == longVal;
-    case INT:
+    case INT: {
+      std::cout << "i.int:"<< i.intVal<< "intval:"<< intVal <<"\n";
       return i.intVal == intVal;
+    }
     // case FIELD:
     // case METHOD:
     // case IMETHOD:
@@ -142,10 +145,12 @@ size_t ConstantPool::addInt(int32_t value) {
   size_t index = 0;
   i.set(value);
   if (!check(i)) {
+    std::cout << "new int\n";
     put2(INT);
     index = put(i);
     putInt(value);
   } else {
+    std::cout << "known int\n";
     index = get(i).index;
   }
   return index;

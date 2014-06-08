@@ -24,8 +24,8 @@ class RailFunction {
 
 private:
 	std::string name;
-	uint32_t width = 0;
-	uint32_t height = 0;
+	int32_t width = 0;
+	int32_t height = 0;
 
 	std::vector<std::vector<uint32_t>> data;
 
@@ -48,11 +48,11 @@ public:
 		return this->data;
 	}
 
-	inline uint32_t getWidth() {
+	inline int32_t getWidth() {
 		return this->width;
 	}
 
-	inline uint32_t getHeight() {
+	inline int32_t getHeight() {
 		return this->height;
 	}
 
