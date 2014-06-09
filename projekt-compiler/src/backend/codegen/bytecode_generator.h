@@ -4,7 +4,7 @@
 #include <backend/classfile/constant_pool.h>
 #include <common/ast/ast.h>
 #include <frontend/Graphs.h>
-
+#include <ios>
 #include <stdexcept>
 
 class BytecodeGenerator
@@ -12,6 +12,7 @@ class BytecodeGenerator
 public:
   static std::vector<char> GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
                                ConstantPool& constantPool);
+  static void add_conditional_with_instruction(char conditional_stmt, char* conditional_body, std::vector<char>& result);
   static void add_invoke_virtual(const std::string& method, ConstantPool& pool, std::vector<char>& code);
   static void add_static_field(const std::string& field, ConstantPool& pool, std::vector<char>& code);
   static void add_new_object(const std::string& class_name, ConstantPool& pool, std::vector<char>& code);
@@ -29,36 +30,40 @@ private:
   typedef void (*func_ptr) (ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
   static const std::map<Command::Type, func_ptr> CODE_FUNC_MAPPING;
 public:
-  static const char ILOAD_0;
-  static const char ILOAD_1;
-  static const char ILOAD_2;
-  static const char ICONST_0;
-  static const char ICONST_1;
-  static const char ISTORE_0;
-  static const char ISTORE_1;
-  static const char ISTORE_2;
-  static const char IF_ICMPLE;
-  static const char IF_ICMPNE;
-  static const char ALOAD_1;
-  static const char ALOAD_2;
-  static const char ASTORE_1;
-  static const char ASTORE_2;
-  static const char NEW;
-  static const char INVOKE_VIRTUAL;
-  static const char GET_STATIC;
-  static const char GOTO;
-  static const char RETURN ;
-  static const char LDC;
-  static const char DUP;
-  static const char IADD;
-  static const char ISUB;
-  static const char IMULT;
-  static const char IDIV;
-  static const char IREM;
-  static const char INSTANCE_OF;
-  static const char ATHROW;
-  static const char IFEQ;
-  static const char IFNE;
+
+
+  enum MNEMONIC {
+    ILOAD_0 = '\x1a',
+    ILOAD_1 = '\x1b',
+    ILOAD_2 = '\x1c',
+    ICONST_0 = '\x03',
+    ICONST_1 = '\x04',
+    ISTORE_0 = '\x3b',
+    ISTORE_1 = '\x3c',
+    ISTORE_2 = '\x3d',
+    IF_ICMPLE = '\xa4',
+    IF_ICMPNE = '\xa6',
+    ALOAD_1 = '\x2b',
+    ALOAD_2 = '\x2c',
+    ASTORE_1 = '\x4c',
+    ASTORE_2 = '\x4d',
+    NEW = '\xbb',
+    INVOKE_VIRTUAL = '\xb6',
+    GET_STATIC = '\xb2',
+    GOTO = '\xa7',
+    RETURN = '\xb1',
+    LDC = '\x12',
+    DUP = '\x59',
+    IADD = '\x60',
+    ISUB = '\x64',
+    IMULT = '\x68',
+    IDIV = '\x6c',
+    IREM = '\x70',
+    INSTANCE_OF = '\xc1',
+    ATHROW = '\xbf',
+    IFEQ = '\x99',
+    IFNE = '\x9a'
+  };
 };
 
 void output_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
