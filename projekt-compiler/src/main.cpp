@@ -153,8 +153,7 @@ int main(int argc, char *argv[]) {
 	// ------------------------------------------------------------------------
 	// TODO this is just a mockup...
 	cout << "--- Begin Backend ------------------------------------------------" << endl;
-	ofstream outFile;
-	outFile.open("io/out.class");
+	ofstream outFile("io/out.class", std::ofstream::binary);
 	Backend::Generate(graphs, outFile);
 
 	return 0;
