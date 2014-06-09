@@ -248,28 +248,27 @@ void false_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_pt
 }
 void greater_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
 {
+  /*
+  * TODO: typecheck missing (string, int)
+  * TODO: "jump-bytes" hard coded, should be replaced by Chris' if-function later
+  *        but actually not necessary, because in this case it is static
+  * The bytecode represents the following Java code: boolean c = (a > b);
+  */
+
   // store the two integers and load them to get the right order
   code.push_back(BytecodeGenerator::ISTORE_1);
   code.push_back(BytecodeGenerator::ISTORE_2);
   code.push_back(BytecodeGenerator::ILOAD_1);
   code.push_back(BytecodeGenerator::ILOAD_2);
 
+  // if false, jump to ICONST_0
   code.push_back(BytecodeGenerator::IF_ICMPLE);
-  /* FIXME:
-   * Couldn't really find out the meaning of the Hex 0x0007.
-   * Should be the label to jump for the IF_ICMPLE, but can't
-   * explain why it is always the same (Hex 0x0007).
-   */
   code.push_back('\x00');
   code.push_back('\x07');
   code.push_back(BytecodeGenerator::ICONST_1);
 
+  // jump after the ICONST_0
   code.push_back(BytecodeGenerator::GOTO);
-  /* FIXME:
-     * Couldn't really find out the meaning of the Hex 0x0004.
-     * Should be the label to jump for the GOTO, but can't
-     * explain why it is always the same (Hex 0x0004).
-     */
   code.push_back('\x00');
   code.push_back('\x04');
   code.push_back(BytecodeGenerator::ICONST_0);
@@ -277,30 +276,26 @@ void greater_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_
 void equal_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
 {
 /*
- * TODO: typecheck missing
+ * TODO: typecheck missing (string, list)
+ * TODO: "jump-bytes" hard coded, should be replaced by Chris' if-function later
+ *        but actually not necessary, because in this case it is static
+ * The bytecode represents the following Java code: boolean c = (a == b);
  */
-// store the two integers and load them to get the right order
+
+  // store the two integers and load them to get the right order
   code.push_back(BytecodeGenerator::ISTORE_1);
   code.push_back(BytecodeGenerator::ISTORE_2);
   code.push_back(BytecodeGenerator::ILOAD_1);
   code.push_back(BytecodeGenerator::ILOAD_2);
 
+  // if false, jump to ICONST_0
   code.push_back(BytecodeGenerator::IF_ICMPNE);
-  /* FIXME:
-   * Couldn't really find out the meaning of the Hex 0x0007.
-   * Should be the label to jump for the IF_ICMPNE, but can't
-   * explain why it is always the same (Hex 0x0007).
-   */
   code.push_back('\x00');
   code.push_back('\x07');
   code.push_back(BytecodeGenerator::ICONST_1);
 
+  // jump after the ICONST_0
   code.push_back(BytecodeGenerator::GOTO);
-  /* FIXME:
-	 * Couldn't really find out the meaning of the Hex 0x0004.
-	 * Should be the label to jump for the GOTO, but can't
-	 * explain why it is always the same (Hex 0x0004).
-	 */
   code.push_back('\x00');
   code.push_back('\x04');
   code.push_back(BytecodeGenerator::ICONST_0);
