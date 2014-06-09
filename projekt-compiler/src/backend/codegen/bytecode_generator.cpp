@@ -3,36 +3,6 @@
 
 
 
-const char BytecodeGenerator::ILOAD_0 = '\x1a';
-const char BytecodeGenerator::ILOAD_1 = '\x1b';
-const char BytecodeGenerator::ILOAD_2 = '\x1c';
-const char BytecodeGenerator::ICONST_0 = '\x03';
-const char BytecodeGenerator::ICONST_1 = '\x04';
-const char BytecodeGenerator::ISTORE_0 = '\x3b';
-const char BytecodeGenerator::ISTORE_1 = '\x3c';
-const char BytecodeGenerator::ISTORE_2 = '\x3d';
-const char BytecodeGenerator::IF_ICMPLE = '\xa4';
-const char BytecodeGenerator::IF_ICMPNE = '\xa6';
-const char BytecodeGenerator::ALOAD_1 = '\x2b';
-const char BytecodeGenerator::ALOAD_2 = '\x2c';
-const char BytecodeGenerator::ASTORE_1 = '\x4c';
-const char BytecodeGenerator::ASTORE_2 = '\x4d';
-const char BytecodeGenerator::NEW = '\xbb';
-const char BytecodeGenerator::INVOKE_VIRTUAL = '\xb6';
-const char BytecodeGenerator::GET_STATIC = '\xb2';
-const char BytecodeGenerator::GOTO = '\xa7';
-const char BytecodeGenerator::RETURN = '\xb1';
-const char BytecodeGenerator::LDC = '\x12';
-const char BytecodeGenerator::DUP = '\x59';
-const char BytecodeGenerator::IADD = '\x60';
-const char BytecodeGenerator::ISUB = '\x64';
-const char BytecodeGenerator::IMULT = '\x68';
-const char BytecodeGenerator::IDIV = '\x6c';
-const char BytecodeGenerator::IREM = '\x70';
-const char BytecodeGenerator::INSTANCE_OF = '\xc1';
-const char BytecodeGenerator::ATHROW = '\xbf';
-const char BytecodeGenerator::IFEQ = '\x99';
-const char BytecodeGenerator::IFNE = '\x9a';
 const std::map<Command::Type, BytecodeGenerator::func_ptr> BytecodeGenerator::CODE_FUNC_MAPPING =
 {
   {Command::Type::OUTPUT, &output_ByteCode},
@@ -71,10 +41,11 @@ const std::map<Command::Type, BytecodeGenerator::func_ptr> BytecodeGenerator::CO
 void BytecodeGenerator::add_conditional_with_instruction(char conditional_stmt, char* conditional_body, std::vector<char>& result)
 {
   int length = sizeof conditional_body / sizeof conditional_body[0];
+  int length_plus_branch = length + 2;
   std::stringstream sstream;
   sstream.fill('\x0');
   sstream.width(4);
-  sstream << std::hex << length;
+  sstream << std::hex << length_plus_branch;
   std::string branch = sstream.str();
 
   result.push_back(conditional_stmt);
@@ -125,10 +96,11 @@ void BytecodeGenerator::add_instance_of(const std::string& class_name, ConstantP
 void BytecodeGenerator::add_type_check(const std::string& class_name, ConstantPool& constantPool, std::vector<char>& result)
 {
   add_instance_of(class_name, constantPool, result);
-  result.push_back(BytecodeGenerator::IFNE);
-  //add_index()  TODO ADD index for if eq branch to jump after throw statement
-  add_throw_exception("java/lang/IllegalArgumentException", constantPool, result);
-  //jump here
+
+  std::vector<char> body;
+  add_throw_exception("java/lang/IllegalArgumentException", constantPool, body);
+
+  add_conditional_with_instruction(BytecodeGenerator::IFNE, &body[0], result);
 }
 
 void BytecodeGenerator::add_throw_exception(const std::string& class_name, ConstantPool& constantPool, std::vector<char>& result)
