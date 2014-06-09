@@ -4,7 +4,7 @@
 #include <backend/classfile/constant_pool.h>
 #include <common/ast/ast.h>
 #include <frontend/Graphs.h>
-
+#include <ios>
 #include <stdexcept>
 
 class BytecodeGenerator
@@ -12,6 +12,7 @@ class BytecodeGenerator
 public:
   static std::vector<char> GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
                                ConstantPool& constantPool);
+  static void add_conditional_with_instruction(char conditional_stmt, char* conditional_body, std::vector<char>& result);
   static void add_invoke_virtual(const std::string& method, ConstantPool& pool, std::vector<char>& code);
   static void add_static_field(const std::string& field, ConstantPool& pool, std::vector<char>& code);
   static void add_new_object(const std::string& class_name, ConstantPool& pool, std::vector<char>& code);

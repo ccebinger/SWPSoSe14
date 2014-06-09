@@ -68,6 +68,26 @@ const std::map<Command::Type, BytecodeGenerator::func_ptr> BytecodeGenerator::CO
   {Command::Type::SOUTHJUNC, &if_or_while_ByteCode}
 };
 
+void BytecodeGenerator::add_conditional_with_instruction(char conditional_stmt, char* conditional_body, std::vector<char>& result)
+{
+  int length = sizeof conditional_body / sizeof conditional_body[0];
+  std::stringstream sstream;
+  sstream.fill('\x0');
+  sstream.width(4);
+  sstream << std::hex << length;
+  std::string branch = sstream.str();
+
+  result.push_back(conditional_stmt);
+  for (int i = 0; i < 4; i++)
+    result.push_back(branch.at(i));
+  for (int i = 0; i < length; i++)
+  {
+    result.push_back(conditional_body[i]);
+  }
+
+}
+
+
 void BytecodeGenerator::add_invoke_virtual(const std::string& method, ConstantPool& constantPool, std::vector<char>& result)
 {
   result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
