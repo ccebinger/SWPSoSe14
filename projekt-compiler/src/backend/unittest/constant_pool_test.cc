@@ -55,38 +55,33 @@ bool testAddClassReference() {
  *			got obsolete, due addByte is not implemented anymore…
  *  2)
  */
-bool testAddInt() {
-  /*
-    confused, addInt has no effects anymore
-    same troubles as with addInt
-  */
-  ConstantPool cp;
+struct ConstantPoolTest:public ConstantPool{
+  bool testAddInt() {
+    addInt(0xcafebabe);
+    addInt(0xdeadbeef);
 
-  cp.addInt(0xcafebabe);
-  cp.addInt(0xdeadbeef);
+    auto list = getByteArray();
+    auto iter = list.begin();
 
-  auto list = cp.getByteArray();
-  auto iter = list.begin();
-
-  for (auto i = cp.items.begin(); i != cp.ends(); i++) {
-  }
-  bool passed = true;
-
-  string str;
-  char bakval = static_cast<char>(*iter++);;
-  for (; iter != list.end(); iter++) {
-    char val = static_cast<char>(*iter);
-    str += val;
-    if (!(val > bakval)) {
-      //cout << val;
-      passed = false;
+    for (auto i = items.begin(); i != items.end(); i++) {
     }
-    bakval = val;
-  }
-  cout << "[INFO] constant pool string " << str << endl;
-  return passed;
-}
+    bool passed = true;
 
+    string str;
+    char bakval = static_cast<char>(*iter++);;
+    for (; iter != list.end(); iter++) {
+      char val = static_cast<char>(*iter);
+      str += val;
+      if (!(val > bakval)) {
+        //cout << val;
+        passed = false;
+      }
+      bakval = val;
+    }
+    cout << "[INFO] constant pool string " << str << endl;
+    return passed;
+  }
+};
 /*
  *  4)	String
  *
@@ -143,7 +138,8 @@ int main(int argc, char** argv) {
       cerr << "[ERROR] " << "testAddClassReference failed all system off, everything falls apart ... boom" << endl;
       } */
 
-  if (!testAddInt()) {
+  ConstantPoolTest intTest;
+  if (!intTest.testAddInt()) {
     cerr << "[ERROR] " << "testAddInt failed all system off, everything falls apart ... boom" << endl;
   }
 
