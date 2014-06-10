@@ -61,7 +61,17 @@ void BytecodeGenerator::add_conditional_with_instruction(char conditional_stmt, 
 
 void BytecodeGenerator::add_invoke_virtual(const std::string& method, ConstantPool& constantPool, std::vector<char>& result)
 {
-  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
+  add_invoke_method(BytecodeGenerator::INVOKE_VIRTUAL, method, constantPool, result);
+}
+
+void BytecodeGenerator::add_invoke_static(const std::string& method, ConstantPool& constantPool, std::vector<char>& result)
+{
+  add_invoke_method(BytecodeGenerator::INVOKE_STATIC, method, constantPool, result);
+}
+
+void BytecodeGenerator::add_invoke_method(BytecodeGenerator::MNEMONIC opcode, const std::string& method, ConstantPool& constantPool, std::vector<char>& result)
+{
+  result.push_back(opcode);
   add_index(constantPool.addMethRef(method), result);
 }
 
@@ -141,27 +151,50 @@ void push_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs
 
 }
 
+void add_integer_calculation(BytecodeGenerator::MNEMONIC calculation, ConstantPool& constantPool, std::vector<char>& result)
+{
+  std::string integer_class = "java/lang/Integer";
+  std::string integer_class_intValue_method = "java/lang/Integer.intValue:()I";
+  std::string integer_class_static_value_of_method = "java/lang/Integer.valueOf:(I)Ljava/lang/Integer;";
 
+  result.push_back(BytecodeGenerator::ASTORE_1);
+  result.push_back(BytecodeGenerator::ASTORE_2);
+
+  result.push_back(BytecodeGenerator::ALOAD_1);
+  BytecodeGenerator::add_type_check(integer_class, constantPool, result);
+  result.push_back(BytecodeGenerator::ALOAD_2);
+  BytecodeGenerator::add_type_check(integer_class, constantPool, result);
+
+  result.push_back(BytecodeGenerator::ALOAD_1);
+  BytecodeGenerator::add_invoke_virtual(integer_class_intValue_method, constantPool, result);
+  result.push_back(BytecodeGenerator::ALOAD_2);
+  BytecodeGenerator::add_invoke_virtual(integer_class_intValue_method, constantPool, result);
+
+  result.push_back(calculation);
+
+  BytecodeGenerator::add_invoke_static(integer_class_static_value_of_method, constantPool, result);
+
+}
 
 void add_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-  result.push_back(BytecodeGenerator::IADD);  //iadd
+  add_integer_calculation(BytecodeGenerator::IADD, constantPool, result);
 }
 void sub_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-  result.push_back(BytecodeGenerator::ISUB);  //isub
+  add_integer_calculation(BytecodeGenerator::ISUB, constantPool, result);
 }
 void mult_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-  result.push_back(BytecodeGenerator::IMULT);  //imul
+  add_integer_calculation(BytecodeGenerator::IMULT, constantPool, result);
 }
 void div_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-  result.push_back(BytecodeGenerator::IDIV);  //idiv
+  add_integer_calculation(BytecodeGenerator::IDIV, constantPool, result);
 }
 void mod_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-  result.push_back(BytecodeGenerator::IREM); //irem
+  add_integer_calculation(BytecodeGenerator::IREM, constantPool, result);
 }
 void cut_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
