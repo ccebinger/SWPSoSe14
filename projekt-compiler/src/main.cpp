@@ -5,6 +5,7 @@
 #include <unistd.h>
 
 
+#include <common/Status.h>
 #include <frontend/lexer/Lexer.h>
 #include <frontend/parser/Parser.h>
 #include <frontend/Graphs.h>
@@ -115,20 +116,6 @@ int main(int argc, char *argv[]) {
 		}
 
 		// Parser
-		/*
-		std::shared_ptr<RailFunction> func = lexer.functions.at(0); //FIXME hardcoded number of functions
-		Parser p(func);
-		shared_ptr<Adjacency_list> asg = p.parseGraph();
-		if(asg == NULL) {
-			Parse_Exception pe;
-			pe.set_msg(p.errorMessage);
-			throw pe;
-		}
-		graphs.put(func->getName(), asg);
-		*/
-
-
-		// Parser
 		for(auto it=lexer.functions.begin(); it < lexer.functions.end(); ++it) {
 			Parser p(*it);
 			shared_ptr<Adjacency_list> asg = p.parseGraph();
@@ -148,10 +135,6 @@ int main(int argc, char *argv[]) {
 	}
 
 
-
-
-
-
 	// Serialize
 	if(dstSerialize != "") {
 		graphs.marshall(dstSerialize, ';');
@@ -163,14 +146,14 @@ int main(int argc, char *argv[]) {
 		graphs.writeGraphViz(dstGraphviz);
 	}
 
+
+
 	// ------------------------------------------------------------------------
 	// BACKEND
 	// ------------------------------------------------------------------------
-
 	// TODO this is just a mockup...
 	cout << "--- Begin Backend ------------------------------------------------" << endl;
-	ofstream outFile;
-	outFile.open("io/out.class");
+	ofstream outFile("io/out.class", std::ofstream::binary);
 	Backend::Generate(graphs, outFile);
 
 	return 0;

@@ -57,7 +57,8 @@ bool testAddClassReference() {
  */
 bool testAddInt() {
   /*
-  confused, addbyte has no effects anymore
+  confused, addInt has no effects anymore
+	same troubles as with addInt
   */
   ConstantPool cp;
   
@@ -83,37 +84,59 @@ bool testAddInt() {
   cout << "[INFO] constant pool string " << str << endl;
   return passed;
 }
- /*  2)	Integer
- *
- */
-/*bool testAddInt() {
-  ConstantPool cp;
-
-  cp.addInt(32);
-  auto list = cp.getByteArray();
-  int offset  = list.size();
-  cp.addInt(0x22);
-  cp.addInt(0x20);
-  cp.addInt(0x10);
-
-  //  for(int i=0; i<256;i++) {
-  //	  cp.addInt(i);
-  //  }
-  //  	cp.addInt(0x10);
-
-   *  3)	Integer
-   *
-
-  return false;
-}*/
 
 /*
  *  4)	String
  *
  */
 bool testAddString() {
-  ConstantPool cp;
 
+	// initialisiere cases
+	std::vector<string> cases = {"Clemens", "Maurice", "Paul", "Till",
+															"Leon", "Miro", "Jonas", "Sandra",
+															"Christopher", "Sascha" ,"Vincent", "ACME", 
+															"TertiumNonDatur", "Kellerspeicher", "UniverseOfDiscourse", "SeparationOfConcerns",
+															"kontextfrei", "links-regulaer", "comma-separated-values", "\r\n\t\t\tFUB"};
+	
+
+
+  ConstantPool cp;
+	auto list = cp.getByteArray();
+	int off = list.size();
+	
+	for(auto zeiger=cases.begin(); zeiger!=cases.end(); zeiger++) {
+		cp.addString((*zeiger));
+	}
+	
+	
+	list = cp.getByteArray();
+  auto iter = list.begin()+off;
+
+  bool passed = true;
+
+ string str;
+//for (; iter != list.end(); iter++) {
+//    char val = static_cast<char>(*iter);
+//  str += val;
+//}
+  
+	for(auto zeiger=cases.begin(); zeiger!=cases.end(); zeiger++) {
+		string in =  *zeiger; 
+		string out;
+		int l = (*zeiger).length();
+		int i = 0;
+		for(; i<l; i++) {
+			char val = static_cast<char>(*(iter++));
+			out += val;
+	  }	
+		cout << in << "vs." << out << " [" << i << " / " << l << "] " << endl;
+		str+=out;
+	}
+	
+	
+	cout << "[INFO] constant pool string " << str << endl; 
+
+  return passed;
 }
 
 int main(int argc, char** argv) {
@@ -126,16 +149,13 @@ int main(int argc, char** argv) {
   } */
 
 
-  if (!testAddInt()) {
 
-/*  if (!testAddInt()) {
->>>>>>> ddcb2ed3ecd111ac67b4a3850b683486297125e7
+  if (!testAddInt()) {
     cerr << "[ERROR] " << "testAddInt failed all system off, everything falls apart ... boom" << endl;
 	}
 
-/*  if (!testAddString()) {
+ if (!testAddString()) {
     cout << "[ERROR] " << "testAddString failed all system off, everything falls apart ... boom" << endl;
-  }*/
   }
 }
 

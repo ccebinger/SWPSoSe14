@@ -59,7 +59,7 @@ Item::Item(uint16_t _index, const Item &i) {
 /// \param i copmared item
 ////////////////////////////////////////////////////////////////////////
 bool Item::operator==(const Item& i)const {
-  switch (type) {
+  switch (i.type) {
     case UTF8:
     case CLASS:
     case STR:
@@ -121,7 +121,8 @@ void Item::set(ItemType _type,
 ////////////////////////////////////////////////////////////////////////
 /// default constructor
 ////////////////////////////////////////////////////////////////////////
-ConstantPool::ConstantPool(): items(256) {
+ConstantPool::ConstantPool() {
+  items.reserve(256);
   // Java Class Reference auf java/lang/system
   addClassRef("java/lang/system");
   // Field Reference java.lang.system.out

@@ -26,7 +26,7 @@ shared_ptr<Adjacency_list> Parser::parseGraph() {
 	addNextNodeAsTruePathOfPreviousNode = true;
 	int startPosY=-1;
 	//find $, initiate pos
-	for(uint32_t i=0; i<board->getWidth(); ++i) {
+	for(int32_t i=0; i<board->getWidth(); ++i) {
 		if(board->get(0, i) == '$') {
 			startPosY = i;
 			break;
@@ -60,18 +60,18 @@ shared_ptr<Adjacency_list> Parser::parseGraph(int startPosRow, int startPosCol, 
 void Parser::move() {
 
 	//straight
-	uint32_t straightRow = posRow + rowOffsetMap.at(dir).offsets[STRAIGHT];
-	uint32_t straightCol = posCol + colOffsetMap.at(dir).offsets[STRAIGHT];
+	int32_t straightRow = posRow + rowOffsetMap.at(dir).offsets[STRAIGHT];
+	int32_t straightCol = posCol + colOffsetMap.at(dir).offsets[STRAIGHT];
 	bool straightIsInBoardBounds = straightRow >= 0 && straightRow < board->getHeight() && straightCol >= 0 && straightCol < board->getWidth();
 
 	//left
-	uint32_t leftRow = posRow + rowOffsetMap.at(dir).offsets[LEFT];
-	uint32_t leftCol = posCol + colOffsetMap.at(dir).offsets[LEFT];
+	int32_t leftRow = posRow + rowOffsetMap.at(dir).offsets[LEFT];
+	int32_t leftCol = posCol + colOffsetMap.at(dir).offsets[LEFT];
 	bool leftIsInBoardBounds =  leftRow >=0 && leftRow < board->getHeight() && leftCol >=0 && leftCol < board->getWidth();
 
 	//right
-	uint32_t rightRow = posRow + rowOffsetMap.at(dir).offsets[RIGHT];
-	uint32_t rightCol = posCol + colOffsetMap.at(dir).offsets[RIGHT];
+	int32_t rightRow = posRow + rowOffsetMap.at(dir).offsets[RIGHT];
+	int32_t rightCol = posCol + colOffsetMap.at(dir).offsets[RIGHT];
 	bool rightIsInBoardBounds =  rightRow >=0 && rightRow < board->getHeight() && rightCol >=0 && rightCol < board->getWidth();
 
 	//bool vars that will be checked in the end
@@ -387,8 +387,8 @@ string Parser::readCharsUntil(uint32_t until) {
 	// Can be decoded anyway - doesn't matter
 	result += Encoding::unicodeToUtf8(board->get(posRow, posCol));
 	while(true) {
-		uint32_t nextRow = posRow + rowOffsetMap.at(dir).offsets[STRAIGHT];
-		uint32_t nextCol = posCol + colOffsetMap.at(dir).offsets[STRAIGHT];
+		int32_t nextRow = posRow + rowOffsetMap.at(dir).offsets[STRAIGHT];
+		int32_t nextCol = posCol + colOffsetMap.at(dir).offsets[STRAIGHT];
 		if(posRow >= board->getHeight() || nextCol >= board->getWidth()) {
 			//TODO:Dir auch ausgeben
 			std::stringstream sstm;
