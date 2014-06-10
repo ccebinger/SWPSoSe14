@@ -18,9 +18,8 @@
 #include <backend/classfile/constant_pool.h>
 #include <backend/classfile/classfile_writer.h>
 #include <sstream>
-#include <iostream>
+#include <cstdio>
 
-using namespace std;
 unsigned int cp_offset = 0;
 
 bool testConstructor() {
@@ -34,18 +33,14 @@ bool testConstructor() {
 
   auto listChange = cp.getByteArray();
 
-  cout << "[INFO] " << "test add constant: "<< listInit.size()
-       << "/" << listChange.size() << endl;
-
-  cout << "ClassRef: " << cp.countItemType(CLASS) << endl;
-  cout << "MethodRef: : " << cp.countItemType(METHOD) << endl;
+  printf("[INFO] test add constant: %z/%z\n",
+         listInit.size(), listChange.size());
+  printf("ClassRef: %z\n", cp.countItemType(CLASS));
+  printf("MethodRef: %z\n", cp.countItemType(METHOD));
   return (listChange.size() == listInit.size() && listInit.size() > 0);
 }
 
 bool testAddClassReference() {
-  /*
-    dont know, what to test here 
-  */
   ConstantPool cp;
   return false;
 }
@@ -67,7 +62,7 @@ struct ConstantPoolTest:public ConstantPool{
     }
     bool passed = true;
 
-    string str;
+    std::string str;
     char bakval = static_cast<char>(*iter++);;
     for (; iter != list.end(); iter++) {
       char val = static_cast<char>(*iter);
@@ -78,7 +73,7 @@ struct ConstantPoolTest:public ConstantPool{
       }
       bakval = val;
     }
-    cout << "[INFO] constant pool string " << str << endl;
+    printf("[INFO] constant pool string %s\n", str.c_str());
     return passed;
   }
 };
@@ -88,17 +83,20 @@ struct ConstantPoolTest:public ConstantPool{
  */
 bool testAddString() {
   // initialisiere cases
-  std::vector<string> cases = {"Clemens", "Maurice", "Paul", "Till",
-                               "Leon", "Miro", "Jonas", "Sandra",
-                               "Christopher", "Sascha" ,"Vincent", "ACME",
-                               "TertiumNonDatur", "Kellerspeicher", "UniverseOfDiscourse", "SeparationOfConcerns",
-                               "kontextfrei", "links-regulaer", "comma-separated-values", "\r\n\t\t\tFUB"};
+  std::vector<std::string> cases = {"Clemens", "Maurice", "Paul", "Till",
+                                    "Leon", "Miro", "Jonas", "Sandra",
+                                    "Christopher", "Sascha", "Vincent",
+                                    "ACME", "TertiumNonDatur",
+                                    "Kellerspeicher", "UniverseOfDiscourse",
+                                    "SeparationOfConcerns", "kontextfrei",
+                                    "links-regulaer", "comma-separated-values",
+                                    "\r\n\t\t\tFUB"};
 
   ConstantPool cp;
   auto list = cp.getByteArray();
   int off = list.size();
 
-  for(auto zeiger=cases.begin(); zeiger!=cases.end(); zeiger++) {
+  for (auto zeiger = cases.begin(); zeiger != cases.end(); zeiger++) {
     cp.addString((*zeiger));
   }
   list = cp.getByteArray();
@@ -106,45 +104,45 @@ bool testAddString() {
 
   bool passed = true;
 
-  string str;
+  std::string str;
   //for (; iter != list.end(); iter++) {
   //    char val = static_cast<char>(*iter);
   //  str += val;
   //}
 
   for (auto zeiger = cases.begin(); zeiger != cases.end(); zeiger++) {
-    string in =  *zeiger;
-    string out;
+    std::string in =  *zeiger;
+    std::string out;
     int l = (*zeiger).length();
     int i = 0;
     for (; i < l; i++) {
       char val = static_cast<char>(*(iter++));
       out += val;
     }
-    cout << in << "vs." << out << " [" << i << " / " << l << "] " << endl;
+    printf("%s vs. %s [%d/%d]\n", in.c_str(), out.c_str(), i , l);
     str+=out;
   }
-  cout << "[INFO] constant pool string " << str << endl;
+  printf("[INFO] constant pool string %s\n", str.c_str());
 
   return passed;
 }
 
 int main(int argc, char** argv) {
   if (!testConstructor()) {
-    cerr << "[ERROR] " << "testConstructor failed all system off, everything falls apart ... boom" << endl;
+    printf("[ERROR] testConstructor failed all system off, everything falls apart ... boom\n");
   }
 
   /*  if (!testAddClassReference()) {
-      cerr << "[ERROR] " << "testAddClassReference failed all system off, everything falls apart ... boom" << endl;
+      printf("[ERROR] testAddClassReference failed all system off, everything falls apart ... boom\n");
       } */
 
   ConstantPoolTest intTest;
   if (!intTest.testAddInt()) {
-    cerr << "[ERROR] " << "testAddInt failed all system off, everything falls apart ... boom" << endl;
+    printf("[ERROR] testAddInt failed all system off, everything falls apart ... boom\n");
   }
 
   if (!testAddString()) {
-    cout << "[ERROR] " << "testAddString failed all system off, everything falls apart ... boom" << endl;
+    printf("[ERROR] testAddString failed all system off, everything falls apart ... boom\n");
   }
 }
 
