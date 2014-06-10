@@ -16,19 +16,24 @@ class Graph_Interface{
 	private:
 	Point *root, *tmp;
 	Stack *undo;
+    DoubleCheck *check;
 	
 
 	public:
 	Graph_Interface(){
         root = new Point(0,0);
 		undo = new Stack();
+        check = new DoubleCheck();
 	}
+    // dont use clone at the moment not safe;
 	Graph_Interface(Point* root){
 		this->root = root;
 		undo = new Stack();
+        check = new DoubleCheck();
 	}
 	private:
     Stack* setSignIntern(int x,int y, char sign){
+        Stack *retStack = new Stack();
 		int bCons = tmp->setSign(sign);
 		if(!(bCons & 128) && x-1 >= 0 && y-1 >= 0)tmp->setCons(128,root->getPoint(x-1,y-1));
 		if(!(bCons & 64) && y-1 >= 0)tmp->setCons(64,root->getPoint(x,y-1));
@@ -39,13 +44,19 @@ class Graph_Interface{
 		if(!(bCons & 2))tmp->setCons(2,root->getPoint(x,y+1));
 		if(!(bCons & 1))tmp->setCons(1,root->getPoint(x+1,y+1));
         InternStack* change = new InternStack();
+        do{
         tmp->makeCons(change);
-        return new Stack();
+        check->add(tmp);
+        }while((tmp = change->pop()) != NULL);
+        while((tmp = check->get()) != NULL){
+            retStack->push(tmp->getRow(),tmp->getCol(),tmp->getSign(), tmp->getStyle());
+        }
+        return retStack;
 	}
 	public:
     Stack* setSign(int x, int y, char sign){
 		tmp = root->getPoint(x,y);
-		undo->push(x,y,tmp->getSign(),0);
+        //undo->push(x,y,tmp->getSign(),0);
         return setSignIntern(x,y,sign);
 	}
     Stack* makeUndo(void){
@@ -79,7 +90,9 @@ class Graph_Interface{
 	}
 	char* deleteSign(int x, int y){
 		// TODO: DELETE SIGN
+        return NULL;
 	}
+
 	Graph_Interface* clone(void){
         tmp = new Point(0,0);
 		root->clone(tmp);

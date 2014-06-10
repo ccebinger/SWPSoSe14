@@ -14,6 +14,7 @@
 #include <QSize>
 #include <QHeaderView>
 #include <QApplication>
+#include <QColor>
 
 #include <math.h>
 #include <assert.h>
@@ -180,6 +181,11 @@ void EditTableWidget::setSign(QChar c)
     Stack *stack = m_graph.setSign(m_cursorColPos, m_cursorRowPos, text.at(0).toLatin1());
     applyStyleChanges(stack);
 
+    // just for testing
+    //               red           green         blue       style
+    //int byteMask = (255 << 24) | (170 << 16) | (0 << 8) | 3; // orange, bold, italic
+    //setSignStyle(m_cursorRowPos, m_cursorColPos, byteMask);
+
     if(stack != NULL)
     {
         delete stack;
@@ -250,7 +256,7 @@ void EditTableWidget::applyStyleChanges(Stack *stack)
     Stack *tmp;
     while((tmp = stack->pop()) != NULL)
     {
-        setSignStyle(stack->getY(), stack->getY(), stack->getColor());
+        setSignStyle(tmp->getY(), tmp->getX(), tmp->getColor());
 
         delete tmp;
     }
@@ -258,8 +264,32 @@ void EditTableWidget::applyStyleChanges(Stack *stack)
 
 void EditTableWidget::setSignStyle(int row, int col, int byteMask)
 {
-    // TODO: retrieve styles
-    //bool bold =
+    // int: 00000000 00000000 00000000 00000000
+    //      rrrrrrrr gggggggg bbbbbbbb aaaaaaaa (rgb alpha)
+    //                                       ib
+    // We ignore alpha and use the bits of the least significant byte as style flags
+
+    bool bold = byteMask & 1;
+    bool italic = byteMask & 2;
+
+    int red = (byteMask & 0xFF000000) >> 24;
+    int green = (byteMask & 0x00FF0000) >> 16;
+    int blue = (byteMask & 0x0000FF00) >> 8;
+
+    QColor color = QColor(red, green, blue);
+    QString colorName = color.name();
+    QString boldName = bold ? "bold" : "normal";
+    QString italicName = italic ? "italic" : "normal";
+
+    QWidget *w = this->cellWidget(row, col);
+
+    QLabel *l;
+    if(w != NULL)
+    {
+        l = dynamic_cast<QLabel *>(w);
+        assert(l);
+        l->setStyleSheet("QLabel { color: " + colorName + "; font-weight: " + boldName + "; font-style: " + italicName + ";};");
+    }
 }
 
 QString EditTableWidget::toPlainText() const
