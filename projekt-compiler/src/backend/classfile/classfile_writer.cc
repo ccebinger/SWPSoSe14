@@ -10,7 +10,7 @@
 
 #include <backend/classfile/classfile_writer.h>
 #include <backend/classfile/constant_pool.h>
-
+#include <backend/classfile/Bytecode_writer.h>
 #include <array>
 #include <iostream>
 #include <map>
@@ -87,20 +87,19 @@ void ClassfileWriter::WriteVersionNumber() {
  */
 void ClassfileWriter::WriteConstantPool() {
 
+  Bytecode_writer writer(out_);
+
+
   std::vector<Item> items = constant_pool_.getItems();
-  std::vector<unsigned char> test = constant_pool_.getByteArray();
-  uint8_t size = items.size();
-  out_.width(2);
-  out_.fill('\x0');
-  out_ << std::hex << size;
-  out_.fill(' ');
-  out_.width(1);
+  writer.writeU16(items.size());
+
   for (int i = 0; i < items.size(); i++)
   {
-    Item item = items.at(i);
-    std::vector<char> hex = item.getHexRepresentation();
-    out_.write((char*) &hex[0], hex.size());
+    items.at(i).getHexRepresentation(writer);
   }
+
+
+
   //out_.write((char*)constant_pool_.getByteArray().data(),
     //        constant_pool_.getByteArray().size());
 }

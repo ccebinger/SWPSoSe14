@@ -20,7 +20,7 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 
 #ifndef PROJEKT_COMPILER_SRC_BACKEND_CLASSFILE_CONSTANT_POOL_H_
 #define PROJEKT_COMPILER_SRC_BACKEND_CLASSFILE_CONSTANT_POOL_H_
-
+#include <backend/classfile/Bytecode_writer.h>
 #include <cstdint>
 #include <vector>
 #include <string>
@@ -64,11 +64,12 @@ class Item {
   int64_t longVal;  //!< if type long values is stored here
   std::string strVal;  //!< if type string value is stored here
   Item *next;  //!< pointer to next item in list
-  std::vector<char> getHexRepresentation()
+  std::vector<unsigned char> getHexRepresentation(Bytecode_writer& writer)
   {
-    std::vector<char> result;
+    std::vector<unsigned char> result;
     std::stringstream sstream;
     sstream << '0' << type;
+    //writer.
     //result.add((char) t);
     //sstream.width(1);
 //    sstream.fill(prev);
