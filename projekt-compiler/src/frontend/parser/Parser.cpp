@@ -309,10 +309,10 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			setRowCol(straightRow, straightCol);
 			parsingNotFinished = addToAbstractSyntaxGraph(":", Command::Type::LIST_CONS,id);
 			break;
-		/*case '~': // List breakup
+		case '~': // List breakup
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("~", Command::Type::LIST_BREAKUP);
-			break;*/
+			parsingNotFinished = addToAbstractSyntaxGraph("~", Command::Type::LIST_BREAKUP,id);
+			break;
 
 		// Variables
 		case '(':
