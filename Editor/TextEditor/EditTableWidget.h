@@ -28,7 +28,7 @@ private:
     void mousePressEvent(QMouseEvent *mouseEvent);
     void keyPressEvent(QKeyEvent *keyEvent);
 
-    void setPosition(int x, int y);
+    void setPosition(int row, int col);
     void setSign(QChar c);
     void removeSign();
     void inputMethodEvent(QInputMethodEvent *event);

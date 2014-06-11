@@ -36,7 +36,7 @@
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
          <property name="selectionMode">
-          <enum>QAbstractItemView::SingleSelection</enum>
+          <enum>QAbstractItemView::ExtendedSelection</enum>
          </property>
          <property name="textElideMode">
           <enum>Qt::ElideMiddle</enum>
@@ -288,7 +288,7 @@
    </property>
    <widget class="QMenu" name="ui_menuMenu">
     <property name="title">
-     <string>&amp;Menu</string>
+     <string>Menu</string>
     </property>
     <addaction name="ui_newFileAction"/>
     <addaction name="ui_openFileAction"/>
@@ -299,20 +299,31 @@
    </widget>
    <widget class="QMenu" name="ui_editMenu">
     <property name="title">
-     <string>&amp;Edit</string>
+     <string>Edit</string>
     </property>
-    <addaction name="actionUndo"/>
-    <addaction name="actionRedo"/>
+    <addaction name="ui_undoAction"/>
+    <addaction name="ui_redoAction"/>
+   </widget>
+   <widget class="QMenu" name="menuCompile">
+    <property name="title">
+     <string>Compile</string>
+    </property>
     <addaction name="ui_setInterpreterAction"/>
     <addaction name="ui_runInterpreterAction"/>
+    <addaction name="ui_stopInterpreterAction"/>
+    <addaction name="separator"/>
+    <addaction name="ui_setCompilerAction"/>
+    <addaction name="ui_runCompilerAction"/>
+    <addaction name="ui_stopCompilerAction"/>
    </widget>
    <addaction name="ui_menuMenu"/>
    <addaction name="ui_editMenu"/>
+   <addaction name="menuCompile"/>
   </widget>
   <widget class="QStatusBar" name="ui_statusbar"/>
   <action name="ui_newFileAction">
    <property name="text">
-    <string>&amp;New File</string>
+    <string>New File</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
@@ -323,7 +334,7 @@
   </action>
   <action name="ui_openFileAction">
    <property name="text">
-    <string>&amp;Open File</string>
+    <string>Open File</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
@@ -334,7 +345,7 @@
   </action>
   <action name="ui_saveFileAction">
    <property name="text">
-    <string>&amp;Save File</string>
+    <string>Save File</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -345,7 +356,7 @@
   </action>
   <action name="ui_quitAction">
    <property name="text">
-    <string>&amp;Quit</string>
+    <string>Quit</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q, Alt+X</string>
@@ -356,7 +367,7 @@
   </action>
   <action name="ui_saveAsAction">
    <property name="text">
-    <string>Save &amp;As</string>
+    <string>Save As</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
@@ -367,22 +378,42 @@
   </action>
   <action name="ui_setInterpreterAction">
    <property name="text">
-    <string>Set I&amp;nterpter Location</string>
+    <string>Set Interpreter Location</string>
    </property>
   </action>
   <action name="ui_runInterpreterAction">
    <property name="text">
-    <string>&amp;Run Interpreter</string>
+    <string>Run Interpreter</string>
    </property>
   </action>
-  <action name="actionUndo">
+  <action name="ui_undoAction">
    <property name="text">
     <string>Undo</string>
    </property>
   </action>
-  <action name="actionRedo">
+  <action name="ui_redoAction">
    <property name="text">
     <string>Redo</string>
+   </property>
+  </action>
+  <action name="ui_setCompilerAction">
+   <property name="text">
+    <string>Set Compiler Location</string>
+   </property>
+  </action>
+  <action name="ui_runCompilerAction">
+   <property name="text">
+    <string>Run Compiler</string>
+   </property>
+  </action>
+  <action name="ui_stopInterpreterAction">
+   <property name="text">
+    <string>Stop Interpreter</string>
+   </property>
+  </action>
+  <action name="ui_stopCompilerAction">
+   <property name="text">
+    <string>Stop Compiler</string>
    </property>
   </action>
  </widget>

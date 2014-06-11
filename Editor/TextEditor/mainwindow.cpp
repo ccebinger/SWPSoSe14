@@ -28,6 +28,12 @@ MainWindow::MainWindow(QWidget *parent) :
     setCurrentPath(QString());
     setModified(false);
 
+    m_interpreterProcess = new QProcess(this);
+    m_compilerProcess = new QProcess(this);
+
+    ui->ui_stopInterpreterAction->setEnabled(false);
+    ui->ui_stopCompilerAction->setEnabled(false);
+
     connect(ui->ui_sourceEditTableWidget, SIGNAL(cursorPositionChanged(int,int)), this, SLOT(cursorPositionChanged(int,int)));
     connect(ui->ui_sourceEditTableWidget, SIGNAL(textChanged()), this, SLOT(textChanged()));
     connect(ui->ui_newFileAction, SIGNAL(triggered()), this, SLOT(newFile()));
@@ -36,15 +42,33 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->ui_saveAsAction, SIGNAL(triggered()), this, SLOT(saveFileAs()));
     connect(ui->ui_quitAction, SIGNAL(triggered()), this, SLOT(close()));
 
-    connect(ui->ui_setInterpreterAction, SIGNAL(triggered()), this, SLOT(undo()));
-    connect(ui->ui_setInterpreterAction, SIGNAL(triggered()), this, SLOT(redo()));
+    connect(ui->ui_undoAction, SIGNAL(triggered()), this, SLOT(undo()));
+    connect(ui->ui_redoAction, SIGNAL(triggered()), this, SLOT(redo()));
     connect(ui->ui_setInterpreterAction, SIGNAL(triggered()), this, SLOT(setInterpreter()));
     connect(ui->ui_runInterpreterAction, SIGNAL(triggered()), this, SLOT(runInterpreter()));
+    connect(ui->ui_setCompilerAction, SIGNAL(triggered()), this, SLOT(setCompiler()));
+    connect(ui->ui_runCompilerAction, SIGNAL(triggered()), this, SLOT(runCompiler()));
+
+    connect(m_interpreterProcess, SIGNAL(started()), this, SLOT(interpreterStarted()));
+    connect(m_interpreterProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(interpreterOutputReady()));
+    connect(m_interpreterProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(interpreterReadError(QProcess::ProcessError)));
+    connect(m_interpreterProcess, SIGNAL(aboutToClose()), this, SLOT(interpreterFinished()));
+
+    connect(m_compilerProcess, SIGNAL(started()), this, SLOT(compilerStarted()));
+    connect(m_compilerProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(compilerOutputReady()));
+    connect(m_compilerProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(compilerReadError(QProcess::ProcessError)));
+    connect(m_compilerProcess, SIGNAL(aboutToClose()), this, SLOT(compilerFinished()));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+
+    m_interpreterProcess->close();
+    delete m_interpreterProcess;
+    m_compilerProcess->close();
+    delete m_compilerProcess;
+
 }
 
 bool MainWindow::saveChanges()
@@ -228,6 +252,11 @@ void MainWindow::runInterpreter()
         QMessageBox::information(this, "No Interpreter set.", "You need to set an Interpreter first.");
         return;
     }
+    if(m_interpreterProcess->state() == QProcess::Running)
+    {
+        QMessageBox::information(this, "Interpreter is already running.", "The Interpreter is already running.");
+        return;
+    }
 
     QString prefixBase = "temp";
     for(int i = 0;; i++)
@@ -278,15 +307,14 @@ void MainWindow::runInterpreter()
 
 
         // run the interpreter
-        QProcess *process = new QProcess(this);
         QStringList parameter;
         parameter << "--input=" + QFileInfo(input).absoluteFilePath()
                   << "--output=" + QFileInfo(output).absoluteFilePath()
                   << QFileInfo(source).absoluteFilePath();
-        int result = process->execute(m_currentInterpreterPath, parameter);
+        int result = m_interpreterProcess->execute(m_currentInterpreterPath, parameter);
         if(result != 0)
         {
-            QMessageBox::warning(this, "Error", process->errorString());
+            QMessageBox::warning(this, "Error", m_interpreterProcess->errorString());
         }
 
         // print the results
@@ -308,4 +336,98 @@ void MainWindow::runInterpreter()
         output.remove();
         return;
     }
+}
+
+void MainWindow::interpreterStarted()
+{
+    ui->ui_stopInterpreterAction->setEnabled(true);
+    ui->ui_runInterpreterAction->setEnabled(false);
+}
+
+void MainWindow::interpreterFinished()
+{
+    ui->ui_stopInterpreterAction->setEnabled(false);
+    ui->ui_runInterpreterAction->setEnabled(true);
+}
+
+void MainWindow::interpreterOutputReady()
+{
+    ui->ui_outputPlainTextEdit->appendPlainText(m_interpreterProcess->readAllStandardOutput());
+}
+
+void MainWindow::interpreterReadError(QProcess::ProcessError error)
+{
+
+}
+
+void MainWindow::setCompiler()
+{
+    QFileDialog openDialog(this);
+    openDialog.setWindowTitle("Select Compiler");
+    openDialog.setFileMode(QFileDialog::ExistingFile);
+
+    if(openDialog.exec() && !openDialog.selectedFiles().isEmpty())
+    {
+        m_currentCompilerPath = openDialog.selectedFiles().first();
+    }
+}
+
+void MainWindow::runCompiler()
+{
+    if(m_currentCompilerPath.isEmpty())
+    {
+        QMessageBox::information(this, "No Compiler set.", "You need to set a Compiler first.");
+        return;
+    }
+
+    // TODO: get the requirements for running the compiler
+    // i.e.: parameter, input and output files
+
+    // run the compiler
+   /* QProcess *process = new QProcess(this);
+    QStringList parameter;
+    parameter << "--input=" + QFileInfo(input).absoluteFilePath()
+              << "--output=" + QFileInfo(output).absoluteFilePath()
+              << QFileInfo(source).absoluteFilePath();
+    int result = process->execute(m_currentInterpreterPath, parameter);
+    if(result != 0)
+    {
+        QMessageBox::warning(this, "Error", process->errorString());
+    }
+
+    // print the results
+    QString line;
+    if(output.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QTextStream stream(&output);
+        ui->ui_outputPlainTextEdit->clear();
+        while(!stream.atEnd())
+        {
+            line = stream.readLine();
+            ui->ui_outputPlainTextEdit->setPlainText(ui->ui_outputPlainTextEdit->toPlainText() + line + "\n");
+        }
+    }*/
+}
+
+
+void MainWindow::compilerStarted()
+{
+    ui->ui_stopCompilerAction->setEnabled(true);
+    ui->ui_runCompilerAction->setEnabled(false);
+}
+
+void MainWindow::compilerFinished()
+{
+    ui->ui_stopCompilerAction->setEnabled(false);
+    ui->ui_runCompilerAction->setEnabled(true);
+}
+
+void MainWindow::compilerOutputReady()
+{
+
+}
+
+void MainWindow::compilerReadError(QProcess::ProcessError error)
+{
+
 }

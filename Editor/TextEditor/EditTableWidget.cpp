@@ -115,7 +115,8 @@ void EditTableWidget::setPosition(int row, int col)
 {
     assert(row >= 0);
     assert(col >= 0);
-    if(row != m_cursorRowPos || col != m_cursorColPos)
+    //qDebug() << "set " << row << col;
+    if((row != m_cursorRowPos) || (col != m_cursorColPos))
     {
         this->setCurrentCell(m_cursorRowPos, m_cursorColPos, QItemSelectionModel::Deselect);
         m_cursorRowPos = row;
@@ -295,11 +296,11 @@ void EditTableWidget::setSignStyle(int row, int col, int byteMask)
 QString EditTableWidget::toPlainText() const
 {
     QString text;
-    for(int i = 0; i < this->rowCount(); i++)
+    for(int row = 0; row < this->rowCount(); row++)
     {
-        for(int j = 0; j < this->columnCount(); j++)
+        for(int col = 0; col < this->columnCount(); col++)
         {
-            QLabel *cellLabel = dynamic_cast< QLabel * >(this->cellWidget(i,j));
+            QLabel *cellLabel = dynamic_cast< QLabel * >(this->cellWidget(row, col));
             if(cellLabel)
             {
                 text.append(cellLabel->text());
@@ -309,7 +310,7 @@ QString EditTableWidget::toPlainText() const
                 text.append(" ");
             }
         }
-        if(i < this->rowCount() - 1)
+        if(row < this->rowCount() - 1)
         {
             text.append("\n");
         }
@@ -333,14 +334,16 @@ void EditTableWidget::setPlainText(QString text)
     for(int i = 0; i < text.size(); i++)
     {
         QChar c = text.at(i);
+        //qDebug() << "i: " << i << c;
+        //qDebug() << "row: " << m_cursorRowPos << "col: " << m_cursorColPos;
         if(c == '\n')
         {
-            setPosition(0, m_cursorColPos + 1);
+            setPosition(m_cursorRowPos + 1, 0);
         }
         else
         {
             setSign(c);
-            setPosition(m_cursorRowPos + 1, m_cursorRowPos);
+            setPosition(m_cursorRowPos, m_cursorColPos + 1);
         }
     }
     this->blockSignals(false);
