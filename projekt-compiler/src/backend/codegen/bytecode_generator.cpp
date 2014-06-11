@@ -3,33 +3,6 @@
 
 
 
-const char BytecodeGenerator::ILOAD_0 = '\x1a';
-const char BytecodeGenerator::ILOAD_1 = '\x1b';
-const char BytecodeGenerator::ILOAD_2 = '\x1c';
-const char BytecodeGenerator::ICONST_0 = '\x03';
-const char BytecodeGenerator::ICONST_1 = '\x04';
-const char BytecodeGenerator::ISTORE_0 = '\x3b';
-const char BytecodeGenerator::ISTORE_1 = '\x3c';
-const char BytecodeGenerator::ISTORE_2 = '\x3d';
-const char BytecodeGenerator::IF_ICMPLE = '\xa4';
-const char BytecodeGenerator::IF_ICMPNE = '\xa6';
-const char BytecodeGenerator::ALOAD_1 = '\x2b';
-const char BytecodeGenerator::ALOAD_2 = '\x2c';
-const char BytecodeGenerator::ASTORE_1 = '\x4c';
-const char BytecodeGenerator::ASTORE_2 = '\x4d';
-const char BytecodeGenerator::NEW = '\xbb';
-const char BytecodeGenerator::INVOKE_VIRTUAL = '\xb6';
-const char BytecodeGenerator::GET_STATIC = '\xb2';
-const char BytecodeGenerator::GOTO = '\xa7';
-const char BytecodeGenerator::RETURN = '\xb1';
-const char BytecodeGenerator::LDC = '\x12';
-const char BytecodeGenerator::DUP = '\x59';
-const char BytecodeGenerator::IADD = '\x60';
-const char BytecodeGenerator::ISUB = '\x64';
-const char BytecodeGenerator::IMULT = '\x68';
-const char BytecodeGenerator::IDIV = '\x6c';
-const char BytecodeGenerator::IREM = '\x70';
-
 const std::map<Command::Type, BytecodeGenerator::func_ptr> BytecodeGenerator::CODE_FUNC_MAPPING =
 {
   {Command::Type::OUTPUT, &output_ByteCode},
@@ -65,9 +38,40 @@ const std::map<Command::Type, BytecodeGenerator::func_ptr> BytecodeGenerator::CO
   {Command::Type::SOUTHJUNC, &if_or_while_ByteCode}
 };
 
+void BytecodeGenerator::add_conditional_with_instruction(char conditional_stmt, char* conditional_body, std::vector<char>& result)
+{
+  int length = sizeof conditional_body / sizeof conditional_body[0];
+  int length_plus_branch = length + 2;
+  std::stringstream sstream;
+  sstream.fill('\x0');
+  sstream.width(4);
+  sstream << std::hex << length_plus_branch;
+  std::string branch = sstream.str();
+
+  result.push_back(conditional_stmt);
+  for (int i = 0; i < 4; i++)
+    result.push_back(branch.at(i));
+  for (int i = 0; i < length; i++)
+  {
+    result.push_back(conditional_body[i]);
+  }
+
+}
+
+
 void BytecodeGenerator::add_invoke_virtual(const std::string& method, ConstantPool& constantPool, std::vector<char>& result)
 {
-  result.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
+  add_invoke_method(BytecodeGenerator::INVOKE_VIRTUAL, method, constantPool, result);
+}
+
+void BytecodeGenerator::add_invoke_static(const std::string& method, ConstantPool& constantPool, std::vector<char>& result)
+{
+  add_invoke_method(BytecodeGenerator::INVOKE_STATIC, method, constantPool, result);
+}
+
+void BytecodeGenerator::add_invoke_method(BytecodeGenerator::MNEMONIC opcode, const std::string& method, ConstantPool& constantPool, std::vector<char>& result)
+{
+  result.push_back(opcode);
   add_index(constantPool.addMethRef(method), result);
 }
 
@@ -86,6 +90,33 @@ void BytecodeGenerator::add_new_object(const std::string& class_name, ConstantPo
 {
   result.push_back(BytecodeGenerator::NEW);
   add_index(constantPool.addClassRef(class_name), result);
+}
+
+void BytecodeGenerator::add_class(const std::string& class_name, ConstantPool& constantPool, std::vector<char>& result)
+{
+  add_index(constantPool.addClassRef(class_name), result);
+}
+
+void BytecodeGenerator::add_instance_of(const std::string& class_name, ConstantPool& constantPool, std::vector<char>& result)
+{
+  result.push_back(BytecodeGenerator::INSTANCE_OF);
+  add_class(class_name, constantPool, result);
+}
+
+void BytecodeGenerator::add_type_check(const std::string& class_name, ConstantPool& constantPool, std::vector<char>& result)
+{
+  add_instance_of(class_name, constantPool, result);
+
+  std::vector<char> body;
+  add_throw_exception("java/lang/IllegalArgumentException", constantPool, body);
+
+  add_conditional_with_instruction(BytecodeGenerator::IFNE, &body[0], result);
+}
+
+void BytecodeGenerator::add_throw_exception(const std::string& class_name, ConstantPool& constantPool, std::vector<char>& result)
+{
+  add_new_object(class_name, constantPool, result);
+  result.push_back(BytecodeGenerator::ATHROW);
 }
 
 void output_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
@@ -107,27 +138,63 @@ void push_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs
 {
   // ldc indexInPool
   result.push_back(BytecodeGenerator::LDC);
-  BytecodeGenerator::add_index(constantPool.addString(current_node->command.arg), result);
+  std::string value = current_node->command.arg;
+  try
+  {
+    int int_val = std::stoi(value);
+    BytecodeGenerator::add_index(constantPool.addInt(int_val), result);
+  }
+  catch (const std::invalid_argument& ia) //the value is a string
+  {
+    BytecodeGenerator::add_index(constantPool.addString(current_node->command.arg), result);
+  }
+
 }
+
+void add_integer_calculation(BytecodeGenerator::MNEMONIC calculation, ConstantPool& constantPool, std::vector<char>& result)
+{
+  std::string integer_class = "java/lang/Integer";
+  std::string integer_class_intValue_method = "java/lang/Integer.intValue:()I";
+  std::string integer_class_static_value_of_method = "java/lang/Integer.valueOf:(I)Ljava/lang/Integer;";
+
+  result.push_back(BytecodeGenerator::ASTORE_1);
+  result.push_back(BytecodeGenerator::ASTORE_2);
+
+  result.push_back(BytecodeGenerator::ALOAD_1);
+  BytecodeGenerator::add_type_check(integer_class, constantPool, result);
+  result.push_back(BytecodeGenerator::ALOAD_2);
+  BytecodeGenerator::add_type_check(integer_class, constantPool, result);
+
+  result.push_back(BytecodeGenerator::ALOAD_1);
+  BytecodeGenerator::add_invoke_virtual(integer_class_intValue_method, constantPool, result);
+  result.push_back(BytecodeGenerator::ALOAD_2);
+  BytecodeGenerator::add_invoke_virtual(integer_class_intValue_method, constantPool, result);
+
+  result.push_back(calculation);
+
+  BytecodeGenerator::add_invoke_static(integer_class_static_value_of_method, constantPool, result);
+
+}
+
 void add_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-  result.push_back(BytecodeGenerator::IADD);  //iadd
+  add_integer_calculation(BytecodeGenerator::IADD, constantPool, result);
 }
 void sub_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-  result.push_back(BytecodeGenerator::ISUB);  //isub
+  add_integer_calculation(BytecodeGenerator::ISUB, constantPool, result);
 }
 void mult_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-  result.push_back(BytecodeGenerator::IMULT);  //imul
+  add_integer_calculation(BytecodeGenerator::IMULT, constantPool, result);
 }
 void div_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-  result.push_back(BytecodeGenerator::IDIV);  //idiv
+  add_integer_calculation(BytecodeGenerator::IDIV, constantPool, result);
 }
 void mod_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-  result.push_back(BytecodeGenerator::IREM); //irem
+  add_integer_calculation(BytecodeGenerator::IREM, constantPool, result);
 }
 void cut_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
@@ -204,61 +271,50 @@ void false_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_pt
 {
   code.push_back(BytecodeGenerator::ICONST_0);
 }
-void greater_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+void greater_ByteCode(ConstantPool& pool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
+  // store the two integers and load them to get the right order
+  result.push_back(BytecodeGenerator::ISTORE_1);
+  result.push_back(BytecodeGenerator::ISTORE_2);
+  result.push_back(BytecodeGenerator::ILOAD_1);
+  result.push_back(BytecodeGenerator::ILOAD_2);
+
+  std::vector<char> if_body;
+  std::vector<char> goto_body;
+  // represents the branch from 'goto' to the end
+  std::vector<char> else_branch;
+
+  goto_body.push_back(BytecodeGenerator::ICONST_0);
+  BytecodeGenerator::add_conditional_with_instruction(BytecodeGenerator::GOTO, &goto_body[0], else_branch);
+
+  // it is necessary to push ICONST_1 before the goto-branch
+  if_body.push_back(BytecodeGenerator::ICONST_1);
+  if_body.insert(if_body.end(), else_branch.begin(), else_branch.end());
+
+  BytecodeGenerator::add_conditional_with_instruction(BytecodeGenerator::IF_ICMPLE, &if_body[0], result);
+}
+void equal_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+/*
+ * TODO: "jump-bytes" hard coded, should be replaced by Chris' if-function later
+ *        but actually not necessary, because in this case it is static
+ * The bytecode represents the following Java code: boolean c = (a == b);
+ */
+
   // store the two integers and load them to get the right order
   code.push_back(BytecodeGenerator::ISTORE_1);
   code.push_back(BytecodeGenerator::ISTORE_2);
   code.push_back(BytecodeGenerator::ILOAD_1);
   code.push_back(BytecodeGenerator::ILOAD_2);
 
-  code.push_back(BytecodeGenerator::IF_ICMPLE);
-  /* FIXME:
-   * Couldn't really find out the meaning of the Hex 0x0007.
-   * Should be the label to jump for the IF_ICMPLE, but can't
-   * explain why it is always the same (Hex 0x0007).
-   */
-  code.push_back('\x00');
-  code.push_back('\x07');
-  code.push_back(BytecodeGenerator::ICONST_1);
-
-  code.push_back(BytecodeGenerator::GOTO);
-  /* FIXME:
-     * Couldn't really find out the meaning of the Hex 0x0004.
-     * Should be the label to jump for the GOTO, but can't
-     * explain why it is always the same (Hex 0x0004).
-     */
-  code.push_back('\x00');
-  code.push_back('\x04');
-  code.push_back(BytecodeGenerator::ICONST_0);
-}
-void equal_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
-{
-/*
- * TODO: typecheck missing
- */
-// store the two integers and load them to get the right order
-  code.push_back(BytecodeGenerator::ISTORE_1);
-  code.push_back(BytecodeGenerator::ISTORE_2);
-  code.push_back(BytecodeGenerator::ILOAD_1);
-  code.push_back(BytecodeGenerator::ILOAD_2);
-
+  // if false, jump to ICONST_0
   code.push_back(BytecodeGenerator::IF_ICMPNE);
-  /* FIXME:
-   * Couldn't really find out the meaning of the Hex 0x0007.
-   * Should be the label to jump for the IF_ICMPNE, but can't
-   * explain why it is always the same (Hex 0x0007).
-   */
   code.push_back('\x00');
   code.push_back('\x07');
   code.push_back(BytecodeGenerator::ICONST_1);
 
+  // jump after the ICONST_0
   code.push_back(BytecodeGenerator::GOTO);
-  /* FIXME:
-	 * Couldn't really find out the meaning of the Hex 0x0004.
-	 * Should be the label to jump for the GOTO, but can't
-	 * explain why it is always the same (Hex 0x0004).
-	 */
   code.push_back('\x00');
   code.push_back('\x04');
   code.push_back(BytecodeGenerator::ICONST_0);
@@ -300,15 +356,13 @@ std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph
   std::vector<char> result;
   Graphs::Node_ptr current_node(graph->start());
   while(current_node && current_node->command.type != Command::Type::FINISH) {
-    uint16_t indexInPool;
+    //uint16_t indexInPool; // [-Werr=unused-variable], remove comment when needed
     func_ptr f = CODE_FUNC_MAPPING.at(current_node->command.type);
     if (f) {
       f(constantPool, result, current_node);
     }
     current_node = current_node->successor1;
   }
-  // Emit
-  // return
   result.push_back(BytecodeGenerator::RETURN);
   return result;
 }

@@ -199,7 +199,7 @@ class Parser {
 		const int STRAIGHT = 1;
 		const int RIGHT = 2;
 
-		uint32_t posRow, posCol;
+		int32_t posRow, posCol;
 		Direction dir;
 		shared_ptr<RailFunction> board;
 

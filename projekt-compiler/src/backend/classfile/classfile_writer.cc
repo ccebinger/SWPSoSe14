@@ -69,7 +69,7 @@ void ClassfileWriter::WriteClassfile() {
  * The magic number indicates a java class-file
  */
 void ClassfileWriter::WriteMagicNumber() {
-  out_.write(kMagicNumber, sizeof(kMagicNumber));
+  out_.write(kMagicNumber, (sizeof(kMagicNumber)/sizeof(kMagicNumber[0])));
 }
 
 /*!
@@ -94,7 +94,7 @@ void ClassfileWriter::WriteConstantPool() {
  * \brief Write the access flag (e.g. 0x00000001 for public)
  */
 void ClassfileWriter::WriteAccessFlags() {
-  out_.write(kPublicAccessFlag, sizeof(kPublicAccessFlag));
+  out_.write(kPublicAccessFlag, (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
 }
 
 /*!
@@ -123,7 +123,7 @@ void ClassfileWriter::WriteSuperClassName() {
  * Not used in Rail programms, thus 0x0000
  */
 void ClassfileWriter::WriteInterfaces() {
-  out_.write(kNotRequired, sizeof(kNotRequired));
+  out_.write(kNotRequired, (sizeof(kNotRequired) / sizeof(kNotRequired[0])));
 }
 
 /*!
@@ -131,7 +131,7 @@ void ClassfileWriter::WriteInterfaces() {
  * Not used in Rail programms, thus 0x0000
  */
 void ClassfileWriter::WriteFields() {
-  out_.write(kNotRequired, sizeof(kNotRequired));
+  out_.write(kNotRequired, (sizeof(kNotRequired) / sizeof(kNotRequired[0])));
 }
 
 /*!
@@ -143,7 +143,7 @@ void ClassfileWriter::WriteFields() {
  */
 void ClassfileWriter::WriteMethods() {
 
-	out_ << constant_pool_.countItemType(METHOD);
+  out_ << constant_pool_.countItemType(METHOD);
 
 	/**
 	 * Inserts the bytecode for the method init.
@@ -166,7 +166,8 @@ void ClassfileWriter::WriteMethods() {
 						//			which attributes belong to which method.
 						// WriteAttributes();
 		};
-	out_.write(methodInit, sizeof(methodInit));
+
+	out_.write(methodInit, (sizeof(methodInit)/sizeof(methodInit[0])));
 
 	/**
 	 * Inserts the bytecode for the method main.
@@ -187,7 +188,12 @@ void ClassfileWriter::WriteMethods() {
 						'\x00', '\x00',	/* u2 exception_table_length=0 */
 						// TODO: call WriteAttributes to link method with its specific attributes
 		};
-	out_.write(methodMain, sizeof(methodMain));
+	out_.write(methodMain, (sizeof(methodMain)/sizeof(methodMain[0])));
+
+	//std::vector<char> func = code_functions_.at("main");
+  //out_.write((char*)func.data(),
+   //          func.size());
+
 }
 
 /*!
