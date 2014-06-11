@@ -23,3 +23,7 @@ Nützliches:
 Unter Linux in der command-line <sudo apt-get install qgit gitk> um die zusätzliche Programme zu installieren. Diese Programme sind nützlich um das Repository zu betrachten(Änderungen nachzuvollziehen). 
 Ergänzend dazu sei auf den heißen Tipp von Lyudmila (Haskell-Gruppe) verwiesen: tig. 
 
+Angenehmes Merge-Tool
+sudo apt-get install meld
+git config --global merge.tool meld
+
