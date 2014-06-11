@@ -10,6 +10,25 @@
 #include <frontend/parser/Parser.h>
 
 
+bool operator<( const NodeIdentifier &l, const NodeIdentifier &r){
+	if(l.posRow == r.posRow){
+		if(l.posCol==r.posCol){
+			//cols and rows are equal, dir is decisive for comparison
+			return l.dir < r.dir;
+		} else{
+			//rows are equal, col is decisive for comparison
+			return l.posCol<r.posCol;
+		}
+	} else{
+		//row is decisive for comparison
+		return l.posRow<r.posRow;
+	}
+}
+
+bool operator==(const NodeIdentifier &l,const NodeIdentifier &r){
+		return l.posRow==r.posRow && l.posCol==r.posCol && l.dir==r.dir;
+}
+
 Parser::Parser(std::shared_ptr<RailFunction> railFunction) {
 	this->board = railFunction;
 	//errorMessage - empty String: Everything is ok
@@ -24,19 +43,19 @@ void Parser::setRowCol(int newRow, int newCol){
 
 shared_ptr<Adjacency_list> Parser::parseGraph() {
 	addNextNodeAsTruePathOfPreviousNode = true;
-	int startPosY=-1;
+	int startPosCol=-1;
 	//find $, initiate pos
 	for(uint32_t i=0; i<board->getWidth(); ++i) {
 		if(board->get(0, i) == '$') {
-			startPosY = i;
+			startPosCol = i;
 			break;
 		}
 	}
-	if(startPosY==-1){
+	if(startPosCol==-1){
 		errorMessage ="'" + board->getName() + "': $ not found";
 		return NULL;
 	}
-	return parseGraph(0,startPosY,SE);
+	return parseGraph(0,startPosCol,SE);
 }
 
 shared_ptr<Adjacency_list> Parser::parseGraph(int startPosRow, int startPosCol, Direction startDir) {
@@ -142,24 +161,23 @@ void Parser::move() {
 
 bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol) {
 	uint32_t charAtStraight = board->get(straightRow, straightCol);
-
 	//cout << "\tcheckForValidCommandsInStraightDir(" << straightRow << ", " << straightCol << ") " << Encoding::unicodeToUtf8(charAtStraight) << endl;
-
 	bool didGoStraight = true;
+	NodeIdentifier id{posRow,posCol,dir};
 	switch(charAtStraight) {
 		case 'o':
 			setRowCol(straightRow, straightCol);
-			addToAbstractSyntaxGraph("o", Command::Type::OUTPUT);
+			parsingNotFinished = addToAbstractSyntaxGraph("o", Command::Type::OUTPUT,id);
 			break;
 		case '[':
 			setRowCol(straightRow, straightCol);
 			//TODO: ueberpruefen ob notwendig: list<char> invalidCharList = {'[','{','(',},;
-			addToAbstractSyntaxGraph(readCharsUntil(']'), Command::Type::PUSH_CONST);
+			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil(']'), Command::Type::PUSH_CONST,id);
 			//TODO: create pushNode in graph
 			break;
 		case ']':
 			setRowCol(straightRow, straightCol);
-			addToAbstractSyntaxGraph(readCharsUntil('['), Command::Type::PUSH_CONST);
+			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil('['), Command::Type::PUSH_CONST,id);
 			break;
 		case '@':
 			setRowCol(straightRow, straightCol);
@@ -167,28 +185,28 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			break;
 		case '#':
 			setRowCol(straightRow, straightCol);
-			addToAbstractSyntaxGraph("#", Command::Type::FINISH);
+			parsingNotFinished = addToAbstractSyntaxGraph("#", Command::Type::FINISH,id);
 			parsingNotFinished = false;
 			break;
 		case '<':
-			didGoStraight = parseJunctions(E, straightRow, straightCol, SE, NE, "<", Command::Type::EASTJUNC);
+			didGoStraight = parseJunctions(E, straightRow, straightCol, SE, NE, "<", Command::Type::EASTJUNC,id);
 			break;
 		case '>':
-			didGoStraight = parseJunctions(W, straightRow, straightCol, NW, SW, ">", Command::Type::WESTJUNC);
+			didGoStraight = parseJunctions(W, straightRow, straightCol, NW, SW, ">", Command::Type::WESTJUNC,id);
 			break;
 		case '^':
-			didGoStraight = parseJunctions(S, straightRow, straightCol, SW, SE, "^", Command::Type::SOUTHJUNC);
+			didGoStraight = parseJunctions(S, straightRow, straightCol, SW, SE, "^", Command::Type::SOUTHJUNC,id);
 			break;
 		case 'v':
-			didGoStraight = parseJunctions(N, straightRow, straightCol, NE, NW, "v", Command::Type::NORTHJUNC);
+			didGoStraight = parseJunctions(N, straightRow, straightCol, NE, NW, "v", Command::Type::NORTHJUNC,id);
 			break;
 		case '{':
 			setRowCol(straightRow, straightCol);
-			addToAbstractSyntaxGraph(readCharsUntil('}'), Command::Type::CALL);
+			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil('}'), Command::Type::CALL,id);
 			break;
 		case '}':
 			setRowCol(straightRow, straightCol);
-			addToAbstractSyntaxGraph(readCharsUntil('{'), Command::Type::CALL);
+			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil('{'), Command::Type::CALL,id);
 			break;
 		case 't':
 		case 'f':
@@ -203,73 +221,73 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 		case '8':
 		case '9':
 			setRowCol(straightRow, straightCol);
-			addToAbstractSyntaxGraph(Encoding::unicodeToUtf8(charAtStraight), Command::Type::PUSH_CONST);
+			parsingNotFinished = addToAbstractSyntaxGraph(Encoding::unicodeToUtf8(charAtStraight), Command::Type::PUSH_CONST,id);
 			break;
 
 		// System operation
 		case 'b': //boom
 			setRowCol(straightRow,straightCol);
-			addToAbstractSyntaxGraph("b", Command::Type::BOOM);
+			parsingNotFinished = addToAbstractSyntaxGraph("b", Command::Type::BOOM,id);
 			break;
 		case 'e': //EOF
 			setRowCol(straightRow,straightCol);
-			addToAbstractSyntaxGraph("e", Command::Type::EOF_CHECK);
+			parsingNotFinished = addToAbstractSyntaxGraph("e", Command::Type::EOF_CHECK,id);
 			break;
 
 		// Arithmetic Operations
 		case 'a': // Add
 			setRowCol(straightRow, straightCol);
-			addToAbstractSyntaxGraph("a", Command::Type::ADD);
+			parsingNotFinished = addToAbstractSyntaxGraph("a", Command::Type::ADD,id);
 			break;
 		case 'd': // Divide
 			setRowCol(straightRow, straightCol);
-			addToAbstractSyntaxGraph("d", Command::Type::DIV);
+			parsingNotFinished = addToAbstractSyntaxGraph("d", Command::Type::DIV,id);
 			break;
 		case 'm': // Multiply
 			setRowCol(straightRow, straightCol);
-			addToAbstractSyntaxGraph("m", Command::Type::MULT);
+			parsingNotFinished = addToAbstractSyntaxGraph("m", Command::Type::MULT,id);
 			break;
 		case 'r': // Remainder
 			setRowCol(straightRow, straightCol);
-			addToAbstractSyntaxGraph("r", Command::Type::MOD);
+			parsingNotFinished = addToAbstractSyntaxGraph("r", Command::Type::MOD,id);
 			break;
 		case 's': // Subtract
 			setRowCol(straightRow, straightCol);
-			addToAbstractSyntaxGraph("s", Command::Type::SUB);
+			parsingNotFinished = addToAbstractSyntaxGraph("s", Command::Type::SUB,id);
 			break;
 
 		// String Operations
 		case 'c': // Cut
 			setRowCol(straightRow, straightCol);
-			addToAbstractSyntaxGraph("c", Command::Type::CUT);
+			parsingNotFinished = addToAbstractSyntaxGraph("c", Command::Type::CUT,id);
 			break;
 		case 'z': // Size
 			setRowCol(straightRow, straightCol);
-			addToAbstractSyntaxGraph("z", Command::Type::SIZE);
+			parsingNotFinished = addToAbstractSyntaxGraph("z", Command::Type::SIZE,id);
 			break;
 		case 'p': // Append
 			setRowCol(straightRow, straightCol);
-			addToAbstractSyntaxGraph("p", Command::Type::APPEND);
+			parsingNotFinished = addToAbstractSyntaxGraph("p", Command::Type::APPEND,id);
 			break;
 
 		// Conditionals
 		case 'g': // Greater than
 			setRowCol(straightRow, straightCol);
-			addToAbstractSyntaxGraph("g", Command::Type::GREATER);
+			parsingNotFinished = addToAbstractSyntaxGraph("g", Command::Type::GREATER,id);
 			break;
 		case 'q': // Is Equal
 			setRowCol(straightRow, straightCol);
-			addToAbstractSyntaxGraph("q", Command::Type::EQUAL);
+			parsingNotFinished = addToAbstractSyntaxGraph("q", Command::Type::EQUAL,id);
 			break;
 
 		// Variables
 		case '(':
 			setRowCol(straightRow, straightCol);
-			parseVariable(readCharsUntil(')'));
+			parsingNotFinished = parseVariable(readCharsUntil(')'),id);
 			break;
 		case ')':
 			setRowCol(straightRow, straightCol);
-			parseVariable(readCharsUntil('('));
+			parsingNotFinished = parseVariable(readCharsUntil('('),id);
 			break;
 		default:
 			didGoStraight = false;
@@ -282,48 +300,48 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 }
 
 
-void Parser::parseVariable(string data) {
+bool Parser::parseVariable(string data, NodeIdentifier id) {
 
 	// Filter invalid Variable names
 	if(data.length() < 3) {
 		// Too short
-		errorMessage = "Syntax Error: Invaild variable action " + data + ": too short";
-		return;
+		errorMessage = "Syntax Error: Invalid variable action " + data + ": too short";
+		return false;
 	}
 
 	// Filter {, } within name
 	if(data.find('{') != string::npos || data.find('}') != string::npos) {
-		errorMessage = "Syntax Error: Invaild variable action " + data + ": must not contain { or }";
-		return;
+		errorMessage = "Syntax Error: Invalid variable action " + data + ": must not contain { or }";
+		return false;
 	}
 
 	// Filter () within name
 	string noBraces = data.substr(1, data.length()-2);
 	if(noBraces.find('(') != string::npos || noBraces.find(')') != string::npos) {
-		errorMessage = "Syntax Error: Invaild variable action " + data + ": Variable name must not contain ( or )";
-		return;
+		errorMessage = "Syntax Error: Invalid variable action " + data + ": Variable name must not contain ( or )";
+		return false;
 	}
 
 
 	if(data.find('!') != string::npos) {
 
 		if(data[1] != '!' || data[data.length()-2] != '!') {
-			errorMessage = "Syntax Error: Invaild variable action " + data + ": (!name!) required";
-			return;
+			errorMessage = "Syntax Error: Invalid variable action " + data + ": (!name!) required";
+			return false;
 		}
 
 		// Filter ! within name
 		if(data.substr(2, data.length()-4).find('!') != string::npos) {
-			errorMessage = "Syntax Error: Invaild variable action " + data + ": Variable name must not contain '!'";
-			return;
+			errorMessage = "Syntax Error: Invalid variable action " + data + ": Variable name must not contain '!'";
+			return false;
 		}
 
 		// Variable pop action
-		addToAbstractSyntaxGraph(data, Command::Type::VAR_POP);
+		return addToAbstractSyntaxGraph(data, Command::Type::VAR_POP, id);
 	}
 	else {
 		// Variable push action
-		addToAbstractSyntaxGraph(data, Command::Type::VAR_PUSH);
+		return addToAbstractSyntaxGraph(data, Command::Type::VAR_PUSH, id);
 	}
 }
 
@@ -336,44 +354,61 @@ void Parser::parseVariable(string data) {
  * command name: the junction symbol as a string
  * juncType: ast.h Command::type enum value of the junction
 */
-bool Parser::parseJunctions(Direction requiredDir, int juncRow, int juncCol, Direction truePathDir, Direction falsePathDir, string commandName, Command::Type juncType) {
+bool Parser::parseJunctions(Direction requiredDir, int juncRow, int juncCol, Direction truePathDir, Direction falsePathDir, string commandName, Command::Type juncType, NodeIdentifier id) {
 	if(dir==requiredDir){
-		addToAbstractSyntaxGraph(commandName, juncType);
-		std::shared_ptr<Node> ifNode = currentNode;
-		parseGraph(juncRow, juncCol, truePathDir);
-		parsingNotFinished = true;
-		currentNode = ifNode;
-		addNextNodeAsTruePathOfPreviousNode = false;
-		parseGraph(juncRow, juncCol, falsePathDir);
-		parsingNotFinished = false;
+		parsingNotFinished = addToAbstractSyntaxGraph(commandName, juncType,id);
+		if(parsingNotFinished){
+			//if the junction was not already parsed recursively call self:
+			std::shared_ptr<Node> ifNode = currentNode;
+			parseGraph(juncRow, juncCol, truePathDir);
+			parsingNotFinished = true;
+			currentNode = ifNode;
+			addNextNodeAsTruePathOfPreviousNode = false;
+			parseGraph(juncRow, juncCol, falsePathDir);
+			parsingNotFinished = false;
+		}
 		return true;
 	} else{
 		return false;
 	}
 }
 
-void Parser::addToAbstractSyntaxGraph(string commandName, Command::Type type) {
-	//debug
-	cout << "\tNode creation: " << commandName << endl;
-	std::shared_ptr<Node> node(new Node());
-	node->command = {type,commandName};
-	//TODO:an Graph Schnittstelle anpassen
-	if(abstractSyntaxGraph == NULL) {
-		//this is the first node that we meet create a new one
-		node->id = 1;
-		lastUsedId = 1;
-		abstractSyntaxGraph.reset(new Adjacency_list(board->getName(), node));
-	} else {
-		node->id = ++lastUsedId;
-		abstractSyntaxGraph->addNode(node);
+bool Parser::addToAbstractSyntaxGraph(string commandName, Command::Type type, NodeIdentifier id) {
+	bool nodeWasNew;
+	if(allNodes.find(id)!=allNodes.end()){
+		std::shared_ptr<Node> node;
+		//node already exists
+		cout << "\tReached Node that was already parsed once: " << commandName << endl;
+		node = allNodes.at(id);
 		abstractSyntaxGraph->addEdge(currentNode, node, addNextNodeAsTruePathOfPreviousNode);
-		if(!addNextNodeAsTruePathOfPreviousNode) {
-			//restore default behavior: always add new nodes to the 'true' path of their predecessor
-			//unless it was set before the call of this method (in case an 'IF' was read and we parse the first node of the 'false' branch
-			addNextNodeAsTruePathOfPreviousNode = true;
+		currentNode = node;
+		nodeWasNew = false;
+	} else{
+		//create a new node
+		cout << "\tNode creation: " << commandName << endl;
+		std::shared_ptr<Node> node(new Node());
+		node->command = {type,commandName};
+		//TODO:an Graph Schnittstelle anpassen
+		if(abstractSyntaxGraph == NULL) {
+			//this is the first node that we meet, create a new one
+			node->id = 1;
+			lastUsedId = 1;
+			abstractSyntaxGraph.reset(new Adjacency_list(board->getName(), node));
+		} else {
+			node->id = ++lastUsedId;
+			abstractSyntaxGraph->addNode(node);
+			abstractSyntaxGraph->addEdge(currentNode, node, addNextNodeAsTruePathOfPreviousNode);
 		}
+		allNodes[id] = node;
+		nodeWasNew = true;
+		currentNode = node;
 	}
-	currentNode = node;
+	if(!addNextNodeAsTruePathOfPreviousNode) {
+		//restore default behavior: always add new nodes to the 'true' path of their predecessor
+		//unless it was set before the call of this method (in case an 'IF' was read and we parse the first node of the 'false' branch
+		addNextNodeAsTruePathOfPreviousNode = true;
+	}
+	return nodeWasNew;
 }
 
 //FIXME translate -> english
