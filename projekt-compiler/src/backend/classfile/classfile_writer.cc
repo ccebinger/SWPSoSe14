@@ -18,7 +18,7 @@
 
 const char ClassfileWriter::kMagicNumber[] { '\xCA', '\xFE','\xBA', '\xBE' };
 const char ClassfileWriter::kNotRequired[] { '\x00', '\x00' };
-const char ClassfileWriter::kPublicAccessFlag[] { '\x00', '\x00','\x00', '\x01' };
+const char ClassfileWriter::kPublicAccessFlag[] { '\x00', '\x01'};
 
 std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
     ClassfileWriter::kVersionNumbers {
@@ -86,8 +86,23 @@ void ClassfileWriter::WriteVersionNumber() {
  * \sa constant_pool.cc
  */
 void ClassfileWriter::WriteConstantPool() {
-  out_.write((char*)constant_pool_.getByteArray().data(),
-             constant_pool_.getByteArray().size());
+
+  std::vector<Item> items = constant_pool_.getItems();
+  std::vector<unsigned char> test = constant_pool_.getByteArray();
+  uint8_t size = items.size();
+  out_.width(2);
+  out_.fill('\x0');
+  out_ << std::hex << size;
+  out_.fill(' ');
+  out_.width(1);
+  for (int i = 0; i < items.size(); i++)
+  {
+    Item item = items.at(i);
+    std::vector<char> hex = item.getHexRepresentation();
+    out_.write((char*) &hex[0], hex.size());
+  }
+  //out_.write((char*)constant_pool_.getByteArray().data(),
+    //        constant_pool_.getByteArray().size());
 }
 
 /*!
