@@ -68,7 +68,8 @@ class Item {
   {
     std::vector<unsigned char> result;
     std::stringstream sstream;
-    sstream << '0' << type;
+    //sstream << '0' << type;
+    writer.writeU8(type);
     //writer.
     //result.add((char) t);
     //sstream.width(1);
