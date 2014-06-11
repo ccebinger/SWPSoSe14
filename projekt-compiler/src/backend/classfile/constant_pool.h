@@ -25,16 +25,19 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include <vector>
 #include <string>
 #include <functional>
+#include <sstream>
+#include <ios>
+#include <iostream>
 
 enum ItemType{
-  CLASS = 7,
-  FIELD = 9,
-  METHOD = 10,
-  IMETHOD = 11,
-  UTF8 = 1,
-  STR = 8,
-  INT = 3,
-  LONG = 5
+  CLASS = '\x007',
+  FIELD = '\x09',
+  METHOD = '\x0a',
+  IMETHOD = '\x0b',
+  UTF8 = '\x01',
+  STR = '\x08',
+  INT = '\x03',
+  LONG = '\x05'
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -61,6 +64,31 @@ class Item {
   int64_t longVal;  //!< if type long values is stored here
   std::string strVal;  //!< if type string value is stored here
   Item *next;  //!< pointer to next item in list
+  std::vector<char> getHexRepresentation()
+  {
+    std::vector<char> result;
+    std::stringstream sstream;
+    sstream << '0' << type;
+    //result.add((char) t);
+    //sstream.width(1);
+//    sstream.fill(prev);
+    if (type == ItemType::INT)
+      sstream << std::hex << intVal;
+    else
+    {
+      if (type == ItemType::UTF8)
+        sstream << std::hex << strVal.size();
+      sstream << std::hex << strVal;
+    }
+
+    std::string str = sstream.str();
+    int len = str.length();
+    for (int i = 0; i < len; i++)
+      result.push_back(str.at(i));
+
+
+    return result;
+  }
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -84,6 +112,7 @@ class ConstantPool {
   const Item& get(const Item &key)const;
   size_t countItemType(ItemType type);
 
+  std::vector<Item> getItems() {return items;}
  protected:
   void putByte(uint8_t b);
   void putShort(uint16_t s);
@@ -93,7 +122,7 @@ class ConstantPool {
   void encodeUTF8(std::string s, uint32_t pos);
 
   size_t put(Item i);
-  void put2(int32_t s);
+  void put2(uint8_t s);
   void put11(int32_t b1, int32_t b2);
   void put12(int32_t b, int32_t s);
   void put122(int32_t b, int32_t s1, int32_t s2);

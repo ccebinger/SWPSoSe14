@@ -459,9 +459,9 @@ size_t ConstantPool::put(Item i) {
 /// enlarged if necessary.
 /// \param s short.
 ////////////////////////////////////////////////////////////////////////
-void ConstantPool::put2(int32_t s) {
-  pool.push_back((uint8_t) (s>>8));
-  pool.push_back((uint8_t) s);
+void ConstantPool::put2(uint8_t s) {
+  pool.push_back('\x0');
+  pool.push_back(s);
 }
 
 ////////////////////////////////////////////////////////////////////////
