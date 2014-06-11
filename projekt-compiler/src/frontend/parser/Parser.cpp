@@ -118,15 +118,19 @@ void Parser::move() {
 			return;
 		}
 	}
-	if(leftIsInBoardBounds) {
-		uint32_t charAtLeft = board->get(leftRow, leftCol);
-		list<uint32_t> allowedRailsLeft = validRailMap.at(dir).left;
-		leftIsValidRail = std::find(allowedRailsLeft.begin(), allowedRailsLeft.end(), charAtLeft) != allowedRailsLeft.end();
-	}
-	if(rightIsInBoardBounds) {
-		uint32_t charAtRight = board->get(rightRow, rightCol);
-		list<uint32_t> allowedRailsRight = validRailMap.at(dir).right;
-		rightIsValidRail = std::find(allowedRailsRight.begin(),allowedRailsRight.end(),charAtRight)!=allowedRailsRight.end();
+	//if we arrive here we could not go straight
+	if(currentCharIsNoCrossing()){
+		//only if the current char is no crossing we are allowed to look left or right
+		if(leftIsInBoardBounds) {
+			uint32_t charAtLeft = board->get(leftRow, leftCol);
+			list<uint32_t> allowedRailsLeft = validRailMap.at(dir).left;
+			leftIsValidRail = std::find(allowedRailsLeft.begin(), allowedRailsLeft.end(), charAtLeft) != allowedRailsLeft.end();
+		}
+		if(rightIsInBoardBounds) {
+			uint32_t charAtRight = board->get(rightRow, rightCol);
+			list<uint32_t> allowedRailsRight = validRailMap.at(dir).right;
+			rightIsValidRail = std::find(allowedRailsRight.begin(),allowedRailsRight.end(),charAtRight)!=allowedRailsRight.end();
+		}
 	}
 
 	// ---------------------------------------------------------------------
@@ -157,6 +161,11 @@ void Parser::move() {
 	}
 	errorMessage = "'" + board->getName() + "' : end of move-function reached - this should never happen and is an internal error";
 	return;
+}
+
+bool Parser::currentCharIsNoCrossing(){
+	int32_t curChar = board->get(posRow, posCol);
+	return curChar != '*' && curChar != '+' && curChar != 'x';
 }
 
 bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol) {
