@@ -147,7 +147,7 @@ size_t ConstantPool::addInt(int32_t value) {
   i.set(value);
   if (!check(i)) {
     std::cout << "new int\n";
-    put2(INT);
+    putByte(INT);
     index = put(i);
     putInt(value);
   } else {
@@ -167,7 +167,7 @@ size_t ConstantPool::addLong(int64_t value) {
   size_t index = 0;
   i.set(value);
   if (!check(i)) {
-    put2(LONG);
+    putByte(LONG);
     index = put(i);
     putLong(value);
   } else {
@@ -186,7 +186,7 @@ size_t ConstantPool::addString(const std::string &value) {
   size_t index = 0;
   i.set(STR, value);
   if (!check(i)) {
-    put2(UTF8);
+    putByte(UTF8);
     putUTF8(value);
     index = put(i);
   } else {
@@ -205,7 +205,7 @@ size_t ConstantPool::addClassRef(const std::string &value) {
   size_t index = 0;
   i.set(CLASS, value);
   if (!check(i)) {
-    put2(CLASS);
+    putByte(CLASS);
     putUTF8(value);
     index = put(i);
   } else {
@@ -224,7 +224,7 @@ size_t ConstantPool::addFieldRef(const std::string &value) {
   size_t index = 0;
   i.set(FIELD, value);
   if (!check(i)) {
-    put2(FIELD);
+    putByte(FIELD);
     putUTF8(value);
     index = put(i);
   } else {
@@ -243,7 +243,7 @@ size_t ConstantPool::addMethRef(const std::string &value) {
   size_t index = 0;
   i.set(METHOD, value);
   if (!check(i)) {
-    put2(METHOD);
+    putByte(METHOD);
     putUTF8(value);
     index = put(i);
   } else {
@@ -262,7 +262,7 @@ size_t ConstantPool::addIMethRef(const std::string &value) {
   size_t index = 0;
   i.set(IMETHOD, value);
   if (!check(i)) {
-    put2(IMETHOD);
+    putByte(IMETHOD);
     putUTF8(value);
     index = put(i);
   } else {
@@ -452,16 +452,6 @@ size_t ConstantPool::put(Item i) {
   } else {
     return get(i).index;
   }
-}
-
-////////////////////////////////////////////////////////////////////////
-/// Puts two bytes into this byte vector. The byte vector is automatically
-/// enlarged if necessary.
-/// \param s short.
-////////////////////////////////////////////////////////////////////////
-void ConstantPool::put2(int32_t s) {
-  pool.push_back((uint8_t) (s>>8));
-  pool.push_back((uint8_t) s);
 }
 
 ////////////////////////////////////////////////////////////////////////
