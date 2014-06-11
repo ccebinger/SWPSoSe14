@@ -152,44 +152,44 @@ class Parser {
 
 		const map<Direction, allowedChars> validRailMap = {
 			{ E, allowedChars {
-				{'/','*','x'},				// left
+				{'/'},				// left
 				{'-','/','\\','+','*'},		// straight
-				{'\\','*','x'},				// right
+				{'\\'},				// right
 			}},
 			{ SE, allowedChars {
-				{'-','*','+'},
+				{'-'},
 				{'-','\\','|','*','x'},
-				{'|','*','+'},
+				{'|'},
 			}},
 			{ S, allowedChars {
-				{'\\','*','x'},
+				{'\\'},
 				{'|','\\','/','*','+'},
-				{'/','*','x'}
+				{'/'}
 			}},
 			{ SW, allowedChars {
-				{'|','*','+'},
+				{'|'},
 				{'-','/','|','*','x'},
-				{'-','*','+'}
+				{'-'}
 			}},
 			{ W, allowedChars {
-				{'/','*','x'},
+				{'/'},
 				{'-','/','\\','+','*'},
-				{'\\','*','x'},
+				{'\\'},
 			}},
 			{ NW, allowedChars {
-				{'-','*','+'},
+				{'-'},
 				{'-','\\','|','*','x'},
-				{'|','*','+'},
+				{'|'},
 			}},
 			{ N, allowedChars {
-				{'\\','*','x'},
+				{'\\'},
 				{'|','\\','/','*','+'},
-				{'/','*','x'},
+				{'/'},
 			}},
 			{ NE, allowedChars {
-				{'|','*','+'},
+				{'|'},
 				{'-','/','|','*','x'},
-				{'-','*','+'},
+				{'-'},
 			}},
 		};
 
@@ -218,6 +218,7 @@ class Parser {
 		void turnLeft45Deg();
 		void turnRight45Deg();
 		void reverseDirection();
+		bool currentCharIsNoCrossing();
 		bool parseVariable(string data,NodeIdentifier);
 		bool parseJunctions(Direction,int,int,Direction,Direction,string,Command::Type,NodeIdentifier);
 		bool checkForValidCommandsInStraightDir(int,int);
