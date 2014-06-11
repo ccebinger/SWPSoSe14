@@ -12,7 +12,7 @@
 class Point{
 	private:
     enum type { RAIL, COM, STRING, FUNC, EMPTY };
-    int muster, connections, bCons, color, x , y, start;
+    int muster, connections, bCons, color, x , y, start, stringMuster;
 	char sign;
 	Point* cons[8];
     bool string;
@@ -111,6 +111,7 @@ class Point{
         color = 0;
         this->x = x;
         this->y = y;
+        stringMuster = 0;
 	}
     Point(int x, int y){
         start = 0;
@@ -123,6 +124,7 @@ class Point{
         this->x = x;
         this->y = y;
         bCons = 0;
+        stringMuster = 0;
     }
     Point(Point *next, char sign, int x, int y){
         start = 0;
@@ -136,6 +138,7 @@ class Point{
         color = 0;
         this->x = x;
         this->y = y;
+        stringMuster = 0;
 	}
     Point* getPoint (int x, int y){
 		if((bool)y){
@@ -222,10 +225,10 @@ protected:
         }else{
             switch(type){
             case FUNC:
-                color = 0x00FF0000;
+                color = 0x0000FF00;
                 break;
             default:
-                color = 0xFF000000;
+                color = 0x0000FF00;
                 break;
             }
         }
@@ -281,30 +284,23 @@ public:
 				break;
 		}bCons |= pCon;
 	}
-    Point* setString(int con){
-        string = true;
-        if(con & 128) return (bCons & 1)? cons[7] : NULL;
-        if(con & 64) return (bCons & 2)? cons[6] : NULL;
-        if(con & 32) return (bCons & 4)? cons[5] : NULL;
-        if(con & 16) return (bCons & 8)? cons[4] : NULL;
-        if(con & 8) return (bCons & 16)? cons[3] : NULL;
-        if(con & 4) return (bCons & 32)? cons[2] : NULL;
-        if(con & 2) return (bCons & 64)? cons[1] : NULL;
-        if(con & 1) return (bCons & 128)? cons[0] : NULL;
+    Point* get_D_Next(int con){
+        if(con & 128) return (bCons & 128)? cons[0] : NULL;
+        if(con & 64) return (bCons & 64)? cons[1] : NULL;
+        if(con & 32) return (bCons & 32)? cons[2] : NULL;
+        if(con & 16) return (bCons & 16)? cons[3] : NULL;
+        if(con & 8) return (bCons & 8)? cons[4] : NULL;
+        if(con & 4) return (bCons & 4)? cons[5] : NULL;
+        if(con & 2) return (bCons & 2)? cons[6] : NULL;
+        if(con & 1) return (bCons & 1)? cons[7] : NULL;
     }
-    void getStringDirection(Stack *directions, int x, int y){
-        if(!string)return;
-        if(connections & 128)directions->push(x+1,y+1,' ',128);
-        if(connections & 64)directions->push(x,y+1,' ',64);
-        if(connections & 32)directions->push(x-1,y+1,' ',32);
-        if(connections & 16)directions->push(x+1,y,' ',16);
-        if(connections & 8)directions->push(x-1,y,' ',8);
-        if(connections & 4)directions->push(x+1,y-1,' ',4);
-        if(connections & 2)directions->push(x,y-1,' ',2);
-        if(connections & 1)directions->push(x-1,y-1,' ',1);
+    bool isString(int direction){
+        if(stringMuster & direction) return true;
+        else return false;
     }
 
     void makeCons(InternStack *change){
+        if(string) muster |= stringMuster;
         if(start&muster) makeColor();
         else color = 0xFF000000;
         if(bCons & 128)cons[0]->setConnections(1,(muster&128)?true:false,change,(((~128) & start & muster) && (muster & 128))?1:0);
@@ -325,11 +321,24 @@ public:
     int getStyle(void){
         return color;
     }
-    int getStartCount(void){
+    int getStart(void){
         return start;
     }
+    void setStringMuster(int muster){
+        string = true;
+        stringMuster |= muster;
+    }
+    bool setNoString(int muster){
+        if(!string) return false;
+        stringMuster &= (~muster);
+        if(!stringMuster) string = false;
+        return true;
+    }
+    int getStringDirections(void){
+        return stringMuster;
+    }
 
-	protected:
+protected:
 	Point* getNextRight(void){
 		return (bCons & 8) ? cons[4] : NULL;
 	}
