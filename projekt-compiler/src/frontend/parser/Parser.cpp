@@ -165,10 +165,6 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 	bool didGoStraight = true;
 	NodeIdentifier id{posRow,posCol,dir};
 	switch(charAtStraight) {
-		case 'o':
-			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("o", Command::Type::OUTPUT,id);
-			break;
 		case '[':
 			setRowCol(straightRow, straightCol);
 			//TODO: ueberpruefen ob notwendig: list<char> invalidCharList = {'[','{','(',},;
@@ -233,7 +229,22 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			setRowCol(straightRow,straightCol);
 			parsingNotFinished = addToAbstractSyntaxGraph("e", Command::Type::EOF_CHECK,id);
 			break;
-
+		case 'i': //EOF
+			setRowCol(straightRow,straightCol);
+			parsingNotFinished = addToAbstractSyntaxGraph("i", Command::Type::INPUT,id);
+			break;
+		case 'o':
+			setRowCol(straightRow, straightCol);
+			parsingNotFinished = addToAbstractSyntaxGraph("o", Command::Type::OUTPUT,id);
+			break;
+		case 'u': //Underflowcheck
+			setRowCol(straightRow, straightCol);
+			parsingNotFinished = addToAbstractSyntaxGraph("u", Command::Type::UNDERFLOW_CHECK,id);
+			break;
+		case '?':
+			setRowCol(straightRow, straightCol);
+			parsingNotFinished = addToAbstractSyntaxGraph("?", Command::Type::TYPE_CHECK,id);
+			break;
 		// Arithmetic Operations
 		case 'a': // Add
 			setRowCol(straightRow, straightCol);
@@ -279,6 +290,20 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			setRowCol(straightRow, straightCol);
 			parsingNotFinished = addToAbstractSyntaxGraph("q", Command::Type::EQUAL,id);
 			break;
+
+		// List Operation
+		case 'n': //Nil
+			setRowCol(straightRow, straightCol);
+			parsingNotFinished = addToAbstractSyntaxGraph("n", Command::Type::NIL,id);
+			break;
+		/*case 'c': // Concat
+			setRowCol(straightRow, straightCol);
+			parsingNotFinished = addToAbstractSyntaxGraph("c", Command::Type::CONCAT);
+			break; */
+		/*case '~': // List breakup
+			setRowCol(straightRow, straightCol);
+			parsingNotFinished = addToAbstractSyntaxGraph("~", Command::Type::LIST_BREAKUP);
+			break;*/
 
 		// Variables
 		case '(':
