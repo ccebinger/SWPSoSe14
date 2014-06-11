@@ -151,9 +151,9 @@ public:
 		root->clear();
         root = new Point(0,0);
 	}
-	char* deleteSign(int x, int y){
-		// TODO: DELETE SIGN
-        return NULL;
+    Stack* deleteSign(int x, int y){
+        // TODO: implement DELETE SIGN
+        return new Stack();
 	}
 
 	Graph_Interface* clone(void){

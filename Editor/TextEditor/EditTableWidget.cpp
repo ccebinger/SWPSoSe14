@@ -39,9 +39,26 @@ void EditTableWidget::mousePressEvent(QMouseEvent *mouseEvent)
 {
     mouseEvent->accept();
     QPoint pos = mouseEvent->pos();
+    int rowAt = this->rowAt(pos.y());
+    int colAt = this->columnAt(pos.x());
     int cellRow, cellCol;
-    cellRow = ceil((double)pos.y() / (double)m_elementHeight);
-    cellCol = ceil((double)pos.x() / (double)m_elementWidth);
+    if(rowAt == -1)
+    {
+        cellRow = ceil((double)pos.y() / (double)m_elementHeight);
+    }
+    else
+    {
+        cellRow = rowAt + 1;
+    }
+    if(colAt == -1)
+    {
+        cellCol = ceil((double)pos.x() / (double)m_elementWidth);
+    }
+    else
+    {
+        cellCol = colAt + 1;
+    }
+
     setPosition(cellRow - 1, cellCol - 1);
 }
 
@@ -241,12 +258,12 @@ void EditTableWidget::removeSign()
                 m_textMaxRow = 0;
             }
         }
-        /*Stack *stack = m_graph.deleteSign(m_cursorColPos, m_cursorRowPos);
+        Stack *stack = m_graph.deleteSign(m_cursorColPos, m_cursorRowPos);
         applyStyleChanges(stack);
         if(stack != NULL)
         {
             delete stack;
-        }*/
+        }
 
         emit textChanged();
     }
