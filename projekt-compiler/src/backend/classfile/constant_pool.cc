@@ -118,13 +118,13 @@ void Item::set(ItemType _type,
 ////////////////////////////////////////////////////////////////////////
 ConstantPool::ConstantPool() {
   items.reserve(256);
-  // Java Field Reference auf java/lang/system
-  addFieldRef("java/lang/system");
-  // Field Reference java.lang.system.out
-  addFieldRef("java/lang/system/out");
-  // Method referenc Java.io.printStream.println
-  addMethRef("Java/io/printStream/println");
-  // Class reference Main
+  // Java method reference for java/lang/Object
+  addMethRef("java/lang/Object");
+  // Java field reference for java/lang/System
+  addFieldRef("java/lang/System");
+  // Java method reference for Java.io.printStream.println
+  addMethRef("java/io/PrintStream");
+  // Java class reference Main
   addClassRef("Main");
 }
 
@@ -289,7 +289,7 @@ size_t ConstantPool::addIMethRef(const std::string &value, const std::string &na
 	Item i;
 	size_t methodRef_index = 0;
 	size_t UTF8_index = 0;
-	size_t UTF8_name_index = 0;
+	size_t UTF8_name_index addString= 0;
 	size_t UTF8_descriptor_index = 0;
 	size_t class_index = 0;
 	size_t name_and_type_index = 0;
