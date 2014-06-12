@@ -158,56 +158,35 @@ void ClassfileWriter::WriteFields() {
 void ClassfileWriter::WriteMethods() {
 
   out_ << constant_pool_.countItemType(METHOD);
-
-	/**
-	 * Inserts the bytecode for the method init.
-	 * Should be the same in every class-file.
-	 */
-	char methodInit[] { '\x00', '\x01',	/* access_flag=1 */
-						// TODO: insert reference from constant pool here
-						'\x00', '\x07',	/* <inti> */
-						'\x00', '\x08',	/* ()V */
-						'\x00', '\x01',	/* u2 attributes_count=1 */
-						'\x00', '\x09',	/* u2 attribute_name_index=9 */
-						'\x00', '\x00', '\x00', '\x1D',	/* u4 attribute_length=29 */
-						'\x00', '\x01', /* u2 max_stack=1 */
-						'\x00', '\x01', /* u2 max_locals=1 */
-						'\x00', '\x00', '\x00', '\x05',	/* u4 code_length=5 */
-						'\x2A', '\xB7', '\x00', '\x01', '\xB1',
-						'\x00', '\x00',	/* u2 exception_table_length=0 */
-						// TODO: call WriteAttributes to link method with its specific attributes
-						// FIXME: May think about parameters for the WriteAttributes method to determin,
-						//			which attributes belong to which method.
-						// WriteAttributes();
-		};
-
-	out_.write(methodInit, (sizeof(methodInit)/sizeof(methodInit[0])));
-
-	/**
-	 * Inserts the bytecode for the method main.
-	 * Should be the same in every class-file.
-	 * TODO: for MS2: May be replaced by a rail function
-	 */
-	char methodMain[] { '\x00', '\x09',	/* access_flag=9 */
-						// TODO: insert reference from constant pool
-						'\x00', '\x0B',	/* main */
-						'\x00', '\x0C',	/* ([Ljava/lang/String;)V */
-						'\x00', '\x01',	/* u2 attributes_count=1 */
-						'\x00', '\x09',	/* u2 attribute_name_index=9 */
-						'\x00', '\x00', '\x00', '\x25',	/* u4 attribute_length=37 */
-						'\x00', '\x02', /* u2 max_stack=2 */
-						'\x00', '\x01', /* u2 max_locals=1 */
-						'\x00', '\x00', '\x00', '\x09',	/* u4 code_length=9 */
-						'\xB2', '\x00', '\x02', '\x12', '\x03', '\xB6', '\x00', '\x04', '\xB1',
-						'\x00', '\x00',	/* u2 exception_table_length=0 */
-						// TODO: call WriteAttributes to link method with its specific attributes
-		};
-	out_.write(methodMain, (sizeof(methodMain)/sizeof(methodMain[0])));
+  WriteInitMethod();
+  WriteMainMethod();
+  // for each method do {
+  out_ << kPublicAccessFlag;
+  //
+  out_ << constant_pool_.putUTF8("/*methodName*/");
+  out_ << constant_pool_.putUTF8("()V");
+  WriteAttributes();
+  // }
 
 	//std::vector<char> func = code_functions_.at("main");
   //out_.write((char*)func.data(),
    //          func.size());
 
+}
+/*!
+ * \brief Writes the <init> in class-file
+ * Is the same in all java classes we generate
+ */
+void ClassfileWriter::WriteInitMethod(){
+  // TODO: code here
+}
+
+/*!
+ * \brief Writes the main in class-file
+ * Is the same in all java classes we generate
+ */
+void ClassfileWriter::WriteMainMethod(){
+  // TODO: code here
 }
 
 /*!

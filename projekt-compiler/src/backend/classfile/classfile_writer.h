@@ -129,6 +129,16 @@ class ClassfileWriter {
   void WriteMethods();
 
   /**
+   * Schreibt die <init> Methode.
+   */
+  void WriteInitMethod();
+
+  /*
+   * Schreibt die main Methode.
+   */
+    void WriteMainMethod();
+
+  /**
    * Schreibt die Attribute, insb. den Methoden-Bytecode.
    */
   void WriteAttributes();
