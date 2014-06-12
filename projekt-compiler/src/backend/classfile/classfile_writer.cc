@@ -209,6 +209,13 @@ void ClassfileWriter::WriteMethods() {
    //          func.size());
 
 }
+/*!
+ * \brief Writes the <init> in class-file
+ * Is the same in all java classes we generate
+ */
+void ClassfileWriter::WriteInitMethods(){
+  // TODO: code here
+}
 
 /*!
  * \brief Writes attributes in class-file
