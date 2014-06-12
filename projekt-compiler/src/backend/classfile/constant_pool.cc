@@ -22,6 +22,7 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 //  constructor
 ////////////////////////////////////////////////////////////////////////
 Item::Item() {
+  type = NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -102,15 +103,6 @@ void Item::set(int32_t _intVal) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-/// set item to long value
-/// \param _longVal long integer value
-////////////////////////////////////////////////////////////////////////
-void Item::set(int64_t _longVal) {
-  type = LONG;
-  longVal = _longVal;
-}
-
-////////////////////////////////////////////////////////////////////////
 /// set item to string value
 /// \param _type type of the item
 /// \param _strVal  first part of the value of this item.
@@ -158,25 +150,6 @@ size_t ConstantPool::addInt(int32_t value) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-/// method to put a long int into the pool
-/// \param value value to add to pool
-/// \return index of the long intenger in the pool
-////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addLong(int64_t value) {
-  Item i;
-  size_t index = 0;
-  i.set(value);
-  if (!check(i)) {
-    putByte(LONG);
-    index = put(i);
-    putLong(value);
-  } else {
-    index = get(i).index;
-  }
-  return index;
-}
-
-////////////////////////////////////////////////////////////////////////
 /// DRAFT VERSION - NEEDS TO BE DISCUSSED / REVIEWED (because of my lack of
 ///                                                   knowledge of constant_pool.cc)
 /// method to put a CONSTANT_NameAndType into the pool
@@ -189,7 +162,7 @@ size_t ConstantPool::addNameAndType(int32_t UTF8_name_index, int32_t UTF8_descri
   size_t index = 0;
   i.set(UTF8_name_index); // eindeutig?
   if (!check(i)) {
-    put2(NAME_AND_TYPE);
+    putByte(NAME_AND_TYPE);
     putInt(UTF8_name_index);
     putInt(UTF8_descriptor_index);
     index = put(i);
@@ -416,25 +389,6 @@ void ConstantPool::putInt(int32_t i) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-/// Puts a long into this byte vector. The byte vector is automatically
-/// enlarged if necessary.
-/// \param l a long.
-/// \return this byte vector.
-////////////////////////////////////////////////////////////////////////
-void ConstantPool::putLong(int64_t l) {
-  int32_t i = (int32_t) (l >> 32);
-  pool.push_back((uint8_t) (i >> 24));
-  pool.push_back((uint8_t) (i >> 16));
-  pool.push_back((uint8_t) (i >> 8));
-  pool.push_back((uint8_t) i);
-  i = (int32_t) l;
-  pool.push_back((uint8_t) (i >> 24));
-  pool.push_back((uint8_t) (i >> 16));
-  pool.push_back((uint8_t) (i >> 8));
-  pool.push_back((uint8_t) i);
-}
-
-////////////////////////////////////////////////////////////////////////
 /// Puts an UTF8 string into this byte vector. The byte vector is
 /// automatically enlarged if necessary.
 /// \param s a String whose UTF8 encoded length must be less than 65536.
@@ -521,55 +475,4 @@ size_t ConstantPool::put(Item i) {
   } else {
     return get(i).index;
   }
-}
-
-////////////////////////////////////////////////////////////////////////
-/// Puts two bytes into this byte vector. The byte vector is automatically
-/// enlarged if necessary.
-/// \param b1 first byte.
-/// \param b2 second byte.
-////////////////////////////////////////////////////////////////////////
-void ConstantPool::put11(int32_t b1, int32_t b2) {
-  pool.push_back((uint8_t) b1);
-  pool.push_back((uint8_t) b2);
-}
-
-////////////////////////////////////////////////////////////////////////
-/// Puts a byte and a short into this byte vector. The byte vector is
-/// automatically enlarged if necessary.
-/// \param b first byte.
-/// \param s a short.
-////////////////////////////////////////////////////////////////////////
-void ConstantPool::put12(int32_t b,  int32_t s) {
-  pool.push_back((uint8_t) b);
-  pool.push_back((uint8_t) (s >> 8));
-  pool.push_back((uint8_t) s);
-}
-
-
-////////////////////////////////////////////////////////////////////////
-/// Puts one byte and two shorts into the constant pool.
-/// \param b a byte
-/// \param s1 a short
-/// \param s2 a short
-////////////////////////////////////////////////////////////////////////
-void ConstantPool::put122(int32_t b, int32_t s1, int32_t s2) {
-  pool.push_back(b);
-  pool.push_back(s1>>8);
-  pool.push_back(s1);
-  pool.push_back(s2>>8);
-  pool.push_back(s2);
-}
-
-////////////////////////////////////////////////////////////////////////
-/// Puts two bytes and one short into the constant pool.
-/// \param b1 a byte
-/// \param b2 a byte
-/// \param s a short
-////////////////////////////////////////////////////////////////////////
-void ConstantPool::put112(int32_t b1, int32_t b2, int32_t s) {
-  pool.push_back(b1);
-  pool.push_back(b2);
-  pool.push_back(s>>8);
-  pool.push_back(s);
 }

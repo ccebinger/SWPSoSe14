@@ -30,6 +30,7 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include <iostream>
 
 enum ItemType{
+  NONE,
   CLASS = 0x07,
   FIELD = 0x09,
   METHOD = 0x0A,
@@ -103,7 +104,6 @@ class ConstantPool {
   ConstantPool();
 
   size_t addInt(int32_t value);
-  size_t addLong(int64_t value);
   size_t addNameAndType(int32_t UTF8_name_index, int32_t UTF8_descriptor_index);
   size_t addString(const std::string &value);
   size_t addClassRef(const std::string &value);
@@ -121,16 +121,10 @@ class ConstantPool {
   void putByte(uint8_t b);
   void putShort(uint16_t s);
   void putInt(int32_t i);
-  void putLong(int64_t l);
   void putUTF8(std::string s);
   void encodeUTF8(std::string s, uint32_t pos);
 
   size_t put(Item i);
-  void put2(uint8_t s);
-  void put11(int32_t b1, int32_t b2);
-  void put12(int32_t b, int32_t s);
-  void put122(int32_t b, int32_t s1, int32_t s2);
-  void put112(int32_t b1, int32_t b2, int32_t s);
 
   std::vector<Item> items;  //!< item list
   std::vector<uint8_t> pool;  //!< byte constant list
