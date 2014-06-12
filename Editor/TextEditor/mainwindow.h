@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include <ui_mainwindow.h>
+#include <iostream>
+#include <QProcess>
 
 namespace Ui {
 class MainWindow;
@@ -28,18 +30,41 @@ private:
     bool m_modified;
     QString m_currentFilePath;
     QString m_currentInterpreterPath;
+    QString m_currentCompilerPath;
+
+    QProcess *m_interpreterProcess;
+    QProcess *m_compilerProcess;
 
 
 private slots:
-    void cursorPositionChanged(int x, int y);
+    void cursorPositionChanged(int row, int col);
     void textChanged();
     void newFile();
     void openFile();
     void saveFile();
     void saveFileAs();
 
+    void undo();
+    void redo();
     void setInterpreter();
     void runInterpreter();
+    void setCompiler();
+    void runCompiler();
+
+    void interpreterStarted();
+    void interpreterFinished();
+    void interpreterOutputReady();
+    void interpreterReadError(QProcess::ProcessError error);
+
+    void compilerStarted();
+    void compilerFinished();
+    void compilerOutputReady();
+    void compilerReadError(QProcess::ProcessError error);
+
+    /*void undo();
+    void redo();
+    void undoAvailable(bool available);
+    void redoAvalable(bool available);*/
 };
 
 #endif // MAINWINDOW_H

@@ -14,11 +14,14 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    EditTableWidget.cpp
+    EditTableWidget.cpp \
+    Point.cpp
 
 HEADERS  += mainwindow.h \
     EditTableWidget.h \
     Point.h \
+    Stack.h \
+    InterStack.h \
     Graph_Interface.h
 
 FORMS    += mainwindow.ui
