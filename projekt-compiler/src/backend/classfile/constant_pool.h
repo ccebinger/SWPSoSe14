@@ -20,21 +20,25 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 
 #ifndef PROJEKT_COMPILER_SRC_BACKEND_CLASSFILE_CONSTANT_POOL_H_
 #define PROJEKT_COMPILER_SRC_BACKEND_CLASSFILE_CONSTANT_POOL_H_
-
+#include <backend/classfile/Bytecode_writer.h>
 #include <cstdint>
 #include <vector>
 #include <string>
 #include <functional>
+#include <sstream>
+#include <ios>
+#include <iostream>
 
 enum ItemType{
-  CLASS = 7,
-  FIELD = 9,
-  METHOD = 10,
-  IMETHOD = 11,
-  UTF8 = 1,
-  STR = 8,
-  INT = 3,
-  LONG = 5
+  CLASS = '\x07',
+  FIELD = '\x09',
+  METHOD = '\x0a',
+  IMETHOD = '\x0b',
+  UTF8 = '\x01',
+  STR = '\x08',
+  INT = '\x03',
+  LONG = '\x05',
+  NAME_AND_TYPE = '\x0c'
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -61,6 +65,33 @@ class Item {
   int64_t longVal;  //!< if type long values is stored here
   std::string strVal;  //!< if type string value is stored here
   Item *next;  //!< pointer to next item in list
+  std::vector<unsigned char> getHexRepresentation(Bytecode_writer& writer)
+  {
+    std::vector<unsigned char> result;
+    std::stringstream sstream;
+    //sstream << '0' << type;
+    writer.writeU8(type);
+    //writer.
+    //result.add((char) t);
+    //sstream.width(1);
+//    sstream.fill(prev);
+    if (type == ItemType::INT)
+      sstream << std::hex << intVal;
+    else
+    {
+      if (type == ItemType::UTF8)
+        sstream << std::hex << strVal.size();
+      sstream << std::hex << strVal;
+    }
+
+    std::string str = sstream.str();
+    int len = str.length();
+    for (int i = 0; i < len; i++)
+      result.push_back(str.at(i));
+
+
+    return result;
+  }
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -73,6 +104,7 @@ class ConstantPool {
 
   size_t addInt(int32_t value);
   size_t addLong(int64_t value);
+  size_t addNameAndType(int32_t UTF8_name_index, int32_t UTF8_descriptor_index);
   size_t addString(const std::string &value);
   size_t addClassRef(const std::string &value);
   size_t addFieldRef(const std::string &value);
@@ -84,6 +116,7 @@ class ConstantPool {
   const Item& get(const Item &key)const;
   size_t countItemType(ItemType type);
 
+  std::vector<Item> getItems() {return items;}
  protected:
   void putByte(uint8_t b);
   void putShort(uint16_t s);
