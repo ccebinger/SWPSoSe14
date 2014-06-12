@@ -137,7 +137,11 @@ class Graphs
     */
     void writeGraphViz(Graphs::str file);
 
-
+    /**
+    * Returns the keyset (the Functions/Graphs names) of the Graphs map.
+    * @return the names of the Graphs (keyset)
+    */
+    std::vector<std::string> keyset();
     /**
      * Determine graphviz Node Styling based on the Node
      */

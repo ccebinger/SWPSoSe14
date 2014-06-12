@@ -337,7 +337,15 @@ void Graphs::writeGraphViz(Graphs::str file) {
 	std::cout << "done..." << std::endl;
 }
 
-
+std::vector<std::string> Graphs::keyset()
+{
+  std::vector<std::string> keyset;
+  for (Graph_map::iterator it = graphs.begin(); it != graphs.end(); it++)
+  {
+    keyset.push_back(it->first);
+  }
+  return keyset;
+}
 
 std::string Graphs::gvGetNodeStyles(std::shared_ptr<Node> node) const {
 
