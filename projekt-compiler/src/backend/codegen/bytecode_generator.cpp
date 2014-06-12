@@ -271,37 +271,31 @@ void false_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_pt
 {
   code.push_back(BytecodeGenerator::ICONST_0);
 }
-void greater_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+void greater_ByteCode(ConstantPool& pool, std::vector<char>& result, Graphs::Node_ptr current_node)
 {
-  /*
-  * TODO: typecheck missing (string, int)
-  * TODO: "jump-bytes" hard coded, should be replaced by Chris' if-function later
-  *        but actually not necessary, because in this case it is static
-  * The bytecode represents the following Java code: boolean c = (a > b);
-  */
-
   // store the two integers and load them to get the right order
-  code.push_back(BytecodeGenerator::ISTORE_1);
-  code.push_back(BytecodeGenerator::ISTORE_2);
-  code.push_back(BytecodeGenerator::ILOAD_1);
-  code.push_back(BytecodeGenerator::ILOAD_2);
+  result.push_back(BytecodeGenerator::ISTORE_1);
+  result.push_back(BytecodeGenerator::ISTORE_2);
+  result.push_back(BytecodeGenerator::ILOAD_1);
+  result.push_back(BytecodeGenerator::ILOAD_2);
 
-  // if false, jump to ICONST_0
-  code.push_back(BytecodeGenerator::IF_ICMPLE);
-  code.push_back('\x00');
-  code.push_back('\x07');
-  code.push_back(BytecodeGenerator::ICONST_1);
+  std::vector<char> if_body;
+  std::vector<char> goto_body;
+  // represents the branch from 'goto' to the end
+  std::vector<char> else_branch;
 
-  // jump after the ICONST_0
-  code.push_back(BytecodeGenerator::GOTO);
-  code.push_back('\x00');
-  code.push_back('\x04');
-  code.push_back(BytecodeGenerator::ICONST_0);
+  goto_body.push_back(BytecodeGenerator::ICONST_0);
+  BytecodeGenerator::add_conditional_with_instruction(BytecodeGenerator::GOTO, &goto_body[0], else_branch);
+
+  // it is necessary to push ICONST_1 before the goto-branch
+  if_body.push_back(BytecodeGenerator::ICONST_1);
+  if_body.insert(if_body.end(), else_branch.begin(), else_branch.end());
+
+  BytecodeGenerator::add_conditional_with_instruction(BytecodeGenerator::IF_ICMPLE, &if_body[0], result);
 }
 void equal_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
 {
 /*
- * TODO: typecheck missing (string, list)
  * TODO: "jump-bytes" hard coded, should be replaced by Chris' if-function later
  *        but actually not necessary, because in this case it is static
  * The bytecode represents the following Java code: boolean c = (a == b);
@@ -362,7 +356,7 @@ std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph
   std::vector<char> result;
   Graphs::Node_ptr current_node(graph->start());
   while(current_node && current_node->command.type != Command::Type::FINISH) {
-    uint16_t indexInPool;
+    //uint16_t indexInPool; // [-Werr=unused-variable], remove comment when needed
     func_ptr f = CODE_FUNC_MAPPING.at(current_node->command.type);
     if (f) {
       f(constantPool, result, current_node);

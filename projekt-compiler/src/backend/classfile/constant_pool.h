@@ -84,7 +84,7 @@ class ConstantPool {
   const Item& get(const Item &key)const;
   size_t countItemType(ItemType type);
 
- private:
+ protected:
   void putByte(uint8_t b);
   void putShort(uint16_t s);
   void putInt(int32_t i);

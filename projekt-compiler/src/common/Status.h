@@ -2,26 +2,29 @@
  * Status.h
  *
  *  Created on: Jun 7, 2014
- *      Author: asd
+ *      Author: Miro B.
  */
 
 #ifndef STATUS_H_
 #define STATUS_H_
 
+#include <exception>
 #include <vector>
 #include <sstream>
 
 
-enum Source {
-	FRONTEND,
-	FRONTEND_LEXER,
-	FRONTEND_PARSER,
-	ASG,
-	BACKEND,
-	BACKEND_CONSTANTPOOL,
-	BACKEND_CLASSFILEWRITER,
-	BACKEND_BYTECODEGENERATOR,
+class StatusException: public std::exception {
+private:
+	const std::string msg;
+public:
+	StatusException(const std::string&& emsg) : msg(emsg) {}
+private:
+	virtual const char* what() const throw() {
+		return (msg).c_str();
+	}
 };
+
+
 
 
 class Status {
@@ -42,17 +45,13 @@ public:
 	}
 
 
-	inline void addWarning(Source src, std::string msg, int32_t line=-1, int32_t pos=-1) {
-		warnings.push_back(
-			"[warning][" + source2String(src) + "]" + getLineString(line, pos) + " " + msg
-		);
+	inline void addWarning(std::string src, std::string msg, int32_t line=-1, int32_t pos=-1) {
+		warnings.push_back("[" + src + "]" + getLineString(line, pos) + " " + msg);
 	}
 
 
-	inline void addError(Source src, std::string msg, int32_t line=-1, int32_t pos=-1) {
-		errors.push_back(
-			"[ error ][" + source2String(src) + "]" + getLineString(line, pos) + " " + msg
-		);
+	inline void addError(std::string src, std::string msg, int32_t line=-1, int32_t pos=-1) {
+		errors.push_back("[" + src + "]" + getLineString(line, pos) + " " + msg);
 	}
 
 
@@ -60,19 +59,49 @@ public:
 		return warnings.size() > 0;
 	}
 
-
 	inline bool hasErrors() {
 		return errors.size() > 0;
 	}
 
 
-	void dump() {
+	inline bool hasNoWarnings() {
+		return warnings.size() == 0;
+	}
+
+
+	inline bool hasNoErrors() {
+		return errors.size() == 0;
+	}
+
+
+
+	inline void clearWarnings() {
+		warnings.clear();
+	}
+
+	inline void clearErrors() {
+		errors.clear();
+	}
+
+
+
+	void dumpWarnings() {
 		for(auto it=warnings.begin(); it<warnings.end(); ++it) {
-			std::cout << "(WW) " << (*it) << std::endl;
+			std::cout << "[warning]" << (*it) << std::endl;
 		}
+	}
+
+	void dumpErrors() {
 		for(auto it=errors.begin(); it<errors.end(); ++it) {
-			std::cerr << "(EE) " << (*it) << std::endl;
+			std::cerr << "[ error ]" << (*it) << std::endl;
 		}
+	}
+
+
+
+	void dump() {
+		dumpWarnings();
+		dumpErrors();
 	}
 
 
@@ -85,20 +114,6 @@ private:
 
 		}
 		return s.str();
-	}
-
-	inline std::string source2String(Source src) const {
-		switch(src) {
-			case FRONTEND:                  return "fe    ";
-			case FRONTEND_LEXER:            return "fe-l  ";
-			case FRONTEND_PARSER:           return "fe-p  ";
-			case ASG:                       return "asg   ";
-			case BACKEND:                   return "be    ";
-			case BACKEND_CONSTANTPOOL:      return "be-cp ";
-			case BACKEND_CLASSFILEWRITER:   return "be-cfw";
-			case BACKEND_BYTECODEGENERATOR: return "be-bg ";
-			default:						return "???   ";
-		}
 	}
 
 };

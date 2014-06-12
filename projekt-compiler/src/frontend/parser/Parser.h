@@ -4,6 +4,7 @@
 
 #include <list>
 #include <map>
+#include <unordered_map>
 #include <set>
 #include <string>
 #include <algorithm>
@@ -48,7 +49,37 @@ struct allowedChars {
 	list<uint32_t> right;
 };
 
+struct NodeIdentifier{
+	//used to unmistakenly identify nodes(by their position in the file and the Direction they were entered through while parsing)
+	//this is relevant so that nodes in a loop will not be parsed multiple times
+	//but instead are reused(because they already exist)
+	uint32_t posRow;
+	uint32_t posCol;
+	Direction dir;
+	//operator necessary so NodeIdentifier can be used in a map.
+//	bool operator<( const NodeIdentifier &r){
+//		if(posRow == r.posRow){
+//			if(posCol==r.posCol){
+//				//cols and rows are equal, dir is decisive for comparison
+//				return dir < r.dir;
+//			} else{
+//				//rows are equal, col is decisive for comparison
+//				return posCol<r.posCol;
+//			}
+//		} else{
+//			//row is decisive for comparison
+//			return posRow<r.posRow;
+//		}
+//	}
+//	bool operator==(const NodeIdentifier &r){
+//		return posRow==r.posRow && posCol==r.posCol && dir==r.dir;
+//	}
+};
 
+
+bool operator<( const NodeIdentifier&, const NodeIdentifier&);
+
+bool operator==(const NodeIdentifier&,const NodeIdentifier&);
 
 //TODO: x hinzufügen als valid rail und @ implementieren
 class Parser {
@@ -121,44 +152,44 @@ class Parser {
 
 		const map<Direction, allowedChars> validRailMap = {
 			{ E, allowedChars {
-				{'/','*','x'},				// left
+				{'/'},				// left
 				{'-','/','\\','+','*'},		// straight
-				{'\\','*','x'},				// right
+				{'\\'},				// right
 			}},
 			{ SE, allowedChars {
-				{'-','*','+'},
+				{'-'},
 				{'-','\\','|','*','x'},
-				{'|','*','+'},
+				{'|'},
 			}},
 			{ S, allowedChars {
-				{'\\','*','x'},
+				{'\\'},
 				{'|','\\','/','*','+'},
-				{'/','*','x'}
+				{'/'}
 			}},
 			{ SW, allowedChars {
-				{'|','*','+'},
+				{'|'},
 				{'-','/','|','*','x'},
-				{'-','*','+'}
+				{'-'}
 			}},
 			{ W, allowedChars {
-				{'/','*','x'},
+				{'/'},
 				{'-','/','\\','+','*'},
-				{'\\','*','x'},
+				{'\\'},
 			}},
 			{ NW, allowedChars {
-				{'-','*','+'},
+				{'-'},
 				{'-','\\','|','*','x'},
-				{'|','*','+'},
+				{'|'},
 			}},
 			{ N, allowedChars {
-				{'\\','*','x'},
+				{'\\'},
 				{'|','\\','/','*','+'},
-				{'/','*','x'},
+				{'/'},
 			}},
 			{ NE, allowedChars {
-				{'|','*','+'},
+				{'|'},
 				{'-','/','|','*','x'},
-				{'-','*','+'},
+				{'-'},
 			}},
 		};
 
@@ -172,6 +203,7 @@ class Parser {
 		Direction dir;
 		shared_ptr<RailFunction> board;
 
+		map<NodeIdentifier,std::shared_ptr<Node>> allNodes;
 		std::shared_ptr<Adjacency_list> abstractSyntaxGraph;
 		std::shared_ptr<Node> currentNode;
 		int lastUsedId;
@@ -182,12 +214,13 @@ class Parser {
 		//string graphName;
 		bool parsingNotFinished = true;
 		void move();
-		void addToAbstractSyntaxGraph(string,Command::Type);
+		bool addToAbstractSyntaxGraph(string,Command::Type,NodeIdentifier);
 		void turnLeft45Deg();
 		void turnRight45Deg();
 		void reverseDirection();
-		void parseVariable(string data);
-		bool parseJunctions(Direction,int,int,Direction,Direction,string,Command::Type);
+		bool currentCharIsNoCrossing();
+		bool parseVariable(string data,NodeIdentifier);
+		bool parseJunctions(Direction,int,int,Direction,Direction,string,Command::Type,NodeIdentifier);
 		bool checkForValidCommandsInStraightDir(int,int);
 		int getNextUnusedId();
 		void setRowCol(int,int);
