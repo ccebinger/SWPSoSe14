@@ -190,7 +190,7 @@ size_t ConstantPool::addNameAndType(int32_t UTF8_name_index,
   size_t index = 0;
   i.set(UTF8_name_index); // eindeutig?
   if (!check(i)) {
-    put2(NAME_AND_TYPE);
+    putByte(NAME_AND_TYPE);
     putInt(UTF8_name_index);
     putInt(UTF8_descriptor_index);
     index = put(i);
@@ -359,7 +359,7 @@ size_t ConstantPool::addIMethRef(const std::string &value, const std::string &na
 	  name_and_type_index = addNameAndType(UTF8_name_index, UTF8_descriptor_index) // u1 tag + u2 name_index + u2 descriptor_index
 	  // letzter Schritt: MethodRef zusammenbauen
 	  // u1 tag + u2 class_index + u2 name_and_type_index
-	  put2(METHOD);
+	  putByte(METHOD);
 	  putInt(class_index);
 	  putInt(name_and_type_index);
 	  index = put(i);
