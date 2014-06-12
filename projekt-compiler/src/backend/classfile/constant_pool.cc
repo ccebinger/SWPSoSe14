@@ -294,6 +294,52 @@ size_t ConstantPool::addIMethRef(const std::string &value) {
   return index;
 }
 
+/*
+////////////////////////////////////////////////////////////////////////
+/// ACHTUNG DRAFT !!!!!!!!!!!
+/// Das ist eine Beispielumsetzung, zum Hinzufügen eines xRef (in dem Fall x = Method) in den CP
+/// Kann so (noch) nicht umgesetzt werden, weil einige Signaturen im CP angepasst werden müssen
+/// \param value Name der Methoden-Referenz (z.B. 'java/lang/Object')
+/// \param name Name der eigentlichen Methode (z.B. '<init>')
+/// \param descriptor Repräsentiert den Type der Methode (z.B. '()V')
+/// \return index of the string in pool
+///
+/// Der Aufbau im CP sieht (beispielhaft) wie folgt aus und wird durch nachfolgenden Code repräsentiert
+/// [1] CONSTANT_Methodref class_index=6; name_and_type_index=15	0A 00 06 00 0F
+/// [6] CONSTANT_Class name_index=22								07 00 16
+/// [7] CONSTANT_Utf8 length=6; bytes="<init>"						01 00 06 3C 69 6E 69 74 3E
+/// [8] CONSTANT_Utf8 length=3; bytes="()V"							01 00 03 28 29 56
+/// [15] CONSTANT_NameAndType name_index=7; descriptor_index=8		0C 00 07 00 08
+/// [22] CONSTANT_Utf8 length=16; bytes="java/lang/Object"			01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::addIMethRef(const std::string &value, const std::string &name, const std::string &descriptor) {
+	Item i;
+	size_t methodRef_index = 0;
+	size_t UTF8_index = 0;
+	size_t UTF8_name_index = 0;
+	size_t UTF8_descriptor_index = 0;
+	size_t class_index = 0;
+	size_t name_and_type_index = 0;
+	i.set(MEHTOD, value);
+	if (!check(i)) {
+	  UTF8_index = putUTF8(value);
+	  UTF8_name_index = putUTF8(name);
+	  UTF8_descriptor_index = putUTF8(type);
+	  class_index = addClass(indexUTF8) // u1 tag + u2 name_index
+	  name_and_type_index = addNameAndType(UTF8_name_index, UTF8_descriptor_index) // u1 tag + u2 name_index + u2 descriptor_index
+	  // letzter Schritt: MethodRef zusammenbauen
+	  // u1 tag + u2 class_index + u2 name_and_type_index
+	  put2(METHOD);
+	  putInt(class_index);
+	  putInt(name_and_type_index);
+	  index = put(i);
+	} else {
+	  index = get(i).index;
+	}
+	  return index;
+}
+*/
+
 ////////////////////////////////////////////////////////////////////////
 /// method to count numbers of items with specified type
 /// \return amount of items with types
