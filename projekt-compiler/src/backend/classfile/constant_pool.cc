@@ -118,14 +118,14 @@ void Item::set(ItemType _type,
 ////////////////////////////////////////////////////////////////////////
 ConstantPool::ConstantPool() {
   items.reserve(256);
-  // Java Class Reference auf java/lang/system
-  addClassRef("java/lang/system");
+  // Java Field Reference auf java/lang/system
+  addFieldRef("java/lang/system");
   // Field Reference java.lang.system.out
-  addFieldRef("java.lang.system.out");
+  addFieldRef("java/lang/system/out");
   // Method referenc Java.io.printStream.println
-  addMethRef("Java.io.printStream.println");
-  // Method reference Main.java
-  addMethRef("Main.java");
+  addMethRef("Java/io/printStream/println");
+  // Class reference Main
+  addClassRef("Main");
 }
 
 ////////////////////////////////////////////////////////////////////////
