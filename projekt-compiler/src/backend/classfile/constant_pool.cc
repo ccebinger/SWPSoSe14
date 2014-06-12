@@ -177,6 +177,29 @@ size_t ConstantPool::addLong(int64_t value) {
 }
 
 ////////////////////////////////////////////////////////////////////////
+/// DRAFT VERSION - NEEDS TO BE DISCUSSED / REVIEWED (because of my lack of
+///                                                   knowledge of constant_pool.cc)
+/// method to put a CONSTANT_NameAndType into the pool
+/// \param UTF8_name_index the index of the name in the constant pool
+/// \param UTF8_descriptor_index the index of the descriptor in the constant pool
+/// \return index of the CONSTANT_NameAndType in the pool
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::addNameAndType(int32_t UTF8_name_index, int32_t UTF8_descriptor_index) {
+  Item i;
+  size_t index = 0;
+  i.set(UTF8_name_index); // eindeutig?
+  if (!check(i)) {
+    put2(NAME_AND_TYPE);
+    putInt(UTF8_name_index);
+    putInt(UTF8_descriptor_index);
+    index = put(i);
+  } else {
+    index = get(i).index;
+  }
+  return index;
+}
+
+////////////////////////////////////////////////////////////////////////
 /// method to put a string into the pool
 /// \param value value to add to pool
 /// \return index of the string in pool

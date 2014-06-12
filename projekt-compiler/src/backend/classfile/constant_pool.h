@@ -104,6 +104,7 @@ class ConstantPool {
 
   size_t addInt(int32_t value);
   size_t addLong(int64_t value);
+  size_t addNameAndType(int32_t UTF8_name_index, int32_t UTF8_descriptor_index);
   size_t addString(const std::string &value);
   size_t addClassRef(const std::string &value);
   size_t addFieldRef(const std::string &value);
