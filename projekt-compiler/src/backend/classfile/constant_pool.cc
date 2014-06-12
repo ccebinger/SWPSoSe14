@@ -214,6 +214,16 @@ size_t ConstantPool::addClassRef(const std::string &value) {
   return index;
 }
 
+// key2.set(CLASS, value, null, null);
+// Item result = get(key2);
+// if (result == null) {
+//   pool.put12(CLASS, newUTF8(value));
+//   result = new Item(index++, key2);
+//   put(result);
+// }
+// return result;
+
+
 ////////////////////////////////////////////////////////////////////////
 /// method to put a string into the pool
 /// \param value value to add to pool
@@ -233,6 +243,15 @@ size_t ConstantPool::addFieldRef(const std::string &value) {
   return index;
 }
 
+// key3.set(FIELD, owner, name, desc);
+// Item result = get(key3);
+// if (result == null) {
+//   put122(FIELD, newClass(owner), newNameType(name, desc));
+//   result = new Item(index++, key3);
+//   put(result);
+// }
+// return result;
+
 ////////////////////////////////////////////////////////////////////////
 /// method to put a string into the pool
 /// \param value value to add to pool
@@ -251,6 +270,16 @@ size_t ConstantPool::addMethRef(const std::string &value) {
   }
   return index;
 }
+
+// int type = itf ? IMETH : METH;
+// key3.set(type, owner, name, desc);
+// Item result = get(key3);
+// if (result == null) {
+//   put122(type, newClass(owner), newNameType(name, desc));
+//   result = new Item(index++, key3);
+//   put(result);
+// }
+// return result;
 
 ////////////////////////////////////////////////////////////////////////
 /// method to put a string into the pool
@@ -447,6 +476,7 @@ void ConstantPool::encodeUTF8(std::string s, uint32_t pos) {
 size_t ConstantPool::put(Item i) {
   if (!check(i)) {
     i.index = items.size();
+    pool.push_back(i.index);  // WARNING : size can be to small
     items.push_back(i);
     return i.index;
   } else {
@@ -454,53 +484,24 @@ size_t ConstantPool::put(Item i) {
   }
 }
 
-////////////////////////////////////////////////////////////////////////
-/// Puts two bytes into this byte vector. The byte vector is automatically
-/// enlarged if necessary.
-/// \param b1 first byte.
-/// \param b2 second byte.
-////////////////////////////////////////////////////////////////////////
-void ConstantPool::put11(int32_t b1, int32_t b2) {
-  pool.push_back((uint8_t) b1);
-  pool.push_back((uint8_t) b2);
-}
-
-////////////////////////////////////////////////////////////////////////
-/// Puts a byte and a short into this byte vector. The byte vector is
-/// automatically enlarged if necessary.
-/// \param b first byte.
-/// \param s a short.
-////////////////////////////////////////////////////////////////////////
-void ConstantPool::put12(int32_t b,  int32_t s) {
-  pool.push_back((uint8_t) b);
-  pool.push_back((uint8_t) (s >> 8));
-  pool.push_back((uint8_t) s);
-}
-
-
-////////////////////////////////////////////////////////////////////////
-/// Puts one byte and two shorts into the constant pool.
-/// \param b a byte
-/// \param s1 a short
-/// \param s2 a short
-////////////////////////////////////////////////////////////////////////
-void ConstantPool::put122(int32_t b, int32_t s1, int32_t s2) {
-  pool.push_back(b);
-  pool.push_back(s1>>8);
-  pool.push_back(s1);
-  pool.push_back(s2>>8);
-  pool.push_back(s2);
-}
-
-////////////////////////////////////////////////////////////////////////
-/// Puts two bytes and one short into the constant pool.
-/// \param b1 a byte
-/// \param b2 a byte
-/// \param s a short
-////////////////////////////////////////////////////////////////////////
-void ConstantPool::put112(int32_t b1, int32_t b2, int32_t s) {
-  pool.push_back(b1);
-  pool.push_back(b2);
-  pool.push_back(s>>8);
-  pool.push_back(s);
-}
+// if (index + typeCount > threshold) {
+//   int ll = items.length;
+//   int nl = ll * 2 + 1;
+//   Item[] newItems = new Item[nl];
+//   for (int l = ll - 1; l >= 0; --l) {
+//     Item j = items[l];
+//     while (j != null) {
+//       int index = j.hashCode % newItems.length;
+//       Item k = j.next;
+//       j.next = newItems[index];
+//       newItems[index] = j;
+//       j = k;
+//     }
+//   }
+//   items = newItems;
+//   threshold = (int) (nl * 0.75);
+// }
+// int index = i.hashCode % items.length;
+// i.next = items[index];
+// items[index] = i;
+// }

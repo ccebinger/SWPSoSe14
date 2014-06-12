@@ -93,11 +93,6 @@ class ConstantPool {
   void encodeUTF8(std::string s, uint32_t pos);
 
   size_t put(Item i);
-  void put2(int32_t s);
-  void put11(int32_t b1, int32_t b2);
-  void put12(int32_t b, int32_t s);
-  void put122(int32_t b, int32_t s1, int32_t s2);
-  void put112(int32_t b1, int32_t b2, int32_t s);
 
   std::vector<Item> items;  //!< item list
   std::vector<uint8_t> pool;  //!< byte constant list
