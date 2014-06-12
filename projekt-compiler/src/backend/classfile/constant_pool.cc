@@ -278,12 +278,12 @@ size_t ConstantPool::addIMethRef(const std::string &value) {
 /// \return index of the string in pool
 ///
 /// Der Aufbau im CP sieht (beispielhaft) wie folgt aus und wird durch nachfolgenden Code repräsentiert
-/// [1] CONSTANT_Methodref class_index=6; name_and_type_index=15	0A 00 06 00 0F
-/// [6] CONSTANT_Class name_index=22								07 00 16
-/// [7] CONSTANT_Utf8 length=6; bytes="<init>"						01 00 06 3C 69 6E 69 74 3E
-/// [8] CONSTANT_Utf8 length=3; bytes="()V"							01 00 03 28 29 56
-/// [15] CONSTANT_NameAndType name_index=7; descriptor_index=8		0C 00 07 00 08
-/// [22] CONSTANT_Utf8 length=16; bytes="java/lang/Object"			01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A
+/// [1] CONSTANT_Methodref class_index=6; name_and_type_index=15 0A 00 06 00 0F
+/// [6] CONSTANT_Class name_index=22				 07 00 16
+/// [7] CONSTANT_Utf8 length=6; bytes="<init>"			 01 00 06 3C 69 6E 69 74 3E
+/// [8] CONSTANT_Utf8 length=3; bytes="()V"			 01 00 03 28 29 56
+/// [15] CONSTANT_NameAndType name_index=7; descriptor_index=8	 0C 00 07 00 08
+/// [22] CONSTANT_Utf8 length=16; bytes="java/lang/Object"	 01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A
 ////////////////////////////////////////////////////////////////////////
 size_t ConstantPool::addIMethRef(const std::string &value, const std::string &name, const std::string &descriptor) {
 	Item i;
