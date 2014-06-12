@@ -30,15 +30,15 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include <iostream>
 
 enum ItemType{
-  CLASS = '\x07',
-  FIELD = '\x09',
-  METHOD = '\x0a',
-  IMETHOD = '\x0b',
-  UTF8 = '\x01',
-  STR = '\x08',
-  INT = '\x03',
-  LONG = '\x05',
-  NAME_AND_TYPE = '\x0c'
+  CLASS = 0x07,
+  FIELD = 0x09,
+  METHOD = 0x0A,
+  IMETHOD = 0x0B,
+  UTF8 = 0x01,
+  STR = 0x08,
+  INT = 0x03,
+  LONG = 0x05,
+  NAME_AND_TYPE = 0x0C
 };
 
 ////////////////////////////////////////////////////////////////////////
