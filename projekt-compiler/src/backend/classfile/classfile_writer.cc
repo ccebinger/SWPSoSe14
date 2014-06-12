@@ -158,7 +158,8 @@ void ClassfileWriter::WriteFields() {
 void ClassfileWriter::WriteMethods() {
 
   out_ << constant_pool_.countItemType(METHOD);
-  WriteInitMethods();
+  WriteInitMethod();
+  WriteMainMethod();
   // for each method do {
   out_ << kPublicAccessFlag;
   //
@@ -176,7 +177,15 @@ void ClassfileWriter::WriteMethods() {
  * \brief Writes the <init> in class-file
  * Is the same in all java classes we generate
  */
-void ClassfileWriter::WriteInitMethods(){
+void ClassfileWriter::WriteInitMethod(){
+  // TODO: code here
+}
+
+/*!
+ * \brief Writes the main in class-file
+ * Is the same in all java classes we generate
+ */
+void ClassfileWriter::WriteMainMethod(){
   // TODO: code here
 }
 
