@@ -51,6 +51,10 @@ int main(int argc, char *argv[]) {
       srcFile = argv[++i];
     } else if (strcmp(argv[i], "-d") == 0) {
       srcDeserialize = argv[++i];
+      // TODO #118
+      //    · take basename for name of bytecode class
+      //    · see man basename resp. StackOverflow Discussion here: http://stackoverflow.com/questions/8520560/get-a-file-name-from-a-path
+
     } else if (strcmp(argv[i], "-s") == 0) {
       dstSerialize = argv[++i];
     } else if (strcmp(argv[i], "-g") == 0) {
@@ -122,7 +126,7 @@ int main(int argc, char *argv[]) {
   // ------------------------------------------------------------------------
   // BACKEND
   // ------------------------------------------------------------------------
-  // TODO this is just a mockup...
+  // TODO #118 
   cout << "--- Begin Backend ------------------------------------------------" << endl;
   ofstream outFile("io/out.class", std::ofstream::binary);
   Backend::Generate(graphs, outFile);
