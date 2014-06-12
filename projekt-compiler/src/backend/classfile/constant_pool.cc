@@ -126,6 +126,8 @@ ConstantPool::ConstantPool() {
   addMethRef("java/io/PrintStream");
   // Java class reference Main
   addClassRef("Main");
+  // put Code attribute in CP
+  putUTF8("Code");
 }
 
 ////////////////////////////////////////////////////////////////////////
