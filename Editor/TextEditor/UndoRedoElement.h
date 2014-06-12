@@ -20,10 +20,10 @@ public:
         return redoName;
     }
 
-    virtual undo() = 0;
-    virtual redo() = 0;
-    virtual undoDisplay() = 0;
-    virtual redoDisplay() = 0;
+    virtual void undo() = 0;
+    virtual void redo() = 0;
+    virtual void undoDisplay() = 0;
+    virtual void redoDisplay() = 0;
 };
 
 #endif // UNDOREDOELEMENT_H

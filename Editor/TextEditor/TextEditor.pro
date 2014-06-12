@@ -22,7 +22,10 @@ HEADERS  += mainwindow.h \
     Point.h \
     Stack.h \
     InterStack.h \
-    Graph_Interface.h
+    Graph_Interface.h \
+    UndoRedoTypeCharacter.h \
+    UndoRedoStack.h \
+    UndoRedoElement.h
 
 FORMS    += mainwindow.ui
 

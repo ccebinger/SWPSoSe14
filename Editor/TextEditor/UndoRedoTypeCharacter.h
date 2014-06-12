@@ -14,10 +14,26 @@ public:
         bitMask = 0;
     }
 
-    UndoRedoTypeCharacter(newRow, newColumn, newBitMask) {
+    UndoRedoTypeCharacter(int newRow, int newColumn, int newBitMask) {
         row = newRow;
         column = newColumn;
         bitMask = newBitMask;
+    }
+
+    void undo() {
+
+    }
+
+    void redo() {
+
+    }
+
+    void undoDisplay() {
+
+    }
+
+    void redoDisplay() {
+
     }
 };
 

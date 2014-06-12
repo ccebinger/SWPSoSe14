@@ -18,6 +18,9 @@
 
 #include <math.h>
 #include <assert.h>
+#include <UndoRedoStack.h>
+#include <UndoRedoElement.h>
+#include <UndoRedoTypeCharacter.h>
 
 EditTableWidget::EditTableWidget(QWidget *parent) :
     QTableWidget(parent),
@@ -209,6 +212,8 @@ void EditTableWidget::setSign(QChar c)
         delete stack;
     }
     emit textChanged();
+    emit pushSignToUndoStack();
+
 }
 
 void EditTableWidget::removeSign()

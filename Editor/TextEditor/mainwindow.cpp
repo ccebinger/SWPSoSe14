@@ -10,6 +10,11 @@
 #include <qfont.h>
 #include <qprocess.h>
 
+#include <UndoRedoStack.h>
+#include <UndoRedoElement.h>
+#include <UndoRedoTypeCharacter.h>
+
+UndoRedoStack* undoRedoStack = new UndoRedoStack();
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -36,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->ui_sourceEditTableWidget, SIGNAL(cursorPositionChanged(int,int)), this, SLOT(cursorPositionChanged(int,int)));
     connect(ui->ui_sourceEditTableWidget, SIGNAL(textChanged()), this, SLOT(textChanged()));
+    connect(ui->ui_sourceEditTableWidget, SIGNAL(pushSignToUndoStack()), this, SLOT(pushSignToUndoStack()));
     connect(ui->ui_newFileAction, SIGNAL(triggered()), this, SLOT(newFile()));
     connect(ui->ui_openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
     connect(ui->ui_saveFileAction, SIGNAL(triggered()), this, SLOT(saveFile()));
@@ -223,9 +229,16 @@ void MainWindow::newFile()
     }
 }
 
+void MainWindow::pushSignToUndoStack()
+{
+    //add object to undo stack
+    UndoRedoElement* hasSetSign = new UndoRedoTypeCharacter();
+    undoRedoStack->pushToUndoStack(hasSetSign);
+}
+
 void MainWindow::undo()
 {
-
+    UndoRedoElement *e = undoRedoStack->popFromUndoStack();
 }
 
 void MainWindow::redo()
