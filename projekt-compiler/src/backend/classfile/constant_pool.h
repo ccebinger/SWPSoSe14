@@ -117,14 +117,15 @@ class ConstantPool {
   size_t countItemType(ItemType type);
 
   std::vector<Item> getItems() {return items;}
- protected:
+
   void putByte(uint8_t b);
   void putShort(uint16_t s);
   void putInt(int32_t i);
   void putUTF8(std::string s);
-  void encodeUTF8(std::string s, uint32_t pos);
 
   size_t put(Item i);
+ protected:
+  void encodeUTF8(std::string s, uint32_t pos);
 
   std::vector<Item> items;  //!< item list
   std::vector<uint8_t> pool;  //!< byte constant list
