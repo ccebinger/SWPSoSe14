@@ -207,6 +207,25 @@ void ClassfileWriter::WriteMainMethod() {
  * Every method calls WritesAttributes
  */
 void ClassfileWriter::WriteAttributes() {
+
+	/**
+	 * Init method attribute case:
+	 */
+	/*
+		writer.writeU16(1);
+		writer.writeU16(constant_pool_->addString("Code"));
+		writer.writeU32(17);
+		writer.writeU16(1);
+		writer.writeU16(1);
+		writer.writeU32(5);
+		char initCode[]{'\x2a','\xb7','\x00','\x01','\xb1'};
+		out_->write(initCode, (sizeof(initCode)/sizeof(initCode[0])));
+		writer.writeU16(0);
+		writer.writeU16(0);
+	*/
+
+
+
   /**
    * TODO: 0. insert attribute_count (u2)
 
