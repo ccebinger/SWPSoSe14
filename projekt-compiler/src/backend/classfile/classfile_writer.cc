@@ -50,6 +50,7 @@ std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
  */
 ClassfileWriter::ClassfileWriter(ClassfileVersion version,
                                  ConstantPool* constantPool,
+                                 Graphs::Graph_ptr graphs,
                                  const std::map<std::string, std::vector<char>&> codeFunctions,
                                  std::ostream* out) :
     version_(version), code_functions_(codeFunctions), out_(out) {
