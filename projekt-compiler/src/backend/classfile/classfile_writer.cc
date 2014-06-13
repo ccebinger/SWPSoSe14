@@ -100,7 +100,7 @@ void ClassfileWriter::WriteVersionNumber() {
  * \sa constant_pool.cc
  */
 void ClassfileWriter::WriteConstantPool() {
-  Bytecode_writer writer(out_);
+ /* Bytecode_writer writer(out_);
 
   std::vector<Item> items = constant_pool_->getItems();
   writer.writeU16(items.size());
@@ -108,9 +108,9 @@ void ClassfileWriter::WriteConstantPool() {
   for (int i = 0; i < items.size(); i++) {
     items.at(i).getHexRepresentation(&writer);
   }
-
-  // out_.write((char*)constant_pool_->getByteArray().data(),
-  //        constant_pool_->getByteArray().size());
+*/
+   out_.write((char*)constant_pool_->getByteArray().data(),
+          constant_pool_->getByteArray().size());
 }
 
 /*!

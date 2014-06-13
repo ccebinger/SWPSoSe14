@@ -1,5 +1,4 @@
 #include "Bytecode_writer.h"
-#include <vector>
 
 Bytecode_writer::Bytecode_writer(std::ostream* file) : filestream(*file) {
   //ctor
@@ -12,7 +11,7 @@ Bytecode_writer::~Bytecode_writer() {
 
 void Bytecode_writer::write(int value, uint8_t size) {
   uint8_t bsize = size / 8;
-  uint8_t bytes[bsize];
+  std::vector<uint8_t> bytes(bsize);
 
   for (int i = 0; i < bsize; i++) {
     uint8_t shift =  (size - ((i+1) * 8));
