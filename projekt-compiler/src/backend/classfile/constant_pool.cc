@@ -125,9 +125,9 @@ ConstantPool::ConstantPool() {
   // Java method reference for Java.io.printStream.println
   addMethRef("java/io/PrintStream");
   // Java class reference Main
-  addClassRef("Main");
-  // put Code attribute in CP
-  putUTF8("Code");
+  addString("main");
+  // add Code attribute to CP
+  addString("Code");
 }
 
 ////////////////////////////////////////////////////////////////////////
