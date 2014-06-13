@@ -123,23 +123,19 @@ void ClassfileWriter::WriteAccessFlags() {
 
 /*!
  * \brief Write the class name
- * We get the class name from the constant pool.
- * The index of the class name is one postition before the
- * 	java/lang/object super class
+ * we call our outfile Main.class. therefore every classname is Main
  */
 void ClassfileWriter::WriteClassName() {
-  uint16_t indexInPool = (constant_pool_->addString("java/lang/Object"))-1;
-  *out_ << ((unsigned char) indexInPool & 0xFF00U >> 8);
-  *out_ << ((unsigned char) indexInPool & 0x00FFU);
+	Bytecode_writer writer(out_);
+	writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("Main")));
 }
 /*!
  * \brief Write super class name
- * For us we always have the java/lang/object class
+ * For us we always have the java/lang/Object class
  */
 void ClassfileWriter::WriteSuperClassName() {
-  uint16_t indexInPool = constant_pool_->addString("java/lang/Object");
-  *out_ << ((unsigned char) indexInPool & 0xFF00U >> 8);
-  *out_ << ((unsigned char) indexInPool & 0x00FFU);
+	Bytecode_writer writer(out_);
+	writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("java/lang/Object")));
 }
 
 /*!
