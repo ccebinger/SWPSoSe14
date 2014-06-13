@@ -29,8 +29,9 @@ class ClassfileWriter {
    * Funktionsname -> Bytecode.
    */
   ClassfileWriter(ClassfileVersion version, ConstantPool* constantPool,
-                  const std::map<std::string, std::vector<char>&> codeFunctions,
-                  std::ostream* out);
+                    Graphs::Graph_ptr graphs,
+                    const std::map<std::string, std::vector<char>&> codeFunctions,
+                    std::ostream* out);
 
   virtual ~ClassfileWriter();
 
