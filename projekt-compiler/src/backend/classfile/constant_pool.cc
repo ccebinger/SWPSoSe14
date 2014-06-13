@@ -67,7 +67,6 @@ Item::Item(uint16_t _index, const Item &i) {
 bool Item::operator==(const Item& i)const {
   switch (i.type) {
     case UTF8:
-    case CLASS:
     case STR:
       return i.strVal1 == strVal1;
     case LONG:
@@ -76,8 +75,12 @@ bool Item::operator==(const Item& i)const {
       std::cout << "i.int:"<< i.intVal<< "intval:"<< intVal <<"\n";
       return i.intVal == intVal;
     }
-    // case FIELD:
-    // case METHOD:
+    case FIELD:
+    case METHOD:
+    case CLASS:
+      return class_idx == i.class_idx && name_type_idx == i.name_type_idx;
+    case NAME_AND_TYPE:
+      return i.descriptor_idx == descriptor_idx && method_idx == i.method_idx;
     // case IMETHOD:
     default:
       return i.strVal1 == strVal1;
@@ -121,21 +124,55 @@ void Item::set(ItemType _type, const std::string &_strVal1,
   strVal3 = _strVal3;
 }
 
+
+void Item::set(ItemType type, uint16_t class_idx, uint16_t name_type_idx)
+{
+  this->type = type;
+  this->class_idx = class_idx;
+  this->name_type_idx = name_type_idx;
+}
+
+
+void Item::set(ItemType type, uint16_t name_idx)
+{
+  this->type = type;
+  this->name_idx = name_idx;
+}
+
+void Item::set_name_type(uint16_t method_idx, uint16_t descriptor_idx)
+{
+  this->type = ItemType::NAME_AND_TYPE;
+  this->method_idx = method_idx;
+  this->descriptor_idx = descriptor_idx;
+}
+
 ////////////////////////////////////////////////////////////////////////
 /// default constructor
 ////////////////////////////////////////////////////////////////////////
 ConstantPool::ConstantPool() {
   items.reserve(256);
-  // Java method reference for java/lang/Object
-  addMethRef("java/lang/Object");
-  // Java field reference for java/lang/System
-  addFieldRef("java/lang/System");
-  // Java method reference for Java.io.printStream.println
-  addMethRef("java/io/PrintStream");
-  // Java class reference Main
-  addString("main");
-  // add Code attribute to CP
+
+  ///Add strings
+  uint16_t obj_idx = addString("java/lang/Object");
+  uint16_t system_idx = addString("java/lang/System");
+  uint16_t print_idx = addString("java/io/PrintStream");
+  uint16_t main_class_str_idx = addString("Main");
+  uint16_t main_idx = addString("main");
+  uint16_t void_descriptor_idx = addString("()V");
   addString("Code");
+
+  ///Add classes
+  addClassRef(obj_idx);
+  addClassRef(system_idx);
+  addClassRef(print_idx);
+  uint16_t main_class_idx = addClassRef(main_class_str_idx);
+
+  ///Add name and type
+  uint16_t main_name_type_idx = addNameAndType(main_idx, void_descriptor_idx);
+  ///Add main method
+  addMethRef(main_class_idx, main_name_type_idx);
+
+
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -206,13 +243,13 @@ size_t ConstantPool::addString(const std::string &value) {
 /// \param value value to add to pool
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addClassRef(const std::string &value) {
+size_t ConstantPool::addClassRef(uint16_t name_idx) {
   Item i;
   size_t index = 0;
-  i.set(CLASS, value, "", "");
+  i.set(CLASS, name_idx);
   if (!check(i)) {
     putByte(CLASS);
-    putUTF8(value);
+    putShort(name_idx);
     index = put(i);
   } else {
     index = get(i).index;
@@ -225,13 +262,14 @@ size_t ConstantPool::addClassRef(const std::string &value) {
 /// \param value value to add to pool
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addFieldRef(const std::string &value) {
+size_t ConstantPool::addFieldRef(uint16_t class_idx, uint16_t name_type_idx) {
   Item i;
   size_t index = 0;
-  i.set(FIELD, value, "", "");
+  i.set(FIELD, class_idx, name_type_idx);
   if (!check(i)) {
     putByte(FIELD);
-    putUTF8(value);
+    putShort(class_idx);
+    putShort(name_type_idx);
     index = put(i);
   } else {
     index = get(i).index;
@@ -244,13 +282,14 @@ size_t ConstantPool::addFieldRef(const std::string &value) {
 /// \param value value to add to pool
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addMethRef(const std::string &value) {
+size_t ConstantPool::addMethRef(uint16_t class_idx, uint16_t name_type_idx) {
   Item i;
   size_t index = 0;
-  i.set(METHOD, value, "", "");
+  i.set(METHOD, class_idx, name_type_idx);
   if (!check(i)) {
     putByte(METHOD);
-    putUTF8(value);
+    putShort(class_idx);
+    putShort(name_type_idx);
     index = put(i);
   } else {
     index = get(i).index;
@@ -263,6 +302,8 @@ size_t ConstantPool::addMethRef(const std::string &value) {
 /// \param value value to add to pool
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
+/*
+ NICHT NOTWENDIG?!
 size_t ConstantPool::addIMethRef(const std::string &value) {
   Item i;
   size_t index = 0;
@@ -275,7 +316,7 @@ size_t ConstantPool::addIMethRef(const std::string &value) {
     index = get(i).index;
   }
   return index;
-}
+}*/
 
 /*
 ////////////////////////////////////////////////////////////////////////
