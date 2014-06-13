@@ -124,7 +124,7 @@ int main(int argc, char *argv[]) {
   // ------------------------------------------------------------------------
   // TODO this is just a mockup...
   cout << "--- Begin Backend ------------------------------------------------" << endl;
-  ofstream outFile("io/"+srcFile+".class", std::ofstream::binary);
+  ofstream outFile("io/Main.class", std::ofstream::binary);
   Backend::Generate(graphs, &outFile);
   return 0;
 }
