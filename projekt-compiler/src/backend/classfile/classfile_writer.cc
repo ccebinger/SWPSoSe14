@@ -1,3 +1,18 @@
+/*[--**--]
+Copyright (C) 2014  SWPSoSe14Cpp Group
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation; either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this
+program; if not, see <http://www.gnu.org/licenses/>.*/
+
 /*!
  * \mainpage classfile_writer.cc
  * \author Backend group & friends
@@ -34,13 +49,12 @@ std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
  * \param out The ouput stream
  */
 ClassfileWriter::ClassfileWriter(ClassfileVersion version,
-                                 ConstantPool& constantPool,
-                                 const std::map<std::string,
-                                 std::vector<char>&> codeFunctions,
-                                 std::ostream& out) :
-    out_(out), version_(version), constant_pool_(constantPool),
-    code_functions_(codeFunctions) {
-    }
+                                 ConstantPool* constantPool,
+                                 const std::map<std::string, std::vector<char>&> codeFunctions,
+                                 std::ostream* out) :
+    version_(version), code_functions_(codeFunctions), out_(out) {
+  constant_pool_ = std::make_shared<ConstantPool>(*constantPool);
+}
 
 /*!
  * \brief Deconstructor for ClassFileWriter
@@ -69,15 +83,15 @@ void ClassfileWriter::WriteClassfile() {
  * The magic number indicates a java class-file
  */
 void ClassfileWriter::WriteMagicNumber() {
-  out_.write(kMagicNumber, (sizeof(kMagicNumber)/sizeof(kMagicNumber[0])));
+  out_->write(kMagicNumber, (sizeof(kMagicNumber)/sizeof(kMagicNumber[0])));
 }
 
 /*!
  * \brief Write the java version number (e.g. 0x00000033 for v.7)
  */
 void ClassfileWriter::WriteVersionNumber() {
-  out_.write(kVersionNumbers[version_].data(),
-             kVersionNumbers[version_].size());
+  out_->write(kVersionNumbers[version_].data(),
+              kVersionNumbers[version_].size());
 }
 
 /*!
@@ -87,23 +101,23 @@ void ClassfileWriter::WriteVersionNumber() {
 void ClassfileWriter::WriteConstantPool() {
   Bytecode_writer writer(out_);
 
-  std::vector<Item> items = constant_pool_.getItems();
+  std::vector<Item> items = constant_pool_->getItems();
   writer.writeU16(items.size());
 
   for (int i = 0; i < items.size(); i++) {
-    items.at(i).getHexRepresentation(writer);
+    items.at(i).getHexRepresentation(&writer);
   }
 
-  // out_.write((char*)constant_pool_.getByteArray().data(),
-  //        constant_pool_.getByteArray().size());
+  // out_.write((char*)constant_pool_->getByteArray().data(),
+  //        constant_pool_->getByteArray().size());
 }
 
 /*!
  * \brief Write the access flag (e.g. 0x00000001 for public)
  */
 void ClassfileWriter::WriteAccessFlags() {
-  out_.write(kPublicAccessFlag,
-             (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
+  out_->write(kPublicAccessFlag,
+              (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
 }
 
 /*!
@@ -113,18 +127,18 @@ void ClassfileWriter::WriteAccessFlags() {
  * 	java/lang/object super class
  */
 void ClassfileWriter::WriteClassName() {
-  uint16_t indexInPool = (constant_pool_.addString("java/lang/Object"))-1;
-  out_ << ((unsigned char) indexInPool & 0xFF00U >> 8);
-  out_ << ((unsigned char) indexInPool & 0x00FFU);
+  uint16_t indexInPool = (constant_pool_->addString("java/lang/Object"))-1;
+  *out_ << ((unsigned char) indexInPool & 0xFF00U >> 8);
+  *out_ << ((unsigned char) indexInPool & 0x00FFU);
 }
 /*!
  * \brief Write super class name
  * For us we always have the java/lang/object class
  */
 void ClassfileWriter::WriteSuperClassName() {
-  uint16_t indexInPool = constant_pool_.addString("java/lang/Object");
-  out_ << ((unsigned char) indexInPool & 0xFF00U >> 8);
-  out_ << ((unsigned char) indexInPool & 0x00FFU);
+  uint16_t indexInPool = constant_pool_->addString("java/lang/Object");
+  *out_ << ((unsigned char) indexInPool & 0xFF00U >> 8);
+  *out_ << ((unsigned char) indexInPool & 0x00FFU);
 }
 
 /*!
@@ -132,7 +146,7 @@ void ClassfileWriter::WriteSuperClassName() {
  * Not used in Rail programms, thus 0x0000
  */
 void ClassfileWriter::WriteInterfaces() {
-  out_.write(kNotRequired, (sizeof(kNotRequired) / sizeof(kNotRequired[0])));
+  out_->write(kNotRequired, (sizeof(kNotRequired) / sizeof(kNotRequired[0])));
 }
 
 /*!
@@ -140,7 +154,7 @@ void ClassfileWriter::WriteInterfaces() {
  * Not used in Rail programms, thus 0x0000
  */
 void ClassfileWriter::WriteFields() {
-  out_.write(kNotRequired, (sizeof(kNotRequired) / sizeof(kNotRequired[0])));
+  out_->write(kNotRequired, (sizeof(kNotRequired) / sizeof(kNotRequired[0])));
 }
 
 /*!
@@ -151,15 +165,15 @@ void ClassfileWriter::WriteFields() {
  * FIXME: The init and main is hard coded. Should be replaced later.
  */
 void ClassfileWriter::WriteMethods() {
-  out_ << constant_pool_.countItemType(METHOD);
+  *out_ << constant_pool_->countItemType(METHOD);
   WriteInitMethod();
   WriteMainMethod();
   // for each method do {
-  out_ << kPublicAccessFlag;
+  *out_ << kPublicAccessFlag;
   //
   ///BUG putUTF returns VOID
-//  out_ << constant_pool_.putUTF8("/*methodName*/");
-//  out_ << constant_pool_.putUTF8("()V");
+//  out_ << constant_pool_->putUTF8("/*methodName*/");
+//  out_ << constant_pool_->putUTF8("()V");
   WriteAttributes();
   // }
 
@@ -191,7 +205,7 @@ void ClassfileWriter::WriteAttributes() {
   /**
    * TODO: 0. insert attribute_count (u2)
 
-   out_ << constant_pool_.countItemType(ATTRIBUTE);
+   out_ << constant_pool_->countItemType(ATTRIBUTE);
 
    *  Code_attribute:
    * TODO: 1. call constant pool to get reference of attribute (u2)
@@ -210,7 +224,7 @@ void ClassfileWriter::WriteAttributes() {
    *  LineNumberTable:
    * TODO: 1. insert attribute_count (u2)
 
-   out_ << constant_pool_.countItemType(ATTRIBUTE);
+   out_ << constant_pool_->countItemType(ATTRIBUTE);
 
    * TODO: 2. call constant pool to get reference of attribute (u2) = +1 of code_attribute
    * 			-> attributes_name_index

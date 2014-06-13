@@ -4,6 +4,8 @@
 #include <array>
 #include <iostream>
 #include <map>
+#include <memory>
+#include <vector>
 
 #include "constant_pool.h"
 
@@ -26,10 +28,9 @@ class ClassfileWriter {
    * Stream 'out'. Der Bytecode wird in der map 'codeFunctions' gehalten, Map
    * Funktionsname -> Bytecode.
    */
-  ClassfileWriter(ClassfileVersion version, ConstantPool& constantPool,
-                  const std::map<std::string,
-                    std::vector<char>&> codeFunctions,
-                  std::ostream& out);
+  ClassfileWriter(ClassfileVersion version, ConstantPool* constantPool,
+                  const std::map<std::string, std::vector<char>&> codeFunctions,
+                  std::ostream* out);
 
   virtual ~ClassfileWriter();
 
@@ -54,7 +55,7 @@ class ClassfileWriter {
   /**
    * Der Ausgabestream auf den wir die Datei schreiben.
    */
-  std::ostream& out_;
+  std::ostream *out_;
 
   /**
    * Die Versionsnummer der zu schreibenden .class-Datei.
@@ -64,7 +65,7 @@ class ClassfileWriter {
   /**
    * Der ConstantPool der zu schreibenden Class-Datei.
    */
-  ConstantPool& constant_pool_;
+  std::shared_ptr<ConstantPool> constant_pool_;
 
   /**
    * Mappt Funktionsnamen auf ihren zugehörigen Bytecode.

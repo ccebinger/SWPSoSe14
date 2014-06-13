@@ -58,39 +58,39 @@ class Item {
 
   void set(int32_t intVal);
   void set(int64_t longVal);
-  void set(ItemType _type, const std::string &_strVal);
+  void set(ItemType _type, const std::string &_strVal1,
+           const std::string &_strVal2, const std::string &_strVal3);
 
   size_t index;  //!< index of item
   ItemType type;  //!< item type
   int32_t intVal;  //!< if type integer the value is stored here
   int64_t longVal;  //!< if type long values is stored here
-  std::string strVal;  //!< if type string value is stored here
+  std::string strVal1;  //!< if method, class or string value stored here
+  std::string strVal2;  //!< if method or class, method name
+  std::string strVal3;  //!< if method or class, method descriptor
   Item *next;  //!< pointer to next item in list
-  std::vector<unsigned char> getHexRepresentation(Bytecode_writer& writer)
-  {
+
+  std::vector<unsigned char> getHexRepresentation(Bytecode_writer* writer) {
     std::vector<unsigned char> result;
     std::stringstream sstream;
-    //sstream << '0' << type;
-    writer.writeU8(type);
-    //writer.
-    //result.add((char) t);
-    //sstream.width(1);
+    // sstream << '0' << type;
+    writer->writeU8(type);
+    // writer.
+    // result.add((char) t);
+    // sstream.width(1);
 //    sstream.fill(prev);
-    if (type == ItemType::INT)
+    if (type == ItemType::INT) {
       sstream << std::hex << intVal;
-    else
-    {
+    } else {
       if (type == ItemType::UTF8)
-        sstream << std::hex << strVal.size();
-      sstream << std::hex << strVal;
+        sstream << std::hex << strVal1.size();
+      sstream << std::hex << strVal1;
     }
 
     std::string str = sstream.str();
     int len = str.length();
     for (int i = 0; i < len; i++)
       result.push_back(str.at(i));
-
-
     return result;
   }
 };
