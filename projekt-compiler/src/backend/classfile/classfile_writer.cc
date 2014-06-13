@@ -100,7 +100,7 @@ void ClassfileWriter::WriteVersionNumber() {
  * \sa constant_pool.cc
  */
 void ClassfileWriter::WriteConstantPool() {
- /* Bytecode_writer writer(out_);
+ /*
 
   std::vector<Item> items = constant_pool_->getItems();
   writer.writeU16(items.size());
@@ -109,7 +109,7 @@ void ClassfileWriter::WriteConstantPool() {
     items.at(i).getHexRepresentation(&writer);
   }
 */
-   out_.write((char*)constant_pool_->getByteArray().data(),
+   out_->write((char*)constant_pool_->getByteArray().data(),
           constant_pool_->getByteArray().size());
 }
 
@@ -126,7 +126,6 @@ void ClassfileWriter::WriteAccessFlags() {
  * we call our outfile Main.class. therefore every classname is Main
  */
 void ClassfileWriter::WriteClassName() {
-	Bytecode_writer writer(out_);
 	writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("Main")));
 }
 /*!
@@ -134,7 +133,6 @@ void ClassfileWriter::WriteClassName() {
  * For us we always have the java/lang/Object class
  */
 void ClassfileWriter::WriteSuperClassName() {
-	Bytecode_writer writer(out_);
 	writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("java/lang/Object")));
 }
 
@@ -162,17 +160,16 @@ void ClassfileWriter::WriteFields() {
  * FIXME: The init and main is hard coded. Should be replaced later.
  */
 void ClassfileWriter::WriteMethods() {
+//  std::vector<std::string> keys = this->graphs_.keyset();
   *out_ << constant_pool_->countItemType(METHOD);
   WriteInitMethod();
   WriteMainMethod();
-  // for each method do {
-  *out_ << kPublicAccessFlag;
-  //
-  ///BUG putUTF returns VOID
-//  out_ << constant_pool_->putUTF8("/*methodName*/");
-//  out_ << constant_pool_->putUTF8("()V");
-  WriteAttributes();
-  // }
+//  for(std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
+    *out_<< kPublicAccessFlag;
+//    writer.writeU16(constant_pool_.addString(keys[i]));
+    writer.writeU16(constant_pool_->addString("()V"));
+    WriteAttributes();
+//  }
 
   // std::vector<char> func = code_functions_.at("main");
   // out_.write((char*)func.data(),
@@ -183,7 +180,6 @@ void ClassfileWriter::WriteMethods() {
  * Is the same in all java classes we generate
  */
 void ClassfileWriter::WriteInitMethod(){
-		Bytecode_writer writer(out_);
 		out_->write(kPublicAccessFlag, (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
 		writer.writeU16(constant_pool_->addString("<init>"));
 		writer.writeU16(constant_pool_->addString("()V"));

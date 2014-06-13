@@ -23,6 +23,16 @@ class ClassfileWriter {
   };
 
   /**
+   * Graph aus dem Frontend
+   */
+  Graphs::Graph_ptr graphs_;
+
+  /**
+   * Bytecode writer
+   */
+  Bytecode_writer writer;
+
+  /**
    * Erstellt einen neuen Writer zum Schreiben einer .class-Datei der
    * Version 'version' mit dem ConstantPool 'constantPool' auf den
    * Stream 'out'. Der Bytecode wird in der map 'codeFunctions' gehalten, Map
