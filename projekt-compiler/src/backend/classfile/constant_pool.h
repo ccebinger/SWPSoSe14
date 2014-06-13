@@ -118,6 +118,10 @@ class ConstantPool {
 
   std::vector<Item> getItems() {return items;}
 
+<<<<<<< HEAD
+=======
+ protected:
+>>>>>>> merge
   void putByte(uint8_t b);
   void putShort(uint16_t s);
   void putInt(int32_t i);
