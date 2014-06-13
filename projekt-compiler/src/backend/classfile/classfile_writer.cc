@@ -75,7 +75,6 @@ void ClassfileWriter::WriteClassfile() {
   WriteSuperClassName();
   WriteInterfaces();
   WriteFields();
-  WriteInitMethod();
   WriteMethods();
 }
 
@@ -188,8 +187,7 @@ void ClassfileWriter::WriteMethods() {
  */
 void ClassfileWriter::WriteInitMethod(){
 		Bytecode_writer writer(out_);
-		char accessFlags[]{'\x00', '\x01'};
-		out_->write(accessFlags, (sizeof(accessFlags)/sizeof(accessFlags[0])));
+		out_->write(kPublicAccessFlag, (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
 		writer.writeU16(constant_pool_->addString("<init>"));
 		writer.writeU16(constant_pool_->addString("()V"));
 		WriteAttributes();
