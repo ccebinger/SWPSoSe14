@@ -117,6 +117,7 @@ class ConstantPool {
   size_t countItemType(ItemType type);
 
   std::vector<Item> getItems() {return items;}
+
  protected:
   void putByte(uint8_t b);
   void putShort(uint16_t s);
