@@ -60,6 +60,9 @@ class Item {
   void set(int64_t longVal);
   void set(ItemType _type, const std::string &_strVal1,
            const std::string &_strVal2, const std::string &_strVal3);
+  void set(ItemType type, uint16_t class_idx, uint16_t name_type_idx);
+  void set(ItemType type, uint16_t name_idx);
+  void set_name_type(uint16_t method_idx, uint16_t descriptor_idx);
 
   size_t index;  //!< index of item
   ItemType type;  //!< item type
@@ -70,15 +73,16 @@ class Item {
   std::string strVal3;  //!< if method or class, method descriptor
   Item *next;  //!< pointer to next item in list
 
+  uint16_t method_idx; //!< index of method string in constantpool
+  uint16_t descriptor_idx; //!< index of descriptor string in constantpool
+  uint16_t name_idx; //!< index of name/string in constantpool
+  uint16_t class_idx; //!< index of class in constantpool
+  uint16_t name_type_idx; //!< index of name and type in constantpool
+
   std::vector<unsigned char> getHexRepresentation(Bytecode_writer* writer) {
     std::vector<unsigned char> result;
     std::stringstream sstream;
-    // sstream << '0' << type;
     writer->writeU8(type);
-    // writer.
-    // result.add((char) t);
-    // sstream.width(1);
-//    sstream.fill(prev);
     if (type == ItemType::INT) {
       sstream << std::hex << intVal;
     } else {
@@ -106,10 +110,16 @@ class ConstantPool {
   size_t addInt(int32_t value);
   size_t addNameAndType(int32_t UTF8_name_index, int32_t UTF8_descriptor_index);
   size_t addString(const std::string &value);
-  size_t addClassRef(const std::string &value);
-  size_t addFieldRef(const std::string &value);
-  size_t addMethRef(const std::string &value);
-  size_t addIMethRef(const std::string &value);
+
+  size_t addClassRef(uint16_t name_idx);
+  //size_t addClassRef(const std::string &value);
+
+  size_t addFieldRef(uint16_t class_idx, uint16_t name_type_idx);
+  //size_t addFieldRef(const std::string &value);
+
+  size_t addMethRef(uint16_t class_idx, uint16_t name_type_idx);
+  //size_t addMethRef(const std::string &value);
+  //size_t addIMethRef(const std::string &value);
 
   std::vector<uint8_t> getByteArray();
   bool check(const Item& i) const;   //!< check if item in list

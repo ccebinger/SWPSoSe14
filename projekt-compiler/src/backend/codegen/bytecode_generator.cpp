@@ -72,7 +72,7 @@ void BytecodeGenerator::add_invoke_static(const std::string& method, ConstantPoo
 void BytecodeGenerator::add_invoke_method(BytecodeGenerator::MNEMONIC opcode, const std::string& method, ConstantPool& constantPool, std::vector<char>& result)
 {
   result.push_back(opcode);
-  add_index(constantPool.addMethRef(method), result);
+//  add_index(constantPool.addMethRef(method), result);
 }
 
 void BytecodeGenerator::add_index(uint16_t indexInPool, std::vector<char>& result)
@@ -84,17 +84,17 @@ void BytecodeGenerator::add_index(uint16_t indexInPool, std::vector<char>& resul
 void BytecodeGenerator::add_static_field(const std::string& field, ConstantPool& constantPool, std::vector<char>& result)
 {
   result.push_back(BytecodeGenerator::GET_STATIC);
-  add_index(constantPool.addFieldRef(field), result);
+//  add_index(constantPool.addFieldRef(field), result);
 }
 void BytecodeGenerator::add_new_object(const std::string& class_name, ConstantPool& constantPool, std::vector<char>& result)
 {
   result.push_back(BytecodeGenerator::NEW);
-  add_index(constantPool.addClassRef(class_name), result);
+//  add_index(constantPool.addClassRef(class_name), result);
 }
 
 void BytecodeGenerator::add_class(const std::string& class_name, ConstantPool& constantPool, std::vector<char>& result)
 {
-  add_index(constantPool.addClassRef(class_name), result);
+//  add_index(constantPool.addClassRef(class_name), result);
 }
 
 void BytecodeGenerator::add_instance_of(const std::string& class_name, ConstantPool& constantPool, std::vector<char>& result)
