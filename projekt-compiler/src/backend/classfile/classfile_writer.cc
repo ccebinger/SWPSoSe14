@@ -157,8 +157,9 @@ void ClassfileWriter::WriteMethods() {
   // for each method do {
   out_ << kPublicAccessFlag;
   //
-  out_ << constant_pool_.putUTF8("/*methodName*/");
-  out_ << constant_pool_.putUTF8("()V");
+  ///BUG putUTF returns VOID
+//  out_ << constant_pool_.putUTF8("/*methodName*/");
+//  out_ << constant_pool_.putUTF8("()V");
   WriteAttributes();
   // }
 
