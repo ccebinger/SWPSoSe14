@@ -163,7 +163,6 @@ void ClassfileWriter::WriteMethods() {
 //  std::vector<std::string> keys = this->graphs_.keyset();
   *out_ << constant_pool_->countItemType(METHOD);
   WriteInitMethod();
-  WriteMainMethod();
 //  for(std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
     *out_<< kPublicAccessFlag;
 //    writer.writeU16(constant_pool_.addString(keys[i]));
@@ -185,14 +184,6 @@ void ClassfileWriter::WriteInitMethod(){
 		writer.writeU16(constant_pool_->addString("()V"));
 		WriteAttributes();
 	}
-
-/*!
- * \brief Writes the main in class-file
- * Is the same in all java classes we generate
- */
-void ClassfileWriter::WriteMainMethod() {
-  // TODO: code here
-}
 
 /*!
  * \brief Writes attributes in class-file
