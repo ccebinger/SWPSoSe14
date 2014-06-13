@@ -50,6 +50,7 @@ std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
  */
 ClassfileWriter::ClassfileWriter(ClassfileVersion version,
                                  ConstantPool* constantPool,
+                                 Graphs::Graph_ptr graphs,
                                  const std::map<std::string, std::vector<char>&> codeFunctions,
                                  std::ostream* out) :
     version_(version), code_functions_(codeFunctions), out_(out) {
@@ -185,9 +186,13 @@ void ClassfileWriter::WriteMethods() {
  * \brief Writes the <init> in class-file
  * Is the same in all java classes we generate
  */
-void ClassfileWriter::WriteInitMethod() {
-  // TODO: code here
-}
+void ClassfileWriter::WriteInitMethod(){
+		Bytecode_writer writer(out_);
+		out_->write(kPublicAccessFlag, (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
+		writer.writeU16(constant_pool_->addString("<init>"));
+		writer.writeU16(constant_pool_->addString("()V"));
+		WriteAttributes();
+	}
 
 /*!
  * \brief Writes the main in class-file
@@ -202,6 +207,25 @@ void ClassfileWriter::WriteMainMethod() {
  * Every method calls WritesAttributes
  */
 void ClassfileWriter::WriteAttributes() {
+
+	/**
+	 * Init method attribute case:
+	 */
+	/*
+		writer.writeU16(1);
+		writer.writeU16(constant_pool_->addString("Code"));
+		writer.writeU32(17);
+		writer.writeU16(1);
+		writer.writeU16(1);
+		writer.writeU32(5);
+		char initCode[]{'\x2a','\xb7','\x00','\x01','\xb1'};
+		out_->write(initCode, (sizeof(initCode)/sizeof(initCode[0])));
+		writer.writeU16(0);
+		writer.writeU16(0);
+	*/
+
+
+
   /**
    * TODO: 0. insert attribute_count (u2)
 
