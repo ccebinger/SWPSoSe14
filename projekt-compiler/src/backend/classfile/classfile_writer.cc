@@ -75,6 +75,7 @@ void ClassfileWriter::WriteClassfile() {
   WriteSuperClassName();
   WriteInterfaces();
   WriteFields();
+  WriteInitMethod();
   WriteMethods();
 }
 
@@ -185,9 +186,14 @@ void ClassfileWriter::WriteMethods() {
  * \brief Writes the <init> in class-file
  * Is the same in all java classes we generate
  */
-void ClassfileWriter::WriteInitMethod() {
-  // TODO: code here
-}
+void ClassfileWriter::WriteInitMethod(){
+		Bytecode_writer writer(out_);
+		char accessFlags[]{'\x00', '\x01'};
+		out_->write(accessFlags, (sizeof(accessFlags)/sizeof(accessFlags[0])));
+		writer.writeU16(constant_pool_->addString("<init>"));
+		writer.writeU16(constant_pool_->addString("()V"));
+		WriteAttributes();
+	}
 
 /*!
  * \brief Writes the main in class-file
