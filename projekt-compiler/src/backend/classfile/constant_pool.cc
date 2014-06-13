@@ -40,7 +40,9 @@ Item::Item(const Item &i) {
   type = i.type;
   intVal = i.intVal;
   longVal = i.longVal;
-  strVal = i.strVal;
+  strVal1 = i.strVal1;
+  strVal2 = i.strVal2;
+  strVal3 = i.strVal3;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -53,7 +55,9 @@ Item::Item(uint16_t _index, const Item &i) {
   type = i.type;
   intVal = i.intVal;
   longVal = i.longVal;
-  strVal = i.strVal;
+  strVal1 = i.strVal1;
+  strVal2 = i.strVal2;
+  strVal3 = i.strVal3;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -65,7 +69,7 @@ bool Item::operator==(const Item& i)const {
     case UTF8:
     case CLASS:
     case STR:
-      return i.strVal == strVal;
+      return i.strVal1 == strVal1;
     case LONG:
       return i.longVal == longVal;
     case INT: {
@@ -76,7 +80,7 @@ bool Item::operator==(const Item& i)const {
     // case METHOD:
     // case IMETHOD:
     default:
-      return i.strVal == strVal;
+      return i.strVal1 == strVal1;
   }
 }
 
@@ -89,7 +93,9 @@ bool Item::operator=(const Item& i) {
   type = i.type;
   intVal = i.intVal;
   longVal = i.longVal;
-  strVal = i.strVal;
+  strVal1 = i.strVal1;
+  strVal2 = i.strVal2;
+  strVal3 = i.strVal3;
   return true;
 }
 
@@ -107,10 +113,12 @@ void Item::set(int32_t _intVal) {
 /// \param _type type of the item
 /// \param _strVal  first part of the value of this item.
 ////////////////////////////////////////////////////////////////////////
-void Item::set(ItemType _type,
-               const std::string &_strVal) {
+void Item::set(ItemType _type, const std::string &_strVal1,
+               const std::string &_strVal2, const std::string &_strVal3) {
   type = _type;
-  strVal = _strVal;
+  strVal1 = _strVal1;
+  strVal2 = _strVal2;
+  strVal3 = _strVal3;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -182,7 +190,7 @@ size_t ConstantPool::addNameAndType(int32_t UTF8_name_index, int32_t UTF8_descri
 size_t ConstantPool::addString(const std::string &value) {
   Item i;
   size_t index = 0;
-  i.set(STR, value);
+  i.set(STR, value, "", "");
   if (!check(i)) {
     putByte(UTF8);
     putUTF8(value);
@@ -201,7 +209,7 @@ size_t ConstantPool::addString(const std::string &value) {
 size_t ConstantPool::addClassRef(const std::string &value) {
   Item i;
   size_t index = 0;
-  i.set(CLASS, value);
+  i.set(CLASS, value, "", "");
   if (!check(i)) {
     putByte(CLASS);
     putUTF8(value);
@@ -220,7 +228,7 @@ size_t ConstantPool::addClassRef(const std::string &value) {
 size_t ConstantPool::addFieldRef(const std::string &value) {
   Item i;
   size_t index = 0;
-  i.set(FIELD, value);
+  i.set(FIELD, value, "", "");
   if (!check(i)) {
     putByte(FIELD);
     putUTF8(value);
@@ -239,7 +247,7 @@ size_t ConstantPool::addFieldRef(const std::string &value) {
 size_t ConstantPool::addMethRef(const std::string &value) {
   Item i;
   size_t index = 0;
-  i.set(METHOD, value);
+  i.set(METHOD, value, "", "");
   if (!check(i)) {
     putByte(METHOD);
     putUTF8(value);
@@ -258,7 +266,7 @@ size_t ConstantPool::addMethRef(const std::string &value) {
 size_t ConstantPool::addIMethRef(const std::string &value) {
   Item i;
   size_t index = 0;
-  i.set(IMETHOD, value);
+  i.set(IMETHOD, value, "", "");
   if (!check(i)) {
     putByte(IMETHOD);
     putUTF8(value);
