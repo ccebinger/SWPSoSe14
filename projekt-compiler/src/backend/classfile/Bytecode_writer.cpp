@@ -18,7 +18,7 @@ void Bytecode_writer::write(int value, uint8_t size) {
     bytes[i] = (value >> shift) & 0xFF;
   }
 
-  filestream.write(reinterpret_cast<char*> (bytes) , bsize);
+  filestream.write((char*) &bytes[0], bsize);
 }
 
 void Bytecode_writer::writeU8(uint8_t value) {
