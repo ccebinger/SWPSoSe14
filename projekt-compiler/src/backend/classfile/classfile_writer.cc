@@ -26,6 +26,7 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include <backend/classfile/classfile_writer.h>
 #include <backend/classfile/constant_pool.h>
 #include <backend/classfile/Bytecode_writer.h>
+#include <backend/codegen/bytecode_generator.h>
 #include <array>
 #include <iostream>
 #include <map>
@@ -206,11 +207,33 @@ void ClassfileWriter::WriteInitMethod(){
  * Every method calls WritesAttributes
  */
 void ClassfileWriter::WriteAttributes(const std::string &key) {
-  WriteSourcefileAttribute();
-}
+  /* Local variables definition */
+  Graphs::Graph_ptr currentGraph = graphs_.find(key);
+  std::vector<char> code;
+  size_t codeCount = 0;
+  size_t attributeCount = 0;
 
-/*!
- * \brief Writes sourcefile attributes in class-file
- */
-void ClassfileWriter::WriteSourcefileAttribute(){
+  code = BytecodeGenerator::GenerateCodeFromFunctionGraph(currentGraph,
+                                                         *constant_pool_);
+  codeCount = code.size();
+  // hint: adjust when implementing more than code attribute
+  attributeCount = codeCount + 12;
+
+  /* Attribute code */
+  // attributes_count
+  writer.writeU16(1);
+  // attribute_name_index
+  constant_pool_->addString("Code");
+  // attribute_legth
+  writer.writeU32(attributeCount);
+  // TODO: max_stacks
+  // TODO: max_locals
+  // code_length
+  writer.writeU32(codeCount);
+  // TODO: adjust number of bytes to push with writer
+  // *out_ << code;
+  // exception_table_length
+  *out_ << kNotRequired;
+  // attributes_count
+  *out_ << kNotRequired;
 }
