@@ -39,6 +39,7 @@ private:
 private slots:
     void cursorPositionChanged(int row, int col);
     void textChanged();
+    void pushSignToUndoStack();
     void newFile();
     void openFile();
     void saveFile();

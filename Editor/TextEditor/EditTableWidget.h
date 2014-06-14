@@ -14,6 +14,7 @@ public:
 signals:
     void cursorPositionChanged(int row, int col);
     void textChanged();
+    void pushSignToUndoStack();
 
 public:
     QString toPlainText() const;
