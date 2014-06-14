@@ -162,10 +162,16 @@ ConstantPool::ConstantPool() {
   addString("Code");
 
   ///Add classes
-  addClassRef(obj_idx);
-  addClassRef(system_idx);
+  uint16_t obj_cls = addClassRef(obj_idx);
+  uint16_t system_cls = addClassRef(system_idx);
   addClassRef(print_idx);
   uint16_t main_class_idx = addClassRef(main_class_str_idx);
+
+  //Add MethodRef (java/lang/Object)
+  addMethRef(obj_cls, obj_idx);
+
+  //Add FieldRef (java/lang/System)
+  addFieldRef(system_cls, system_idx);
 
   ///Add name and type
   uint16_t main_name_type_idx = addNameAndType(main_idx, void_descriptor_idx);
