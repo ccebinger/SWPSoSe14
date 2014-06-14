@@ -159,7 +159,11 @@ void ClassfileWriter::WriteMethods() {
   writer.writeU16(size+1);
   WriteInitMethod();
   for(std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
-    *out_<< kPublicAccessFlag;
+    if(keys[i].compare("main") != 0) {
+      *out_<< kPublicAccessFlag;
+    } else {
+      writer.writeU16(9);
+    }
     writer.writeU16(constant_pool_->addString(keys[i]));
     writer.writeU16(constant_pool_->addString("()V"));
     WriteAttributes(keys[i]);
@@ -202,16 +206,11 @@ void ClassfileWriter::WriteInitMethod(){
  * Every method calls WritesAttributes
  */
 void ClassfileWriter::WriteAttributes(const std::string &key) {
-  if(key.compare("main") != 0) {
-    *out_<< kPublicAccessFlag;
-  } else {
-    writer.writeU16(9);
-  }
-  WriteCodeAttribute();
+  WriteSourcefileAttribute();
 }
 
 /*!
- * \brief Writes code attributes in class-file
+ * \brief Writes sourcefile attributes in class-file
  */
-void ClassfileWriter::WriteCodeAttribute(){
+void ClassfileWriter::WriteSourcefileAttribute(){
 }
