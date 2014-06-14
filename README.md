@@ -8,7 +8,7 @@ C++ Rail Compiler
 
 
 ### Hey! What's Rail?
-	- [Esolang-Wiki](http://esolangs.org/wiki/Rail): Esoteric 2d computer language
+[Esolang-Wiki](http://esolangs.org/wiki/Rail): Esoteric 2d computer language
 
 
 ### Who are we
@@ -19,8 +19,11 @@ TODO
 Contents
 --------------------------------------
 TODO: src
+
 TODO: Documentation
+
 TODO: Tests
+
 TODO: Continuous Integration
 
 
@@ -57,7 +60,7 @@ You can either user -i or -d, not both
 
 
 
-Contribution Guides
+Contribution Guide
 --------------------------------------
 Contribution in any form is (actually) limited to students thar are involved.
 
