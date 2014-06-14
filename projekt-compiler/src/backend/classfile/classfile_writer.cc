@@ -50,6 +50,7 @@ std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
  */
 ClassfileWriter::ClassfileWriter(ClassfileVersion version,
                                  ConstantPool* constantPool,
+                                 Graphs& graphs,
                                  const std::map<std::string, std::vector<char>&> codeFunctions,
                                  std::ostream* out) :
     version_(version), code_functions_(codeFunctions), out_(out) {
@@ -99,7 +100,7 @@ void ClassfileWriter::WriteVersionNumber() {
  * \sa constant_pool.cc
  */
 void ClassfileWriter::WriteConstantPool() {
-  Bytecode_writer writer(out_);
+ /*
 
   std::vector<Item> items = constant_pool_->getItems();
   writer.writeU16(items.size());
@@ -107,9 +108,9 @@ void ClassfileWriter::WriteConstantPool() {
   for (int i = 0; i < items.size(); i++) {
     items.at(i).getHexRepresentation(&writer);
   }
-
-  // out_.write((char*)constant_pool_->getByteArray().data(),
-  //        constant_pool_->getByteArray().size());
+*/
+   out_->write((char*)constant_pool_->getByteArray().data(),
+          constant_pool_->getByteArray().size());
 }
 
 /*!
@@ -122,23 +123,17 @@ void ClassfileWriter::WriteAccessFlags() {
 
 /*!
  * \brief Write the class name
- * We get the class name from the constant pool.
- * The index of the class name is one postition before the
- * 	java/lang/object super class
+ * we call our outfile Main.class. therefore every classname is Main
  */
 void ClassfileWriter::WriteClassName() {
-  uint16_t indexInPool = (constant_pool_->addString("java/lang/Object"))-1;
-  *out_ << ((unsigned char) indexInPool & 0xFF00U >> 8);
-  *out_ << ((unsigned char) indexInPool & 0x00FFU);
+	writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("Main")));
 }
 /*!
  * \brief Write super class name
- * For us we always have the java/lang/object class
+ * For us we always have the java/lang/Object class
  */
 void ClassfileWriter::WriteSuperClassName() {
-  uint16_t indexInPool = constant_pool_->addString("java/lang/Object");
-  *out_ << ((unsigned char) indexInPool & 0xFF00U >> 8);
-  *out_ << ((unsigned char) indexInPool & 0x00FFU);
+	writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("java/lang/Object")));
 }
 
 /*!
@@ -165,17 +160,15 @@ void ClassfileWriter::WriteFields() {
  * FIXME: The init and main is hard coded. Should be replaced later.
  */
 void ClassfileWriter::WriteMethods() {
+  std::vector<std::string> keys = this->graphs_.keyset();
   *out_ << constant_pool_->countItemType(METHOD);
   WriteInitMethod();
-  WriteMainMethod();
-  // for each method do {
-  *out_ << kPublicAccessFlag;
-  //
-  ///BUG putUTF returns VOID
-//  out_ << constant_pool_->putUTF8("/*methodName*/");
-//  out_ << constant_pool_->putUTF8("()V");
-  WriteAttributes();
-  // }
+  for(std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
+    *out_<< kPublicAccessFlag;
+    writer.writeU16(constant_pool_->addString(keys[i]));
+    writer.writeU16(constant_pool_->addString("()V"));
+    WriteAttributes();
+  }
 
   // std::vector<char> func = code_functions_.at("main");
   // out_.write((char*)func.data(),
@@ -186,7 +179,6 @@ void ClassfileWriter::WriteMethods() {
  * Is the same in all java classes we generate
  */
 void ClassfileWriter::WriteInitMethod(){
-		Bytecode_writer writer(out_);
 		out_->write(kPublicAccessFlag, (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
 		writer.writeU16(constant_pool_->addString("<init>"));
 		writer.writeU16(constant_pool_->addString("()V"));
@@ -194,18 +186,29 @@ void ClassfileWriter::WriteInitMethod(){
 	}
 
 /*!
- * \brief Writes the main in class-file
- * Is the same in all java classes we generate
- */
-void ClassfileWriter::WriteMainMethod() {
-  // TODO: code here
-}
-
-/*!
  * \brief Writes attributes in class-file
  * Every method calls WritesAttributes
  */
 void ClassfileWriter::WriteAttributes() {
+
+	/**
+	 * Init method attribute case:
+	 */
+	/*
+		writer.writeU16(1);
+		writer.writeU16(constant_pool_->addString("Code"));
+		writer.writeU32(17);
+		writer.writeU16(1);
+		writer.writeU16(1);
+		writer.writeU32(5);
+		char initCode[]{'\x2a','\xb7','\x00','\x01','\xb1'};
+		out_->write(initCode, (sizeof(initCode)/sizeof(initCode[0])));
+		writer.writeU16(0);
+		writer.writeU16(0);
+	*/
+
+
+
   /**
    * TODO: 0. insert attribute_count (u2)
 

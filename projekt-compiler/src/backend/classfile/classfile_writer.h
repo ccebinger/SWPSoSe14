@@ -23,14 +23,25 @@ class ClassfileWriter {
   };
 
   /**
+   * Graph aus dem Frontend
+   */
+  Graphs graphs_;
+
+  /**
+   * Bytecode writer
+   */
+  Bytecode_writer writer;
+
+  /**
    * Erstellt einen neuen Writer zum Schreiben einer .class-Datei der
    * Version 'version' mit dem ConstantPool 'constantPool' auf den
    * Stream 'out'. Der Bytecode wird in der map 'codeFunctions' gehalten, Map
    * Funktionsname -> Bytecode.
    */
   ClassfileWriter(ClassfileVersion version, ConstantPool* constantPool,
-                  const std::map<std::string, std::vector<char>&> codeFunctions,
-                  std::ostream* out);
+                    Graphs& graphs,
+                    const std::map<std::string, std::vector<char>&> codeFunctions,
+                    std::ostream* out);
 
   virtual ~ClassfileWriter();
 
@@ -133,11 +144,6 @@ class ClassfileWriter {
    * Schreibt die <init> Methode.
    */
   void WriteInitMethod();
-
-  /*
-   * Schreibt die main Methode.
-   */
-    void WriteMainMethod();
 
   /**
    * Schreibt die Attribute, insb. den Methoden-Bytecode.

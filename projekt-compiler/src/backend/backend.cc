@@ -63,7 +63,7 @@ Backend::Status Backend::Generate(Graphs& graphs, std::ostream* codeOut) {
                                                                                 constantPool);
   std::map<std::string, std::vector<char>&> codeMap{{"main", mainCode}};
 
-  ClassfileWriter writer(ClassfileWriter::JAVA_7, &constantPool, codeMap, codeOut);
+  ClassfileWriter writer(ClassfileWriter::JAVA_7, &constantPool, graphs, codeMap, codeOut);
   writer.WriteClassfile();
   return Backend::Status::SUCCESS;
 }
