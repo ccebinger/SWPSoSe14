@@ -108,18 +108,11 @@ class ConstantPool {
   ConstantPool();
 
   size_t addInt(int32_t value);
-  size_t addNameAndType(int32_t UTF8_name_index, int32_t UTF8_descriptor_index);
+  size_t addNameAndType(uint16_t UTF8_name_index, uint16_t UTF8_descriptor_index);
   size_t addString(const std::string &value);
-
   size_t addClassRef(uint16_t name_idx);
-  //size_t addClassRef(const std::string &value);
-
   size_t addFieldRef(uint16_t class_idx, uint16_t name_type_idx);
-  //size_t addFieldRef(const std::string &value);
-
   size_t addMethRef(uint16_t class_idx, uint16_t name_type_idx);
-  //size_t addMethRef(const std::string &value);
-  //size_t addIMethRef(const std::string &value);
 
   std::vector<uint8_t> getByteArray();
   bool check(const Item& i) const;   //!< check if item in list
@@ -128,17 +121,14 @@ class ConstantPool {
 
   std::vector<Item> getItems() {return items;}
 
-<<<<<<< HEAD
-=======
  protected:
->>>>>>> merge
   void putByte(uint8_t b);
   void putShort(uint16_t s);
   void putInt(int32_t i);
   void putUTF8(std::string s);
 
-  size_t put(Item i);
- protected:
+  size_t put(Item& i);
+
   void encodeUTF8(std::string s, uint32_t pos);
 
   std::vector<Item> items;  //!< item list
