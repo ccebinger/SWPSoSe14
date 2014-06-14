@@ -118,8 +118,11 @@ class ConstantPool {
   bool check(const Item& i) const;   //!< check if item in list
   const Item& get(const Item &key)const;
   size_t countItemType(ItemType type);
+  size_t size() {items.size();}
+
 
   std::vector<Item> getItems() {return items;}
+
 
  protected:
   void putByte(uint8_t b);
