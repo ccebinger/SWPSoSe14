@@ -25,7 +25,7 @@ class ClassfileWriter {
   /**
    * Graph aus dem Frontend
    */
-  Graphs::Graph_ptr graphs_;
+  Graphs graphs_;
 
   /**
    * Bytecode writer
@@ -39,7 +39,7 @@ class ClassfileWriter {
    * Funktionsname -> Bytecode.
    */
   ClassfileWriter(ClassfileVersion version, ConstantPool* constantPool,
-                    Graphs::Graph_ptr graphs,
+                    Graphs& graphs,
                     const std::map<std::string, std::vector<char>&> codeFunctions,
                     std::ostream* out);
 

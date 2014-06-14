@@ -50,7 +50,7 @@ std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
  */
 ClassfileWriter::ClassfileWriter(ClassfileVersion version,
                                  ConstantPool* constantPool,
-                                 Graphs::Graph_ptr graphs,
+                                 Graphs& graphs,
                                  const std::map<std::string, std::vector<char>&> codeFunctions,
                                  std::ostream* out) :
     version_(version), code_functions_(codeFunctions), out_(out) {
@@ -160,15 +160,15 @@ void ClassfileWriter::WriteFields() {
  * FIXME: The init and main is hard coded. Should be replaced later.
  */
 void ClassfileWriter::WriteMethods() {
-//  std::vector<std::string> keys = this->graphs_.keyset();
+  std::vector<std::string> keys = this->graphs_.keyset();
   *out_ << constant_pool_->countItemType(METHOD);
   WriteInitMethod();
-//  for(std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
+  for(std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
     *out_<< kPublicAccessFlag;
-//    writer.writeU16(constant_pool_.addString(keys[i]));
+    writer.writeU16(constant_pool_->addString(keys[i]));
     writer.writeU16(constant_pool_->addString("()V"));
     WriteAttributes();
-//  }
+  }
 
   // std::vector<char> func = code_functions_.at("main");
   // out_.write((char*)func.data(),
