@@ -254,6 +254,15 @@ size_t ConstantPool::addClassRef(uint16_t name_idx) {
   return index;
 }
 
+// key2.set(CLASS, value, null, null);
+// Item result = get(key2);
+// if (result == null) {
+//   pool.put12(CLASS, newUTF8(value));
+//   result = new Item(index++, key2);
+//   put(result);
+// }
+// return result;
+
 ////////////////////////////////////////////////////////////////////////
 /// method to put a string into the pool
 /// \param value value to add to pool
@@ -273,6 +282,15 @@ size_t ConstantPool::addFieldRef(uint16_t class_idx, uint16_t name_type_idx) {
   }
   return index;
 }
+
+// key3.set(FIELD, owner, name, desc);
+// Item result = get(key3);
+// if (result == null) {
+//   put122(FIELD, newClass(owner), newNameType(name, desc));
+//   result = new Item(index++, key3);
+//   put(result);
+// }
+// return result;
 
 ////////////////////////////////////////////////////////////////////////
 /// method to put a string into the pool
@@ -294,6 +312,16 @@ size_t ConstantPool::addMethRef(uint16_t class_idx, uint16_t name_type_idx) {
   return index;
 }
 
+// key2.set(MTYPE, methodDesc, null, null);
+// Item result = get(key2);
+// if (result == null) {
+//   pool.put12(MTYPE, newUTF8(methodDesc));
+//   result = new Item(index++, key2);
+//   put(result);
+// }
+// return result;
+// }
+
 ////////////////////////////////////////////////////////////////////////
 /// method to put a string into the pool
 /// \param value value to add to pool
@@ -314,6 +342,70 @@ size_t ConstantPool::addIMethRef(const std::string &value) {
   }
   return index;
 }*/
+
+// // cache for performance
+// ByteVector bootstrapMethods = this.bootstrapMethods;
+// if (bootstrapMethods == null) {
+//     bootstrapMethods = this.bootstrapMethods = new ByteVector();
+// }
+
+// int position = bootstrapMethods.length; // record current position
+
+// int hashCode = bsm.hashCode();
+// bootstrapMethods.putShort(newHandle(bsm.tag, bsm.owner, bsm.name,
+//         bsm.desc));
+
+// int argsLength = bsmArgs.length;
+// bootstrapMethods.putShort(argsLength);
+
+// for (int i = 0; i < argsLength; i++) {
+//     Object bsmArg = bsmArgs[i];
+//     hashCode ^= bsmArg.hashCode();
+//     bootstrapMethods.putShort(newConst(bsmArg));
+// }
+
+// byte[] data = bootstrapMethods.data;
+// int length = (1 + 1 + argsLength) << 1; // (bsm + argCount + arguments)
+// hashCode &= 0x7FFFFFFF;
+// Item result = items[hashCode % items.length];
+// loop: while (result != null) {
+//     if (result.type != BSM || result.hashCode != hashCode) {
+//         result = result.next;
+//         continue;
+//     }
+
+//     // because the data encode the size of the argument
+//     // we don't need to test if these size are equals
+//     int resultPosition = result.intVal;
+//     for (int p = 0; p < length; p++) {
+//         if (data[position + p] != data[resultPosition + p]) {
+//             result = result.next;
+//             continue loop;
+//         }
+//     }
+//     break;
+// }
+
+// int bootstrapMethodIndex;
+// if (result != null) {
+//     bootstrapMethodIndex = result.index;
+//     bootstrapMethods.length = position; // revert to old position
+// } else {
+//     bootstrapMethodIndex = bootstrapMethodsCount++;
+//     result = new Item(bootstrapMethodIndex);
+//     result.set(position, hashCode);
+//     put(result);
+// }
+
+// // now, create the InvokeDynamic constant
+// key3.set(name, desc, bootstrapMethodIndex);
+// result = get(key3);
+// if (result == null) {
+//     put122(INDY, bootstrapMethodIndex, newNameType(name, desc));
+//     result = new Item(index++, key3);
+//     put(result);
+// }
+// return result;
 
 /*
 ////////////////////////////////////////////////////////////////////////
