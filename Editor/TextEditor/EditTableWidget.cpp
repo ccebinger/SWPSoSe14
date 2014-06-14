@@ -1,5 +1,6 @@
 #include "EditTableWidget.h"
 #include "Graph_Interface.h"
+#include "mainwindow.h"
 
 #include <QString>
 #include <QChar>
@@ -152,9 +153,8 @@ void EditTableWidget::setPosition(int row, int col)
     }
 }
 
-void EditTableWidget::setSign(QChar c)
+void EditTableWidget::setSign(QChar c, bool isUndoRedo)
 {
-    // TODO: generate undo/redo-element
     QWidget *w = this->cellWidget(m_cursorRowPos, m_cursorColPos);
     QString color;
     if(c == '$')
@@ -178,6 +178,7 @@ void EditTableWidget::setSign(QChar c)
 
     //text = "<font color=\"" + color + "\">" + text + "</font>";
     QLabel *l;
+    QChar pre;
     if(w == NULL)
     {
         QFont f("unexistent");
@@ -192,7 +193,15 @@ void EditTableWidget::setSign(QChar c)
     {
         l = dynamic_cast<QLabel *>(w);
         assert(l);
+        pre = l->text().at(0);
         l->setText(text);
+    }
+
+    // generate undo/redo-element
+    if(!isUndoRedo && !this->signalsBlocked())
+    {
+        UndoRedoTypeCharacter *undoRedoElement = new UndoRedoTypeCharacter(m_cursorRowPos, m_cursorColPos, pre, c);
+        emit undoRedoElementCreated(undoRedoElement);
     }
 
     l->setStyleSheet("QLabel { color: " + color + "; };");
@@ -211,17 +220,28 @@ void EditTableWidget::setSign(QChar c)
     {
         delete stack;
     }
-    emit textChanged();
-    emit pushSignToUndoStack();
+    if(!isUndoRedo)
+    {
+        emit textChanged();
+    }
 
 }
 
-void EditTableWidget::removeSign()
+void EditTableWidget::removeSign(bool isUndoRedo)
 {
-    // TODO: generate undo/redo-element
     QWidget *w = this->cellWidget(m_cursorRowPos, m_cursorColPos);
     if(w != NULL)
-    {
+    {        
+        // generate undo/redo-element
+        if(!isUndoRedo && !this->signalsBlocked())
+        {
+            QLabel *l = dynamic_cast<QLabel *>(w);
+            assert(l);
+            QChar pre = l->text().at(0);
+            UndoRedoTypeCharacter *undoRedoElement = new UndoRedoTypeCharacter(m_cursorRowPos, m_cursorColPos, pre, QChar());
+            emit undoRedoElementCreated(undoRedoElement);
+        }
+
         removeCellWidget(m_cursorRowPos, m_cursorColPos);
         // TODO: move all elements on the right one position to the left(?)
         bool newMaxFound;
@@ -270,7 +290,10 @@ void EditTableWidget::removeSign()
             delete stack;
         }
 
-        emit textChanged();
+        if(!isUndoRedo)
+        {
+            emit textChanged();
+        }
     }
 }
 
@@ -372,4 +395,38 @@ void EditTableWidget::setPlainText(QString text)
     this->setPosition(0, 0);
     // Somehow the very first letter is cleared, hence we set it here again manually
     setSign(text.at(0));
+}
+
+void EditTableWidget::undo(UndoRedoElement *e)
+{
+    UndoRedoTypeCharacter *typeUndo = dynamic_cast< UndoRedoTypeCharacter * >( e );
+    assert(typeUndo);
+    // TODO: later try if and else to determine the derived type of e
+    this->setPosition(typeUndo->getRow(), typeUndo->getColumn());
+    QChar pre = typeUndo->getPre();
+    if(pre != QChar())
+    {
+        this->setSign(pre, true);
+    }
+    else
+    {
+        this->removeSign(true);
+    }
+}
+
+void EditTableWidget::redo(UndoRedoElement *e)
+{
+    UndoRedoTypeCharacter *typeRedo = dynamic_cast< UndoRedoTypeCharacter * >( e );
+    assert(typeRedo);
+    // TODO: later try if and else to determine the derived type of e
+    this->setPosition(typeRedo->getRow(), typeRedo->getColumn());
+    QChar post = typeRedo->getPost();
+    if(post != QChar())
+    {
+        this->setSign(post, true);
+    }
+    else
+    {
+        this->removeSign(true);
+    }
 }

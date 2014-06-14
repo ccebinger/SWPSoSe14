@@ -9,12 +9,11 @@
 #include <qtextstream.h>
 #include <qfont.h>
 #include <qprocess.h>
+#include <QDebug>
 
-#include <UndoRedoStack.h>
-#include <UndoRedoElement.h>
-#include <UndoRedoTypeCharacter.h>
-
-UndoRedoStack* undoRedoStack = new UndoRedoStack();
+#include "UndoRedoStack.h"
+#include "UndoRedoElement.h"
+#include "UndoRedoTypeCharacter.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -34,14 +33,25 @@ MainWindow::MainWindow(QWidget *parent) :
     setModified(false);
 
     m_interpreterProcess = new QProcess(this);
-    m_compilerProcess = new QProcess(this);
+    m_frontendProcess = new QProcess(this);
+
+    ui->ui_windowMenu->addAction(ui->ui_ioDockWidget->toggleViewAction());
+    ui->ui_windowMenu->addAction(ui->ui_compilerDockWidget->toggleViewAction());
+
+    connect(ui->ui_sourceEditTableWidget, SIGNAL(undoRedoElementCreated(UndoRedoElement*)), this, SLOT(undoRedoElementCreated(UndoRedoElement*)));
+
+    m_undoRedoStack = new UndoRedoStack();
+    connect(m_undoRedoStack, SIGNAL(modified(bool)), this, SLOT(setModified(bool)));
+    connect(m_undoRedoStack, SIGNAL(undoAvailable(bool)), this, SLOT(undoAvailable(bool)));
+    connect(m_undoRedoStack, SIGNAL(redoAvailable(bool)), this, SLOT(redoAvailable(bool)));
+    ui->ui_undoAction->setEnabled(false);
+    ui->ui_redoAction->setEnabled(false);
 
     ui->ui_stopInterpreterAction->setEnabled(false);
-    ui->ui_stopCompilerAction->setEnabled(false);
+    ui->ui_stopFrontendAction->setEnabled(false);
 
     connect(ui->ui_sourceEditTableWidget, SIGNAL(cursorPositionChanged(int,int)), this, SLOT(cursorPositionChanged(int,int)));
     connect(ui->ui_sourceEditTableWidget, SIGNAL(textChanged()), this, SLOT(textChanged()));
-    connect(ui->ui_sourceEditTableWidget, SIGNAL(pushSignToUndoStack()), this, SLOT(pushSignToUndoStack()));
     connect(ui->ui_newFileAction, SIGNAL(triggered()), this, SLOT(newFile()));
     connect(ui->ui_openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
     connect(ui->ui_saveFileAction, SIGNAL(triggered()), this, SLOT(saveFile()));
@@ -50,20 +60,24 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->ui_undoAction, SIGNAL(triggered()), this, SLOT(undo()));
     connect(ui->ui_redoAction, SIGNAL(triggered()), this, SLOT(redo()));
+
     connect(ui->ui_setInterpreterAction, SIGNAL(triggered()), this, SLOT(setInterpreter()));
     connect(ui->ui_runInterpreterAction, SIGNAL(triggered()), this, SLOT(runInterpreter()));
-    connect(ui->ui_setCompilerAction, SIGNAL(triggered()), this, SLOT(setCompiler()));
-    connect(ui->ui_runCompilerAction, SIGNAL(triggered()), this, SLOT(runCompiler()));
+    connect(ui->ui_stopInterpreterAction, SIGNAL(triggered()), m_interpreterProcess, SLOT(kill()));
+
+    connect(ui->ui_setFrontendAction, SIGNAL(triggered()), this, SLOT(setFrontend()));
+    connect(ui->ui_runFrontendAction, SIGNAL(triggered()), this, SLOT(runFrontend()));
+    connect(ui->ui_stopFrontendAction, SIGNAL(triggered()), m_frontendProcess, SLOT(kill()));
 
     connect(m_interpreterProcess, SIGNAL(started()), this, SLOT(interpreterStarted()));
     connect(m_interpreterProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(interpreterOutputReady()));
-    connect(m_interpreterProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(interpreterReadError(QProcess::ProcessError)));
-    connect(m_interpreterProcess, SIGNAL(aboutToClose()), this, SLOT(interpreterFinished()));
+    connect(m_interpreterProcess, SIGNAL(readyReadStandardError()), this, SLOT(interpreterErrorReady()));
+    connect(m_interpreterProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(interpreterFinished(int,QProcess::ExitStatus)));
 
-    connect(m_compilerProcess, SIGNAL(started()), this, SLOT(compilerStarted()));
-    connect(m_compilerProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(compilerOutputReady()));
-    connect(m_compilerProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(compilerReadError(QProcess::ProcessError)));
-    connect(m_compilerProcess, SIGNAL(aboutToClose()), this, SLOT(compilerFinished()));
+    connect(m_frontendProcess, SIGNAL(started()), this, SLOT(frontendStarted()));
+    connect(m_frontendProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(frontendOutputReady()));
+    connect(m_frontendProcess, SIGNAL(readyReadStandardError()), this, SLOT(frontendErrorReady()));
+    connect(m_frontendProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(frontendFinished(int,QProcess::ExitStatus)));
 }
 
 MainWindow::~MainWindow()
@@ -72,9 +86,75 @@ MainWindow::~MainWindow()
 
     m_interpreterProcess->close();
     delete m_interpreterProcess;
-    m_compilerProcess->close();
-    delete m_compilerProcess;
+    m_frontendProcess->close();
+    delete m_frontendProcess;
 
+    delete m_undoRedoStack;
+
+    QString prefixBase = "temp";
+    QString prefix = prefixBase + QString::number(m_tempFilesIndex);
+    QFile source(prefix + "_source.rail");
+    QFile input(prefix +"_input.txt");
+    QFile output(prefix + "_output.txt");
+
+    source.remove();
+    input.remove();
+    output.remove();
+}
+
+void MainWindow::createTempFiles()
+{
+    QString prefixBase = "temp";
+    for(int i = 0;; i++)
+    {
+        QString prefix = prefixBase + QString::number(i);
+        QFile source(prefix + "_source.rail");
+        QFile input(prefix +"_input.txt");
+        QFile output(prefix + "_output.txt");
+
+        // check if the names are already used
+        // if yes, try again with different names
+        if(source.exists() || input.exists() || output.exists())
+        {
+            continue;
+        }
+
+        // create (temporary) files
+        if(source.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            source.close();
+        }
+        else
+        {
+            continue;
+        }
+
+        if(input.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            input.close();
+        }
+        else
+        {
+            source.remove();
+            continue;
+        }
+
+
+        if(output.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            output.close();
+        }
+        else
+        {
+            source.remove();
+            input.remove();
+            continue;
+        }
+
+
+        m_tempFilesIndex = i;
+        return;
+    }
 }
 
 bool MainWindow::saveChanges()
@@ -152,19 +232,19 @@ void MainWindow::setCurrentPath(QString currentFilePath)
     }
 }
 
-void MainWindow::saveFile()
+bool MainWindow::saveFile()
 {
     if(m_currentFilePath.isEmpty())
     {
-        saveFileAs();
+        return saveFileAs();
     }
     else
     {
-        save(m_currentFilePath);
+        return save(m_currentFilePath);
     }
 }
 
-void MainWindow::saveFileAs()
+bool MainWindow::saveFileAs()
 {
     QFileDialog saveDialog(this);
     saveDialog.setWindowTitle("Save File");
@@ -172,22 +252,25 @@ void MainWindow::saveFileAs()
 
     if(saveDialog.exec() && !saveDialog.selectedFiles().isEmpty())
     {
-        save(saveDialog.selectedFiles().first());
+        return save(saveDialog.selectedFiles().first());
     }
+    return false;
 }
 
-void MainWindow::save(QString filePath)
+bool MainWindow::save(QString filePath)
 {
     QFile file(filePath);
     if (!file.open(QFile::WriteOnly | QFile::Text))
     {
-        return;
+        return false;
     }
     QTextStream out(&file);
     out << ui->ui_sourceEditTableWidget->toPlainText();
     file.close();
     setModified(false);
     setCurrentPath(filePath);
+    m_undoRedoStack->setSaved();
+    return true;
 }
 
 void MainWindow::openFile()
@@ -210,6 +293,7 @@ void MainWindow::openFile()
                 ui->ui_inputPlainTextEdit->clear();
                 ui->ui_outputPlainTextEdit->clear();
                 ui->ui_sourceEditTableWidget->setPlainText(file.readAll());
+                m_undoRedoStack->clear();
                 setModified(false);
             }
             file.close();
@@ -224,26 +308,41 @@ void MainWindow::newFile()
         ui->ui_sourceEditTableWidget->clear();
         ui->ui_inputPlainTextEdit->clear();
         ui->ui_outputPlainTextEdit->clear();
+        m_undoRedoStack->clear();
         setModified(false);
         setCurrentPath(QString());
     }
 }
 
-void MainWindow::pushSignToUndoStack()
+void MainWindow::undoRedoElementCreated(UndoRedoElement *e)
 {
-    //add object to undo stack
-    UndoRedoElement* hasSetSign = new UndoRedoTypeCharacter();
-    undoRedoStack->pushToUndoStack(hasSetSign);
+    m_undoRedoStack->createUndoElement(e);
 }
 
 void MainWindow::undo()
 {
-    UndoRedoElement *e = undoRedoStack->popFromUndoStack();
+    UndoRedoElement* e = m_undoRedoStack->undo();
+    ui->ui_sourceEditTableWidget->undo(e);
 }
 
 void MainWindow::redo()
 {
+    UndoRedoElement* e = m_undoRedoStack->redo();
+    ui->ui_sourceEditTableWidget->redo(e);
+}
 
+void MainWindow::undoAvailable(bool undoAvailable)
+{
+    ui->ui_undoAction->setEnabled(undoAvailable);
+    QString display = undoAvailable ? m_undoRedoStack->undoDisplay() : "No undo available";
+    ui->ui_undoAction->setText("Undo: " + display );
+}
+
+void MainWindow::redoAvailable(bool redoAvailable)
+{
+    ui->ui_redoAction->setEnabled(redoAvailable);
+    QString display = redoAvailable ? m_undoRedoStack->redoDisplay() : "No redo available";
+    ui->ui_redoAction->setText("Redo: " + display );
 }
 
 void MainWindow::setInterpreter()
@@ -272,83 +371,52 @@ void MainWindow::runInterpreter()
     }
 
     QString prefixBase = "temp";
-    for(int i = 0;; i++)
+    QString prefix = prefixBase + QString::number(m_tempFilesIndex);
+    QFile source(prefix + "_source.rail");
+    QFile input(prefix +"_input.txt");
+    QFile output(prefix + "_output.txt");
+    if(source.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate))
     {
-        QString prefix = prefixBase + QString::number(i);
-        QFile source(prefix + "_source.rail");
-        QFile input(prefix +"_input.txt");
-        QFile output(prefix + "_output.txt");
-
-        // check if the names is already used
-        // if yes, try again with different names
-        if(source.exists() || input.exists() || output.exists())
-        {
-            continue;
-        }
-
-        // create (temporary) files
-        if(source.open(QIODevice::WriteOnly | QIODevice::Text))
-        {
-            QTextStream out(&source);
-            out << ui->ui_sourceEditTableWidget->toPlainText();
-            source.close();
-        }
-        else
-        {
-            return;
-        }
-
-        if(input.open(QIODevice::WriteOnly | QIODevice::Text))
-        {
-            QTextStream out(&input);
-            out << ui->ui_inputPlainTextEdit->toPlainText();
-            input.close();
-        }
-        else
-        {
-            return;
-        }
-
-        if(output.open(QIODevice::WriteOnly | QIODevice::Text))
-        {
-            output.close();
-        }
-        else
-        {
-            return;
-        }
-
-
-        // run the interpreter
-        QStringList parameter;
-        parameter << "--input=" + QFileInfo(input).absoluteFilePath()
-                  << "--output=" + QFileInfo(output).absoluteFilePath()
-                  << QFileInfo(source).absoluteFilePath();
-        int result = m_interpreterProcess->execute(m_currentInterpreterPath, parameter);
-        if(result != 0)
-        {
-            QMessageBox::warning(this, "Error", m_interpreterProcess->errorString());
-        }
-
-        // print the results
-        QString line;
-        if(output.open(QIODevice::ReadOnly | QIODevice::Text))
-        {
-            QTextStream stream(&output);
-            ui->ui_outputPlainTextEdit->clear();
-            while(!stream.atEnd())
-            {
-                line = stream.readLine();
-                ui->ui_outputPlainTextEdit->setPlainText(ui->ui_outputPlainTextEdit->toPlainText() + line + "\n");
-            }
-        }
-
-        // remove temporary files
-        source.remove();
-        input.remove();
-        output.remove();
+        QTextStream out(&source);
+        out << ui->ui_sourceEditTableWidget->toPlainText();
+        source.close();
+    }
+    else
+    {
         return;
     }
+
+    if(input.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate))
+    {
+        QTextStream out(&input);
+        out << ui->ui_inputPlainTextEdit->toPlainText();
+        input.close();
+    }
+    else
+    {
+        return;
+    }
+
+    if(output.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate))
+    {
+        QTextStream out(&input);
+        out << QString();
+        output.close();
+    }
+    else
+    {
+        return;
+    }
+
+
+    ui->ui_outputPlainTextEdit->clear();
+
+    // run the interpreter
+    QStringList parameter;
+    parameter << "--input=" + QFileInfo(input).absoluteFilePath()
+              << "--output=" + QFileInfo(output).absoluteFilePath()
+              << QFileInfo(source).absoluteFilePath();
+    m_interpreterProcess->start(m_currentInterpreterPath, parameter);
 }
 
 void MainWindow::interpreterStarted()
@@ -357,90 +425,112 @@ void MainWindow::interpreterStarted()
     ui->ui_runInterpreterAction->setEnabled(false);
 }
 
-void MainWindow::interpreterFinished()
+void MainWindow::interpreterFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     ui->ui_stopInterpreterAction->setEnabled(false);
     ui->ui_runInterpreterAction->setEnabled(true);
-}
-
-void MainWindow::interpreterOutputReady()
-{
-    ui->ui_outputPlainTextEdit->appendPlainText(m_interpreterProcess->readAllStandardOutput());
-}
-
-void MainWindow::interpreterReadError(QProcess::ProcessError error)
-{
-
-}
-
-void MainWindow::setCompiler()
-{
-    QFileDialog openDialog(this);
-    openDialog.setWindowTitle("Select Compiler");
-    openDialog.setFileMode(QFileDialog::ExistingFile);
-
-    if(openDialog.exec() && !openDialog.selectedFiles().isEmpty())
-    {
-        m_currentCompilerPath = openDialog.selectedFiles().first();
-    }
-}
-
-void MainWindow::runCompiler()
-{
-    if(m_currentCompilerPath.isEmpty())
-    {
-        QMessageBox::information(this, "No Compiler set.", "You need to set a Compiler first.");
-        return;
-    }
-
-    // TODO: get the requirements for running the compiler
-    // i.e.: parameter, input and output files
-
-    // run the compiler
-   /* QProcess *process = new QProcess(this);
-    QStringList parameter;
-    parameter << "--input=" + QFileInfo(input).absoluteFilePath()
-              << "--output=" + QFileInfo(output).absoluteFilePath()
-              << QFileInfo(source).absoluteFilePath();
-    int result = process->execute(m_currentInterpreterPath, parameter);
-    if(result != 0)
-    {
-        QMessageBox::warning(this, "Error", process->errorString());
-    }
 
     // print the results
+    QString prefixBase = "temp";
+    QString prefix = prefixBase + QString::number(m_tempFilesIndex);
+    QFile output(prefix + "_output.txt");
     QString line;
     if(output.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         QTextStream stream(&output);
-        ui->ui_outputPlainTextEdit->clear();
         while(!stream.atEnd())
         {
             line = stream.readLine();
-            ui->ui_outputPlainTextEdit->setPlainText(ui->ui_outputPlainTextEdit->toPlainText() + line + "\n");
+            ui->ui_outputPlainTextEdit->appendPlainText(line + "\n");
         }
-    }*/
+    }
+}
+
+void MainWindow::interpreterOutputReady()
+{
+    ui->ui_outputPlainTextEdit->appendPlainText(m_interpreterProcess->readAllStandardOutput() + "\n");
+}
+
+void MainWindow::interpreterErrorReady()
+{
+    ui->ui_outputPlainTextEdit->appendHtml("<font color=red>" + m_interpreterProcess->readAllStandardError() + "</font>\n");
+}
+
+// --------------------------------------------------------------------------- frontend
+
+void MainWindow::setFrontend()
+{
+    QFileDialog openDialog(this);
+    openDialog.setWindowTitle("Select Frontend");
+    openDialog.setFileMode(QFileDialog::ExistingFile);
+
+    if(openDialog.exec() && !openDialog.selectedFiles().isEmpty())
+    {
+        m_currentFrontendPath = openDialog.selectedFiles().first();
+    }
+}
+
+void MainWindow::runFrontend()
+{
+    if(m_currentFilePath.isEmpty())
+    {
+        if(!saveFile())
+        {
+            return;
+        }
+    }
+    else
+    {
+        saveFile();
+    }
+
+    if(m_currentFrontendPath.isEmpty())
+    {
+        QMessageBox::information(this, "No Compiler set.", "You need to set a Compiler first.");
+        return;
+    }
+    if(m_interpreterProcess->state() == QProcess::Running)
+    {
+        QMessageBox::information(this, "Compiler is already running.", "The Compiler is already running.");
+        return;
+    }
+
+    QString basePath = QFileInfo(m_currentFilePath).absoluteFilePath().remove(QRegExp("\\.w*$"));
+    QString inputFile = basePath + ".rail";
+    QString astFile = basePath + ".ast";
+    QString graphFile = basePath + ".dot";
+    QString classFile = basePath + ".class";
+
+    // run the compiler
+    QStringList parameter;
+    parameter << "-i " + inputFile
+              << "-o " + classFile
+              << "-s " + astFile
+              << "-g " + graphFile
+              << "-q"; // quiet
+    m_frontendProcess->start(m_currentInterpreterPath, parameter);
 }
 
 
-void MainWindow::compilerStarted()
+void MainWindow::frontendStarted()
 {
-    ui->ui_stopCompilerAction->setEnabled(true);
-    ui->ui_runCompilerAction->setEnabled(false);
+    ui->ui_stopFrontendAction->setEnabled(true);
+    ui->ui_runFrontendAction->setEnabled(false);
 }
 
-void MainWindow::compilerFinished()
+void MainWindow::frontendFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    ui->ui_stopCompilerAction->setEnabled(false);
-    ui->ui_runCompilerAction->setEnabled(true);
+    ui->ui_stopFrontendAction->setEnabled(false);
+    ui->ui_runFrontendAction->setEnabled(true);
+    ui->ui_compilerOutputPlainTextEdit->appendPlainText("Compiler finished with exit code " + QString::number(exitCode) + "\n");
 }
 
-void MainWindow::compilerOutputReady()
+void MainWindow::frontendOutputReady()
 {
-
+    ui->ui_compilerOutputPlainTextEdit->appendPlainText(m_frontendProcess->readAllStandardOutput());
 }
 
-void MainWindow::compilerReadError(QProcess::ProcessError error)
+void MainWindow::frontendErrorReady()
 {
-
+    ui->ui_compilerOutputPlainTextEdit->appendHtml("<font color=red>" + m_frontendProcess->readAllStandardError() + "</font>\n");
 }

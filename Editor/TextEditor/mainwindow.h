@@ -6,6 +6,10 @@
 #include <iostream>
 #include <QProcess>
 
+#include "UndoRedoStack.h"
+#include "UndoRedoElement.h"
+#include "UndoRedoTypeCharacter.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -18,54 +22,58 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+
 private:
     Ui::MainWindow *ui;
 
     bool saveChanges();
     void closeEvent(QCloseEvent *closeEvent);
-    void setModified(bool modified);
     void setCurrentPath(QString currentFilePath);
-    void save(QString filePath);
+    bool save(QString filePath);
+    void createTempFiles();
 
     bool m_modified;
     QString m_currentFilePath;
     QString m_currentInterpreterPath;
-    QString m_currentCompilerPath;
+    QString m_currentFrontendPath;
 
     QProcess *m_interpreterProcess;
-    QProcess *m_compilerProcess;
+    QProcess *m_frontendProcess;
 
+    UndoRedoStack *m_undoRedoStack;
+
+    int m_tempFilesIndex;
 
 private slots:
+
     void cursorPositionChanged(int row, int col);
     void textChanged();
-    void pushSignToUndoStack();
+    void undoRedoElementCreated(UndoRedoElement *e);
+    void undoAvailable(bool undoAvailable);
+    void redoAvailable(bool redoAvailable);
     void newFile();
     void openFile();
-    void saveFile();
-    void saveFileAs();
+    bool saveFile();
+    bool saveFileAs();
+    void setModified(bool modified);
 
     void undo();
     void redo();
     void setInterpreter();
     void runInterpreter();
-    void setCompiler();
-    void runCompiler();
+    void setFrontend();
+    void runFrontend();
 
     void interpreterStarted();
-    void interpreterFinished();
+    void interpreterFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void interpreterOutputReady();
-    void interpreterReadError(QProcess::ProcessError error);
+    void interpreterErrorReady();
 
-    void compilerStarted();
-    void compilerFinished();
-    void compilerOutputReady();
-    void compilerReadError(QProcess::ProcessError error);
+    void frontendStarted();
+    void frontendFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void frontendOutputReady();
+    void frontendErrorReady();
 
-    /*void undo();
-    void redo();
-    void undoAvailable(bool available);
-    void redoAvalable(bool available);*/
 };
 
 #endif // MAINWINDOW_H

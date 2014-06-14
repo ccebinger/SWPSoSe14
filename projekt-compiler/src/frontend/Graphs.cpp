@@ -49,13 +49,14 @@ void Graphs::marshall(Graphs::str file, char delimiter) {
 
 	// [function name]
 	// id ; cmd ; adj1 (true,default) ; adj2 (false, not present)
-	std::cout << "Serializing to " << file << std::endl;
+	if(Env::verbose()) {
+		std::cout << "Serializing to " << file << std::endl;
+	}
+
 
 	std::ofstream ofh(file);
 	if(!ofh) {
-		IO_Exception ie;
-		ie.set_file(file);
-		throw ie;
+		throw EnvException(ASG, "Cannot read file " + file);
 	}
 
 
@@ -65,7 +66,10 @@ void Graphs::marshall(Graphs::str file, char delimiter) {
 	for(it = this->graphs.begin(); it != this->graphs.end(); ++it) {
 		Graph_ptr gp = it->second;
 		std::size_t count = gp->nodeCount();
-		std::cout << "\t'" << it->first << "': " << count << " nodes" << std::endl;
+
+		if(Env::verbose()) {
+			std::cout << "\t'" << it->first << "': " << count << " nodes" << std::endl;
+		}
 
 		// Function name
 		ofh << "[" << it->first <<"]" << std::endl;
@@ -79,23 +83,23 @@ void Graphs::marshall(Graphs::str file, char delimiter) {
 			}
 
 			// id ; Command
-			ofh << node->id << delimiter << node->command.arg;
+			ofh << node->id << delimiter << node->command.arg << delimiter;
 
 			// Adjacency list
 			if(node->successor1) {
-				ofh << delimiter << node->successor1->id;
+				ofh << node->successor1->id;
 			}
 			else {
 				// Error state for Haskell-Group
-				ofh << delimiter << "0";
+				ofh << "0";
 			}
-
+			ofh << ",";
 			if(node->successor2) {
-				ofh << delimiter << node->successor2->id;
+				ofh << node->successor2->id;
 			}
 			else {
 				// Error state for Haskell-Group
-				ofh << delimiter << "0";
+				ofh << "0";
 			}
 
 			ofh << std::endl;
@@ -106,22 +110,24 @@ void Graphs::marshall(Graphs::str file, char delimiter) {
 
 	ofh.close();
 
-
-	std::cout << "\tResult:" << std::endl;
-	std::ifstream ifh(file);
-	std::string line;
-	while(std::getline(ifh, line)) {
-		std::cout << "\t\t" << line << std::endl;
+	if(Env::verbose()) {
+		std::cout << "\tResult:" << std::endl;
+		std::ifstream ifh(file);
+		std::string line;
+		while(std::getline(ifh, line)) {
+			std::cout << "\t\t" << line << std::endl;
+		}
+		ifh.close();
+		std::cout << "done..." << std::endl;
 	}
-	ifh.close();
 
 
-	std::cout << "done..." << std::endl;
 }
 
-void Graphs::unmarshall(Graphs::str file, char delimiter)
-{
-  std::cout << "Deserializing " << file << std::endl;
+void Graphs::unmarshall(Graphs::str file, char delimiter) {
+	if(Env::verbose()) {
+		std::cout << "Deserializing " << file << std::endl;
+	}
 
   std::ifstream infile(file);
   std::string line;
@@ -129,7 +135,7 @@ void Graphs::unmarshall(Graphs::str file, char delimiter)
   try
   {
     if (!containsFunctionName(line))//if (!std::regex_match(line.begin(), line.end(), regexs[0]))
-      throw Invalid_Format_Exception();
+      throw EnvException(ASG_DESERIALIZE, "Invalid format: " + line);
 
     while (containsFunctionName(line))//(std::regex_match(line.begin(), line.end(), regexs[0]))
     {
@@ -144,13 +150,15 @@ void Graphs::unmarshall(Graphs::str file, char delimiter)
     }
     infile.close();
   }
-  catch (Invalid_Format_Exception& ife)
+  catch (...)
   {
     infile.close();
-    throw ife;
+    throw;
   }
 
-  std::cout << "done..." << std::endl;
+  if(Env::verbose()) {
+	  std::cout << "done..." << std::endl;
+  }
 }
 
 bool Graphs::containsFunctionName(str line)
@@ -171,7 +179,9 @@ void Graphs::skip_empty_lines(std::ifstream& infile, std::string& line)
 Graphs::Graph_ptr Graphs::unmarshall_Function(std::ifstream& infile, std::string& line, char delimiter)
 {
   Graphs::Graph_ptr adj(new Adjacency_list(line));
-  std::cout << "\tGraph: " << adj->name() << std::endl;
+  if(Env::verbose()) {
+	  std::cout << "\tGraph: " << adj->name() << std::endl;
+  }
   while(std::getline(infile, line) && !line.empty() && !containsFunctionName(line))
   {
     std::shared_ptr<Node> n(unmarshall_line(adj, line, delimiter));
@@ -185,8 +195,9 @@ Graphs::Node_ptr Graphs::unmarshall_line(Graphs::Graph_ptr adj, std::string& lin
   std::stringstream lineStream(line);
   std::string cell;
 
-  if (!std::getline(lineStream, cell, delimiter)) // id
-    throw Invalid_Format_Exception();
+  if (!std::getline(lineStream, cell, delimiter)) { // id
+    throw EnvException(ASG_DESERIALIZE, "Invalid format found");
+  }
 
   int id = std::stoi(cell);
   std::shared_ptr<Node> n(adj->find(id));
@@ -195,13 +206,15 @@ Graphs::Node_ptr Graphs::unmarshall_line(Graphs::Graph_ptr adj, std::string& lin
     n->id = id;
   }
 
-  if (!std::getline(lineStream, cell, delimiter)) // arg
-    throw Invalid_Format_Exception();
+  if (!std::getline(lineStream, cell, delimiter)) { // arg
+	 throw EnvException(ASG_DESERIALIZE, "Invalid format found");
+  }
 
   n->command = getCommand(cell);
 
-  if (!std::getline(lineStream, cell, delimiter)) // adja
-    throw Invalid_Format_Exception();
+  if (!std::getline(lineStream, cell, delimiter)) { // adja
+    throw EnvException(ASG_DESERIALIZE, "Invalid format found");
+  }
 
   n->successor1 = findNode(adj, cell);
   if (std::getline(lineStream, cell, delimiter))
@@ -262,14 +275,14 @@ std::shared_ptr<Node> Graphs::findNode(Graphs::Graph_ptr adj, std::string id)
 
 
 void Graphs::writeGraphViz(Graphs::str file) {
+	if(Env::verbose()) {
+		std::cout << "Creating dot-file" << std::endl;
+	}
 
-	std::cout << "Creating GraphViz dot-file" << std::endl;
 
 	std::ofstream fh(file);
 	if(!fh) {
-		IO_Exception ie;
-		ie.set_file(file);
-		throw ie;
+		throw EnvException(ASG_GRAPHVIZ, "Cannot open file: " + file);
 	}
 
 	fh << "digraph G {";
@@ -334,12 +347,17 @@ void Graphs::writeGraphViz(Graphs::str file) {
 	fh << std::endl << "}";
 	fh.close();
 
-	std::cout << "done..." << std::endl;
+	if(Env::verbose()) {
+		std::cout << "done..." << std::endl;
+	}
 }
 
 
 
 std::string Graphs::gvGetNodeStyles(std::shared_ptr<Node> node) const {
+
+
+
 
 	//FIXME command-based node style - requires a good testfile
 	bool useLabel = true;
@@ -350,7 +368,7 @@ std::string Graphs::gvGetNodeStyles(std::shared_ptr<Node> node) const {
 		// Rail
 		case Command::Type::START:				shape="plaintext"; break;
 		case Command::Type::FINISH:				shape="house"; fillColor="none"; break;
-		case Command::Type::BOOM:				useLabel=false; shape="proteasesite"; break;
+		case Command::Type::BOOM:				useLabel=false; /*shape="proteasesite";*/ break;
 		case Command::Type::REFLECTOR:			break;
 		case Command::Type::LAMBDA:				break;
 		case Command::Type::CALL:				shape="diamond"; break;
@@ -416,17 +434,20 @@ std::string Graphs::gvGetNodeStyles(std::shared_ptr<Node> node) const {
 
 	style += "]";
 
-	//std::cout << "NODE STYLE: " << style << std::endl;
+//	if(Env::verbose()) {
+//		std::cout << "NODE STYLE: " << style << std::endl;
+//	}
 	return style;
 }
 
 
 
 
-void printNode(std::shared_ptr<Node> n)
-{
-  std::cout << "\t\tNode: " << n->id
-            << " Cmd Type:" << n->command.type << " Arg: " << n->command.arg
-            << " Succ 1: " << n->successor1->id << std::endl;
+void printNode(std::shared_ptr<Node> n) {
+	if(Env::verbose()) {
+		std::cout << "\t\tNode: " << n->id
+			<< " Cmd Type:" << n->command.type << " Arg: " << n->command.arg
+			<< " Succ 1: " << n->successor1->id << std::endl;
+	}
 }
 

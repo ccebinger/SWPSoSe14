@@ -6,9 +6,8 @@
 #include <fstream>
 #include <sstream>
 
+#include <common/Env.h>
 #include <frontend/adjacency_list.h>
-#include <frontend/Invalid_Format_Exception.h>
-#include <frontend/IO_Exception.h>
 
 
 /**
@@ -116,6 +115,7 @@ class Graphs
     * </pre>
     *
     * @param file       the name of the file in which the Graphs should be saved
+    * @param delimiter	csv delimiter
     */
     virtual void marshall(str file, char delimiter);
 
