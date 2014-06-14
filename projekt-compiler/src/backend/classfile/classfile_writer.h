@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <frontend/Graphs.h>
 
 #include "constant_pool.h"
 
