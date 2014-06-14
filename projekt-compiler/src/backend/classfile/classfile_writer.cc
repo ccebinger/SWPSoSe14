@@ -55,6 +55,7 @@ ClassfileWriter::ClassfileWriter(ClassfileVersion version,
                                  std::ostream* out) :
     version_(version), code_functions_(codeFunctions), out_(out), writer(out) {
   constant_pool_ = std::make_shared<ConstantPool>(*constantPool);
+  graphs_ = graphs;
 }
 
 /*!
@@ -162,7 +163,8 @@ void ClassfileWriter::WriteFields() {
 void ClassfileWriter::WriteMethods() {
   std::vector<std::string> keys = this->graphs_.keyset();
   // plus 1 for the init method
-  writer.writeU16((sizeof(keys) / sizeof(keys[0]))+1);
+  size_t size = keys.size();
+  writer.writeU16(size+1);
   WriteInitMethod();
   for(std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
     *out_<< kPublicAccessFlag;
