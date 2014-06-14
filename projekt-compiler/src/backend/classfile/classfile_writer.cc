@@ -182,20 +182,27 @@ void ClassfileWriter::WriteMethods() {
  * Is the same in all java classes we generate
  */
 void ClassfileWriter::WriteInitMethod(){
-		out_->write(kPublicAccessFlag, (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
-		writer.writeU16(constant_pool_->addString("<init>"));
-		writer.writeU16(constant_pool_->addString("()V"));
-		/* WriteAttributes */
-		writer.writeU16(1);
-		writer.writeU16(constant_pool_->addString("Code"));
-		writer.writeU32(17);
-		writer.writeU16(1);
-		writer.writeU16(1);
-		writer.writeU32(5);
-		char initCode[]{'\x2a','\xb7','\x00','\x01','\xb1'};
-		out_->write(initCode, (sizeof(initCode)/sizeof(initCode[0])));
-		writer.writeU16(0);
-		writer.writeU16(0);
+	out_->write(kPublicAccessFlag, (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
+	writer.writeU16(constant_pool_->addString("<init>"));
+	writer.writeU16(constant_pool_->addString("()V"));
+	/* WriteAttributes */
+	char initCode[]{'\x2a','\xb7','\x00','\x01','\xb1'};
+	int16_t initCodeCount = sizeof(initCode)/sizeof(initCode[0]);
+	// attribute_count=1
+	writer.writeU16(1);
+	writer.writeU16(constant_pool_->addString("Code"));
+	writer.writeU32(17);
+	// max_stack=1
+	writer.writeU16(1);
+	// max_locals=1
+	writer.writeU16(1);
+	// code_length=5
+	writer.writeU32(initCodeCount);
+	out_->write(initCode, (initCodeCount));
+	// exception_table_length=0
+	*out_<< kNotRequired;
+	// attributes_count
+	*out_<< kNotRequired;
 	}
 
 /*!
@@ -203,20 +210,4 @@ void ClassfileWriter::WriteInitMethod(){
  * Every method calls WritesAttributes
  */
 void ClassfileWriter::WriteAttributes() {
-
-	/**
-	 * Init method attribute case:
-	 */
-	/*
-		writer.writeU16(1);
-		writer.writeU16(constant_pool_->addString("Code"));
-		writer.writeU32(17);
-		writer.writeU16(1);
-		writer.writeU16(1);
-		writer.writeU32(5);
-		char initCode[]{'\x2a','\xb7','\x00','\x01','\xb1'};
-		out_->write(initCode, (sizeof(initCode)/sizeof(initCode[0])));
-		writer.writeU16(0);
-		writer.writeU16(0);
-	*/
 }
