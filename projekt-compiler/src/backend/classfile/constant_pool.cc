@@ -153,27 +153,36 @@ ConstantPool::ConstantPool() {
   items.reserve(256);
 
   ///Add strings
-  uint16_t obj_idx = addString("java/lang/Object");
-  uint16_t system_idx = addString("java/lang/System");
-  uint16_t print_idx = addString("java/io/PrintStream");
-  uint16_t main_class_str_idx = addString("Main");
-  uint16_t main_idx = addString("main");
-  uint16_t void_descriptor_idx = addString("()V");
-  addString("Code");
-  addString("<init>");
+    uint16_t obj_idx = addString("java/lang/Object");
+    uint16_t system_idx = addString("java/lang/System");
+    uint16_t print_idx = addString("java/io/PrintStream");
+    uint16_t main_class_str_idx = addString("Main");
+    uint16_t main_idx = addString("main");
+    uint16_t void_descriptor_idx = addString("()V");
+    addString("Code");
+    uint16_t object_name_idx = addString("<init>");
+    uint16_t print_type_idx = addString("([Ljava/lang/String;)V");
+    uint16_t system_name_idx = addString("out");
+    uint16_t system_type_idx = addString("Ljava/io/PrintStream;");
+    uint16_t print_name_idx = addString("println");
 
-  ///Add classes
-  uint16_t obj_cls = addClassRef(obj_idx);
-  uint16_t system_cls = addClassRef(system_idx);
-  addClassRef(print_idx);
-  uint16_t main_class_idx = addClassRef(main_class_str_idx);
+    ///Add classes
+    uint16_t object_class_idx = addClassRef(obj_idx);
+    uint16_t system_class_idx = addClassRef(system_idx);
+    uint16_t print_class_idx = addClassRef(print_idx);
+    uint16_t main_class_idx = addClassRef(main_class_str_idx);
 
-  ///Add name and type
-  uint16_t main_name_type_idx = addNameAndType(main_idx, void_descriptor_idx);
-  ///Add main method
-  addMethRef(main_class_idx, main_name_type_idx);
+    ///Add name and type
+    uint16_t object_name_type_idx = addNameAndType(object_name_idx, void_descriptor_idx);
+    uint16_t system_name_type_idx = addNameAndType(system_name_idx, system_type_idx);
+    uint16_t print_name_type_idx =  addNameAndType(print_name_idx, print_type_idx);
 
+    ///Add method refs
+    addMethRef(object_class_idx, object_name_type_idx);
+    addMethRef(print_class_idx, print_name_type_idx);
 
+    ///Add field refs
+    addFieldRef(system_class_idx, system_name_type_idx);
 }
 
 ////////////////////////////////////////////////////////////////////////
