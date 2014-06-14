@@ -57,7 +57,7 @@ Backend::Status Backend::Generate(const std::string& graphIn,
 Backend::Status Backend::Generate(Graphs& graphs, std::ostream* codeOut) {
   std::string entryFunctionName("main");
   Graphs::Graph_ptr mainFunction = graphs.find(entryFunctionName);
-  ConstantPool constantPool;
+  ConstantPool constantPool(graphs);
 
   std::vector<char> mainCode = BytecodeGenerator::GenerateCodeFromFunctionGraph(mainFunction,
                                                                                 constantPool);

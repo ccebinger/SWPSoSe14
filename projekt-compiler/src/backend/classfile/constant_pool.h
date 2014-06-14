@@ -21,6 +21,7 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #ifndef PROJEKT_COMPILER_SRC_BACKEND_CLASSFILE_CONSTANT_POOL_H_
 #define PROJEKT_COMPILER_SRC_BACKEND_CLASSFILE_CONSTANT_POOL_H_
 #include <backend/classfile/Bytecode_writer.h>
+#include <frontend/Graphs.h>
 #include <cstdint>
 #include <vector>
 #include <string>
@@ -105,7 +106,7 @@ class Item {
 
 class ConstantPool {
  public:
-  ConstantPool();
+  ConstantPool(Graphs& graphs);
 
   size_t addInt(int32_t value);
   size_t addNameAndType(uint16_t UTF8_name_index, uint16_t UTF8_descriptor_index);

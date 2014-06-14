@@ -148,7 +148,7 @@ void Item::set_name_type(uint16_t method_idx, uint16_t descriptor_idx)
 ////////////////////////////////////////////////////////////////////////
 /// default constructor
 ////////////////////////////////////////////////////////////////////////
-ConstantPool::ConstantPool() {
+ConstantPool::ConstantPool(Graphs& graphs) {
   items.reserve(256);
 
   ///Add strings
@@ -156,7 +156,7 @@ ConstantPool::ConstantPool() {
     uint16_t system_idx = addString("java/lang/System");
     uint16_t print_idx = addString("java/io/PrintStream");
     uint16_t main_class_str_idx = addString("Main");
-    uint16_t main_idx = addString("main");
+    //uint16_t main_idx = addString("main"); will be added from rail functions
     uint16_t void_descriptor_idx = addString("()V");
     addString("Code");
     uint16_t object_name_idx = addString("<init>");
@@ -164,6 +164,12 @@ ConstantPool::ConstantPool() {
     uint16_t system_name_idx = addString("out");
     uint16_t system_type_idx = addString("Ljava/io/PrintStream;");
     uint16_t print_name_idx = addString("println");
+ ///Add Rail-Functionnames as Strings
+    std::vector<std::string> keyset = graphs.keyset();
+    for (std::vector<std::string>::iterator it = keyset.begin(); it != keyset.end(); it++)
+    {
+      addString(*it);
+    }
 
     ///Add classes
     uint16_t object_class_idx = addClassRef(obj_idx);
