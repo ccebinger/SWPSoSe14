@@ -152,9 +152,9 @@ class ClassfileWriter {
   void WriteAttributes(const std::string &key);
 
   /**
-   * Erzeugt den code für das Code-Attribut
+   * Erzeugt den code für das Sourcefile-Attribut
    */
-  void WriteCodeAttribute();
+  void WriteSourcefileAttribute();
 };
 
 #endif /* CLASSFILE_WRITER_H_ */
