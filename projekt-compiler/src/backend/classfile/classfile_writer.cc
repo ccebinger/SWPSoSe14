@@ -162,7 +162,7 @@ void ClassfileWriter::WriteMethods() {
     *out_<< kPublicAccessFlag;
     writer.writeU16(constant_pool_->addString(keys[i]));
     writer.writeU16(constant_pool_->addString("()V"));
-    WriteAttributes();
+    WriteAttributes(keys[i]);
   }
 
   // std::vector<char> func = code_functions_.at("main");
@@ -201,5 +201,17 @@ void ClassfileWriter::WriteInitMethod(){
  * \brief Writes attributes in class-file
  * Every method calls WritesAttributes
  */
-void ClassfileWriter::WriteAttributes() {
+void ClassfileWriter::WriteAttributes(const std::string &key) {
+  if(key.compare("main") != 0) {
+    *out_<< kPublicAccessFlag;
+  } else {
+    writer.writeU16(9);
+  }
+  WriteCodeAttribute();
+}
+
+/*!
+ * \brief Writes code attributes in class-file
+ */
+void ClassfileWriter::WriteCodeAttribute(){
 }
