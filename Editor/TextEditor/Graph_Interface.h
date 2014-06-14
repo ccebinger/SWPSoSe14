@@ -48,8 +48,15 @@ private:
             stringMarker *tmp = new stringMarker;
             tmp->x = x;
             tmp->y = y;
-            tmp->next = stringSymbols;
-            stringSymbols = tmp;
+            tmp->next = NULL;
+            stringMarker *temp = stringSymbols;
+            while(temp->x != x || temp->y != y){
+                if(temp->next == NULL){
+                    temp->next = tmp;
+                    return;
+                }
+                temp = temp->next;
+            }delete tmp;
         }
     }
     int stringDirections(int x, int y){
@@ -95,20 +102,20 @@ private:
             deleteString(change,x,y);
         }
 		int bCons = tmp->setSign(sign);
-		if(!(bCons & 128) && x-1 >= 0 && y-1 >= 0)tmp->setCons(128,root->getPoint(x-1,y-1));
-		if(!(bCons & 64) && y-1 >= 0)tmp->setCons(64,root->getPoint(x,y-1));
-		if(!(bCons & 32) && y-1 >= 0)tmp->setCons(32,root->getPoint(x+1,y-1));
-		if(!(bCons & 16) && x-1 >= 0)tmp->setCons(16,root->getPoint(x-1,y));
-		if(!(bCons & 8))tmp->setCons(8,root->getPoint(x+1,y));
-		if(!(bCons & 4) && x-1 >= 0)tmp->setCons(4,root->getPoint(x-1,y+1));
-		if(!(bCons & 2))tmp->setCons(2,root->getPoint(x,y+1));
-		if(!(bCons & 1))tmp->setCons(1,root->getPoint(x+1,y+1));
+        if(!(bCons & 128) && x-1 >= 0 && y-1 >= 0)tmp->setCons(128,root->getPoint(x-1,y-1));
+        if(!(bCons & 64) && y-1 >= 0)tmp->setCons(64,root->getPoint(x,y-1));
+        if(!(bCons & 32) && y-1 >= 0)tmp->setCons(32,root->getPoint(x+1,y-1));
+        if(!(bCons & 16) && x-1 >= 0)tmp->setCons(16,root->getPoint(x-1,y));
+        if(!(bCons & 8))tmp->setCons(8,root->getPoint(x+1,y));
+        if(!(bCons & 4) && x-1 >= 0)tmp->setCons(4,root->getPoint(x-1,y+1));
+        if(!(bCons & 2))tmp->setCons(2,root->getPoint(x,y+1));
+        if(!(bCons & 1))tmp->setCons(1,root->getPoint(x+1,y+1));
         do{
         tmp->makeCons(change);
         check->add(tmp);
         if(tmp->getSign() == '[' || tmp->getSign() == ']'){
-            addStringSymbol(x,y);
-            this->stringSearch(x,y,change,stringDirections(x,y));
+            addStringSymbol(tmp->getRow(),tmp->getCol());
+            this->stringSearch(tmp->getRow(),tmp->getCol(),change,stringDirections(tmp->getRow(),tmp->getCol()));
         }
         }while((tmp = change->pop()) != NULL);
         while((tmp = check->get()) != NULL){
@@ -118,8 +125,7 @@ private:
 	}
 public:
     Stack* setSign(int x, int y, char sign){
-		tmp = root->getPoint(x,y);
-        //undo->push(x,y,tmp->getSign(),0);
+        tmp = root->getPoint(x,y);
         return setSignIntern(x,y,sign);
 	}
     Stack* makeUndo(void){
@@ -139,13 +145,13 @@ public:
         return NULL;
 	}
 	char getSign(int x,int y){
-		return root->getPoint(x,y)->getSign();
+        return root->getPoint(x,y)->getSign();
 	}
 	char* getLine(int y){
-		return (y < root->countRift()) ? root->getPoint(0,y)->getLine(root->getPoint(0,y)->countLine()): NULL;
+        return (y < root->countRift()) ? root->getPoint(0,y)->getLine(root->getPoint(0,y)->countLine()): NULL;
 	}
 	char* getConnectionsLine(int y){
-		return (y < root->countRift()) ? root->getPoint(0,y)->getConnectionsLine(root->getPoint(0,y)->countLine()): NULL;
+        return (y < root->countRift()) ? root->getPoint(0,y)->getConnectionsLine(root->getPoint(0,y)->countLine()): NULL;
 	}
 	void clear(void){
 		root->clear();
@@ -167,7 +173,7 @@ public:
 	int getMaxRow(void){
 		int x = 0, k = root->countRift(), line;
 		for(int i = 0; i < k; i++){
-			x = (x<( line = root->getPoint(0,i)->countLine())) ? line : x;
+            x = (x<( line = root->getPoint(0,i)->countLine())) ? line : x;
 		}; 
 		return x;
 	}
@@ -189,7 +195,7 @@ public:
 		//std::cout << getMaxRow() << " " << maxY << " ";
 		for(int y=0;y<maxY;y++){
 			for(int x=0;x<maxX;x++){
-				root->getPoint(x,y)->testConnections();
+                root->getPoint(x,y)->testConnections();
             }
 		} 
 	}

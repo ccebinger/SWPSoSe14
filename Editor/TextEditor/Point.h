@@ -11,12 +11,12 @@
 // colors Red: commend, Green: Funktion, Black: Connected Rail, Grey: unconnectetd Rail, Blue: String, Blue+Fet: String+Funktion, Kursiv: not used yet, if no color is set color is black.
 class Point{
 	private:
-    enum type { RAIL, COM, STRING, FUNC, EMPTY };
+    enum Type { RAIL, COM, STRING, FUNC, EMPTY, START, END, VER, GATE, SPEC, DEF, HOR};
     int muster, connections, bCons, color, x , y, start, stringMuster;
 	char sign;
 	Point* cons[8];
     bool string;
-    enum type type;
+    enum Type type;
 	
 
 	private:
@@ -24,56 +24,56 @@ class Point{
 		switch(sign){
 			case '$' :
                 muster = 129;
-                type = FUNC;
+                type = START;
                 start = 129;
 				break;
 			case '@' :
                 muster = 255;
-                type = FUNC;
+                type = DEF;
 				break;
 			case '#' :
                 muster = 255;
-                type = FUNC;
+                type = END;
 				break;
 			case '-' :
 				muster = 24;
-                type = RAIL;
+                type = HOR;
 				break;
 			case '|' :
                 muster = 66;
-                type = RAIL;
+                type = VER;
 				break;
 			case '\\' :
                 muster = 255;
-                type = RAIL;
+                type = SPEC;
 				break;
 			case '/' :
                 muster = 255;
-                type = RAIL;
+                type = SPEC;
 				break;
 			case '^' :
 				muster = 69;
-                type = RAIL;
+                type = GATE;
 				break;
 			case '<' :
 				muster = 49;
-                type = RAIL;
+                type = GATE;
 				break;
 			case '>' :
 				muster = 134;
-                type = RAIL;
+                type = GATE;
 				break;
 			case 'v' :
 				muster = 164;
-                type = RAIL;
+                type = GATE;
 				break;
 			case '[' :
                 muster = 255;
-                type = RAIL;
+                type = FUNC;
 				break;
 			case ']' :
                 muster = 255;
-                type = RAIL;
+                type = FUNC;
 				break;
 			case '(' :
                 muster = 255;
@@ -83,12 +83,14 @@ class Point{
                 muster = 255;
                 type = FUNC;
 				break;
-            /*case '{' :
+            case '{' :
 				muster = 255;
+                type = FUNC;
 				break;
 			case '}' :
 				muster = 255;
-                break;*/
+                type = FUNC;
+                break;
 			case ' ' :
                 muster = 0;
                 type = EMPTY;
@@ -143,19 +145,19 @@ class Point{
     Point* getPoint (int x, int y){
 		if((bool)y){
 			if(bCons & 2)
-				return cons[6]->getPoint(x,y-1);
+                return cons[6]->getPoint(x,y-1);
 			else {
 				bCons |= 2;
                 cons[6] = new Point(this->x,this->y+1);
-				return cons[6]->getPoint(x,y-1);
+                return cons[6]->getPoint(x,y-1);
 			} }
 		else if((bool)x){
 			if(bCons & 8)
-				return cons[4]->getPoint(x-1,y);
+                return cons[4]->getPoint(x-1,y);
 			else {
 				bCons |= 8;
                 cons[4] = new Point(this->x+1,this->y);
-				return cons[4]->getPoint(x-1,y);
+                return cons[4]->getPoint(x-1,y);
 			} }
 		else
 			return this;
@@ -203,7 +205,22 @@ protected:
     void makeColor(void){
         if(!string){
             switch(type){
-            case RAIL:
+            case START:
+                color = 0x00FF0000;
+                break;
+            case END:
+                color = 0x00FF0000;
+                break;
+            case GATE:
+                color = 0;
+                break;
+            case VER:
+                color = 0;
+                break;
+            case HOR:
+                color = 0;
+                break;
+            case SPEC:
                 color = 0;
                 break;
             case COM:
@@ -235,20 +252,16 @@ protected:
     }
 public:
     void setConnections(int connections, bool mode,InternStack *change, int start){
-        int old = this->connections;
+        int old = muster;
+        muster = posibleCons();
         (mode)?this->connections |= connections:this->connections &= (~connections);
-        if((old&muster) != (muster&this->connections) && start){
-            makeColor();
-            this->start = start;
+        if(muster != old){
             change->push(this);
         }old = this->start;
         if(start) this->start |= start;
         else if (!start && (connections & this->start) && (sign != '$')) {
             this->start = this->start & (~connections);
-        }
-        if(!((bool)(this->start&muster) == (bool)(old&muster))){
-            change->push(this);
-        }
+        }if(old != this->start) change->push(this);
 	}
 	void testConnections(void){
         // TODO: set connections
@@ -298,19 +311,84 @@ public:
         if(stringMuster & direction) return true;
         else return false;
     }
+    Type getType(void){
+        return type;
+    }
+
+    int posibleCons(void){
+        int start = this->start;
+        int pCons = 0;
+        switch (type) {
+        case START:
+            pCons = 1;
+            break;
+        case END:
+            pCons = 0;
+            break;
+        case FUNC:
+            if(start & 128 && cons[0]->getType() != VER && cons[0]->getType() != HOR) pCons |= 1;
+            if(start & 64) pCons |= 2;
+            if(start & 32 && cons[0]->getType() != VER && cons[0]->getType() != HOR) pCons |= 4;
+            if(start & 16) pCons |= 8;
+            if(start & 8) pCons |= 16;
+            if(start & 4 && cons[0]->getType() != VER && cons[0]->getType() != HOR) pCons |= 32;
+            if(start & 2) pCons |= 64;
+            if(start & 1 && cons[0]->getType() != VER && cons[0]->getType() != HOR) pCons |= 128;
+            break;
+        case GATE:
+            if(start & 16) pCons |= 33;
+            if(start & 2) pCons |= 160;
+            if(start & 8) pCons |= 132;
+            if(start & 64) pCons |= 5;
+        case SPEC:
+            if(start & 128 && sign == '\\') pCons |= 11;
+            if(start & 1 && sign == '\\') pCons |= 208;
+            if(start & 4 && sign == '/') pCons |= 104;
+            if(start & 32 && sign == '/') pCons |= 22;
+            if(start & 16 && cons[3]->getType() == HOR && sign == '/') pCons |= 104;
+            if(start & 16 && cons[3]->getType() == HOR && sign == '\\') pCons |= 11;
+            if(start & 8 && cons[4]->getType() == HOR && sign == '/') pCons |= 22;
+            if(start & 8 && cons[4]->getType() == HOR && sign == '\\') pCons |= 208;
+            if(start & 64 && cons[1]->getType() == VER && sign == '/') pCons |=22;
+            if(start & 64 && cons[1]->getType() == VER && sign == '\\') pCons |=11;
+            if(start & 2 && cons[6]->getType() == VER && sign == '/') pCons |=104;
+            if(start & 2 && cons[6]->getType() == VER && sign == '\\') pCons |=208;
+            break;
+        case HOR:
+            if(start & 128 && cons[0]->getType() != HOR && cons[0]->getType() != VER) pCons |= 41;
+            if(start & 4 && cons[5]->getType() != HOR && cons[5]->getType() != VER) pCons |= 41;
+            if(start & 16) pCons |= 41;
+            if(start & 32 && cons[2]->getType() != HOR && cons[2]->getType() != VER) pCons |= 148;
+            if(start & 1 && cons[7]->getType() != HOR && cons[7]->getType() != VER) pCons |= 148;
+            if(start & 8) pCons |= 148;
+            break;
+        case VER:
+            if(start & 128 && cons[0]->getType() != HOR && cons[0]->getType() != VER) pCons |=7;
+            if(start & 32 && cons[2]->getType() != HOR && cons[2]->getType() != VER) pCons |=7;
+            if(start & 64) pCons |=7;
+            if(start & 4 && cons[5]->getType() != HOR && cons[5]->getType() != VER) pCons |=224;
+            if(start & 1 && cons[7]->getType() != HOR && cons[7]->getType() != VER) pCons |=224;
+            if(start & 2) pCons |=224;
+            break;
+        default:
+            break;
+        }
+        if(string) pCons |= stringMuster;
+        return pCons;
+    }
 
     void makeCons(InternStack *change){
-        if(string) muster |= stringMuster;
-        if(start&muster) makeColor();
+        muster = posibleCons();
+        if(muster) makeColor();
         else color = 0xFF000000;
-        if(bCons & 128)cons[0]->setConnections(1,(muster&128)?true:false,change,(((~128) & start & muster) && (muster & 128))?1:0);
-        if(bCons & 64)cons[1]->setConnections(2,(muster&64)?true:false,change,(((~64) & start & muster) && (muster & 64))?2:0);
-        if(bCons & 32)cons[2]->setConnections(4,(muster&32)?true:false,change,(((~32) & start & muster) && (muster & 32))?4:0);
-        if(bCons & 16)cons[3]->setConnections(8,(muster&16)?true:false,change,(((~16) & start & muster) && (muster & 16))?8:0);
-        if(bCons & 8)cons[4]->setConnections(16,(muster&8)?true:false,change,(((~8) & start & muster) && (muster & 8))?16:0);
-        if(bCons & 4)cons[5]->setConnections(32,(muster&4)?true:false,change,(((~4) & start & muster) && (muster & 4))?32:0);
-        if(bCons & 2)cons[6]->setConnections(64,(muster&2)?true:false,change,(((~2) & start & muster) && (muster & 2))?64:0);
-        if(bCons & 1)cons[7]->setConnections(128,(muster&1)?true:false,change,(((~1) & start & muster) && (muster & 1))?128:0);
+        if(bCons & 128)cons[0]->setConnections(1,(muster&128)?true:false,change,(((~128) & start) && (muster & 128))?1:0);
+        if(bCons & 64)cons[1]->setConnections(2,(muster&64)?true:false,change,(((~64) & start) && (muster & 64))?2:0);
+        if(bCons & 32)cons[2]->setConnections(4,(muster&32)?true:false,change,(((~32) & start) && (muster & 32))?4:0);
+        if(bCons & 16)cons[3]->setConnections(8,(muster&16)?true:false,change,(((~16) & start) && (muster & 16))?8:0);
+        if(bCons & 8)cons[4]->setConnections(16,(muster&8)?true:false,change,(((~8) & start) && (muster & 8))?16:0);
+        if(bCons & 4)cons[5]->setConnections(32,(muster&4)?true:false,change,(((~4) & start) && (muster & 4))?32:0);
+        if(bCons & 2)cons[6]->setConnections(64,(muster&2)?true:false,change,(((~2) & start) && (muster & 2))?64:0);
+        if(bCons & 1)cons[7]->setConnections(128,(muster&1)?true:false,change,(((~1) & start) && (muster & 1))?128:0);
 	}
     int getRow(void){
         return x;
