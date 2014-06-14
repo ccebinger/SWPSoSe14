@@ -161,7 +161,8 @@ void ClassfileWriter::WriteFields() {
  */
 void ClassfileWriter::WriteMethods() {
   std::vector<std::string> keys = this->graphs_.keyset();
-  writer.writeU16(constant_pool_->countItemType(METHOD));
+  // plus 1 for the init method
+  writer.writeU16((sizeof(keys) / sizeof(keys[0]))+1);
   WriteInitMethod();
   for(std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
     *out_<< kPublicAccessFlag;
@@ -182,7 +183,17 @@ void ClassfileWriter::WriteInitMethod(){
 		out_->write(kPublicAccessFlag, (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
 		writer.writeU16(constant_pool_->addString("<init>"));
 		writer.writeU16(constant_pool_->addString("()V"));
-		WriteAttributes();
+		/* WriteAttributes */
+		writer.writeU16(1);
+		writer.writeU16(constant_pool_->addString("Code"));
+		writer.writeU32(17);
+		writer.writeU16(1);
+		writer.writeU16(1);
+		writer.writeU32(5);
+		char initCode[]{'\x2a','\xb7','\x00','\x01','\xb1'};
+		out_->write(initCode, (sizeof(initCode)/sizeof(initCode[0])));
+		writer.writeU16(0);
+		writer.writeU16(0);
 	}
 
 /*!
@@ -206,38 +217,4 @@ void ClassfileWriter::WriteAttributes() {
 		writer.writeU16(0);
 		writer.writeU16(0);
 	*/
-
-
-
-  /**
-   * TODO: 0. insert attribute_count (u2)
-
-   out_ << constant_pool_->countItemType(ATTRIBUTE);
-
-   *  Code_attribute:
-   * TODO: 1. call constant pool to get reference of attribute (u2)
-   * 			-> attribute_name_index
-   * TODO: 2. indicate the length of the subsequent information in bytes (u4) (without 6 bytes of attribute_name_index)
-   * 			-> attributes_length
-   * TODO: 3. maximum depth of the operand stack of this method at any point during execution of the method (u2)
-   * 			-> max_stack
-   * TODO: 4. number of local variables in the local variable array allocated upon invocation of this method (u2)
-   * 			-> max_locals
-   * TODO: 5. number of bytes in the code array for this method (u4) = should be: max_stack + max_locals
-   * 			-> code_length
-   */
-  // out_.write(kNotRequired,sizeof(kNotRequired)); //exception_table_length
-  /**
-   *  LineNumberTable:
-   * TODO: 1. insert attribute_count (u2)
-
-   out_ << constant_pool_->countItemType(ATTRIBUTE);
-
-   * TODO: 2. call constant pool to get reference of attribute (u2) = +1 of code_attribute
-   * 			-> attributes_name_index
-   * TODO: 3. indicate the length of the subsequent information in bytes (u4) (without 6 bytes of attribute_name_index)
-   * 			-> attributes_length
-   *
-   *  StackMapTable is needed for variables MS2
-   */
 }
