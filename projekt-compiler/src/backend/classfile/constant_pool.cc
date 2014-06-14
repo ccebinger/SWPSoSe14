@@ -159,6 +159,7 @@ ConstantPool::ConstantPool() {
   uint16_t main_idx = addString("main");
   uint16_t void_descriptor_idx = addString("()V");
   addString("Code");
+  addString("<init>");
 
   ///Add classes
   uint16_t obj_cls = addClassRef(obj_idx);
