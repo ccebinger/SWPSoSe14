@@ -71,7 +71,7 @@ ClassfileWriter::~ClassfileWriter() {
 void ClassfileWriter::WriteClassfile() {
  //WriteMagicNumber();
   //WriteVersionNumber();
-  //WriteConstantPool();
+  WriteConstantPool();
   //WriteAccessFlags();
   //WriteClassName();
   //WriteSuperClassName();
@@ -101,17 +101,9 @@ void ClassfileWriter::WriteVersionNumber() {
  * \sa constant_pool.cc
  */
 void ClassfileWriter::WriteConstantPool() {
- /*
-
-  std::vector<Item> items = constant_pool_->getItems();
-  writer.writeU16(items.size());
-
-  for (int i = 0; i < items.size(); i++) {
-    items.at(i).getHexRepresentation(&writer);
-  }
-*/
-   out_->write((char*)constant_pool_->getByteArray().data(),
-          constant_pool_->getByteArray().size());
+  size_t size = constant_pool_->size() + 1;
+  writer.writeU16(size);
+  writer.writeVector(constant_pool_->getByteArray());
 }
 
 /*!
