@@ -68,14 +68,14 @@ ClassfileWriter::~ClassfileWriter() {
  * Each method represents an specific part of the class-file
  */
 void ClassfileWriter::WriteClassfile() {
-  WriteMagicNumber();
+ /* WriteMagicNumber();
   WriteVersionNumber();
   WriteConstantPool();
   WriteAccessFlags();
   WriteClassName();
   WriteSuperClassName();
   WriteInterfaces();
-  WriteFields();
+  WriteFields();*/
   WriteMethods();
 }
 
@@ -161,7 +161,7 @@ void ClassfileWriter::WriteFields() {
  */
 void ClassfileWriter::WriteMethods() {
   std::vector<std::string> keys = this->graphs_.keyset();
-  *out_ << constant_pool_->countItemType(METHOD);
+  writer.writeU16(constant_pool_->countItemType(METHOD));
   WriteInitMethod();
   for(std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
     *out_<< kPublicAccessFlag;
