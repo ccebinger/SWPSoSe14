@@ -70,15 +70,15 @@ ClassfileWriter::~ClassfileWriter() {
  * Each method represents an specific part of the class-file
  */
 void ClassfileWriter::WriteClassfile() {
- //WriteMagicNumber();
-  //WriteVersionNumber();
+  WriteMagicNumber();
+  WriteVersionNumber();
   WriteConstantPool();
-  //WriteAccessFlags();
-  //WriteClassName();
-  //WriteSuperClassName();
-  //WriteInterfaces();
-  //WriteFields();
-  //WriteMethods();
+  WriteAccessFlags();
+  WriteClassName();
+  WriteSuperClassName();
+  WriteInterfaces();
+  WriteFields();
+  WriteMethods();
 }
 
 /*!
