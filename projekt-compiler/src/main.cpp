@@ -1,13 +1,10 @@
 #include <iostream>
 //#include <string.h>
 
-
-
 #include <common/Env.h>
 #include <frontend/lexer/Lexer.h>
 #include <frontend/parser/Parser.h>
 #include <frontend/Graphs.h>
-#include <frontend/Parse_Exception.h>
 #include <backend/backend.h>
 
 using namespace std;
@@ -35,8 +32,8 @@ int main(int argc, char *argv[]) {
 
 
 
-		if (lexer.functions.size() == 0) {
-			throw EnvException("Lexer: No rail functions found in " + Env::getSrcFile());
+		if(!lexer.hasFunctions()) {
+			throw EnvException(FRONTEND_LEXER, "No rail functions found in " + Env::getSrcFile());
 		}
 		Env::showWarnings();
 
@@ -49,7 +46,7 @@ int main(int argc, char *argv[]) {
 			Parser p(*it);
 			shared_ptr<Adjacency_list> asg = p.parseGraph();
 			if(asg == NULL) {
-				throw EnvException("Parser error: no ASG present. Parser report: " + p.errorMessage);
+				throw EnvException(FRONTEND_PARSER, "No Asg present. Parser report: " + p.errorMessage);
 			}
 			Env::showWarnings();
 			graphs.put((*it)->getName(), asg);
@@ -64,10 +61,14 @@ int main(int argc, char *argv[]) {
 		Env::showWarnings();
 	}
 	else {
-		throw EnvException("No source specified. Use either -i <file> or -d <file>.");
+		throw EnvException(ENVIRONMENT, "No source specified. Use either -i <file> or -d <file>.");
 	}
 
 
+
+	// ------------------------------------------------------------------------
+	// ASG
+	// ------------------------------------------------------------------------
 
 	// Serialize
 	if(Env::getDstSerialize() != "") {
@@ -84,6 +85,7 @@ int main(int argc, char *argv[]) {
 		graphs.writeGraphViz(Env::getDstGraphviz());
 		Env::showWarnings();
 	}
+
 
 	// ------------------------------------------------------------------------
 	// BACKEND

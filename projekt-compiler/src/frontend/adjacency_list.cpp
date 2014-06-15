@@ -79,7 +79,7 @@ std::shared_ptr<Node> Adjacency_list::start()
   if (nodeCount() > 0)
     return find(1);
   else
-    throw -1;
+    throw EnvException(ASG, "unknown");
 }
 
 void Adjacency_list::putVariable(const std::string& identifier)

@@ -24,7 +24,7 @@ void Lexer::lex(const std::string srcFile) {
 	std::ifstream is;
 	is.open(srcFile);
 	if (!is.good()) {
-		throw EnvException("Lexer: Cannot open " + srcFile + " for reading");
+		throw EnvException(FRONTEND_LEXER, "Cannot open " + srcFile + " for reading");
 	}
 
 	std::string line;
@@ -39,10 +39,12 @@ void Lexer::lex(const std::string srcFile) {
 
 
 	RailFunction* act = NULL;
+	int32_t lineId = 0;
 	while(!is.eof()) {
 
 		// get next line
 		std::getline(is, line);
+		lineId++;
 
 		if(line.length() > 0 && line.at(0) == '$') {
 			// find function name
@@ -63,6 +65,7 @@ void Lexer::lex(const std::string srcFile) {
 				 * 		2. act = NULL; -> assume this is a new (misspelled) function -> ignore whole function
 				 */
 				act = NULL;
+				Env::addWarning(FRONTEND_LEXER, "Found $ but no proper function name given (skipping...): " + line, lineId, 0);
 			}
 		}
 

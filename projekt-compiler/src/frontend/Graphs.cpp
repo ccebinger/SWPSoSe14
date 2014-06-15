@@ -56,9 +56,7 @@ void Graphs::marshall(Graphs::str file, char delimiter) {
 
 	std::ofstream ofh(file);
 	if(!ofh) {
-		IO_Exception ie;
-		ie.set_file(file);
-		throw ie;
+		throw EnvException(ASG, "Cannot read file " + file);
 	}
 
 
@@ -137,7 +135,7 @@ void Graphs::unmarshall(Graphs::str file, char delimiter) {
   try
   {
     if (!containsFunctionName(line))//if (!std::regex_match(line.begin(), line.end(), regexs[0]))
-      throw Invalid_Format_Exception();
+      throw EnvException(ASG_DESERIALIZE, "Invalid format: " + line);
 
     while (containsFunctionName(line))//(std::regex_match(line.begin(), line.end(), regexs[0]))
     {
@@ -152,10 +150,10 @@ void Graphs::unmarshall(Graphs::str file, char delimiter) {
     }
     infile.close();
   }
-  catch (Invalid_Format_Exception& ife)
+  catch (...)
   {
     infile.close();
-    throw ife;
+    throw;
   }
 
   if(Env::verbose()) {
@@ -197,8 +195,9 @@ Graphs::Node_ptr Graphs::unmarshall_line(Graphs::Graph_ptr adj, std::string& lin
   std::stringstream lineStream(line);
   std::string cell;
 
-  if (!std::getline(lineStream, cell, delimiter)) // id
-    throw Invalid_Format_Exception();
+  if (!std::getline(lineStream, cell, delimiter)) { // id
+    throw EnvException(ASG_DESERIALIZE, "Invalid format found");
+  }
 
   int id = std::stoi(cell);
   std::shared_ptr<Node> n(adj->find(id));
@@ -207,13 +206,15 @@ Graphs::Node_ptr Graphs::unmarshall_line(Graphs::Graph_ptr adj, std::string& lin
     n->id = id;
   }
 
-  if (!std::getline(lineStream, cell, delimiter)) // arg
-    throw Invalid_Format_Exception();
+  if (!std::getline(lineStream, cell, delimiter)) { // arg
+	 throw EnvException(ASG_DESERIALIZE, "Invalid format found");
+  }
 
   n->command = getCommand(cell);
 
-  if (!std::getline(lineStream, cell, delimiter)) // adja
-    throw Invalid_Format_Exception();
+  if (!std::getline(lineStream, cell, delimiter)) { // adja
+    throw EnvException(ASG_DESERIALIZE, "Invalid format found");
+  }
 
   n->successor1 = findNode(adj, cell);
   if (std::getline(lineStream, cell, delimiter))
@@ -281,9 +282,7 @@ void Graphs::writeGraphViz(Graphs::str file) {
 
 	std::ofstream fh(file);
 	if(!fh) {
-		IO_Exception ie;
-		ie.set_file(file);
-		throw ie;
+		throw EnvException(ASG_GRAPHVIZ, "Cannot open file: " + file);
 	}
 
 	fh << "digraph G {";
