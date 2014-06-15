@@ -115,6 +115,7 @@ class Graphs
     * </pre>
     *
     * @param file       the name of the file in which the Graphs should be saved
+    * @param delimiter	csv delimiter
     */
     virtual void marshall(str file, char delimiter);
 
