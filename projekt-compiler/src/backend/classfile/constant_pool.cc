@@ -96,15 +96,11 @@ Item& Item::operator=(const Item& i) {
     strVal1 = i.strVal1;
     strVal2 = i.strVal2;
     strVal3 = i.strVal3;
-
-    method_idx = i.method_idx;
-    descriptor_idx = i.descriptor_idx;
-    name_idx = i.name_idx;
-    class_idx = i.class_idx;
-    name_type_idx = i.name_type_idx;
   }
   return *this;
 }
+
+
 
 ////////////////////////////////////////////////////////////////////////
 /// set item to integer value
@@ -114,8 +110,8 @@ void Item::set(int32_t _intVal) {
   type = INT;
   intVal = _intVal;
 
-  std::cout << "set int  type: " << type
-            << " intVal: " << intVal << std::endl;
+  // std::cout << "set int  type: " << type
+  //           << " intVal: " << intVal << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -390,16 +386,16 @@ const Item &ConstantPool::get(const Item &key) const {
 bool ConstantPool::check(const Item &key) const {
   auto i = std::find(items.begin(), items.end(), key);
   if (i != items.end()) {
-    std::cout << "true check type: " << i->type
-              << " intVal: " << i->intVal
-              << " key type: " << key.type
-              << " intVal: " << key.intVal << std::endl;
+    // std::cout << "true check type: " << i->type
+    //           << " intVal: " << i->intVal
+    //           << " key type: " << key.type
+    //           << " intVal: " << key.intVal << std::endl;
     return true;
   }
-  std::cout << "false check type: " << i->type
-            << " intVal: " << i->intVal
-            << " key type: " << key.type
-            << " intVal: " << key.intVal << std::endl;
+  // std::cout << "false check type: " << i->type
+  //           << " intVal: " << i->intVal
+  //           << " key type: " << key.type
+  //           << " intVal: " << key.intVal << std::endl;
 
   return false;
 }
