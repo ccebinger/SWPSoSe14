@@ -59,6 +59,8 @@ BytecodeGenerator::CODE_FUNC_MAPPING = {
   {Command::Type::SOUTHJUNC, &if_or_while_ByteCode}
 };
 
+  int BytecodeGenerator::localCount = 0;
+
 void BytecodeGenerator::add_conditional_with_instruction(char conditional_stmt,
                                                          char* conditional_body,
                                                          std::vector<char>& result) {
@@ -167,6 +169,8 @@ void output_ByteCode(ConstantPool& constantPool,
   // invokevirtual <Method java/io/PrintStream.print:(Ljava/lang/String;)V>
   BytecodeGenerator::add_invoke_virtual("java/io/PrintStream.print:(Ljava/lang/String;)V",
                                         constantPool, result);
+
+  BytecodeGenerator::localCount++;
 }
 
 void push_ByteCode(ConstantPool& constantPool,
@@ -214,6 +218,8 @@ void add_integer_calculation(BytecodeGenerator::MNEMONIC calculation,
 
   BytecodeGenerator::add_invoke_static(integer_class_static_value_of_method,
                                        constantPool, result);
+
+  BytecodeGenerator::localCount += 2;
 }
 
 void add_ByteCode(ConstantPool& constantPool,
@@ -267,6 +273,8 @@ void cut_ByteCode(ConstantPool& constantPool,
 
   BytecodeGenerator::add_invoke_virtual("java/lang/String.substring:(I)Ljava/lang/String;",
                                         constantPool, result);
+
+  BytecodeGenerator::localCount += 2;
 }
 
 void append_ByteCode(ConstantPool& constantPool,
@@ -304,6 +312,8 @@ void append_ByteCode(ConstantPool& constantPool,
   // invokevirtual <Method java/lang/StringBuilder.toString:()Ljava/lang/String>
   BytecodeGenerator::add_invoke_virtual("java/lang/StringBuilder.toString:()Ljava/lang/String;",
                                         constantPool, result);
+
+  BytecodeGenerator::localCount += 2;
 }
 
 void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result,
@@ -336,6 +346,8 @@ void list_pop_ByteCode(ConstantPool& pool, std::vector<char>& code,
 void false_ByteCode(ConstantPool& pool, std::vector<char>& code,
                     Graphs::Node_ptr current_node) {
   code.push_back(BytecodeGenerator::ICONST_0);
+
+  BytecodeGenerator::localCount++;
 }
 
 void greater_ByteCode(ConstantPool& pool, std::vector<char>& result,
@@ -361,6 +373,8 @@ void greater_ByteCode(ConstantPool& pool, std::vector<char>& result,
 
   BytecodeGenerator::add_conditional_with_instruction(BytecodeGenerator::IF_ICMPLE,
                                                       &if_body[0], result);
+
+  BytecodeGenerator::localCount += 3;
 }
 
 void equal_ByteCode(ConstantPool& pool, std::vector<char>& code,
@@ -388,11 +402,14 @@ void equal_ByteCode(ConstantPool& pool, std::vector<char>& code,
   code.push_back('\x00');
   code.push_back('\x04');
   code.push_back(BytecodeGenerator::ICONST_0);
+
+  BytecodeGenerator::localCount += 3;
 }
 
 void true_ByteCode(ConstantPool& pool, std::vector<char>& code,
                    Graphs::Node_ptr current_node) {
   code.push_back(BytecodeGenerator::ICONST_1);
+  BytecodeGenerator::localCount++;
 }
 
 // IO OPERATIONS
@@ -423,6 +440,7 @@ void if_or_while_ByteCode(ConstantPool& pool, std::vector<char>& code,
 
 std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
                                                                    ConstantPool& constantPool) {
+  BytecodeGenerator::localCount = 0;
   std::vector<char> result;
   Graphs::Node_ptr current_node(graph->start());
   while (current_node && current_node->command.type != Command::Type::FINISH) {

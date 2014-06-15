@@ -45,6 +45,8 @@ public:
     IFNE = '\x9a'
   };
 
+  static int localCount;
+
   static std::vector<char> GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
                                ConstantPool& constantPool);
   static void add_conditional_with_instruction(char conditional_stmt, char* conditional_body, std::vector<char>& result);
