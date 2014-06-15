@@ -182,16 +182,22 @@ void ClassfileWriter::WriteMethods() {
   writer.writeU16(0);
   writer.writeU16(0);*/
 
- /* for (std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
+  for (std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
     if (keys[i].compare("main") != 0) {
-      *out_<< kPublicAccessFlag;
+
+      out_->write(kPublicAccessFlag,sizeof(kPublicAccessFlag));
+      writer.writeU16(constant_pool_->addString(keys[i]));
+      writer.writeU16(constant_pool_->addString("()V"));
+
     } else {
+
       writer.writeU16(9);
+      writer.writeU16(constant_pool_->addString(keys[i]));
+      writer.writeU16(constant_pool_->addString("([Ljava/lang/String;)V"));
     }
-    writer.writeU16(constant_pool_->addString(keys[i]));
-    writer.writeU16(constant_pool_->addString("()V"));
+
     WriteAttributes(keys[i]);
-  }*/
+  }
 
   // std::vector<char> func = code_functions_.at("main");
   // out_.write((char*)func.data(),
@@ -250,7 +256,7 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
   // attributes_count
   writer.writeU16(1);
   // attribute_name_index
-  constant_pool_->addString("Code");
+  writer.writeU16(constant_pool_->addString("Code"));
   // attribute_legth
   writer.writeU32(attributeCount);
   // TODO: max_stacks
