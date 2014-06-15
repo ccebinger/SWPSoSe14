@@ -54,7 +54,7 @@ ClassfileWriter::ClassfileWriter(ClassfileVersion version,
                                  Graphs& graphs,
                                  const std::map<std::string, std::vector<char>&> codeFunctions,
                                  std::ostream* out) : graphs_(graphs), writer(out),
-    version_(version), code_functions_(codeFunctions), out_(out)   {
+    out_(out), version_(version), code_functions_(codeFunctions)  {
   constant_pool_ = std::make_shared<ConstantPool>(*constantPool);
 }
 
