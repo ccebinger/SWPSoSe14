@@ -150,11 +150,5 @@ class ClassfileWriter {
    * Schreibt die Attribute, insb. den Methoden-Bytecode.
    */
   void WriteAttributes(const std::string &key);
-
-  /**
-   * Erzeugt den code für das Code-Attribut
-   */
-  void WriteCodeAttribute();
 };
-
 #endif /* CLASSFILE_WRITER_H_ */
