@@ -87,16 +87,20 @@ bool Item::operator==(const Item& i)const {
 /// copy operator
 /// \param i item to be copied
 ////////////////////////////////////////////////////////////////////////
-bool Item::operator=(const Item& i) {
-  index = i.index;
-  type = i.type;
-  intVal = i.intVal;
-  longVal = i.longVal;
-  strVal1 = i.strVal1;
-  strVal2 = i.strVal2;
-  strVal3 = i.strVal3;
-  return true;
+Item& Item::operator=(const Item& i) {
+  if (this != &i) {
+    index = i.index;
+    type = i.type;
+    intVal = i.intVal;
+    longVal = i.longVal;
+    strVal1 = i.strVal1;
+    strVal2 = i.strVal2;
+    strVal3 = i.strVal3;
+  }
+  return *this;
 }
+
+
 
 ////////////////////////////////////////////////////////////////////////
 /// set item to integer value
@@ -191,6 +195,7 @@ ConstantPool::ConstantPool(Graphs& graphs) {
   uint16_t object_name_type_idx = addNameAndType(object_name_idx, void_descriptor_idx);
   uint16_t system_name_type_idx = addNameAndType(system_name_idx, system_type_idx);
   uint16_t print_name_type_idx =  addNameAndType(print_name_idx, print_type_idx);
+  uint16_t print_name_type_idx2 =  addNameAndType(print_name_idx, print_type_idx);
   uint16_t valueOf_name_type_idx = addNameAndType(valueOf_name_idx, valueOf_type_idx);
   uint16_t intValue_name_type_idx = addNameAndType(intValue_name_idx, intValue_type_idx);
   uint16_t concat_name_type_idx = addNameAndType(concat_name_idx, concat_type_idx);

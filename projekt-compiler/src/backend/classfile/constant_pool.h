@@ -54,7 +54,7 @@ class Item {
   Item(const Item &i);
 
   bool operator==(const Item& i)const;
-  bool operator=(const Item& i);
+  Item& operator=(const Item& i);
 
   void set(int32_t intVal);
   void set(int64_t longVal);
