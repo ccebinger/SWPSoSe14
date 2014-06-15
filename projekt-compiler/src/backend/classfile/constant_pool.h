@@ -21,6 +21,7 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #ifndef PROJEKT_COMPILER_SRC_BACKEND_CLASSFILE_CONSTANT_POOL_H_
 #define PROJEKT_COMPILER_SRC_BACKEND_CLASSFILE_CONSTANT_POOL_H_
 #include <backend/classfile/Bytecode_writer.h>
+#include <frontend/Graphs.h>
 #include <cstdint>
 #include <vector>
 #include <string>
@@ -73,11 +74,11 @@ class Item {
   std::string strVal3;  //!< if method or class, method descriptor
   Item *next;  //!< pointer to next item in list
 
-  uint16_t method_idx; //!< index of method string in constantpool
-  uint16_t descriptor_idx; //!< index of descriptor string in constantpool
-  uint16_t name_idx; //!< index of name/string in constantpool
-  uint16_t class_idx; //!< index of class in constantpool
-  uint16_t name_type_idx; //!< index of name and type in constantpool
+  uint16_t method_idx;  //!< index of method string in constantpool
+  uint16_t descriptor_idx;  //!< index of descriptor string in constantpool
+  uint16_t name_idx;  //!< index of name/string in constantpool
+  uint16_t class_idx;  //!< index of class in constantpool
+  uint16_t name_type_idx;  //!< index of name and type in constantpool
 
   std::vector<unsigned char> getHexRepresentation(Bytecode_writer* writer) {
     std::vector<unsigned char> result;
@@ -105,26 +106,21 @@ class Item {
 
 class ConstantPool {
  public:
-  ConstantPool();
+  ConstantPool(Graphs& graphs);
 
   size_t addInt(int32_t value);
-  size_t addNameAndType(int32_t UTF8_name_index, int32_t UTF8_descriptor_index);
+  size_t addNameAndType(uint16_t UTF8_name_index,
+                        uint16_t UTF8_descriptor_index);
   size_t addString(const std::string &value);
-
   size_t addClassRef(uint16_t name_idx);
-  //size_t addClassRef(const std::string &value);
-
   size_t addFieldRef(uint16_t class_idx, uint16_t name_type_idx);
-  //size_t addFieldRef(const std::string &value);
-
   size_t addMethRef(uint16_t class_idx, uint16_t name_type_idx);
-  //size_t addMethRef(const std::string &value);
-  //size_t addIMethRef(const std::string &value);
 
   std::vector<uint8_t> getByteArray();
   bool check(const Item& i) const;   //!< check if item in list
   const Item& get(const Item &key)const;
   size_t countItemType(ItemType type);
+  size_t size() {return items.size();}
 
   std::vector<Item> getItems() {return items;}
 
@@ -134,7 +130,7 @@ class ConstantPool {
   void putInt(int32_t i);
   void putUTF8(std::string s);
 
-  size_t put(Item i);
+  size_t put(Item *i);
 
   void encodeUTF8(std::string s, uint32_t pos);
 

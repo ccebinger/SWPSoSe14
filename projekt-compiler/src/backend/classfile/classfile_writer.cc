@@ -53,8 +53,9 @@ ClassfileWriter::ClassfileWriter(ClassfileVersion version,
                                  Graphs& graphs,
                                  const std::map<std::string, std::vector<char>&> codeFunctions,
                                  std::ostream* out) :
-    version_(version), code_functions_(codeFunctions), out_(out) {
+    version_(version), code_functions_(codeFunctions), out_(out), writer(out) {
   constant_pool_ = std::make_shared<ConstantPool>(*constantPool);
+  graphs_ = graphs;
 }
 
 /*!
@@ -68,15 +69,15 @@ ClassfileWriter::~ClassfileWriter() {
  * Each method represents an specific part of the class-file
  */
 void ClassfileWriter::WriteClassfile() {
-  WriteMagicNumber();
-  WriteVersionNumber();
+ //WriteMagicNumber();
+  //WriteVersionNumber();
   WriteConstantPool();
-  WriteAccessFlags();
-  WriteClassName();
-  WriteSuperClassName();
-  WriteInterfaces();
-  WriteFields();
-  WriteMethods();
+  //WriteAccessFlags();
+  //WriteClassName();
+  //WriteSuperClassName();
+  //WriteInterfaces();
+  //WriteFields();
+  //WriteMethods();
 }
 
 /*!
@@ -100,17 +101,9 @@ void ClassfileWriter::WriteVersionNumber() {
  * \sa constant_pool.cc
  */
 void ClassfileWriter::WriteConstantPool() {
- /*
-
-  std::vector<Item> items = constant_pool_->getItems();
-  writer.writeU16(items.size());
-
-  for (int i = 0; i < items.size(); i++) {
-    items.at(i).getHexRepresentation(&writer);
-  }
-*/
-   out_->write((char*)constant_pool_->getByteArray().data(),
-          constant_pool_->getByteArray().size());
+  size_t size = constant_pool_->size() + 1;
+  writer.writeU16(size);
+  writer.writeVector(constant_pool_->getByteArray());
 }
 
 /*!
@@ -161,13 +154,15 @@ void ClassfileWriter::WriteFields() {
  */
 void ClassfileWriter::WriteMethods() {
   std::vector<std::string> keys = this->graphs_.keyset();
-  *out_ << constant_pool_->countItemType(METHOD);
+  // plus 1 for the init method
+  size_t size = keys.size();
+  writer.writeU16(size+1);
   WriteInitMethod();
   for(std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
     *out_<< kPublicAccessFlag;
     writer.writeU16(constant_pool_->addString(keys[i]));
     writer.writeU16(constant_pool_->addString("()V"));
-    WriteAttributes();
+    WriteAttributes(keys[i]);
   }
 
   // std::vector<char> func = code_functions_.at("main");
@@ -179,65 +174,44 @@ void ClassfileWriter::WriteMethods() {
  * Is the same in all java classes we generate
  */
 void ClassfileWriter::WriteInitMethod(){
-		out_->write(kPublicAccessFlag, (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
-		writer.writeU16(constant_pool_->addString("<init>"));
-		writer.writeU16(constant_pool_->addString("()V"));
-		WriteAttributes();
+	out_->write(kPublicAccessFlag, (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
+	writer.writeU16(constant_pool_->addString("<init>"));
+	writer.writeU16(constant_pool_->addString("()V"));
+	/* WriteAttributes */
+	char initCode[]{'\x2a','\xb7','\x00','\x01','\xb1'};
+	int16_t initCodeCount = sizeof(initCode)/sizeof(initCode[0]);
+	// attribute_count=1
+	writer.writeU16(1);
+	writer.writeU16(constant_pool_->addString("Code"));
+	writer.writeU32(17);
+	// max_stack=1
+	writer.writeU16(1);
+	// max_locals=1
+	writer.writeU16(1);
+	// code_length=5
+	writer.writeU32(initCodeCount);
+	out_->write(initCode, (initCodeCount));
+	// exception_table_length=0
+	*out_<< kNotRequired;
+	// attributes_count
+	*out_<< kNotRequired;
 	}
 
 /*!
  * \brief Writes attributes in class-file
  * Every method calls WritesAttributes
  */
-void ClassfileWriter::WriteAttributes() {
+void ClassfileWriter::WriteAttributes(const std::string &key) {
+  if(key.compare("main") != 0) {
+    *out_<< kPublicAccessFlag;
+  } else {
+    writer.writeU16(9);
+  }
+  WriteCodeAttribute();
+}
 
-	/**
-	 * Init method attribute case:
-	 */
-	/*
-		writer.writeU16(1);
-		writer.writeU16(constant_pool_->addString("Code"));
-		writer.writeU32(17);
-		writer.writeU16(1);
-		writer.writeU16(1);
-		writer.writeU32(5);
-		char initCode[]{'\x2a','\xb7','\x00','\x01','\xb1'};
-		out_->write(initCode, (sizeof(initCode)/sizeof(initCode[0])));
-		writer.writeU16(0);
-		writer.writeU16(0);
-	*/
-
-
-
-  /**
-   * TODO: 0. insert attribute_count (u2)
-
-   out_ << constant_pool_->countItemType(ATTRIBUTE);
-
-   *  Code_attribute:
-   * TODO: 1. call constant pool to get reference of attribute (u2)
-   * 			-> attribute_name_index
-   * TODO: 2. indicate the length of the subsequent information in bytes (u4) (without 6 bytes of attribute_name_index)
-   * 			-> attributes_length
-   * TODO: 3. maximum depth of the operand stack of this method at any point during execution of the method (u2)
-   * 			-> max_stack
-   * TODO: 4. number of local variables in the local variable array allocated upon invocation of this method (u2)
-   * 			-> max_locals
-   * TODO: 5. number of bytes in the code array for this method (u4) = should be: max_stack + max_locals
-   * 			-> code_length
-   */
-  // out_.write(kNotRequired,sizeof(kNotRequired)); //exception_table_length
-  /**
-   *  LineNumberTable:
-   * TODO: 1. insert attribute_count (u2)
-
-   out_ << constant_pool_->countItemType(ATTRIBUTE);
-
-   * TODO: 2. call constant pool to get reference of attribute (u2) = +1 of code_attribute
-   * 			-> attributes_name_index
-   * TODO: 3. indicate the length of the subsequent information in bytes (u4) (without 6 bytes of attribute_name_index)
-   * 			-> attributes_length
-   *
-   *  StackMapTable is needed for variables MS2
-   */
+/*!
+ * \brief Writes code attributes in class-file
+ */
+void ClassfileWriter::WriteCodeAttribute(){
 }
