@@ -65,7 +65,10 @@ Item::Item(uint16_t _index, const Item &i) {
 /// \param i copmared item
 ////////////////////////////////////////////////////////////////////////
 bool Item::operator==(const Item& i)const {
-  switch (i.type) {
+  if (type != i.type)
+    return false;
+
+  switch (type) {
     case UTF8:
     case STR:
       return i.strVal1 == strVal1;
@@ -76,8 +79,9 @@ bool Item::operator==(const Item& i)const {
     }
     case FIELD:
     case METHOD:
-    case CLASS:
       return class_idx == i.class_idx && name_type_idx == i.name_type_idx;
+    case CLASS:
+      return name_idx == i.name_idx;
     case NAME_AND_TYPE:
       return i.descriptor_idx == descriptor_idx && method_idx == i.method_idx;
     // case IMETHOD:
