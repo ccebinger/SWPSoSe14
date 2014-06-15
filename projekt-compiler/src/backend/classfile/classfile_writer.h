@@ -4,6 +4,9 @@
 #include <array>
 #include <iostream>
 #include <map>
+#include <memory>
+#include <vector>
+#include <frontend/Graphs.h>
 
 #include "constant_pool.h"
 
@@ -26,10 +29,10 @@ class ClassfileWriter {
    * Stream 'out'. Der Bytecode wird in der map 'codeFunctions' gehalten, Map
    * Funktionsname -> Bytecode.
    */
-  ClassfileWriter(ClassfileVersion version, ConstantPool& constantPool,
-                  const std::map<std::string,
-                    std::vector<char>&> codeFunctions,
-                  std::ostream& out);
+  ClassfileWriter(ClassfileVersion version, ConstantPool* constantPool,
+                    Graphs& graphs,
+                    const std::map<std::string, std::vector<char>&> codeFunctions,
+                    std::ostream* out);
 
   virtual ~ClassfileWriter();
 
@@ -40,6 +43,18 @@ class ClassfileWriter {
   void WriteClassfile();
 
  private:
+
+
+  /**
+   * Graph aus dem Frontend
+   */
+  Graphs graphs_;
+
+  /**
+   * Bytecode writer
+   */
+  Bytecode_writer writer;
+
   /**
    * Die Magic Number aller .class-Dateien.
    */
@@ -54,7 +69,7 @@ class ClassfileWriter {
   /**
    * Der Ausgabestream auf den wir die Datei schreiben.
    */
-  std::ostream& out_;
+  std::ostream *out_;
 
   /**
    * Die Versionsnummer der zu schreibenden .class-Datei.
@@ -64,7 +79,7 @@ class ClassfileWriter {
   /**
    * Der ConstantPool der zu schreibenden Class-Datei.
    */
-  ConstantPool& constant_pool_;
+  std::shared_ptr<ConstantPool> constant_pool_;
 
   /**
    * Mappt Funktionsnamen auf ihren zugehörigen Bytecode.
@@ -81,6 +96,17 @@ class ClassfileWriter {
    * Konstante zum Schreiben für öffentliches Konstrukt.
    */
   static const char kPublicAccessFlag[];
+
+  /**
+   * Konstante zum Schreiben für public + static access flag
+   */
+  static const char kPublicStaticAccessFlag[];
+
+  /**
+   * Konstante: Max Stacktiefe lokaler Stack. Nicht viel da wir globalen Op
+   * Stack nutzen.
+   */
+  static const uint16_t kMaxStack;
 
   /**
    * Schreibt 0xCAFEBABE.
@@ -129,9 +155,18 @@ class ClassfileWriter {
   void WriteMethods();
 
   /**
+   * Schreibt die <init> Methode.
+   */
+  void WriteInitMethod();
+
+  /**
+   * Schreibt die <clinit> Methode.
+   */
+  void WriteClInitMethod();
+
+  /**
    * Schreibt die Attribute, insb. den Methoden-Bytecode.
    */
-  void WriteAttributes();
+  void WriteAttributes(const std::string &key);
 };
-
 #endif /* CLASSFILE_WRITER_H_ */

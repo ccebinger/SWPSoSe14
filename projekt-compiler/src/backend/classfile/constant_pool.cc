@@ -15,20 +15,22 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 
 #include <backend/classfile/constant_pool.h>
 #include <algorithm>
-#include <iostream>
 
 ////////////////////////////////////////////////////////////////////////
 /// default constructor does nothing, bud is needed because we have other
 //  constructor
 ////////////////////////////////////////////////////////////////////////
 Item::Item() {
-}
+  type = NONE;
+  intVal = 0;
+  longVal = 0;
 
-////////////////////////////////////////////////////////////////////////
-/// constructor with defined index
-/// \param index internal index of item
-////////////////////////////////////////////////////////////////////////
-Item::Item(uint16_t _index) { index = _index;}
+  method_idx = 0;
+  descriptor_idx = 0;
+  name_idx = 0;
+  class_idx = 0;
+  name_type_idx = 0;
+}
 
 ////////////////////////////////////////////////////////////////////////
 /// copy constructor
@@ -39,20 +41,15 @@ Item::Item(const Item &i) {
   type = i.type;
   intVal = i.intVal;
   longVal = i.longVal;
-  strVal = i.strVal;
-}
+  strVal1 = i.strVal1;
+  strVal2 = i.strVal2;
+  strVal3 = i.strVal3;
 
-////////////////////////////////////////////////////////////////////////
-/// constructor
-/// \param _index internal index
-/// \param i item to set to
-////////////////////////////////////////////////////////////////////////
-Item::Item(uint16_t _index, const Item &i) {
-  index = _index;
-  type = i.type;
-  intVal = i.intVal;
-  longVal = i.longVal;
-  strVal = i.strVal;
+  method_idx = i.method_idx;
+  descriptor_idx = i.descriptor_idx;
+  name_idx = i.name_idx;
+  class_idx = i.class_idx;
+  name_type_idx = i.name_type_idx;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -60,22 +57,28 @@ Item::Item(uint16_t _index, const Item &i) {
 /// \param i copmared item
 ////////////////////////////////////////////////////////////////////////
 bool Item::operator==(const Item& i)const {
-  switch (i.type) {
+  if (type != i.type)
+    return false;
+
+  switch (type) {
     case UTF8:
-    case CLASS:
     case STR:
-      return i.strVal == strVal;
+      return i.strVal1 == strVal1;
     case LONG:
       return i.longVal == longVal;
     case INT: {
-      std::cout << "i.int:"<< i.intVal<< "intval:"<< intVal <<"\n";
       return i.intVal == intVal;
     }
-    // case FIELD:
-    // case METHOD:
-    // case IMETHOD:
+    case FIELD:
+    case METHOD:
+      return class_idx == i.class_idx && name_type_idx == i.name_type_idx;
+    case CLASS:
+      return name_idx == i.name_idx;
+    case NAME_AND_TYPE:
+      return i.descriptor_idx == descriptor_idx && method_idx == i.method_idx;
+      // case IMETHOD:
     default:
-      return i.strVal == strVal;
+      return i.strVal1 == strVal1;
   }
 }
 
@@ -83,13 +86,23 @@ bool Item::operator==(const Item& i)const {
 /// copy operator
 /// \param i item to be copied
 ////////////////////////////////////////////////////////////////////////
-bool Item::operator=(const Item& i) {
-  index = i.index;
-  type = i.type;
-  intVal = i.intVal;
-  longVal = i.longVal;
-  strVal = i.strVal;
-  return true;
+Item& Item::operator=(const Item& i) {
+  if (this != &i) {
+    index = i.index;
+    type = i.type;
+    intVal = i.intVal;
+    longVal = i.longVal;
+    strVal1 = i.strVal1;
+    strVal2 = i.strVal2;
+    strVal3 = i.strVal3;
+
+    method_idx = i.method_idx;
+    descriptor_idx = i.descriptor_idx;
+    name_idx = i.name_idx;
+    class_idx = i.class_idx;
+    name_type_idx = i.name_type_idx;
+  }
+  return *this;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -102,39 +115,145 @@ void Item::set(int32_t _intVal) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-/// set item to long value
-/// \param _longVal long integer value
+/// set item to string value
+/// \param _type type of the item
+/// \param _strVal1  first part of the value of this item.
+/// \param _strVal2  first part of the value of this item.
+/// \param _strVal3  first part of the value of this item.
 ////////////////////////////////////////////////////////////////////////
-void Item::set(int64_t _longVal) {
-  type = LONG;
-  longVal = _longVal;
+void Item::set(ItemType _type, const std::string &_strVal1,
+               const std::string &_strVal2, const std::string &_strVal3) {
+  type = _type;
+  strVal1 = _strVal1;
+  strVal2 = _strVal2;
+  strVal3 = _strVal3;
 }
 
 ////////////////////////////////////////////////////////////////////////
 /// set item to string value
-/// \param _type type of the item
-/// \param _strVal  first part of the value of this item.
+/// \param type type of the item
+/// \param class_idx first part of the value of this item.
+/// \param name_type_idx first part of the value of this item.
 ////////////////////////////////////////////////////////////////////////
-void Item::set(ItemType _type,
-               const std::string &_strVal) {
-  type = _type;
-  strVal = _strVal;
+void Item::set(ItemType type, uint16_t class_idx, uint16_t name_type_idx) {
+  this->type = type;
+  this->class_idx = class_idx;
+  this->name_type_idx = name_type_idx;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// set item to string value
+/// \param type type of the item
+/// \param name_idx first part of the value of this item.
+////////////////////////////////////////////////////////////////////////
+void Item::set(ItemType type, uint16_t name_idx) {
+  this->type = type;
+  this->name_idx = name_idx;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// set item to string value
+/// \param method_idx type of the item
+/// \param descriptor_idx  first part of the value of this item.
+////////////////////////////////////////////////////////////////////////
+void Item::set_name_type(uint16_t method_idx, uint16_t descriptor_idx) {
+  this->type = ItemType::NAME_AND_TYPE;
+  this->method_idx = method_idx;
+  this->descriptor_idx = descriptor_idx;
 }
 
 ////////////////////////////////////////////////////////////////////////
 /// default constructor
 ////////////////////////////////////////////////////////////////////////
-ConstantPool::ConstantPool() {
+ConstantPool::ConstantPool(Graphs& graphs) {
   items.reserve(256);
-  // Java Class Reference auf java/lang/system
-  addClassRef("java/lang/system");
-  // Field Reference java.lang.system.out
-  addFieldRef("java.lang.system.out");
-  // Method referenc Java.io.printStream.println
-  addMethRef("Java.io.printStream.println");
-  // Method reference Main.java
-  addMethRef("Main.java");
-}
+
+  /// Add strings
+    uint16_t obj_cls_idx = addString("java/lang/Object");
+    uint16_t system_idx = addString("java/lang/System");
+    uint16_t print_idx = addString("java/io/PrintStream");
+    uint16_t integer_idx = addString("java/lang/Integer");
+    uint16_t string_idx = addString("java/lang/String");
+    uint16_t main_class_str_idx = addString("Main");
+    uint16_t void_descriptor_idx = addString("()V");
+    uint16_t stack_init_idx = addString("<clinit>");
+    addString("Code");
+    uint16_t object_name_idx = addString("<init>");
+    uint16_t stringList_type_idx = addString("([Ljava/lang/String;)V");
+    uint16_t print_type_idx = addString("(Ljava/lang/String;)V");
+    uint16_t system_name_idx = addString("out");
+    uint16_t system_type_idx = addString("Ljava/io/PrintStream;");
+    uint16_t print_name_idx = addString("println");
+    uint16_t valueOf_name_idx = addString("valueOf");
+    uint16_t valueOf_type_idx = addString("(I)Ljava/lang/Integer;");
+    uint16_t intValue_name_idx = addString("intValue");
+    uint16_t intValue_type_idx = addString("()I");
+    uint16_t concat_name_idx = addString("concat");
+    uint16_t concat_type_idx = addString("(Ljava/lang/String;)Ljava/lang/String;");
+    uint16_t substring_name_idx = addString("substring");
+    uint16_t substring_type_idx = addString("(II)Ljava/lang/String;");
+    uint16_t substring_type_single_idx = addString("(I)Ljava/lang/String;");
+    uint16_t length_name_idx = addString("length");
+    uint16_t stack_class_name_idx = addString("java/util/ArrayDeque");
+    uint16_t stack_field_name_idx = addString("stack");
+    uint16_t stack_field_type_idx = addString("Ljava/util/ArrayDeque;");
+    uint16_t pop_name_idx = addString("pop");
+    uint16_t pop_type_idx = addString("()Ljava/lang/Object;");
+    uint16_t push_name_idx = addString("push");
+    uint16_t push_type_idx = addString("(Ljava/lang/Object;)V");
+    uint16_t toString_name_idx = addString("toString");
+    uint16_t toString_type_idx = addString("()Ljava/lang/String;");
+
+    ///  Add Rail-Functionnames as Strings
+    std::vector<std::string> keyset = graphs.keyset();
+    for (auto it = keyset.begin(); it != keyset.end(); it++) {
+      addString(*it);
+    }
+
+    ///  Add classes
+    obj_idx.class_idx = addClassRef(obj_cls_idx);
+    uint16_t system_class_idx = addClassRef(system_idx);
+    uint16_t print_class_idx = addClassRef(print_idx);
+    uint16_t main_class_idx = addClassRef(main_class_str_idx);
+    int_idx.class_idx = addClassRef(integer_idx);
+    str_idx.class_idx = addClassRef(string_idx);
+    arr_idx.class_idx = addClassRef(stack_class_name_idx);
+
+    ///  Add name and type
+    uint16_t object_name_type_idx = addNameAndType(object_name_idx, void_descriptor_idx);
+    uint16_t system_name_type_idx = addNameAndType(system_name_idx, system_type_idx);
+    uint16_t print_name_type_idx =  addNameAndType(print_name_idx, print_type_idx);
+    uint16_t valueOf_name_type_idx = addNameAndType(valueOf_name_idx, valueOf_type_idx);
+    uint16_t intValue_name_type_idx = addNameAndType(intValue_name_idx, intValue_type_idx);
+    uint16_t concat_name_type_idx = addNameAndType(concat_name_idx, concat_type_idx);
+    uint16_t substring_name_type_idx = addNameAndType(substring_name_idx, substring_type_idx);
+    uint16_t substring_name_type_single_idx = addNameAndType(substring_name_idx, substring_type_single_idx);
+    uint16_t length_name_type_idx = addNameAndType(length_name_idx, intValue_type_idx);
+    uint16_t stack_name_type_idx = addNameAndType(stack_init_idx, void_descriptor_idx);
+    uint16_t stack_field_name_type_idx = addNameAndType(stack_field_name_idx, stack_field_type_idx);
+    uint16_t pop_name_type_idx = addNameAndType(pop_name_idx, pop_type_idx);
+    uint16_t push_name_type_idx = addNameAndType(push_name_idx, push_type_idx);
+    uint16_t toString_name_type_idx = addNameAndType(toString_name_idx, toString_type_idx);
+
+    ///  Add method refs
+    addMethRef(obj_idx.class_idx , object_name_type_idx);
+    addMethRef(print_class_idx, print_name_type_idx);
+    int_idx.value_of_idx = addMethRef(int_idx.class_idx, valueOf_name_type_idx);
+    int_idx.int_value_idx = addMethRef(int_idx.class_idx, intValue_name_type_idx);
+    str_idx.concat_idx = addMethRef(str_idx.class_idx, concat_name_type_idx);
+    str_idx.substring_2param_idx = addMethRef(str_idx.class_idx, substring_name_type_idx);
+    str_idx.substring_idx = addMethRef(str_idx.class_idx, substring_name_type_single_idx);
+    str_idx.length_idx = addMethRef(str_idx.class_idx, length_name_type_idx);
+    str_idx.length_idx = addMethRef(str_idx.class_idx, length_name_type_idx);
+    addMethRef(arr_idx.class_idx, object_name_type_idx);
+    arr_idx.pop_idx = addMethRef(arr_idx.class_idx, pop_name_type_idx);
+    arr_idx.push_idx = addMethRef(arr_idx.class_idx, push_name_type_idx);
+    obj_idx.toString = addMethRef(obj_idx.class_idx, toString_name_type_idx);
+
+    ///  Add field refs
+    addFieldRef(system_class_idx, system_name_type_idx);
+    arr_idx.field_idx = addFieldRef(main_class_idx, stack_field_name_type_idx);
+  }
 
 ////////////////////////////////////////////////////////////////////////
 /// method to put a integer into the pool
@@ -146,30 +265,9 @@ size_t ConstantPool::addInt(int32_t value) {
   size_t index = 0;
   i.set(value);
   if (!check(i)) {
-    std::cout << "new int\n";
     putByte(INT);
-    index = put(i);
+    index = put(&i);
     putInt(value);
-  } else {
-    std::cout << "known int\n";
-    index = get(i).index;
-  }
-  return index;
-}
-
-////////////////////////////////////////////////////////////////////////
-/// method to put a long int into the pool
-/// \param value value to add to pool
-/// \return index of the long intenger in the pool
-////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addLong(int64_t value) {
-  Item i;
-  size_t index = 0;
-  i.set(value);
-  if (!check(i)) {
-    putByte(LONG);
-    index = put(i);
-    putLong(value);
   } else {
     index = get(i).index;
   }
@@ -178,22 +276,23 @@ size_t ConstantPool::addLong(int64_t value) {
 
 ////////////////////////////////////////////////////////////////////////
 /// DRAFT VERSION - NEEDS TO BE DISCUSSED / REVIEWED (because of my lack of
-///                                                   knowledge of constant_pool.cc)
+/// knowledge of constant_pool.cc)
 /// method to put a CONSTANT_NameAndType into the pool
 /// \param UTF8_name_index the index of the name in the constant pool
-/// \param UTF8_descriptor_index the index of the descriptor in the constant pool
+/// \param UTF8_descriptor_index the index of the descriptor in the
+/// constant pool
 /// \return index of the CONSTANT_NameAndType in the pool
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addNameAndType(int32_t UTF8_name_index,
-                                    int32_t UTF8_descriptor_index) {
+size_t ConstantPool::addNameAndType(uint16_t UTF8_name_index,
+                                    uint16_t UTF8_descriptor_index) {
   Item i;
   size_t index = 0;
-  i.set(UTF8_name_index); // eindeutig?
+  i.set_name_type(UTF8_name_index, UTF8_descriptor_index);
   if (!check(i)) {
     putByte(NAME_AND_TYPE);
-    putInt(UTF8_name_index);
-    putInt(UTF8_descriptor_index);
-    index = put(i);
+    putShort(UTF8_name_index);
+    putShort(UTF8_descriptor_index);
+    index = put(&i);
   } else {
     index = get(i).index;
   }
@@ -208,11 +307,30 @@ size_t ConstantPool::addNameAndType(int32_t UTF8_name_index,
 size_t ConstantPool::addString(const std::string &value) {
   Item i;
   size_t index = 0;
-  i.set(STR, value);
+  i.set(UTF8, value, "", "");
   if (!check(i)) {
     putByte(UTF8);
     putUTF8(value);
-    index = put(i);
+    index = put(&i);
+  } else {
+    index = get(i).index;
+  }
+  return index;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// method to put a string index into the pool
+/// \param string_idx value to add to pool
+/// \return index of the string in pool
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::addConstString(uint16_t &string_idx) {
+  Item i;
+  size_t index = 0;
+  i.set(STR, string_idx);
+  if (!check(i)) {
+    putByte(STR);
+    putShort(string_idx);
+    index = put(&i);
   } else {
     index = get(i).index;
   }
@@ -224,154 +342,65 @@ size_t ConstantPool::addString(const std::string &value) {
 /// \param value value to add to pool
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addClassRef(const std::string &value) {
+size_t ConstantPool::addClassRef(uint16_t name_idx) {
   Item i;
   size_t index = 0;
-  i.set(CLASS, value);
+  i.set(CLASS, name_idx);
   if (!check(i)) {
     putByte(CLASS);
-    putUTF8(value);
-    index = put(i);
+    putShort(name_idx);
+    index = put(&i);
   } else {
     index = get(i).index;
   }
   return index;
 }
 
-// key2.set(CLASS, value, null, null);
-// Item result = get(key2);
-// if (result == null) {
-//   pool.put12(CLASS, newUTF8(value));
-//   result = new Item(index++, key2);
-//   put(result);
-// }
-// return result;
-
-
 ////////////////////////////////////////////////////////////////////////
-/// method to put a string into the pool
-/// \param value value to add to pool
+/// method to put a string field into the pool
+/// \param class_idx value to add to pool
+/// \param value name_type_idx to add to pool
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addFieldRef(const std::string &value) {
+size_t ConstantPool::addFieldRef(uint16_t class_idx, uint16_t name_type_idx) {
   Item i;
   size_t index = 0;
-  i.set(FIELD, value);
+  i.set(FIELD, class_idx, name_type_idx);
   if (!check(i)) {
     putByte(FIELD);
-    putUTF8(value);
-    index = put(i);
+    putShort(class_idx);
+    putShort(name_type_idx);
+    index = put(&i);
   } else {
     index = get(i).index;
   }
   return index;
 }
 
-// key3.set(FIELD, owner, name, desc);
-// Item result = get(key3);
-// if (result == null) {
-//   put122(FIELD, newClass(owner), newNameType(name, desc));
-//   result = new Item(index++, key3);
-//   put(result);
-// }
-// return result;
-
 ////////////////////////////////////////////////////////////////////////
 /// method to put a string into the pool
-/// \param value value to add to pool
+/// \param class_idx value to add to pool
+/// \param name_type_idx value to add to pool
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addMethRef(const std::string &value) {
+size_t ConstantPool::addMethRef(uint16_t class_idx, uint16_t name_type_idx) {
   Item i;
   size_t index = 0;
-  i.set(METHOD, value);
+  i.set(METHOD, class_idx, name_type_idx);
   if (!check(i)) {
     putByte(METHOD);
-    putUTF8(value);
-    index = put(i);
+    putShort(class_idx);
+    putShort(name_type_idx);
+    index = put(&i);
   } else {
     index = get(i).index;
   }
   return index;
 }
-
-// int type = itf ? IMETH : METH;
-// key3.set(type, owner, name, desc);
-// Item result = get(key3);
-// if (result == null) {
-//   put122(type, newClass(owner), newNameType(name, desc));
-//   result = new Item(index++, key3);
-//   put(result);
-// }
-// return result;
-
-////////////////////////////////////////////////////////////////////////
-/// method to put a string into the pool
-/// \param value value to add to pool
-/// \return index of the string in pool
-////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addIMethRef(const std::string &value) {
-  Item i;
-  size_t index = 0;
-  i.set(IMETHOD, value);
-  if (!check(i)) {
-    putByte(IMETHOD);
-    putUTF8(value);
-    index = put(i);
-  } else {
-    index = get(i).index;
-  }
-  return index;
-}
-
-/*
-////////////////////////////////////////////////////////////////////////
-/// ACHTUNG DRAFT !!!!!!!!!!!
-/// Das ist eine Beispielumsetzung, zum Hinzufügen eines xRef (in dem Fall x = Method) in den CP
-/// Kann so (noch) nicht umgesetzt werden, weil einige Signaturen im CP angepasst werden müssen
-/// \param value Name der Methoden-Referenz (z.B. 'java/lang/Object')
-/// \param name Name der eigentlichen Methode (z.B. '<init>')
-/// \param descriptor Repräsentiert den Type der Methode (z.B. '()V')
-/// \return index of the string in pool
-///
-/// Der Aufbau im CP sieht (beispielhaft) wie folgt aus und wird durch nachfolgenden Code repräsentiert
-/// [1] CONSTANT_Methodref class_index=6; name_and_type_index=15	0A 00 06 00 0F
-/// [6] CONSTANT_Class name_index=22								07 00 16
-/// [7] CONSTANT_Utf8 length=6; bytes="<init>"						01 00 06 3C 69 6E 69 74 3E
-/// [8] CONSTANT_Utf8 length=3; bytes="()V"							01 00 03 28 29 56
-/// [15] CONSTANT_NameAndType name_index=7; descriptor_index=8		0C 00 07 00 08
-/// [22] CONSTANT_Utf8 length=16; bytes="java/lang/Object"			01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A
-////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addIMethRef(const std::string &value, const std::string &name, const std::string &descriptor) {
-	Item i;
-	size_t methodRef_index = 0;
-	size_t UTF8_index = 0;
-	size_t UTF8_name_index = 0;
-	size_t UTF8_descriptor_index = 0;
-	size_t class_index = 0;
-	size_t name_and_type_index = 0;
-	i.set(MEHTOD, value);
-	if (!check(i)) {
-	  UTF8_index = putUTF8(value);
-	  UTF8_name_index = putUTF8(name);
-	  UTF8_descriptor_index = putUTF8(type);
-	  class_index = addClass(indexUTF8) // u1 tag + u2 name_index
-	  name_and_type_index = addNameAndType(UTF8_name_index, UTF8_descriptor_index) // u1 tag + u2 name_index + u2 descriptor_index
-	  // letzter Schritt: MethodRef zusammenbauen
-	  // u1 tag + u2 class_index + u2 name_and_type_index
-	  putByte(METHOD);
-	  putInt(class_index);
-	  putInt(name_and_type_index);
-	  index = put(i);
-	} else {
-	  index = get(i).index;
-	}
-	  return index;
-}
-*/
 
 ////////////////////////////////////////////////////////////////////////
 /// method to count numbers of items with specified type
+/// \param type type that be counted
 /// \return amount of items with types
 ////////////////////////////////////////////////////////////////////////
 size_t ConstantPool::countItemType(ItemType type) {
@@ -394,14 +423,14 @@ std::vector<uint8_t> ConstantPool::getByteArray() {
 /// \return item in pool or last
 ////////////////////////////////////////////////////////////////////////
 const Item &ConstantPool::get(const Item &key) const {
-  auto i = std::find(items.begin(), items.end(), key);
+  auto i = (std::find(items.begin(), items.end(), key));
   return *i;
 }
 
 ////////////////////////////////////////////////////////////////////////
-/// return the constant pool index of a item
+/// return if item is in constant pool
 /// \param i item to find in pool
-/// \return index of item or zero if not in pool
+/// \return true if in pool else false
 ////////////////////////////////////////////////////////////////////////
 bool ConstantPool::check(const Item &key) const {
   auto i = std::find(items.begin(), items.end(), key);
@@ -446,25 +475,6 @@ void ConstantPool::putInt(int32_t i) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-/// Puts a long into this byte vector. The byte vector is automatically
-/// enlarged if necessary.
-/// \param l a long.
-/// \return this byte vector.
-////////////////////////////////////////////////////////////////////////
-void ConstantPool::putLong(int64_t l) {
-  int32_t i = (int32_t) (l >> 32);
-  pool.push_back((uint8_t) (i >> 24));
-  pool.push_back((uint8_t) (i >> 16));
-  pool.push_back((uint8_t) (i >> 8));
-  pool.push_back((uint8_t) i);
-  i = (int32_t) l;
-  pool.push_back((uint8_t) (i >> 24));
-  pool.push_back((uint8_t) (i >> 16));
-  pool.push_back((uint8_t) (i >> 8));
-  pool.push_back((uint8_t) i);
-}
-
-////////////////////////////////////////////////////////////////////////
 /// Puts an UTF8 string into this byte vector. The byte vector is
 /// automatically enlarged if necessary.
 /// \param s a String whose UTF8 encoded length must be less than 65536.
@@ -483,7 +493,7 @@ void ConstantPool::putUTF8(std::string s) {
   pool.push_back((uint8_t) s.size());
   for (size_t pos = 0; pos < s.size(); pos++) {
     // check if ASCII code is between 1 and 127 -> 1 byte utf8
-    if (s[pos] >= 0x01 && s[pos] <= 0xB1) {
+    if ((s[pos] >= 0x01) && (s[pos] <= 0xB1)) {
       pool.push_back((uint8_t) s[pos]);
     } else {
       encodeUTF8(s, pos);
@@ -543,35 +553,14 @@ void ConstantPool::encodeUTF8(std::string s, uint32_t pos) {
 /// put item into pool
 /// \param i value
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::put(Item i) {
-  if (!check(i)) {
-    i.index = items.size();
-    pool.push_back(i.index);  // WARNING : size can be to small
-    items.push_back(i);
-    return i.index;
+size_t ConstantPool::put(Item *i) {
+  if (!check(*i)) {
+    // constantpool counts from 1 to constant pool size -1
+    // (constant pool size is size +1)
+    i->index = items.size() +1;
+    items.push_back(*i);
+    return i->index;
   } else {
-    return get(i).index;
+    return get(*i).index;
   }
 }
-
-// if (index + typeCount > threshold) {
-//   int ll = items.length;
-//   int nl = ll * 2 + 1;
-//   Item[] newItems = new Item[nl];
-//   for (int l = ll - 1; l >= 0; --l) {
-//     Item j = items[l];
-//     while (j != null) {
-//       int index = j.hashCode % newItems.length;
-//       Item k = j.next;
-//       j.next = newItems[index];
-//       newItems[index] = j;
-//       j = k;
-//     }
-//   }
-//   items = newItems;
-//   threshold = (int) (nl * 0.75);
-// }
-// int index = i.hashCode % items.length;
-// i.next = items[index];
-// items[index] = i;
-// }

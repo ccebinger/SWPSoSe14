@@ -204,7 +204,7 @@ public:
 
 		// Defaults
 		if(!hasSrcFile()  && !hasSrcDeserialize()) { srcFile = "Tests/test-cases/helloworld.txt"; }
-		if(!hasDstClassfile())                     { dstClassFile  = "io/out.class"; }
+		if(!hasDstClassfile())                     { dstClassFile  = "io/Main.class"; }
 		if(!hasDstSerialize())                     { dstSerialize = "io/serialized.csv"; }
 		if(!hasDstGraphviz())                      { dstGraphviz = "io/graphviz.dot"; }
 
