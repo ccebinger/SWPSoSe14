@@ -240,11 +240,25 @@ size_t ConstantPool::addNameAndType(uint16_t UTF8_name_index, uint16_t UTF8_desc
 size_t ConstantPool::addString(const std::string &value) {
   Item i;
   size_t index = 0;
-  i.set(STR, value, "", "");
+  i.set(UTF8, value, "", "");
   if (!check(i)) {
     putByte(UTF8);
     putUTF8(value);
     index = put(i);
+  } else {
+    index = get(i).index;
+  }
+  return index;
+}
+
+size_t ConstantPool::addConstString(uint16_t &string_idx) {
+  Item i;
+  size_t index = 0;
+  i.set(STR, string_idx);
+  if (!check(i)) {
+    putByte(STR);
+    putShort(string_idx);
+    index = put(&i);
   } else {
     index = get(i).index;
   }
