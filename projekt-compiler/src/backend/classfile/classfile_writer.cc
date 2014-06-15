@@ -1,17 +1,17 @@
 /*[--**--]
-Copyright (C) 2014  SWPSoSe14Cpp Group
+  Copyright (C) 2014  SWPSoSe14Cpp Group
 
-This program is free software; you can redistribute it and/or modify it under the
-terms of the GNU General Public License as published by the Free Software
-Foundation; either version 3 of the License, or (at your option) any later
-version.
+  This program is free software; you can redistribute it and/or modify it under the
+  terms of the GNU General Public License as published by the Free Software
+  Foundation; either version 3 of the License, or (at your option) any later
+  version.
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE. See the GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License along with this
-program; if not, see <http://www.gnu.org/licenses/>.*/
+  You should have received a copy of the GNU General Public License along with this
+  program; if not, see <http://www.gnu.org/licenses/>.*/
 
 /*!
  * \mainpage classfile_writer.cc
@@ -53,8 +53,11 @@ ClassfileWriter::ClassfileWriter(ClassfileVersion version,
                                  ConstantPool* constantPool,
                                  Graphs& graphs,
                                  const std::map<std::string, std::vector<char>&> codeFunctions,
-                                 std::ostream* out) : graphs_(graphs), writer(out),
-    out_(out), version_(version), code_functions_(codeFunctions)  {
+                                 std::ostream* out) : graphs_(graphs),
+                                                      writer(out),
+                                                      out_(out),
+                                                      version_(version),
+                                                      code_functions_(codeFunctions) {
   constant_pool_ = std::make_shared<ConstantPool>(*constantPool);
 }
 
@@ -119,14 +122,14 @@ void ClassfileWriter::WriteAccessFlags() {
  * we call our outfile Main.class. therefore every classname is Main
  */
 void ClassfileWriter::WriteClassName() {
-	writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("Main")));
+  writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("Main")));
 }
 /*!
  * \brief Write super class name
  * For us we always have the java/lang/Object class
  */
 void ClassfileWriter::WriteSuperClassName() {
-	writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("java/lang/Object")));
+  writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("java/lang/Object")));
 }
 
 /*!
@@ -158,8 +161,8 @@ void ClassfileWriter::WriteMethods() {
   size_t size = keys.size();
   writer.writeU16(size+1);
   WriteInitMethod();
-  for(std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
-    if(keys[i].compare("main") != 0) {
+  for (std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
+    if (keys[i].compare("main") != 0) {
       *out_<< kPublicAccessFlag;
     } else {
       writer.writeU16(9);
@@ -177,29 +180,30 @@ void ClassfileWriter::WriteMethods() {
  * \brief Writes the <init> in class-file
  * Is the same in all java classes we generate
  */
-void ClassfileWriter::WriteInitMethod(){
-	out_->write(kPublicAccessFlag, (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
-	writer.writeU16(constant_pool_->addString("<init>"));
-	writer.writeU16(constant_pool_->addString("()V"));
-	/* WriteAttributes */
-	char initCode[]{'\x2a','\xb7','\x00','\x01','\xb1'};
-	int16_t initCodeCount = sizeof(initCode)/sizeof(initCode[0]);
-	// attribute_count=1
-	writer.writeU16(1);
-	writer.writeU16(constant_pool_->addString("Code"));
-	writer.writeU32(17);
-	// max_stack=1
-	writer.writeU16(1);
-	// max_locals=1
-	writer.writeU16(1);
-	// code_length=5
-	writer.writeU32(initCodeCount);
-	out_->write(initCode, (initCodeCount));
-	// exception_table_length=0
-	*out_<< kNotRequired;
-	// attributes_count
-	*out_<< kNotRequired;
-	}
+void ClassfileWriter::WriteInitMethod() {
+  out_->write(kPublicAccessFlag,
+              (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
+  writer.writeU16(constant_pool_->addString("<init>"));
+  writer.writeU16(constant_pool_->addString("()V"));
+  /* WriteAttributes */
+  char initCode[]{'\x2a','\xb7','\x00','\x01','\xb1'};
+  int16_t initCodeCount = sizeof(initCode)/sizeof(initCode[0]);
+  // attribute_count=1
+  writer.writeU16(1);
+  writer.writeU16(constant_pool_->addString("Code"));
+  writer.writeU32(17);
+  // max_stack=1
+  writer.writeU16(1);
+  // max_locals=1
+  writer.writeU16(1);
+  // code_length=5
+  writer.writeU32(initCodeCount);
+  out_->write(initCode, (initCodeCount));
+  // exception_table_length=0
+  *out_<< kNotRequired;
+  // attributes_count
+  *out_<< kNotRequired;
+}
 
 /*!
  * \brief Writes attributes in class-file
@@ -213,7 +217,7 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
   size_t attributeCount = 0;
 
   code = BytecodeGenerator::GenerateCodeFromFunctionGraph(currentGraph,
-                                                         *constant_pool_);
+                                                          *constant_pool_);
   codeCount = code.size();
   // hint: adjust when implementing more than code attribute
   attributeCount = codeCount + 12;
