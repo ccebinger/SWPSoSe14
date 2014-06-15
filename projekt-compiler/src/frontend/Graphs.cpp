@@ -126,9 +126,10 @@ void Graphs::marshall(Graphs::str file, char delimiter) {
 
 }
 
-void Graphs::unmarshall(Graphs::str file, char delimiter)
-{
-  std::cout << "Deserializing " << file << std::endl;
+void Graphs::unmarshall(Graphs::str file, char delimiter) {
+	if(Env::verbose()) {
+		std::cout << "Deserializing " << file << std::endl;
+	}
 
   std::ifstream infile(file);
   std::string line;
@@ -157,7 +158,9 @@ void Graphs::unmarshall(Graphs::str file, char delimiter)
     throw ife;
   }
 
-  std::cout << "done..." << std::endl;
+  if(Env::verbose()) {
+	  std::cout << "done..." << std::endl;
+  }
 }
 
 bool Graphs::containsFunctionName(str line)
@@ -178,7 +181,9 @@ void Graphs::skip_empty_lines(std::ifstream& infile, std::string& line)
 Graphs::Graph_ptr Graphs::unmarshall_Function(std::ifstream& infile, std::string& line, char delimiter)
 {
   Graphs::Graph_ptr adj(new Adjacency_list(line));
-  std::cout << "\tGraph: " << adj->name() << std::endl;
+  if(Env::verbose()) {
+	  std::cout << "\tGraph: " << adj->name() << std::endl;
+  }
   while(std::getline(infile, line) && !line.empty() && !containsFunctionName(line))
   {
     std::shared_ptr<Node> n(unmarshall_line(adj, line, delimiter));
@@ -430,17 +435,20 @@ std::string Graphs::gvGetNodeStyles(std::shared_ptr<Node> node) const {
 
 	style += "]";
 
-	//std::cout << "NODE STYLE: " << style << std::endl;
+//	if(Env::verbose()) {
+//		std::cout << "NODE STYLE: " << style << std::endl;
+//	}
 	return style;
 }
 
 
 
 
-void printNode(std::shared_ptr<Node> n)
-{
-  std::cout << "\t\tNode: " << n->id
-            << " Cmd Type:" << n->command.type << " Arg: " << n->command.arg
-            << " Succ 1: " << n->successor1->id << std::endl;
+void printNode(std::shared_ptr<Node> n) {
+	if(Env::verbose()) {
+		std::cout << "\t\tNode: " << n->id
+			<< " Cmd Type:" << n->command.type << " Arg: " << n->command.arg
+			<< " Succ 1: " << n->successor1->id << std::endl;
+	}
 }
 

@@ -73,8 +73,8 @@ shared_ptr<Adjacency_list> Parser::parseGraph(int startPosRow, int startPosCol, 
 		move();
 		if(errorMessage != "") {
 			//FIXME error handling
-			cout << "\t" << errorMessage <<endl;
-			cout << "\tparsing aborted" << endl;
+			cerr << "\t" << errorMessage <<endl;
+			cerr << "\tparsing aborted" << endl;
 			break;
 		}
 	}

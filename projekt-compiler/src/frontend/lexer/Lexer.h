@@ -66,15 +66,15 @@ public:
 
 
 	void dump() {
-		//std::cout << "### Lexed Rail Functions ###" << std::endl;
-		for(auto it=data.begin(); it<data.end(); ++it) {
-			std::vector<uint32_t> line = *it;
-			for(auto itPos=line.begin(); itPos<line.end(); ++itPos) {
-				std::cout << Encoding::unicodeToUtf8(*itPos);
+		if(Env::verbose()) {
+			for(auto it=data.begin(); it<data.end(); ++it) {
+				std::vector<uint32_t> line = *it;
+				for(auto itPos=line.begin(); itPos<line.end(); ++itPos) {
+					std::cout << Encoding::unicodeToUtf8(*itPos);
+				}
+				std::cout << std::endl;
 			}
-			std::cout << std::endl;
 		}
-		//std::cout << "-------------------------------------------------------------------------------" << std::endl;
 	}
 
 };
