@@ -40,7 +40,7 @@ TODO
 
 Building the Compiler
 --------------------------------------
-TODO
+Have a look @ tutorials/*
 
 
 Compiler usage
