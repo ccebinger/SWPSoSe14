@@ -106,8 +106,8 @@ void Item::set(int32_t _intVal) {
   type = INT;
   intVal = _intVal;
 
-  // std::cout << "set int  type: " << type
-  //           << " intVal: " << intVal << std::endl;
+  std::cout << "set int  type: " << type
+            << " intVal: " << intVal << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -381,16 +381,16 @@ const Item &ConstantPool::get(const Item &key) const {
 bool ConstantPool::check(const Item &key) const {
   auto i = std::find(items.begin(), items.end(), key);
   if (i != items.end()) {
-    // std::cout << "true check type: " << i->type
-    //           << " intVal: " << i->intVal
-    //           << " key type: " << key.type
-    //           << " intVal: " << key.intVal << std::endl;
+    std::cout << "true check type: " << i->type
+              << " intVal: " << i->intVal
+              << " key type: " << key.type
+              << " intVal: " << key.intVal << std::endl;
     return true;
   }
-  // std::cout << "false check type: " << i->type
-  //           << " intVal: " << i->intVal
-  //           << " key type: " << key.type
-  //           << " intVal: " << key.intVal << std::endl;
+  std::cout << "false check type: " << i->type
+            << " intVal: " << i->intVal
+            << " key type: " << key.type
+            << " intVal: " << key.intVal << std::endl;
 
   return false;
 }
