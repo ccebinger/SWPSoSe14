@@ -79,6 +79,7 @@ bool Item::operator==(const Item& i)const {
       // case IMETHOD:
     default:
       return i.strVal1 == strVal1;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////
