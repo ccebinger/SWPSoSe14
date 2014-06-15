@@ -23,6 +23,7 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
  */
 #include <vector>
 #include <map>
+#include <string>
 #include "backend/backend.h"
 
 #include "backend/classfile/classfile_writer.h"
