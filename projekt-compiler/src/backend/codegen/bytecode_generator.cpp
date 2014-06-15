@@ -21,9 +21,11 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include <backend/codegen/bytecode_generator.h>
 #include <cstdint>
 #include <vector>
+#include <string>
+#include <map>
 
-const std::map<Command::Type, BytecodeGenerator::func_ptr> BytecodeGenerator::CODE_FUNC_MAPPING =
-{
+const std::map<Command::Type, BytecodeGenerator::func_ptr>
+BytecodeGenerator::CODE_FUNC_MAPPING = {
   {Command::Type::OUTPUT, &output_ByteCode},
   {Command::Type::PUSH_CONST, &push_ByteCode},
   {Command::Type::ADD, &add_ByteCode},
@@ -190,7 +192,8 @@ void add_integer_calculation(BytecodeGenerator::MNEMONIC calculation,
                              std::vector<char>& result) {
   std::string integer_class = "java/lang/Integer";
   std::string integer_class_intValue_method = "java/lang/Integer.intValue:()I";
-  std::string integer_class_static_value_of_method = "java/lang/Integer.valueOf:(I)Ljava/lang/Integer;";
+  std::string integer_class_static_value_of_method =
+      "java/lang/Integer.valueOf:(I)Ljava/lang/Integer;";
 
   result.push_back(BytecodeGenerator::ASTORE_1);
   result.push_back(BytecodeGenerator::ASTORE_2);
