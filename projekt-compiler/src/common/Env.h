@@ -87,7 +87,12 @@ private:
 	const std::string msg;
 public:
 	/**
+	 * Creates a formatted Exception
+	 *
+	 * @param src	Error source
 	 * @param emsg	Exception Message
+	 * @param line	optional, line number
+	 * @param pos	optional, position number
 	 */
 	EnvException(Source src, const std::string&& emsg, int32_t line=-1, int32_t pos=-1)
 		: msg("[Exception][" + getSourceName(src) + "]" + getLineString(line, pos) + " " + emsg)
