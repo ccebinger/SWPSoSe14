@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
       } else {
         inFile = std::string(argv[++i]);
       }
-    } else if (current == "-o") {
+    } else if (current == "-o") { // TODO #118 will become obsolete.
       if (i == argc-1) {
         std::cerr << "Fehler im -o Parameter, bitte Manual lesen." << std::endl;
         return 1;

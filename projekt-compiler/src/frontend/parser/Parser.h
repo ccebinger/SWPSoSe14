@@ -53,8 +53,8 @@ struct NodeIdentifier{
 	//used to unmistakenly identify nodes(by their position in the file and the Direction they were entered through while parsing)
 	//this is relevant so that nodes in a loop will not be parsed multiple times
 	//but instead are reused(because they already exist)
-	uint32_t posRow;
-	uint32_t posCol;
+	int32_t posRow;
+	int32_t posCol;
 	Direction dir;
 	//operator necessary so NodeIdentifier can be used in a map.
 //	bool operator<( const NodeIdentifier &r){

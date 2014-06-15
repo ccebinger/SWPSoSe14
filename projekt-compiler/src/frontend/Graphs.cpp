@@ -79,23 +79,23 @@ void Graphs::marshall(Graphs::str file, char delimiter) {
 			}
 
 			// id ; Command
-			ofh << node->id << delimiter << node->command.arg;
+			ofh << node->id << delimiter << node->command.arg << delimiter;
 
 			// Adjacency list
 			if(node->successor1) {
-				ofh << delimiter << node->successor1->id;
+				ofh << node->successor1->id;
 			}
 			else {
 				// Error state for Haskell-Group
-				ofh << delimiter << "0";
+				ofh << "0";
 			}
-
+			ofh << ",";
 			if(node->successor2) {
-				ofh << delimiter << node->successor2->id;
+				ofh << node->successor2->id;
 			}
 			else {
 				// Error state for Haskell-Group
-				ofh << delimiter << "0";
+				ofh << "0";
 			}
 
 			ofh << std::endl;
