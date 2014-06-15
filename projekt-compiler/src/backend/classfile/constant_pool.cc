@@ -15,6 +15,7 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 
 #include <backend/classfile/constant_pool.h>
 #include <algorithm>
+#include <iostream>
 
 ////////////////////////////////////////////////////////////////////////
 /// default constructor does nothing, bud is needed because we have other
@@ -104,6 +105,9 @@ bool Item::operator=(const Item& i) {
 void Item::set(int32_t _intVal) {
   type = INT;
   intVal = _intVal;
+
+  // std::cout << "set int  type: " << type
+  //           << " intVal: " << intVal << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -179,7 +183,7 @@ ConstantPool::ConstantPool(Graphs& graphs) {
   uint16_t object_class_idx = addClassRef(obj_idx);
   uint16_t system_class_idx = addClassRef(system_idx);
   uint16_t print_class_idx = addClassRef(print_idx);
-  uint16_t main_class_idx = addClassRef(main_class_str_idx);
+  addClassRef(main_class_str_idx);
   uint16_t integer_class_idx = addClassRef(integer_idx);
   uint16_t string_class_idx = addClassRef(string_idx);
 
@@ -376,10 +380,19 @@ const Item &ConstantPool::get(const Item &key) const {
 ////////////////////////////////////////////////////////////////////////
 bool ConstantPool::check(const Item &key) const {
   auto i = std::find(items.begin(), items.end(), key);
-  if (i == items.end()) {
-    return false;
+  if (i != items.end()) {
+    // std::cout << "true check type: " << i->type
+    //           << " intVal: " << i->intVal
+    //           << " key type: " << key.type
+    //           << " intVal: " << key.intVal << std::endl;
+    return true;
   }
-  return true;
+  // std::cout << "false check type: " << i->type
+  //           << " intVal: " << i->intVal
+  //           << " key type: " << key.type
+  //           << " intVal: " << key.intVal << std::endl;
+
+  return false;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -435,7 +448,7 @@ void ConstantPool::putUTF8(std::string s) {
   pool.push_back((uint8_t) s.size());
   for (size_t pos = 0; pos < s.size(); pos++) {
     // check if ASCII code is between 1 and 127 -> 1 byte utf8
-    if (s[pos] >= 0x01 && s[pos] <= 0xB1) {
+    if ((s[pos] >= 0x01) && (s[pos] <= 0xB1)) {
       pool.push_back((uint8_t) s[pos]);
     } else {
       encodeUTF8(s, pos);
