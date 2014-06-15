@@ -111,6 +111,7 @@ class ConstantPool {
   size_t addNameAndType(uint16_t UTF8_name_index,
                         uint16_t UTF8_descriptor_index);
   size_t addString(const std::string &value);
+  size_t addConstString(uint16_t &string_idx);
   size_t addClassRef(uint16_t name_idx);
   size_t addFieldRef(uint16_t class_idx, uint16_t name_type_idx);
   size_t addMethRef(uint16_t class_idx, uint16_t name_type_idx);

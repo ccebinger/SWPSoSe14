@@ -53,10 +53,9 @@ ClassfileWriter::ClassfileWriter(ClassfileVersion version,
                                  ConstantPool* constantPool,
                                  Graphs& graphs,
                                  const std::map<std::string, std::vector<char>&> codeFunctions,
-                                 std::ostream* out) :
-    version_(version), code_functions_(codeFunctions), out_(out), writer(out) {
+                                 std::ostream* out) : graphs_(graphs), writer(out),
+    out_(out), version_(version), code_functions_(codeFunctions)  {
   constant_pool_ = std::make_shared<ConstantPool>(*constantPool);
-  graphs_ = graphs;
 }
 
 /*!
@@ -230,8 +229,10 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
   // TODO: max_locals
   // code_length
   writer.writeU32(codeCount);
-  // TODO: adjust number of bytes to push with writer
-  // *out_ << code;
+  // write code stream
+  for(std::vector<std::string>::size_type i = 0; i != codeCount; i++) {
+    *out_ << code[i];
+  }
   // exception_table_length
   *out_ << kNotRequired;
   // attributes_count

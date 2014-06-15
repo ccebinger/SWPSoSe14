@@ -146,7 +146,11 @@ void push_ByteCode(ConstantPool& constantPool, std::vector<char>& result, Graphs
   }
   catch (const std::invalid_argument& ia) //the value is a string
   {
-    BytecodeGenerator::add_index(constantPool.addString(current_node->command.arg), result);
+	  uint16_t string_idx = constantPool.addString(current_node->command.arg);
+	  std::cout << string_idx ;
+	  uint16_t const_idx = constantPool.addConstString(string_idx);
+	  std::cout << const_idx;
+	  // BytecodeGenerator::add_index(string_idx, result);
   }
 
 }
