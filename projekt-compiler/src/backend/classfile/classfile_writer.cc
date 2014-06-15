@@ -230,8 +230,10 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
   // TODO: max_locals
   // code_length
   writer.writeU32(codeCount);
-  // TODO: adjust number of bytes to push with writer
-  // *out_ << code;
+  // write code stream
+  for(std::vector<std::string>::size_type i = 0; i != codeCount; i++) {
+    *out_ << code[i];
+  }
   // exception_table_length
   *out_ << kNotRequired;
   // attributes_count
