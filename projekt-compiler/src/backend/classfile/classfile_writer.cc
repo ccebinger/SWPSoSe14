@@ -161,7 +161,28 @@ void ClassfileWriter::WriteMethods() {
   size_t size = keys.size();
   writer.writeU16(size+1);
   WriteInitMethod();
-  for (std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
+  //hard coded test method
+ /* writer.writeU16(9);
+  writer.writeU16(constant_pool_->addString("main"));
+  writer.writeU16(constant_pool_->addString("([Ljava/lang/String;)V"));
+  writer.writeU16(1);
+  writer.writeU16(constant_pool_->addString("Code"));
+  writer.writeU32(21);
+  writer.writeU16(2);
+  writer.writeU16(1);
+  writer.writeU32(9);
+  writer.writeU8(178);
+  writer.writeU16(46);
+  writer.writeU8(18);
+  writer.writeU8(48);
+  writer.writeU8(182);
+  writer.writeU16(40);
+  writer.writeU8(177);
+  writer.writeU16(0);
+  writer.writeU16(0);
+  writer.writeU16(0);*/
+
+ /* for (std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
     if (keys[i].compare("main") != 0) {
       *out_<< kPublicAccessFlag;
     } else {
@@ -170,7 +191,7 @@ void ClassfileWriter::WriteMethods() {
     writer.writeU16(constant_pool_->addString(keys[i]));
     writer.writeU16(constant_pool_->addString("()V"));
     WriteAttributes(keys[i]);
-  }
+  }*/
 
   // std::vector<char> func = code_functions_.at("main");
   // out_.write((char*)func.data(),
@@ -186,23 +207,26 @@ void ClassfileWriter::WriteInitMethod() {
   writer.writeU16(constant_pool_->addString("<init>"));
   writer.writeU16(constant_pool_->addString("()V"));
   /* WriteAttributes */
-  char initCode[]{'\x2a','\xb7','\x00','\x01','\xb1'};
-  int16_t initCodeCount = sizeof(initCode)/sizeof(initCode[0]);
   // attribute_count=1
   writer.writeU16(1);
   writer.writeU16(constant_pool_->addString("Code"));
+  //attribute length
   writer.writeU32(17);
   // max_stack=1
   writer.writeU16(1);
   // max_locals=1
   writer.writeU16(1);
   // code_length=5
-  writer.writeU32(initCodeCount);
-  out_->write(initCode, (initCodeCount));
+  writer.writeU32(5);
+  //code source
+  writer.writeU8(42);
+  writer.writeU8(183);
+  writer.writeU16(39);
+  writer.writeU8(177);
   // exception_table_length=0
-  *out_<< kNotRequired;
+  out_->write(kNotRequired, sizeof(kNotRequired));
   // attributes_count
-  *out_<< kNotRequired;
+  out_->write(kNotRequired, sizeof(kNotRequired));
 }
 
 /*!
