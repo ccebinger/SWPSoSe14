@@ -20,6 +20,7 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 
 #ifndef PROJEKT_COMPILER_SRC_BACKEND_CLASSFILE_CONSTANT_POOL_H_
 #define PROJEKT_COMPILER_SRC_BACKEND_CLASSFILE_CONSTANT_POOL_H_
+
 #include <backend/classfile/Bytecode_writer.h>
 #include <frontend/Graphs.h>
 #include <cstdint>
@@ -28,10 +29,10 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include <functional>
 #include <sstream>
 #include <ios>
-#include <iostream>
+#include <memory>
 
 enum ItemType{
-  NONE,
+  NONE = 0x00,
   CLASS = 0x07,
   FIELD = 0x09,
   METHOD = 0x0A,
@@ -51,8 +52,6 @@ class Item {
  public:
   Item();
   Item(const Item &i);
-  explicit Item(uint16_t _index);
-  Item(uint16_t _index, const Item &i);
 
   bool operator==(const Item& i)const;
   bool operator=(const Item& i);
@@ -72,7 +71,7 @@ class Item {
   std::string strVal1;  //!< if method, class or string value stored here
   std::string strVal2;  //!< if method or class, method name
   std::string strVal3;  //!< if method or class, method descriptor
-  Item *next;  //!< pointer to next item in list
+  std::shared_ptr<Item> next;  //!< pointer to next item in list
 
   uint16_t method_idx;  //!< index of method string in constantpool
   uint16_t descriptor_idx;  //!< index of descriptor string in constantpool

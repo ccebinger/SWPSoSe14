@@ -22,13 +22,15 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 ////////////////////////////////////////////////////////////////////////
 Item::Item() {
   type = NONE;
-}
+  intVal = 0;
+  longVal = 0;
 
-////////////////////////////////////////////////////////////////////////
-/// constructor with defined index
-/// \param index internal index of item
-////////////////////////////////////////////////////////////////////////
-Item::Item(uint16_t _index) { index = _index;}
+  method_idx = 0;
+  descriptor_idx = 0;
+  name_idx = 0;
+  class_idx = 0;
+  name_type_idx = 0;
+}
 
 ////////////////////////////////////////////////////////////////////////
 /// copy constructor
@@ -42,21 +44,12 @@ Item::Item(const Item &i) {
   strVal1 = i.strVal1;
   strVal2 = i.strVal2;
   strVal3 = i.strVal3;
-}
 
-////////////////////////////////////////////////////////////////////////
-/// constructor
-/// \param _index internal index
-/// \param i item to set to
-////////////////////////////////////////////////////////////////////////
-Item::Item(uint16_t _index, const Item &i) {
-  index = _index;
-  type = i.type;
-  intVal = i.intVal;
-  longVal = i.longVal;
-  strVal1 = i.strVal1;
-  strVal2 = i.strVal2;
-  strVal3 = i.strVal3;
+  method_idx = i.method_idx;
+  descriptor_idx = i.descriptor_idx;
+  name_idx = i.name_idx;
+  class_idx = i.class_idx;
+  name_type_idx = i.name_type_idx;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -64,25 +57,31 @@ Item::Item(uint16_t _index, const Item &i) {
 /// \param i copmared item
 ////////////////////////////////////////////////////////////////////////
 bool Item::operator==(const Item& i)const {
-  switch (i.type) {
-    case UTF8:
-    case STR:
-      return i.strVal1 == strVal1;
-    case LONG:
-      return i.longVal == longVal;
-    case INT: {
-      return i.intVal == intVal;
-    }
-    case FIELD:
-    case METHOD:
-    case CLASS:
-      return class_idx == i.class_idx && name_type_idx == i.name_type_idx;
-    case NAME_AND_TYPE:
-      return i.descriptor_idx == descriptor_idx && method_idx == i.method_idx;
-    // case IMETHOD:
-    default:
-      return i.strVal1 == strVal1;
+  if ((i.type == UTF8 && type == UTF8) ||
+      (i.type == STR  && type == STR)) {
+    return i.strVal1 == strVal1;
   }
+
+  if (i.type == LONG && type == LONG) {
+    return i.longVal == longVal;
+  }
+
+  if (i.type == INT && type == INT) {
+    return i.intVal == intVal;
+  }
+
+  if ((i.type == FIELD && type == FIELD) ||
+      (i.type == CLASS && type == CLASS) ||
+      (i.type == METHOD  && type == METHOD)) {
+    return class_idx == i.class_idx && name_type_idx == i.name_type_idx;
+  }
+
+  if (i.type == NAME_AND_TYPE && type == NAME_AND_TYPE) {
+    return ((i.descriptor_idx == descriptor_idx) &&
+            (method_idx == i.method_idx));
+  }
+
+  return i.strVal1 == strVal1;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -330,21 +329,21 @@ std::vector<uint8_t> ConstantPool::getByteArray() {
 /// \return item in pool or last
 ////////////////////////////////////////////////////////////////////////
 const Item &ConstantPool::get(const Item &key) const {
-  auto i = std::find(items.begin(), items.end(), key);
+  auto i = (std::find(items.begin(), items.end(), key));
   return *i;
 }
 
 ////////////////////////////////////////////////////////////////////////
-/// return the constant pool index of a item
+/// return if item is in constant pool
 /// \param i item to find in pool
-/// \return index of item or zero if not in pool
+/// \return true if in pool else false
 ////////////////////////////////////////////////////////////////////////
 bool ConstantPool::check(const Item &key) const {
   auto i = std::find(items.begin(), items.end(), key);
-  if (i != items.end()) {
-    return true;
+  if (i == items.end()) {
+    return false;
   }
-  return false;
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////
