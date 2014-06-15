@@ -440,6 +440,7 @@ void if_or_while_ByteCode(ConstantPool& pool, std::vector<char>& code,
 
 std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
                                                                    ConstantPool& constantPool) {
+  BytecodeGenerator::localCount = 0;
   std::vector<char> result;
   Graphs::Node_ptr current_node(graph->start());
   while (current_node && current_node->command.type != Command::Type::FINISH) {
