@@ -153,67 +153,66 @@ ConstantPool::ConstantPool(Graphs& graphs) {
   items.reserve(256);
 
   /// Add strings
-  uint16_t obj_idx = addString("java/lang/Object");
-  uint16_t system_idx = addString("java/lang/System");
-  uint16_t print_idx = addString("java/io/PrintStream");
-  uint16_t integer_idx = addString("java/lang/Integer");
-  uint16_t string_idx = addString("java/lang/String");
-  uint16_t main_class_str_idx = addString("Main");
-  //  uint16_t main_idx = addString("main"); will be added from rail functions
-  uint16_t void_descriptor_idx = addString("()V");
-  addString("Code");
-  uint16_t object_name_idx = addString("<init>");
-  uint16_t print_type_idx = addString("([Ljava/lang/String;)V");
-  uint16_t system_name_idx = addString("out");
-  uint16_t system_type_idx = addString("Ljava/io/PrintStream;");
-  uint16_t print_name_idx = addString("println");
-  uint16_t valueOf_name_idx = addString("valueOf");
-  uint16_t valueOf_type_idx = addString("(I)Ljava/lang/Integer;");
-  uint16_t intValue_name_idx = addString("intValue");
-  uint16_t intValue_type_idx = addString("()I");
-  uint16_t concat_name_idx = addString("concat");
-  uint16_t concat_type_idx = addString("(Ljava/lang/String;)Ljava/lang/String;");
-  uint16_t substring_name_idx = addString("substring");
-  uint16_t substring_type_idx = addString("(II)Ljava/lang/String;");
-  uint16_t length_name_idx = addString("length");
+    uint16_t obj_idx = addString("java/lang/Object");
+    uint16_t system_idx = addString("java/lang/System");
+    uint16_t print_idx = addString("java/io/PrintStream");
+    uint16_t integer_idx = addString("java/lang/Integer");
+    uint16_t string_idx = addString("java/lang/String");
+    uint16_t main_class_str_idx = addString("Main");
+    uint16_t void_descriptor_idx = addString("()V");
+    addString("Code");
+    uint16_t object_name_idx = addString("<init>");
+    uint16_t stringList_type_idx = addString("([Ljava/lang/String;)V");
+    uint16_t print_type_idx = addString("(Ljava/lang/String;)V");
+    uint16_t system_name_idx = addString("out");
+    uint16_t system_type_idx = addString("Ljava/io/PrintStream;");
+    uint16_t print_name_idx = addString("println");
+    uint16_t valueOf_name_idx = addString("valueOf");
+    uint16_t valueOf_type_idx = addString("(I)Ljava/lang/Integer;");
+    uint16_t intValue_name_idx = addString("intValue");
+    uint16_t intValue_type_idx = addString("()I");
+    uint16_t concat_name_idx = addString("concat");
+    uint16_t concat_type_idx = addString("(Ljava/lang/String;)Ljava/lang/String;");
+    uint16_t substring_name_idx = addString("substring");
+    uint16_t substring_type_idx = addString("(II)Ljava/lang/String;");
+    uint16_t length_name_idx = addString("length");
 
-  ///  Add Rail-Functionnames as Strings
-  std::vector<std::string> keyset = graphs.keyset();
-  for (auto it = keyset.begin(); it != keyset.end(); it++) {
-    addString(*it);
+    ///  Add Rail-Functionnames as Strings
+    std::vector<std::string> keyset = graphs.keyset();
+    for (auto it = keyset.begin(); it != keyset.end(); it++) {
+      addString(*it);
+    }
+
+    ///  Add classes
+    uint16_t object_class_idx = addClassRef(obj_idx);
+    uint16_t system_class_idx = addClassRef(system_idx);
+    uint16_t print_class_idx = addClassRef(print_idx);
+    addClassRef(main_class_str_idx);
+    uint16_t integer_class_idx = addClassRef(integer_idx);
+    uint16_t string_class_idx = addClassRef(string_idx);
+
+    ///  Add name and type
+    uint16_t object_name_type_idx = addNameAndType(object_name_idx, void_descriptor_idx);
+    uint16_t system_name_type_idx = addNameAndType(system_name_idx, system_type_idx);
+    uint16_t print_name_type_idx =  addNameAndType(print_name_idx, print_type_idx);
+    uint16_t valueOf_name_type_idx = addNameAndType(valueOf_name_idx, valueOf_type_idx);
+    uint16_t intValue_name_type_idx = addNameAndType(intValue_name_idx, intValue_type_idx);
+    uint16_t concat_name_type_idx = addNameAndType(concat_name_idx, concat_type_idx);
+    uint16_t substring_name_type_idx = addNameAndType(substring_name_idx, substring_type_idx);
+    uint16_t length_name_type_idx = addNameAndType(length_name_idx, intValue_type_idx);
+
+    ///  Add method refs
+    addMethRef(object_class_idx, object_name_type_idx);
+    addMethRef(print_class_idx, print_name_type_idx);
+    addMethRef(integer_class_idx, valueOf_name_type_idx);
+    addMethRef(integer_class_idx, intValue_name_type_idx);
+    addMethRef(string_class_idx, concat_name_type_idx);
+    addMethRef(string_class_idx, substring_name_type_idx);
+    addMethRef(string_class_idx, length_name_type_idx);
+
+    ///  Add field refs
+    addFieldRef(system_class_idx, system_name_type_idx);
   }
-
-  ///  Add classes
-  uint16_t object_class_idx = addClassRef(obj_idx);
-  uint16_t system_class_idx = addClassRef(system_idx);
-  uint16_t print_class_idx = addClassRef(print_idx);
-  addClassRef(main_class_str_idx);
-  uint16_t integer_class_idx = addClassRef(integer_idx);
-  uint16_t string_class_idx = addClassRef(string_idx);
-
-  ///  Add name and type
-  uint16_t object_name_type_idx = addNameAndType(object_name_idx, void_descriptor_idx);
-  uint16_t system_name_type_idx = addNameAndType(system_name_idx, system_type_idx);
-  uint16_t print_name_type_idx =  addNameAndType(print_name_idx, print_type_idx);
-  uint16_t print_name_type_idx2 =  addNameAndType(print_name_idx, print_type_idx);
-  uint16_t valueOf_name_type_idx = addNameAndType(valueOf_name_idx, valueOf_type_idx);
-  uint16_t intValue_name_type_idx = addNameAndType(intValue_name_idx, intValue_type_idx);
-  uint16_t concat_name_type_idx = addNameAndType(concat_name_idx, concat_type_idx);
-  uint16_t substring_name_type_idx = addNameAndType(substring_name_idx, substring_type_idx);
-  uint16_t length_name_type_idx = addNameAndType(length_name_idx, intValue_type_idx);
-
-  ///  Add method refs
-  addMethRef(object_class_idx, object_name_type_idx);
-  addMethRef(print_class_idx, print_name_type_idx);
-  addMethRef(integer_class_idx, valueOf_name_type_idx);
-  addMethRef(integer_class_idx, intValue_name_type_idx);
-  addMethRef(string_class_idx, concat_name_type_idx);
-  addMethRef(string_class_idx, substring_name_type_idx);
-  addMethRef(string_class_idx, length_name_type_idx);
-
-  ///  Add field refs
-  addFieldRef(system_class_idx, system_name_type_idx);
-}
 
 ////////////////////////////////////////////////////////////////////////
 /// method to put a integer into the pool
