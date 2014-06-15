@@ -230,7 +230,14 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
   // attribute_legth
   writer.writeU32(attributeCount);
   // TODO: max_stacks
-  // TODO: max_locals
+
+  // max_locals
+  if(key.compare("main") != 0){
+    writer.writeU16(BytecodeGenerator::localCount);
+  } else {
+    writer.writeU16(BytecodeGenerator::localCount++);
+  }
+
   // code_length
   writer.writeU32(codeCount);
   // write code stream
