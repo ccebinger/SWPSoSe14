@@ -15,7 +15,6 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 
 #include <backend/classfile/constant_pool.h>
 #include <algorithm>
-#include <iostream>
 
 ////////////////////////////////////////////////////////////////////////
 /// default constructor does nothing, bud is needed because we have other
@@ -128,22 +127,19 @@ void Item::set(ItemType _type, const std::string &_strVal1,
 }
 
 
-void Item::set(ItemType type, uint16_t class_idx, uint16_t name_type_idx)
-{
+void Item::set(ItemType type, uint16_t class_idx, uint16_t name_type_idx) {
   this->type = type;
   this->class_idx = class_idx;
   this->name_type_idx = name_type_idx;
 }
 
 
-void Item::set(ItemType type, uint16_t name_idx)
-{
+void Item::set(ItemType type, uint16_t name_idx) {
   this->type = type;
   this->name_idx = name_idx;
 }
 
-void Item::set_name_type(uint16_t method_idx, uint16_t descriptor_idx)
-{
+void Item::set_name_type(uint16_t method_idx, uint16_t descriptor_idx) {
   this->type = ItemType::NAME_AND_TYPE;
   this->method_idx = method_idx;
   this->descriptor_idx = descriptor_idx;
@@ -155,44 +151,67 @@ void Item::set_name_type(uint16_t method_idx, uint16_t descriptor_idx)
 ConstantPool::ConstantPool(Graphs& graphs) {
   items.reserve(256);
 
-  ///Add strings
-    uint16_t obj_idx = addString("java/lang/Object");
-    uint16_t system_idx = addString("java/lang/System");
-    uint16_t print_idx = addString("java/io/PrintStream");
-    uint16_t main_class_str_idx = addString("Main");
-    //uint16_t main_idx = addString("main"); will be added from rail functions
-    uint16_t void_descriptor_idx = addString("()V");
-    addString("Code");
-    uint16_t object_name_idx = addString("<init>");
-    uint16_t print_type_idx = addString("([Ljava/lang/String;)V");
-    uint16_t system_name_idx = addString("out");
-    uint16_t system_type_idx = addString("Ljava/io/PrintStream;");
-    uint16_t print_name_idx = addString("println");
- ///Add Rail-Functionnames as Strings
-    std::vector<std::string> keyset = graphs.keyset();
-    for (std::vector<std::string>::iterator it = keyset.begin(); it != keyset.end(); it++)
-    {
-      addString(*it);
-    }
+  /// Add strings
+   uint16_t obj_idx = addString("java/lang/Object");
+   uint16_t system_idx = addString("java/lang/System");
+   uint16_t print_idx = addString("java/io/PrintStream");
+   uint16_t integer_idx = addString("java/lang/Integer");
+   uint16_t string_idx = addString("java/lang/String");
+   uint16_t main_class_str_idx = addString("Main");
+   //  uint16_t main_idx = addString("main"); will be added from rail functions
+   uint16_t void_descriptor_idx = addString("()V");
+   addString("Code");
+   uint16_t object_name_idx = addString("<init>");
+   uint16_t print_type_idx = addString("([Ljava/lang/String;)V");
+   uint16_t system_name_idx = addString("out");
+   uint16_t system_type_idx = addString("Ljava/io/PrintStream;");
+   uint16_t print_name_idx = addString("println");
+   uint16_t valueOf_name_idx = addString("valueOf");
+   uint16_t valueOf_type_idx = addString("(I)Ljava/lang/Integer;");
+   uint16_t intValue_name_idx = addString("intValue");
+   uint16_t intValue_type_idx = addString("()I");
+   uint16_t concat_name_idx = addString("concat");
+   uint16_t concat_type_idx = addString("(Ljava/lang/String;)Ljava/lang/String;");
+   uint16_t substring_name_idx = addString("substring");
+   uint16_t substring_type_idx = addString("(II)Ljava/lang/String;");
+   uint16_t length_name_idx = addString("length");
 
-    ///Add classes
-    uint16_t object_class_idx = addClassRef(obj_idx);
-    uint16_t system_class_idx = addClassRef(system_idx);
-    uint16_t print_class_idx = addClassRef(print_idx);
-    uint16_t main_class_idx = addClassRef(main_class_str_idx);
+   ///  Add Rail-Functionnames as Strings
+   std::vector<std::string> keyset = graphs.keyset();
+   for (auto it = keyset.begin(); it != keyset.end(); it++) {
+     addString(*it);
+   }
 
-    ///Add name and type
-    uint16_t object_name_type_idx = addNameAndType(object_name_idx, void_descriptor_idx);
-    uint16_t system_name_type_idx = addNameAndType(system_name_idx, system_type_idx);
-    uint16_t print_name_type_idx =  addNameAndType(print_name_idx, print_type_idx);
+   ///  Add classes
+   uint16_t object_class_idx = addClassRef(obj_idx);
+   uint16_t system_class_idx = addClassRef(system_idx);
+   uint16_t print_class_idx = addClassRef(print_idx);
+   uint16_t main_class_idx = addClassRef(main_class_str_idx);
+   uint16_t integer_class_idx = addClassRef(integer_idx);
+   uint16_t string_class_idx = addClassRef(string_idx);
 
-    ///Add method refs
-    addMethRef(object_class_idx, object_name_type_idx);
-    addMethRef(print_class_idx, print_name_type_idx);
+   ///  Add name and type
+   uint16_t object_name_type_idx = addNameAndType(object_name_idx, void_descriptor_idx);
+   uint16_t system_name_type_idx = addNameAndType(system_name_idx, system_type_idx);
+   uint16_t print_name_type_idx =  addNameAndType(print_name_idx, print_type_idx);
+   uint16_t valueOf_name_type_idx = addNameAndType(valueOf_name_idx, valueOf_type_idx);
+   uint16_t intValue_name_type_idx = addNameAndType(intValue_name_idx, intValue_type_idx);
+   uint16_t concat_name_type_idx = addNameAndType(concat_name_idx, concat_type_idx);
+   uint16_t substring_name_type_idx = addNameAndType(substring_name_idx, substring_type_idx);
+   uint16_t length_name_type_idx = addNameAndType(length_name_idx, intValue_type_idx);
 
-    ///Add field refs
-    addFieldRef(system_class_idx, system_name_type_idx);
-}
+   ///  Add method refs
+   addMethRef(object_class_idx, object_name_type_idx);
+   addMethRef(print_class_idx, print_name_type_idx);
+   addMethRef(integer_class_idx, valueOf_name_type_idx);
+   addMethRef(integer_class_idx, intValue_name_type_idx);
+   addMethRef(string_class_idx, concat_name_type_idx);
+   addMethRef(string_class_idx, substring_name_type_idx);
+   addMethRef(string_class_idx, length_name_type_idx);
+
+   ///  Add field refs
+   addFieldRef(system_class_idx, system_name_type_idx);
+ }
 
 ////////////////////////////////////////////////////////////////////////
 /// method to put a integer into the pool
@@ -205,7 +224,7 @@ size_t ConstantPool::addInt(int32_t value) {
   i.set(value);
   if (!check(i)) {
     putByte(INT);
-    index = put(i);
+    index = put(&i);
     putInt(value);
   } else {
     index = get(i).index;
@@ -221,7 +240,8 @@ size_t ConstantPool::addInt(int32_t value) {
 /// \param UTF8_descriptor_index the index of the descriptor in the constant pool
 /// \return index of the CONSTANT_NameAndType in the pool
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::addNameAndType(uint16_t UTF8_name_index, uint16_t UTF8_descriptor_index) {
+size_t ConstantPool::addNameAndType(uint16_t UTF8_name_index,
+                                    uint16_t UTF8_descriptor_index) {
   Item i;
   size_t index = 0;
   i.set_name_type(UTF8_name_index, UTF8_descriptor_index);
@@ -229,7 +249,7 @@ size_t ConstantPool::addNameAndType(uint16_t UTF8_name_index, uint16_t UTF8_desc
     putByte(NAME_AND_TYPE);
     putShort(UTF8_name_index);
     putShort(UTF8_descriptor_index);
-    index = put(i);
+    index = put(&i);
   } else {
     index = get(i).index;
   }
@@ -248,7 +268,7 @@ size_t ConstantPool::addString(const std::string &value) {
   if (!check(i)) {
     putByte(UTF8);
     putUTF8(value);
-    index = put(i);
+    index = put(&i);
   } else {
     index = get(i).index;
   }
@@ -281,7 +301,7 @@ size_t ConstantPool::addClassRef(uint16_t name_idx) {
   if (!check(i)) {
     putByte(CLASS);
     putShort(name_idx);
-    index = put(i);
+    index = put(&i);
   } else {
     index = get(i).index;
   }
@@ -301,7 +321,7 @@ size_t ConstantPool::addFieldRef(uint16_t class_idx, uint16_t name_type_idx) {
     putByte(FIELD);
     putShort(class_idx);
     putShort(name_type_idx);
-    index = put(i);
+    index = put(&i);
   } else {
     index = get(i).index;
   }
@@ -321,7 +341,7 @@ size_t ConstantPool::addMethRef(uint16_t class_idx, uint16_t name_type_idx) {
     putByte(METHOD);
     putShort(class_idx);
     putShort(name_type_idx);
-    index = put(i);
+    index = put(&i);
   } else {
     index = get(i).index;
   }
@@ -482,13 +502,14 @@ void ConstantPool::encodeUTF8(std::string s, uint32_t pos) {
 /// put item into pool
 /// \param i value
 ////////////////////////////////////////////////////////////////////////
-size_t ConstantPool::put(Item& i) {
-  if (!check(i)) {
-    //constantpool counts from 1 to constant pool size -1 (constant pool size is size +1)
-    i.index = items.size() +1;
-    items.push_back(i);
-    return i.index;
+size_t ConstantPool::put(Item *i) {
+  if (!check(*i)) {
+    // constantpool counts from 1 to constant pool size -1
+    // (constant pool size is size +1)
+    i->index = items.size() +1;
+    items.push_back(*i);
+    return i->index;
   } else {
-    return get(i).index;
+    return get(*i).index;
   }
 }
