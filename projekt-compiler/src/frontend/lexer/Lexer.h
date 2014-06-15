@@ -14,6 +14,7 @@
 #include <memory>
 
 
+#include <common/Env.h>
 #include <common/Encoding.h>
 #include <frontend/IO_Exception.h>
 
@@ -65,7 +66,7 @@ public:
 
 
 	void dump() {
-		std::cout << "--- Lexed Rail Function -------------------------------------------------------" << std::endl;
+		//std::cout << "### Lexed Rail Functions ###" << std::endl;
 		for(auto it=data.begin(); it<data.end(); ++it) {
 			std::vector<uint32_t> line = *it;
 			for(auto itPos=line.begin(); itPos<line.end(); ++itPos) {
@@ -73,7 +74,7 @@ public:
 			}
 			std::cout << std::endl;
 		}
-		std::cout << "-------------------------------------------------------------------------------" << std::endl;
+		//std::cout << "-------------------------------------------------------------------------------" << std::endl;
 	}
 
 };
@@ -86,7 +87,7 @@ public:
 
 	Lexer();
 	virtual ~Lexer();
-	void lex(std::string srcFile);
+	void lex(const std::string srcFile);
 };
 
 #endif /* LEXER_H_ */

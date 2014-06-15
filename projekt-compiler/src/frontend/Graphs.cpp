@@ -49,7 +49,10 @@ void Graphs::marshall(Graphs::str file, char delimiter) {
 
 	// [function name]
 	// id ; cmd ; adj1 (true,default) ; adj2 (false, not present)
-	std::cout << "Serializing to " << file << std::endl;
+	if(Env::verbose()) {
+		std::cout << "Serializing to " << file << std::endl;
+	}
+
 
 	std::ofstream ofh(file);
 	if(!ofh) {
@@ -65,7 +68,10 @@ void Graphs::marshall(Graphs::str file, char delimiter) {
 	for(it = this->graphs.begin(); it != this->graphs.end(); ++it) {
 		Graph_ptr gp = it->second;
 		std::size_t count = gp->nodeCount();
-		std::cout << "\t'" << it->first << "': " << count << " nodes" << std::endl;
+
+		if(Env::verbose()) {
+			std::cout << "\t'" << it->first << "': " << count << " nodes" << std::endl;
+		}
 
 		// Function name
 		ofh << "[" << it->first <<"]" << std::endl;
@@ -106,17 +112,18 @@ void Graphs::marshall(Graphs::str file, char delimiter) {
 
 	ofh.close();
 
-
-	std::cout << "\tResult:" << std::endl;
-	std::ifstream ifh(file);
-	std::string line;
-	while(std::getline(ifh, line)) {
-		std::cout << "\t\t" << line << std::endl;
+	if(Env::verbose()) {
+		std::cout << "\tResult:" << std::endl;
+		std::ifstream ifh(file);
+		std::string line;
+		while(std::getline(ifh, line)) {
+			std::cout << "\t\t" << line << std::endl;
+		}
+		ifh.close();
+		std::cout << "done..." << std::endl;
 	}
-	ifh.close();
 
 
-	std::cout << "done..." << std::endl;
 }
 
 void Graphs::unmarshall(Graphs::str file, char delimiter)
@@ -262,8 +269,10 @@ std::shared_ptr<Node> Graphs::findNode(Graphs::Graph_ptr adj, std::string id)
 
 
 void Graphs::writeGraphViz(Graphs::str file) {
+	if(Env::verbose()) {
+		std::cout << "Creating dot-file" << std::endl;
+	}
 
-	std::cout << "Creating GraphViz dot-file" << std::endl;
 
 	std::ofstream fh(file);
 	if(!fh) {
@@ -334,12 +343,17 @@ void Graphs::writeGraphViz(Graphs::str file) {
 	fh << std::endl << "}";
 	fh.close();
 
-	std::cout << "done..." << std::endl;
+	if(Env::verbose()) {
+		std::cout << "done..." << std::endl;
+	}
 }
 
 
 
 std::string Graphs::gvGetNodeStyles(std::shared_ptr<Node> node) const {
+
+
+
 
 	//FIXME command-based node style - requires a good testfile
 	bool useLabel = true;
@@ -350,7 +364,7 @@ std::string Graphs::gvGetNodeStyles(std::shared_ptr<Node> node) const {
 		// Rail
 		case Command::Type::START:				shape="plaintext"; break;
 		case Command::Type::FINISH:				shape="house"; fillColor="none"; break;
-		case Command::Type::BOOM:				useLabel=false; shape="proteasesite"; break;
+		case Command::Type::BOOM:				useLabel=false; /*shape="proteasesite";*/ break;
 		case Command::Type::REFLECTOR:			break;
 		case Command::Type::LAMBDA:				break;
 		case Command::Type::CALL:				shape="diamond"; break;

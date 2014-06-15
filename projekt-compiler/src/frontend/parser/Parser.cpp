@@ -59,20 +59,28 @@ shared_ptr<Adjacency_list> Parser::parseGraph() {
 }
 
 shared_ptr<Adjacency_list> Parser::parseGraph(int startPosRow, int startPosCol, Direction startDir) {
-	cout << "Begin parsing..." << endl;
+
+	if(Env::verbose()) {
+		cout << "Begin parsing..." << endl;
+	}
 	setRowCol(startPosRow, startPosCol);
 	dir = startDir;
 	parsingNotFinished = true;
 	while(parsingNotFinished) {
-		cout << "\t@(" << posRow << ", " << posCol << ", " << Encoding::unicodeToUtf8(board->get(posRow, posCol)) << ")" << endl;
+		if(Env::verbose()) {
+			cout << "\t@(" << posRow << ", " << posCol << ", " << Encoding::unicodeToUtf8(board->get(posRow, posCol)) << ")" << endl;
+		}
 		move();
-		if(errorMessage != ""){
+		if(errorMessage != "") {
+			//FIXME error handling
 			cout << "\t" << errorMessage <<endl;
 			cout << "\tparsing aborted" << endl;
 			break;
 		}
 	}
-	cout << "Finished parsing" << endl;
+	if(Env::verbose()) {
+		cout << "Finished parsing" << endl;
+	}
 	return abstractSyntaxGraph;
 }
 
@@ -170,7 +178,12 @@ bool Parser::currentCharIsNoCrossing(){
 
 bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol) {
 	uint32_t charAtStraight = board->get(straightRow, straightCol);
-	//cout << "\tcheckForValidCommandsInStraightDir(" << straightRow << ", " << straightCol << ") " << Encoding::unicodeToUtf8(charAtStraight) << endl;
+
+//	if(Env::verbose()) {
+//		cout << "\tcheckForValidCommandsInStraightDir(" << straightRow << ", " << straightCol << ") " << Encoding::unicodeToUtf8(charAtStraight) << endl;
+//	}
+
+	//
 	bool didGoStraight = true;
 	NodeIdentifier id{posRow, posCol, dir};
 	switch(charAtStraight) {
@@ -215,11 +228,11 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			break;
 		case 't':
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("1", Command::Type::PUSH_CONST, id);
+			parsingNotFinished = addToAbstractSyntaxGraph("1", Command::Type::TRUE, id);
 			break;
 		case 'f':
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("0", Command::Type::PUSH_CONST, id);
+			parsingNotFinished = addToAbstractSyntaxGraph("0", Command::Type::FALSE, id);
 			break;
 		case '0':
 		case '1':
@@ -418,14 +431,18 @@ bool Parser::addToAbstractSyntaxGraph(string commandName, Command::Type type, No
 	if(allNodes.find(id)!=allNodes.end()){
 		std::shared_ptr<Node> node;
 		//node already exists
-		cout << "\tReached Node that was already parsed once: " << commandName << endl;
+		if(Env::verbose()) {
+			cout << "\tReached Node that was already parsed once: " << commandName << endl;
+		}
 		node = allNodes.at(id);
 		abstractSyntaxGraph->addEdge(currentNode, node, addNextNodeAsTruePathOfPreviousNode);
 		currentNode = node;
 		nodeWasNew = false;
 	} else{
 		//create a new node
-		cout << "\tNode creation: " << commandName << endl;
+		if(Env::verbose()) {
+			cout << "\tNode creation: " << commandName << endl;
+		}
 		std::shared_ptr<Node> node(new Node());
 		node->command = {type,commandName};
 		//TODO:an Graph Schnittstelle anpassen
@@ -481,7 +498,10 @@ string Parser::readCharsUntil(uint32_t until) {
 			break;
 		}
 	}
-	//cout << "readCharsUntil: " << result << endl;
+
+//	if(Env::verbose()) {
+//		cout << "readCharsUntil: " << result << endl;
+//	}
 	return result;
 }
 
