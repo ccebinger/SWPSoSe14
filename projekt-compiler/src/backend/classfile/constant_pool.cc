@@ -96,11 +96,15 @@ Item& Item::operator=(const Item& i) {
     strVal1 = i.strVal1;
     strVal2 = i.strVal2;
     strVal3 = i.strVal3;
+
+    method_idx = i.method_idx;
+    descriptor_idx = i.descriptor_idx;
+    name_idx = i.name_idx;
+    class_idx = i.class_idx;
+    name_type_idx = i.name_type_idx;
   }
   return *this;
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////
 /// set item to integer value
