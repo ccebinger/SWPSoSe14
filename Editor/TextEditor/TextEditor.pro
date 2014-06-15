@@ -24,8 +24,8 @@ HEADERS  += mainwindow.h \
     InterStack.h \
     Graph_Interface.h \
     UndoRedoTypeCharacter.h \
-    UndoRedoStack.h \
-    UndoRedoElement.h
+    UndoRedoElement.h \
+    UndoRedoStack.h
 
 FORMS    += mainwindow.ui
 

@@ -4,17 +4,23 @@
 #include "Graph_Interface.h"
 
 #include <QTableWidget>
+#include "UndoRedoElement.h"
 
 class EditTableWidget : public QTableWidget
 {
     Q_OBJECT
 public:
     explicit EditTableWidget(QWidget *parent = 0);
+    void undo(UndoRedoElement* e) {
+
+    }
+    void redo(UndoRedoElement* e) {
+
+    }
 
 signals:
     void cursorPositionChanged(int row, int col);
     void textChanged();
-    void pushSignToUndoStack();
 
 public:
     QString toPlainText() const;

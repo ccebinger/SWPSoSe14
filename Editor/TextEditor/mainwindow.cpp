@@ -9,12 +9,11 @@
 #include <qtextstream.h>
 #include <qfont.h>
 #include <qprocess.h>
+#include <QDebug>
 
-#include <UndoRedoStack.h>
-#include <UndoRedoElement.h>
-#include <UndoRedoTypeCharacter.h>
-
-UndoRedoStack* undoRedoStack = new UndoRedoStack();
+#include "UndoRedoStack.h"
+#include "UndoRedoElement.h"
+#include "UndoRedoTypeCharacter.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -36,12 +35,14 @@ MainWindow::MainWindow(QWidget *parent) :
     m_interpreterProcess = new QProcess(this);
     m_compilerProcess = new QProcess(this);
 
+    m_undoRedoStack = new UndoRedoStack();
+    connect(m_undoRedoStack, SIGNAL(modified(bool)), this, SLOT(setModified(bool)));
+
     ui->ui_stopInterpreterAction->setEnabled(false);
     ui->ui_stopCompilerAction->setEnabled(false);
 
     connect(ui->ui_sourceEditTableWidget, SIGNAL(cursorPositionChanged(int,int)), this, SLOT(cursorPositionChanged(int,int)));
     connect(ui->ui_sourceEditTableWidget, SIGNAL(textChanged()), this, SLOT(textChanged()));
-    connect(ui->ui_sourceEditTableWidget, SIGNAL(pushSignToUndoStack()), this, SLOT(pushSignToUndoStack()));
     connect(ui->ui_newFileAction, SIGNAL(triggered()), this, SLOT(newFile()));
     connect(ui->ui_openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
     connect(ui->ui_saveFileAction, SIGNAL(triggered()), this, SLOT(saveFile()));
@@ -74,6 +75,8 @@ MainWindow::~MainWindow()
     delete m_interpreterProcess;
     m_compilerProcess->close();
     delete m_compilerProcess;
+
+    delete m_undoRedoStack;
 
 }
 
@@ -229,21 +232,21 @@ void MainWindow::newFile()
     }
 }
 
-void MainWindow::pushSignToUndoStack()
+void MainWindow::createUndoElement(UndoRedoElement* e)
 {
-    //add object to undo stack
-    UndoRedoElement* hasSetSign = new UndoRedoTypeCharacter();
-    undoRedoStack->pushToUndoStack(hasSetSign);
+    m_undoRedoStack->createUndoElement(e);
 }
 
 void MainWindow::undo()
 {
-    UndoRedoElement *e = undoRedoStack->popFromUndoStack();
+    UndoRedoElement* e = m_undoRedoStack->undo();
+    ui->ui_sourceEditTableWidget->undo(e);
 }
 
 void MainWindow::redo()
 {
-
+    UndoRedoElement* e = m_undoRedoStack->redo();
+    ui->ui_sourceEditTableWidget->redo(e);
 }
 
 void MainWindow::setInterpreter()

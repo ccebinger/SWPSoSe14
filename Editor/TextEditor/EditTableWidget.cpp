@@ -212,7 +212,6 @@ void EditTableWidget::setSign(QChar c)
         delete stack;
     }
     emit textChanged();
-    emit pushSignToUndoStack();
 
 }
 

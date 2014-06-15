@@ -6,6 +6,10 @@
 #include <iostream>
 #include <QProcess>
 
+#include "UndoRedoStack.h"
+#include "UndoRedoElement.h"
+#include "UndoRedoTypeCharacter.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -18,12 +22,13 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    void createUndoElement(UndoRedoElement* e);
+
 private:
     Ui::MainWindow *ui;
 
     bool saveChanges();
     void closeEvent(QCloseEvent *closeEvent);
-    void setModified(bool modified);
     void setCurrentPath(QString currentFilePath);
     void save(QString filePath);
 
@@ -35,15 +40,17 @@ private:
     QProcess *m_interpreterProcess;
     QProcess *m_compilerProcess;
 
+    UndoRedoStack *m_undoRedoStack;
 
 private slots:
+
     void cursorPositionChanged(int row, int col);
     void textChanged();
-    void pushSignToUndoStack();
     void newFile();
     void openFile();
     void saveFile();
     void saveFileAs();
+    void setModified(bool modified);
 
     void undo();
     void redo();
@@ -62,10 +69,6 @@ private slots:
     void compilerOutputReady();
     void compilerReadError(QProcess::ProcessError error);
 
-    /*void undo();
-    void redo();
-    void undoAvailable(bool available);
-    void redoAvalable(bool available);*/
 };
 
 #endif // MAINWINDOW_H

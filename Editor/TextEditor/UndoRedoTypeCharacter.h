@@ -5,35 +5,33 @@ class UndoRedoTypeCharacter: public UndoRedoElement {
 private:
     int row;
     int column;
-    int bitMask;
+    QChar pre;
+    QChar post;
 
 public:
-    UndoRedoTypeCharacter(void) {
-        row = 0;
-        column = 0;
-        bitMask = 0;
-    }
 
-    UndoRedoTypeCharacter(int newRow, int newColumn, int newBitMask) {
+    UndoRedoTypeCharacter(int newRow, int newColumn, QChar pre, QChar post) {
         row = newRow;
         column = newColumn;
-        bitMask = newBitMask;
+        this->pre = pre;
+        this->post = post;
+        undoDisplayName = "Overwrite " + QString(pre) + " with " + QString(post);
     }
 
-    void undo() {
-
+    int getRow() const {
+        return row;
     }
 
-    void redo() {
-
+    int getColumn() const {
+        return column;
     }
 
-    void undoDisplay() {
-
+    QChar getPre() const {
+        return pre;
     }
 
-    void redoDisplay() {
-
+    QChar getPost() const {
+        return post;
     }
 };
 

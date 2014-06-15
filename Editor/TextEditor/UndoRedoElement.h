@@ -1,29 +1,31 @@
 #ifndef UNDOREDOELEMENT_H
 #define UNDOREDOELEMENT_H
 
+#include <QString>
+
 class UndoRedoElement {
-private:
-    QString undoName;
-    QString redoName;
+protected:
+    QString undoDisplayName;
+    QString redoDisplayName;
 
 public:
+
     UndoRedoElement(void) {
-        undoName = "";
-        redoName = "";
+        undoDisplayName = "";
+        redoDisplayName = "";
+    }
+
+    virtual ~UndoRedoElement() {
+
     }
 
     QString getUndoName() {
-        return undoName;
+        return undoDisplayName;
     }
 
     QString getRedoName() {
-        return redoName;
+        return redoDisplayName;
     }
-
-    virtual void undo() = 0;
-    virtual void redo() = 0;
-    virtual void undoDisplay() = 0;
-    virtual void redoDisplay() = 0;
 };
 
 #endif // UNDOREDOELEMENT_H
