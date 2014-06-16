@@ -67,6 +67,7 @@ public:
 
 
   static void add_integer_calculation(BytecodeGenerator::MNEMONIC calculation, ConstantPool& constantPool, std::vector<char>& result);
+
 private:
   /**
    * Nur statische Methoden.
@@ -108,4 +109,6 @@ void underflow_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Nod
 void type_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
 //CONTROL STRUCTURE
 void if_or_while_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
+void globalstack_pop(ConstantPool& constant_pool, std::vector<char>& code);
+void globalstack_push(ConstantPool& constant_pool, std::vector<char>& code);
 #endif // BYTECODE_GENERATOR_H
