@@ -199,15 +199,16 @@ class Parser {
 		const int STRAIGHT = 1;
 		const int RIGHT = 2;
 
-		int32_t posRow, posCol;
-		Direction dir;
+		int32_t posRow = 0;
+		int32_t posCol = 0;
+		Direction dir = SE;
 		shared_ptr<RailFunction> board;
 
 		map<NodeIdentifier,std::shared_ptr<Node>> allNodes;
 		std::shared_ptr<Adjacency_list> abstractSyntaxGraph;
 		std::shared_ptr<Node> currentNode;
-		int lastUsedId;
-		bool addNextNodeAsTruePathOfPreviousNode;
+		int lastUsedId = 0;
+		bool addNextNodeAsTruePathOfPreviousNode = true;
 
 
 

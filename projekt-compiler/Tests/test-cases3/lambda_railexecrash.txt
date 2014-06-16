@@ -1,0 +1,23 @@
+$'main'(--):
+ \
+  \
+   \
+    \
+     \
+      \
+       \
+        \
+         \
+          \
+           \
+            \
+             \
+           /------&--[5]--(!l!)---#
+          /
+         /
+        /
+       |
+       \--(!lambda!)--{}---(!anonym!)---#
+     
+ 
+crashes everything - "Rail.exe funktioniert nicht mehr"
