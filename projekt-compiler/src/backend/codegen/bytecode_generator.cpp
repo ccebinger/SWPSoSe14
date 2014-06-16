@@ -242,6 +242,9 @@ void add_integer_calculation(BytecodeGenerator::MNEMONIC calculation,
   if (integer_class_static_value_of_method == 0)
     integer_class_static_value_of_method = BytecodeGenerator::add_method("java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", constantPool);
 
+
+  globalstack_pop(constantPool, result);
+  globalstack_pop(constantPool, result);
   result.push_back(BytecodeGenerator::ASTORE_1);
   result.push_back(BytecodeGenerator::ASTORE_2);
 
@@ -263,49 +266,36 @@ void add_integer_calculation(BytecodeGenerator::MNEMONIC calculation,
                                        constantPool, result);
 
   BytecodeGenerator::localCount += 2;
+
+  globalstack_push(constantPool, result);
 }
 
 void add_ByteCode(ConstantPool& constantPool,
                   std::vector<char>& result,
                   Graphs::Node_ptr current_node) {
-  globalstack_pop(constantPool, result);
-  globalstack_pop(constantPool, result);
   add_integer_calculation(BytecodeGenerator::IADD, constantPool, result);
-  globalstack_push(constantPool, result);
 }
 
 void sub_ByteCode(ConstantPool& constantPool,
                   std::vector<char>& result,
                   Graphs::Node_ptr current_node) {
-  globalstack_pop(constantPool, result);
-  globalstack_pop(constantPool, result);
   add_integer_calculation(BytecodeGenerator::ISUB, constantPool, result);
-  globalstack_push(constantPool, result);
 }
 
 void mult_ByteCode(ConstantPool& constantPool,
                    std::vector<char>& result,
                    Graphs::Node_ptr current_node){
-  globalstack_pop(constantPool, result);
-  globalstack_pop(constantPool, result);
   add_integer_calculation(BytecodeGenerator::IMULT, constantPool, result);
-  globalstack_push(constantPool, result);
 }
 void div_ByteCode(ConstantPool& constantPool,
                   std::vector<char>& result,
                   Graphs::Node_ptr current_node) {
-  globalstack_pop(constantPool, result);
-  globalstack_pop(constantPool, result);
   add_integer_calculation(BytecodeGenerator::IDIV, constantPool, result);
-  globalstack_push(constantPool, result);
 }
 void mod_ByteCode(ConstantPool& constantPool,
                   std::vector<char>& result,
                   Graphs::Node_ptr current_node) {
-  globalstack_pop(constantPool, result);
-  globalstack_pop(constantPool, result);
   add_integer_calculation(BytecodeGenerator::IREM, constantPool, result);
-  globalstack_push(constantPool, result);
 }
 
 void cut_ByteCode(ConstantPool& constantPool,
