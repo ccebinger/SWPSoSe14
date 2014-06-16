@@ -96,15 +96,11 @@ Item& Item::operator=(const Item& i) {
     strVal1 = i.strVal1;
     strVal2 = i.strVal2;
     strVal3 = i.strVal3;
-
-    method_idx = i.method_idx;
-    descriptor_idx = i.descriptor_idx;
-    name_idx = i.name_idx;
-    class_idx = i.class_idx;
-    name_type_idx = i.name_type_idx;
   }
   return *this;
 }
+
+
 
 ////////////////////////////////////////////////////////////////////////
 /// set item to integer value
@@ -114,55 +110,36 @@ void Item::set(int32_t _intVal) {
   type = INT;
   intVal = _intVal;
 
-  std::cout << "Item::setInt  type: " << type
-            << " intVal: " << intVal << std::endl;
+  // std::cout << "set int  type: " << type
+  //           << " intVal: " << intVal << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////
 /// set item to string value
 /// \param _type type of the item
-/// \param _strVal1  first part of the value of this item.
-/// \param _strVal2  first part of the value of this item.
-/// \param _strVal3  first part of the value of this item.
+/// \param _strVal  first part of the value of this item.
 ////////////////////////////////////////////////////////////////////////
 void Item::set(ItemType _type, const std::string &_strVal1,
                const std::string &_strVal2, const std::string &_strVal3) {
-  std::cout << "Item::set type: " << _type
-            << " stringVal1: " << _strVal1 << std::endl;
-
   type = _type;
   strVal1 = _strVal1;
   strVal2 = _strVal2;
   strVal3 = _strVal3;
 }
 
-////////////////////////////////////////////////////////////////////////
-/// set item to string value
-/// \param type type of the item
-/// \param class_idx first part of the value of this item.
-/// \param name_type_idx first part of the value of this item.
-////////////////////////////////////////////////////////////////////////
+
 void Item::set(ItemType type, uint16_t class_idx, uint16_t name_type_idx) {
   this->type = type;
   this->class_idx = class_idx;
   this->name_type_idx = name_type_idx;
 }
 
-////////////////////////////////////////////////////////////////////////
-/// set item to string value
-/// \param type type of the item
-/// \param name_idx first part of the value of this item.
-////////////////////////////////////////////////////////////////////////
+
 void Item::set(ItemType type, uint16_t name_idx) {
   this->type = type;
   this->name_idx = name_idx;
 }
 
-////////////////////////////////////////////////////////////////////////
-/// set item to string value
-/// \param method_idx type of the item
-/// \param descriptor_idx  first part of the value of this item.
-////////////////////////////////////////////////////////////////////////
 void Item::set_name_type(uint16_t method_idx, uint16_t descriptor_idx) {
   this->type = ItemType::NAME_AND_TYPE;
   this->method_idx = method_idx;
@@ -176,66 +153,69 @@ ConstantPool::ConstantPool(Graphs& graphs) {
   items.reserve(256);
 
   /// Add strings
-  uint16_t obj_idx = addString("java/lang/Object");
-  uint16_t system_idx = addString("java/lang/System");
-  uint16_t print_idx = addString("java/io/PrintStream");
-  uint16_t integer_idx = addString("java/lang/Integer");
-  uint16_t string_idx = addString("java/lang/String");
-  uint16_t main_class_str_idx = addString("Main");
-  //  uint16_t main_idx = addString("main"); will be added from rail functions
-  uint16_t void_descriptor_idx = addString("()V");
-  addString("Code");
-  uint16_t object_name_idx = addString("<init>");
-  uint16_t print_type_idx = addString("([Ljava/lang/String;)V");
-  uint16_t system_name_idx = addString("out");
-  uint16_t system_type_idx = addString("Ljava/io/PrintStream;");
-  uint16_t print_name_idx = addString("println");
-  uint16_t valueOf_name_idx = addString("valueOf");
-  uint16_t valueOf_type_idx = addString("(I)Ljava/lang/Integer;");
-  uint16_t intValue_name_idx = addString("intValue");
-  uint16_t intValue_type_idx = addString("()I");
-  uint16_t concat_name_idx = addString("concat");
-  uint16_t concat_type_idx = addString("(Ljava/lang/String;)Ljava/lang/String;");
-  uint16_t substring_name_idx = addString("substring");
-  uint16_t substring_type_idx = addString("(II)Ljava/lang/String;");
-  uint16_t length_name_idx = addString("length");
+    uint16_t obj_idx = addString("java/lang/Object");
+    uint16_t system_idx = addString("java/lang/System");
+    uint16_t print_idx = addString("java/io/PrintStream");
+    uint16_t integer_idx = addString("java/lang/Integer");
+    uint16_t string_idx = addString("java/lang/String");
+    uint16_t main_class_str_idx = addString("Main");
+    uint16_t void_descriptor_idx = addString("()V");
+    addString("Code");
+    uint16_t object_name_idx = addString("<init>");
+    uint16_t stringList_type_idx = addString("([Ljava/lang/String;)V");
+    uint16_t print_type_idx = addString("(Ljava/lang/String;)V");
+    uint16_t system_name_idx = addString("out");
+    uint16_t system_type_idx = addString("Ljava/io/PrintStream;");
+    uint16_t print_name_idx = addString("println");
+    uint16_t valueOf_name_idx = addString("valueOf");
+    uint16_t valueOf_type_idx = addString("(I)Ljava/lang/Integer;");
+    uint16_t intValue_name_idx = addString("intValue");
+    uint16_t intValue_type_idx = addString("()I");
+    uint16_t concat_name_idx = addString("concat");
+    uint16_t concat_type_idx = addString("(Ljava/lang/String;)Ljava/lang/String;");
+    uint16_t substring_name_idx = addString("substring");
+    uint16_t substring_type_idx = addString("(II)Ljava/lang/String;");
+    uint16_t substring_type_single_idx = addString("(I)Ljava/lang/String;");
+    uint16_t length_name_idx = addString("length");
 
-  ///  Add Rail-Functionnames as Strings
-  std::vector<std::string> keyset = graphs.keyset();
-  for (auto it = keyset.begin(); it != keyset.end(); it++) {
-    addString(*it);
+    ///  Add Rail-Functionnames as Strings
+    std::vector<std::string> keyset = graphs.keyset();
+    for (auto it = keyset.begin(); it != keyset.end(); it++) {
+      addString(*it);
+    }
+
+    ///  Add classes
+    uint16_t object_class_idx = addClassRef(obj_idx);
+    uint16_t system_class_idx = addClassRef(system_idx);
+    uint16_t print_class_idx = addClassRef(print_idx);
+    addClassRef(main_class_str_idx);
+    int_idx.class_idx = addClassRef(integer_idx);
+    str_idx.class_idx = addClassRef(string_idx);
+
+    ///  Add name and type
+    uint16_t object_name_type_idx = addNameAndType(object_name_idx, void_descriptor_idx);
+    uint16_t system_name_type_idx = addNameAndType(system_name_idx, system_type_idx);
+    uint16_t print_name_type_idx =  addNameAndType(print_name_idx, print_type_idx);
+    uint16_t valueOf_name_type_idx = addNameAndType(valueOf_name_idx, valueOf_type_idx);
+    uint16_t intValue_name_type_idx = addNameAndType(intValue_name_idx, intValue_type_idx);
+    uint16_t concat_name_type_idx = addNameAndType(concat_name_idx, concat_type_idx);
+    uint16_t substring_name_type_idx = addNameAndType(substring_name_idx, substring_type_idx);
+    uint16_t substring_name_type_single_idx = addNameAndType(substring_name_idx, substring_type_single_idx);
+    uint16_t length_name_type_idx = addNameAndType(length_name_idx, intValue_type_idx);
+
+    ///  Add method refs
+    addMethRef(object_class_idx, object_name_type_idx);
+    addMethRef(print_class_idx, print_name_type_idx);
+    int_idx.value_of_idx = addMethRef(int_idx.class_idx, valueOf_name_type_idx);
+    int_idx.int_value_idx = addMethRef(int_idx.class_idx, intValue_name_type_idx);
+    str_idx.concat_idx = addMethRef(str_idx.class_idx, concat_name_type_idx);
+    str_idx.substring_2param_idx = addMethRef(str_idx.class_idx, substring_name_type_idx);
+    str_idx.substring_idx = addMethRef(str_idx.class_idx, substring_name_type_single_idx);
+    str_idx.length_idx = addMethRef(str_idx.class_idx, length_name_type_idx);
+
+    ///  Add field refs
+    addFieldRef(system_class_idx, system_name_type_idx);
   }
-
-  ///  Add classes
-  uint16_t object_class_idx = addClassRef(obj_idx);
-  uint16_t system_class_idx = addClassRef(system_idx);
-  uint16_t print_class_idx = addClassRef(print_idx);
-  addClassRef(main_class_str_idx);
-  uint16_t integer_class_idx = addClassRef(integer_idx);
-  uint16_t string_class_idx = addClassRef(string_idx);
-
-  ///  Add name and type
-  uint16_t object_name_type_idx = addNameAndType(object_name_idx, void_descriptor_idx);
-  uint16_t system_name_type_idx = addNameAndType(system_name_idx, system_type_idx);
-  uint16_t print_name_type_idx =  addNameAndType(print_name_idx, print_type_idx);
-  uint16_t valueOf_name_type_idx = addNameAndType(valueOf_name_idx, valueOf_type_idx);
-  uint16_t intValue_name_type_idx = addNameAndType(intValue_name_idx, intValue_type_idx);
-  uint16_t concat_name_type_idx = addNameAndType(concat_name_idx, concat_type_idx);
-  uint16_t substring_name_type_idx = addNameAndType(substring_name_idx, substring_type_idx);
-  uint16_t length_name_type_idx = addNameAndType(length_name_idx, intValue_type_idx);
-
-  ///  Add method refs
-  addMethRef(object_class_idx, object_name_type_idx);
-  addMethRef(print_class_idx, print_name_type_idx);
-  addMethRef(integer_class_idx, valueOf_name_type_idx);
-  addMethRef(integer_class_idx, intValue_name_type_idx);
-  addMethRef(string_class_idx, concat_name_type_idx);
-  addMethRef(string_class_idx, substring_name_type_idx);
-  addMethRef(string_class_idx, length_name_type_idx);
-
-  ///  Add field refs
-  addFieldRef(system_class_idx, system_name_type_idx);
-}
 
 ////////////////////////////////////////////////////////////////////////
 /// method to put a integer into the pool
@@ -258,11 +238,10 @@ size_t ConstantPool::addInt(int32_t value) {
 
 ////////////////////////////////////////////////////////////////////////
 /// DRAFT VERSION - NEEDS TO BE DISCUSSED / REVIEWED (because of my lack of
-/// knowledge of constant_pool.cc)
+///                                                   knowledge of constant_pool.cc)
 /// method to put a CONSTANT_NameAndType into the pool
 /// \param UTF8_name_index the index of the name in the constant pool
-/// \param UTF8_descriptor_index the index of the descriptor in the
-/// constant pool
+/// \param UTF8_descriptor_index the index of the descriptor in the constant pool
 /// \return index of the CONSTANT_NameAndType in the pool
 ////////////////////////////////////////////////////////////////////////
 size_t ConstantPool::addNameAndType(uint16_t UTF8_name_index,
@@ -300,11 +279,6 @@ size_t ConstantPool::addString(const std::string &value) {
   return index;
 }
 
-////////////////////////////////////////////////////////////////////////
-/// method to put a string index into the pool
-/// \param string_idx value to add to pool
-/// \return index of the string in pool
-////////////////////////////////////////////////////////////////////////
 size_t ConstantPool::addConstString(uint16_t &string_idx) {
   Item i;
   size_t index = 0;
@@ -339,9 +313,8 @@ size_t ConstantPool::addClassRef(uint16_t name_idx) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-/// method to put a string field into the pool
-/// \param class_idx value to add to pool
-/// \param value name_type_idx to add to pool
+/// method to put a string into the pool
+/// \param value value to add to pool
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
 size_t ConstantPool::addFieldRef(uint16_t class_idx, uint16_t name_type_idx) {
@@ -361,8 +334,7 @@ size_t ConstantPool::addFieldRef(uint16_t class_idx, uint16_t name_type_idx) {
 
 ////////////////////////////////////////////////////////////////////////
 /// method to put a string into the pool
-/// \param class_idx value to add to pool
-/// \param name_type_idx value to add to pool
+/// \param value value to add to pool
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
 size_t ConstantPool::addMethRef(uint16_t class_idx, uint16_t name_type_idx) {
@@ -382,7 +354,6 @@ size_t ConstantPool::addMethRef(uint16_t class_idx, uint16_t name_type_idx) {
 
 ////////////////////////////////////////////////////////////////////////
 /// method to count numbers of items with specified type
-/// \param type type that be counted
 /// \return amount of items with types
 ////////////////////////////////////////////////////////////////////////
 size_t ConstantPool::countItemType(ItemType type) {
@@ -417,16 +388,16 @@ const Item &ConstantPool::get(const Item &key) const {
 bool ConstantPool::check(const Item &key) const {
   auto i = std::find(items.begin(), items.end(), key);
   if (i != items.end()) {
-    std::cout << "true check type: " << i->type
-              << " intVal: " << i->intVal
-              << " key type: " << key.type
-              << " intVal: " << key.intVal << std::endl;
+    // std::cout << "true check type: " << i->type
+    //           << " intVal: " << i->intVal
+    //           << " key type: " << key.type
+    //           << " intVal: " << key.intVal << std::endl;
     return true;
   }
-  std::cout << "false check type: " << i->type
-            << " intVal: " << i->intVal
-            << " key type: " << key.type
-            << " intVal: " << key.intVal << std::endl;
+  // std::cout << "false check type: " << i->type
+  //           << " intVal: " << i->intVal
+  //           << " key type: " << key.type
+  //           << " intVal: " << key.intVal << std::endl;
 
   return false;
 }
