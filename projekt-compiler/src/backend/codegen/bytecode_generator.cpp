@@ -268,37 +268,54 @@ void add_integer_calculation(BytecodeGenerator::MNEMONIC calculation,
 void add_ByteCode(ConstantPool& constantPool,
                   std::vector<char>& result,
                   Graphs::Node_ptr current_node) {
+  globalstack_pop(constantPool, result);
+  globalstack_pop(constantPool, result);
   add_integer_calculation(BytecodeGenerator::IADD, constantPool, result);
+  globalstack_push(constantPool, result);
 }
 
 void sub_ByteCode(ConstantPool& constantPool,
                   std::vector<char>& result,
                   Graphs::Node_ptr current_node) {
+  globalstack_pop(constantPool, result);
+  globalstack_pop(constantPool, result);
   add_integer_calculation(BytecodeGenerator::ISUB, constantPool, result);
+  globalstack_push(constantPool, result);
 }
 
 void mult_ByteCode(ConstantPool& constantPool,
                    std::vector<char>& result,
                    Graphs::Node_ptr current_node){
+  globalstack_pop(constantPool, result);
+  globalstack_pop(constantPool, result);
   add_integer_calculation(BytecodeGenerator::IMULT, constantPool, result);
+  globalstack_push(constantPool, result);
 }
 void div_ByteCode(ConstantPool& constantPool,
                   std::vector<char>& result,
                   Graphs::Node_ptr current_node) {
+  globalstack_pop(constantPool, result);
+  globalstack_pop(constantPool, result);
   add_integer_calculation(BytecodeGenerator::IDIV, constantPool, result);
+  globalstack_push(constantPool, result);
 }
 void mod_ByteCode(ConstantPool& constantPool,
                   std::vector<char>& result,
                   Graphs::Node_ptr current_node) {
+  globalstack_pop(constantPool, result);
+  globalstack_pop(constantPool, result);
   add_integer_calculation(BytecodeGenerator::IREM, constantPool, result);
+  globalstack_push(constantPool, result);
 }
 
 void cut_ByteCode(ConstantPool& constantPool,
                   std::vector<char>& result,
                   Graphs::Node_ptr current_node) {
   // istore_0 to store the index for the cut
+  globalstack_pop(constantPool, result);
   result.push_back(BytecodeGenerator::ISTORE_0);
   // astore_1 to store the begin string
+  globalstack_pop(constantPool, result);
   result.push_back(BytecodeGenerator::ASTORE_1);
   // load begin string
   result.push_back(BytecodeGenerator::ALOAD_1);
@@ -322,7 +339,7 @@ void cut_ByteCode(ConstantPool& constantPool,
     method_idx = BytecodeGenerator::add_method("java/lang/String", "substring", "(I)Ljava/lang/String;", constantPool);
   BytecodeGenerator::add_invoke_virtual(method_idx,
                                         constantPool, result);
-
+  globalstack_push(constantPool, result);
   BytecodeGenerator::localCount += 2;
 }
 
@@ -331,8 +348,10 @@ void append_ByteCode(ConstantPool& constantPool,
                      Graphs::Node_ptr current_node) {
   // initial situation: the two strings are on the stacks
   // astore_1 to store the first string
+  globalstack_pop(constantPool, result);
   result.push_back(BytecodeGenerator::ASTORE_1);
   // astore_2 to store the second string
+  globalstack_pop(constantPool, result);
   result.push_back(BytecodeGenerator::ASTORE_2);
 
   // create new object of class java/lang/StringBuilder
@@ -364,13 +383,14 @@ void append_ByteCode(ConstantPool& constantPool,
   meth_idx = BytecodeGenerator::add_method("java/lang/StringBuilder", "toString", "()Ljava/lang/String;", constantPool);
   BytecodeGenerator::add_invoke_virtual(meth_idx,
                                         constantPool, result);
-
+  globalstack_push(constantPool, result);
   BytecodeGenerator::localCount += 2;
 }
 
 void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result,
                    Graphs::Node_ptr current_node)
 {
+  globalstack_pop(constantPool, result);
   // invokevirtual <Method java/lang/String.length:()I>
   uint16_t meth_idx = constantPool.str_idx.length_idx;
   if (meth_idx == 0 )
@@ -403,6 +423,7 @@ void list_pop_ByteCode(ConstantPool& pool, std::vector<char>& code,
 void false_ByteCode(ConstantPool& pool, std::vector<char>& code,
                     Graphs::Node_ptr current_node) {
   code.push_back(BytecodeGenerator::ICONST_0);
+  globalstack_push(pool, code);
 
   BytecodeGenerator::localCount++;
 }
@@ -410,7 +431,9 @@ void false_ByteCode(ConstantPool& pool, std::vector<char>& code,
 void greater_ByteCode(ConstantPool& pool, std::vector<char>& result,
                       Graphs::Node_ptr current_node) {
   // store the two integers and load them to get the right order
+  globalstack_pop(pool, result);
   result.push_back(BytecodeGenerator::ISTORE_1);
+  globalstack_pop(pool, result);
   result.push_back(BytecodeGenerator::ISTORE_2);
   result.push_back(BytecodeGenerator::ILOAD_1);
   result.push_back(BytecodeGenerator::ILOAD_2);
@@ -443,7 +466,9 @@ void equal_ByteCode(ConstantPool& pool, std::vector<char>& result,
    */
 
   // store the two integers and load them to get the right order
+  globalstack_pop(pool, result);
   result.push_back(BytecodeGenerator::ISTORE_1);
+  globalstack_pop(pool, result);
   result.push_back(BytecodeGenerator::ISTORE_2);
   result.push_back(BytecodeGenerator::ILOAD_1);
   result.push_back(BytecodeGenerator::ILOAD_2);
@@ -470,6 +495,7 @@ void equal_ByteCode(ConstantPool& pool, std::vector<char>& result,
 void true_ByteCode(ConstantPool& pool, std::vector<char>& code,
                    Graphs::Node_ptr current_node) {
   code.push_back(BytecodeGenerator::ICONST_1);
+  globalstack_push(pool, code);
   BytecodeGenerator::localCount++;
 }
 
@@ -513,4 +539,12 @@ std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph
   }
   result.push_back(BytecodeGenerator::RETURN);
   return result;
+}
+
+void globalstack_pop(ConstantPool& constant_pool, std::vector<char>& code) {
+  // TODO
+}
+
+void globalstack_push(ConstantPool& constant_pool, std::vector<char>& code) {
+  // TODO
 }
