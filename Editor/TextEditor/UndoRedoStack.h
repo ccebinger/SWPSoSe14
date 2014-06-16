@@ -70,6 +70,16 @@ public:
     QString redoDisplay() {
         return QString(internalRedoStack->top()->getRedoName());
     }
+
+    void clear() {
+        while(!internalUndoStack->isEmpty()) {
+            delete internalUndoStack->pop();
+        }
+
+        while(!internalRedoStack->isEmpty()) {
+            delete internalRedoStack->pop();
+        }
+    }
 };
 
 #endif // EDITTABLEWIDGET_H
