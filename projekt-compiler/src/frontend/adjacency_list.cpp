@@ -18,7 +18,10 @@ Adjacency_list::~Adjacency_list()
 
 void Adjacency_list::addNode(std::shared_ptr<Node> node)
 {
-  //std::cout << "Push: " << node->id << std::endl;
+	//if(Env::verbose()) {
+	//	std::cout << "Push: " << node->id << std::endl;
+	//}
+
   std::shared_ptr<Node> n = find(node->id);
   if (!n)
     nodes.push_back(node);
@@ -76,7 +79,7 @@ std::shared_ptr<Node> Adjacency_list::start()
   if (nodeCount() > 0)
     return find(1);
   else
-    throw -1;
+    throw EnvException(ASG, "unknown");
 }
 
 void Adjacency_list::putVariable(const std::string& identifier)

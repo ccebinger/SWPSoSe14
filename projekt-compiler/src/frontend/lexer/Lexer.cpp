@@ -18,14 +18,13 @@ Lexer::~Lexer() {
 
 
 
-void Lexer::lex(std::string srcFile) {
+void Lexer::lex(const std::string srcFile) {
+
 	// open source file
 	std::ifstream is;
 	is.open(srcFile);
 	if (!is.good()) {
-		IO_Exception ie;
-		ie.set_file(srcFile);
-		throw ie;
+		throw EnvException(FRONTEND_LEXER, "Cannot open " + srcFile + " for reading");
 	}
 
 	std::string line;
@@ -40,11 +39,12 @@ void Lexer::lex(std::string srcFile) {
 
 
 	RailFunction* act = NULL;
+	int32_t lineId = 0;
 	while(!is.eof()) {
 
 		// get next line
 		std::getline(is, line);
-
+		lineId++;
 
 		if(line.length() > 0 && line.at(0) == '$') {
 			// find function name
@@ -56,16 +56,16 @@ void Lexer::lex(std::string srcFile) {
 				functionName = line.substr(nameStart+1, nameEnd-nameStart-1);
 				act = new RailFunction(functionName);
 				functions.push_back(std::shared_ptr<RailFunction>(act));
-				//lines = std::vector<std::string>;
 			}
 			else {
 				/*
-				 * Error handling: found a $ but no function name
+				 * Error handling: found $ but no function name
 				 * Options
 				 * 		1. do nothing -> adds this line to the actual RailFunction
-				 * 		2. act = NULL; -> assume this is a new function (misspelled -> ignore whole function)
+				 * 		2. act = NULL; -> assume this is a new (misspelled) function -> ignore whole function
 				 */
 				act = NULL;
+				Env::addWarning(FRONTEND_LEXER, "Found $ but no proper function name given (skipping...): " + line, lineId, 0);
 			}
 		}
 
@@ -88,19 +88,18 @@ void Lexer::lex(std::string srcFile) {
 				act->height++;
 			}
 		}
-
-
-
 	}
 
 
-
-	for(auto it=functions.begin(); it<functions.end(); ++it) {
-		(*it)->dump();
+	if(Env::verbose()) {
+		for(auto it=functions.begin(); it<functions.end(); ++it) {
+			(*it)->dump();
+		}
 	}
 
-	std::cout << "done" << std::endl;
-
+	if(Env::verbose()) {
+		std::cout << "done" << std::endl;
+	}
 }
 
 

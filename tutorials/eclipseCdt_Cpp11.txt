@@ -3,6 +3,7 @@ Tutorial for CDT Eclipse mit C++11:
 Tested with
 - Ubuntu 14.04, gcc 4.8.2
 - Fedora 20, gcc 4.8.2
+-CDT Eclipse version 3.8.1
 
 Step 1: Create a new project
 	- uncheck "use default location"

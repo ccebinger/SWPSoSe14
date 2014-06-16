@@ -4,7 +4,11 @@
 #include <iterator>
 #include <iostream>
 #include <map>
+
 #include <common/ast/ast.h>
+#include <common/Env.h>
+
+
 
 /**
  * Represents the implementation of the ASG interface as adjacency list.
