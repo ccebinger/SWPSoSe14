@@ -9,35 +9,27 @@
 class EditTableWidget : public QTableWidget
 {
     Q_OBJECT
-public:
-    explicit EditTableWidget(QWidget *parent = 0);
-    void undo(UndoRedoElement* e) {
-
-    }
-    void redo(UndoRedoElement* e) {
-
-    }
-
 signals:
     void cursorPositionChanged(int row, int col);
     void textChanged();
+    void undoRedoElementCreated(UndoRedoElement *);
 
 public:
+    explicit EditTableWidget(QWidget *parent = 0);
+    void undo(UndoRedoElement* e);
+    void redo(UndoRedoElement* e);
     QString toPlainText() const;
     QPoint cursorPos() const;
     void clear();
     void setPlainText(QString text);
-
-    void undo();
-    void redo();
 
 private:
     void mousePressEvent(QMouseEvent *mouseEvent);
     void keyPressEvent(QKeyEvent *keyEvent);
 
     void setPosition(int row, int col);
-    void setSign(QChar c);
-    void removeSign();
+    void setSign(QChar c, bool isUndoRedo = false);
+    void removeSign(bool isUndoRedo = false);
     void inputMethodEvent(QInputMethodEvent *event);
 
     void applyStyleChanges( Stack *stack );

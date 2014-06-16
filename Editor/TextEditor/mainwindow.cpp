@@ -38,8 +38,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->ui_windowMenu->addAction(ui->ui_ioDockWidget->toggleViewAction());
     ui->ui_windowMenu->addAction(ui->ui_compilerDockWidget->toggleViewAction());
 
+    connect(ui->ui_sourceEditTableWidget, SIGNAL(undoRedoElementCreated(UndoRedoElement*)), this, SLOT(undoRedoElementCreated(UndoRedoElement*)));
+
     m_undoRedoStack = new UndoRedoStack();
     connect(m_undoRedoStack, SIGNAL(modified(bool)), this, SLOT(setModified(bool)));
+    connect(m_undoRedoStack, SIGNAL(undoAvailable(bool)), this, SLOT(undoAvailable(bool)));
+    connect(m_undoRedoStack, SIGNAL(redoAvailable(bool)), this, SLOT(redoAvailable(bool)));
+    ui->ui_undoAction->setEnabled(false);
+    ui->ui_redoAction->setEnabled(false);
 
     ui->ui_stopInterpreterAction->setEnabled(false);
     ui->ui_stopFrontendAction->setEnabled(false);
@@ -263,6 +269,7 @@ bool MainWindow::save(QString filePath)
     file.close();
     setModified(false);
     setCurrentPath(filePath);
+    m_undoRedoStack->setSaved();
     return true;
 }
 
@@ -286,6 +293,7 @@ void MainWindow::openFile()
                 ui->ui_inputPlainTextEdit->clear();
                 ui->ui_outputPlainTextEdit->clear();
                 ui->ui_sourceEditTableWidget->setPlainText(file.readAll());
+                m_undoRedoStack->clear();
                 setModified(false);
             }
             file.close();
@@ -300,12 +308,13 @@ void MainWindow::newFile()
         ui->ui_sourceEditTableWidget->clear();
         ui->ui_inputPlainTextEdit->clear();
         ui->ui_outputPlainTextEdit->clear();
+        m_undoRedoStack->clear();
         setModified(false);
         setCurrentPath(QString());
     }
 }
 
-void MainWindow::createUndoElement(UndoRedoElement* e)
+void MainWindow::undoRedoElementCreated(UndoRedoElement *e)
 {
     m_undoRedoStack->createUndoElement(e);
 }
@@ -320,6 +329,20 @@ void MainWindow::redo()
 {
     UndoRedoElement* e = m_undoRedoStack->redo();
     ui->ui_sourceEditTableWidget->redo(e);
+}
+
+void MainWindow::undoAvailable(bool undoAvailable)
+{
+    ui->ui_undoAction->setEnabled(undoAvailable);
+    QString display = undoAvailable ? m_undoRedoStack->undoDisplay() : "No undo available";
+    ui->ui_undoAction->setText("Undo: " + display );
+}
+
+void MainWindow::redoAvailable(bool redoAvailable)
+{
+    ui->ui_redoAction->setEnabled(redoAvailable);
+    QString display = redoAvailable ? m_undoRedoStack->redoDisplay() : "No redo available";
+    ui->ui_redoAction->setText("Redo: " + display );
 }
 
 void MainWindow::setInterpreter()

@@ -22,7 +22,6 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void createUndoElement(UndoRedoElement* e);
 
 private:
     Ui::MainWindow *ui;
@@ -49,6 +48,9 @@ private slots:
 
     void cursorPositionChanged(int row, int col);
     void textChanged();
+    void undoRedoElementCreated(UndoRedoElement *e);
+    void undoAvailable(bool undoAvailable);
+    void redoAvailable(bool redoAvailable);
     void newFile();
     void openFile();
     bool saveFile();

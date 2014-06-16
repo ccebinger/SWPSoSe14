@@ -15,7 +15,8 @@ public:
         column = newColumn;
         this->pre = pre;
         this->post = post;
-        undoDisplayName = "Overwrite " + QString(pre) + " with " + QString(post);
+        undoDisplayName = "Overwrite '" + QString(post) + "' with '" + QString(pre) + "'";
+        redoDisplayName = "Overwrite '" + QString(pre) + "' with '" + QString(post) + "'";
     }
 
     int getRow() const {
