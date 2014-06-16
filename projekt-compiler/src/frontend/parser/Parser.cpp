@@ -468,9 +468,8 @@ bool Parser::addToAbstractSyntaxGraph(string commandName, Command::Type type, No
 	return nodeWasNew;
 }
 
-//FIXME translate -> english
-//setzt position auf until falls er existiert, und gibt den gelesenen string inklusive anfangs und endzeichen zurueck
-//falls nicht wir ein leerer string zurueckgegeben und die fehlermeldung gesetzt
+//set the position to 'until' if it exists then return the return the string ,which yot red ,inclusive the starts- and end-symbol 
+//just if we didi not return an empty string and the error message is already set.
 string Parser::readCharsUntil(uint32_t until) {
 	string result = "";
 
