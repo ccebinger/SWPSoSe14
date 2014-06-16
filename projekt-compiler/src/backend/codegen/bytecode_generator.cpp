@@ -546,9 +546,60 @@ std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph
 }
 
 void globalstack_pop(ConstantPool& constant_pool, std::vector<char>& code) {
-  // TODO
+  (void) code; // used later
+
+  /* Method ref in constant pool (stack.pop()) */
+  static uint16_t stack_pop = 0;
+  /* Field ref in constant pool to this.stack */
+  static uint16_t stack_field = 0;
+
+  /* Lazy init ref to stack.pop() from constant pool */
+  if (stack_pop == 0) {
+    uint16_t stack_class_utf8 = constant_pool.addString("java/util/ArrayDeque");
+    uint16_t stack_class = constant_pool.addClassRef(stack_class_utf8);
+    uint16_t stack_pop_utf8 = constant_pool.addString("pop");
+    uint16_t stack_pop_sig_utf8 = constant_pool.addString("()Ljava/lang/Object;");
+    uint16_t stack_pop_name_type =
+          constant_pool.addNameAndType(stack_pop_utf8,
+                                       stack_pop_sig_utf8);
+    stack_pop = constant_pool.addMethRef(stack_class,
+                                                stack_pop_name_type);
+  }
+
+  /* Lazy init ref to our stack field */
+  if (stack_field == 0) {
+    // TODO needs name of our class somehow (or index in pool)
+  }
+
+  // TODO emit bytecode
 }
 
 void globalstack_push(ConstantPool& constant_pool, std::vector<char>& code) {
-  // TODO
+  (void) code; // used later
+
+  /* Method ref in constant pool (stack.push()) */
+  static uint16_t stack_push = 0;
+  /* Field ref in constant pool to this.stack */
+  static uint16_t stack_field = 0;
+
+  /* Lazy init ref to stack.push() from constant pool */
+  if (stack_push == 0) {
+    uint16_t stack_class_utf8 = constant_pool.addString("java/util/ArrayDeque");
+    uint16_t stack_class = constant_pool.addClassRef(stack_class_utf8);
+    uint16_t stack_push_utf8 = constant_pool.addString("push");
+    uint16_t stack_push_sig_utf8 = constant_pool.addString(
+                                                 "(Ljava/lang/Object;)V");
+    uint16_t stack_push_name_type =
+          constant_pool.addNameAndType(stack_push_utf8,
+                                       stack_push_sig_utf8);
+    stack_push = constant_pool.addMethRef(stack_class,
+                                                stack_push_name_type);
+  }
+
+  /* Lazy init ref to our stack field */
+  if (stack_field == 0) {
+    // TODO needs name of our class somehow (or index in constant pool)
+  }
+
+  // TODO emit bytecode
 }
