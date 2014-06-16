@@ -10,13 +10,16 @@ private:
 
 public:
 
-    UndoRedoTypeCharacter(int newRow, int newColumn, QChar pre, QChar post) {
+    UndoRedoTypeCharacter(int newRow, int newColumn, QChar newPre, QChar newPost) {
         row = newRow;
         column = newColumn;
-        this->pre = pre;
-        this->post = post;
-        undoDisplayName = "Overwrite '" + QString(post) + "' with '" + QString(pre) + "'";
-        redoDisplayName = "Overwrite '" + QString(pre) + "' with '" + QString(post) + "'";
+        pre = newPre;
+        post = newPost;
+
+        QString preString = pre.isNull() ? QString() : QString(pre);
+        QString postString = post.isNull() ? QString() : QString(post);
+        undoDisplayName = "Overwrite '" + postString + "' with '" + preString + "' at (" + QString::number(row+1) + ", " + QString::number(column+1) + ")";
+        redoDisplayName = "Overwrite '" + preString + "' with '" + postString + "' at (" + QString::number(row+1) + ", " + QString::number(column+1) + ")";
     }
 
     int getRow() const {

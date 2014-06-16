@@ -28,7 +28,11 @@ public:
         savedAt = 0;
     }
 
-    virtual ~UndoRedoStack() {}
+    virtual ~UndoRedoStack() {
+        clear();
+        delete internalUndoStack;
+        delete internalRedoStack;
+    }
 
     void setSaved() {
         savedAt = 0;
@@ -93,22 +97,12 @@ public:
 
     QString undoDisplay() {
         if(internalUndoStack->isEmpty()) return QString();
-        return QString(internalUndoStack->top()->getRedoName());
+        return QString(internalUndoStack->top()->getUndoName());
     }
 
     QString redoDisplay() {
         if(internalRedoStack->isEmpty()) return QString();
         return QString(internalRedoStack->top()->getRedoName());
-    }
-
-    void clear() {
-        while(!internalUndoStack->isEmpty()) {
-            delete internalUndoStack->pop();
-        }
-
-        while(!internalRedoStack->isEmpty()) {
-            delete internalRedoStack->pop();
-        }
     }
 };
 
