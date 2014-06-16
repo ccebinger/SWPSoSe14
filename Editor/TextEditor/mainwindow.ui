@@ -6,16 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>832</width>
-    <height>545</height>
+    <width>795</width>
+    <height>505</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Rail Editor</string>
   </property>
   <widget class="QWidget" name="ui_centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,1">
-    <item>
+   <layout class="QGridLayout" name="gridLayout_5">
+    <item row="0" column="0">
      <widget class="QGroupBox" name="ui_sourceGroupBox">
       <property name="title">
        <string>Source</string>
@@ -232,49 +232,6 @@
       </layout>
      </widget>
     </item>
-    <item>
-     <widget class="QGroupBox" name="ui_ioGroupBox">
-      <property name="title">
-       <string>I/O</string>
-      </property>
-      <property name="flat">
-       <bool>false</bool>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QLabel" name="ui_inputLabel">
-         <property name="text">
-          <string>Input</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPlainTextEdit" name="ui_inputPlainTextEdit">
-         <property name="lineWrapMode">
-          <enum>QPlainTextEdit::NoWrap</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="ui_outpuLabel">
-         <property name="text">
-          <string>Output</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPlainTextEdit" name="ui_outputPlainTextEdit">
-         <property name="lineWrapMode">
-          <enum>QPlainTextEdit::NoWrap</enum>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="ui_menubar">
@@ -282,7 +239,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>832</width>
+     <width>795</width>
      <height>25</height>
     </rect>
    </property>
@@ -304,7 +261,7 @@
     <addaction name="ui_undoAction"/>
     <addaction name="ui_redoAction"/>
    </widget>
-   <widget class="QMenu" name="menuCompile">
+   <widget class="QMenu" name="ui_compileMenu">
     <property name="title">
      <string>Compile</string>
     </property>
@@ -312,15 +269,83 @@
     <addaction name="ui_runInterpreterAction"/>
     <addaction name="ui_stopInterpreterAction"/>
     <addaction name="separator"/>
-    <addaction name="ui_setCompilerAction"/>
-    <addaction name="ui_runCompilerAction"/>
-    <addaction name="ui_stopCompilerAction"/>
+    <addaction name="ui_setFrontendAction"/>
+    <addaction name="ui_runFrontendAction"/>
+    <addaction name="ui_stopFrontendAction"/>
+   </widget>
+   <widget class="QMenu" name="ui_windowMenu">
+    <property name="title">
+     <string>Window</string>
+    </property>
    </widget>
    <addaction name="ui_menuMenu"/>
    <addaction name="ui_editMenu"/>
-   <addaction name="menuCompile"/>
+   <addaction name="ui_compileMenu"/>
+   <addaction name="ui_windowMenu"/>
   </widget>
   <widget class="QStatusBar" name="ui_statusbar"/>
+  <widget class="QDockWidget" name="ui_ioDockWidget">
+   <property name="windowTitle">
+    <string>Interpreter I/O</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="3" column="0">
+      <widget class="QPlainTextEdit" name="ui_outputPlainTextEdit">
+       <property name="lineWrapMode">
+        <enum>QPlainTextEdit::NoWrap</enum>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QPlainTextEdit" name="ui_inputPlainTextEdit">
+       <property name="lineWrapMode">
+        <enum>QPlainTextEdit::NoWrap</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="ui_inputLabel">
+       <property name="text">
+        <string>Input</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="ui_outpuLabel">
+       <property name="text">
+        <string>Output</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="ui_compilerDockWidget">
+   <property name="windowTitle">
+    <string>Compiler Output</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_3">
+    <layout class="QGridLayout" name="gridLayout_3">
+     <item row="0" column="0">
+      <widget class="QPlainTextEdit" name="ui_compilerOutputPlainTextEdit">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
   <action name="ui_newFileAction">
    <property name="text">
     <string>New File</string>
@@ -385,25 +410,33 @@
    <property name="text">
     <string>Run Interpreter</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="ui_undoAction">
    <property name="text">
     <string>Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="ui_redoAction">
    <property name="text">
     <string>Redo</string>
    </property>
-  </action>
-  <action name="ui_setCompilerAction">
-   <property name="text">
-    <string>Set Compiler Location</string>
+   <property name="shortcut">
+    <string>Ctrl+Y</string>
    </property>
-  </action>
-  <action name="ui_runCompilerAction">
-   <property name="text">
-    <string>Run Compiler</string>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="ui_stopInterpreterAction">
@@ -411,7 +444,23 @@
     <string>Stop Interpreter</string>
    </property>
   </action>
-  <action name="ui_stopCompilerAction">
+  <action name="ui_setFrontendAction">
+   <property name="text">
+    <string>Set Compiler Location</string>
+   </property>
+  </action>
+  <action name="ui_runFrontendAction">
+   <property name="text">
+    <string>Run Compiler</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="ui_stopFrontendAction">
    <property name="text">
     <string>Stop Compiler</string>
    </property>
