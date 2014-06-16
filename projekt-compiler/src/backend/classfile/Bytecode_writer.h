@@ -21,7 +21,7 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 
 class Bytecode_writer {
  public:
-    explicit Bytecode_writer(std::ostream* file);
+    Bytecode_writer(std::ostream* file);
     virtual ~Bytecode_writer();
 
     void writeU8(uint8_t value);

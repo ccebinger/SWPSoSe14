@@ -44,6 +44,22 @@ enum ItemType{
   NAME_AND_TYPE = 0x0C
 };
 
+struct IntegerIndexes
+{
+  uint16_t class_idx = 0;
+  uint16_t value_of_idx = 0;
+  uint16_t int_value_idx = 0;
+};
+
+struct StringIndexes
+{
+  uint16_t class_idx = 0;
+  uint16_t concat_idx = 0;
+  uint16_t substring_2param_idx = 0;
+  uint16_t substring_idx = 0;
+  uint16_t length_idx = 0;
+};
+
 ////////////////////////////////////////////////////////////////////////
 /// ! Item
 ////////////////////////////////////////////////////////////////////////
@@ -105,6 +121,8 @@ class Item {
 
 class ConstantPool {
  public:
+  IntegerIndexes int_idx;
+  StringIndexes str_idx;
   ConstantPool(Graphs& graphs);
 
   size_t addInt(int32_t value);

@@ -198,6 +198,7 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     uint16_t concat_type_idx = addString("(Ljava/lang/String;)Ljava/lang/String;");
     uint16_t substring_name_idx = addString("substring");
     uint16_t substring_type_idx = addString("(II)Ljava/lang/String;");
+    uint16_t substring_type_single_idx = addString("(I)Ljava/lang/String;");
     uint16_t length_name_idx = addString("length");
 
     ///  Add Rail-Functionnames as Strings
@@ -211,8 +212,8 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     uint16_t system_class_idx = addClassRef(system_idx);
     uint16_t print_class_idx = addClassRef(print_idx);
     addClassRef(main_class_str_idx);
-    uint16_t integer_class_idx = addClassRef(integer_idx);
-    uint16_t string_class_idx = addClassRef(string_idx);
+    int_idx.class_idx = addClassRef(integer_idx);
+    str_idx.class_idx = addClassRef(string_idx);
 
     ///  Add name and type
     uint16_t object_name_type_idx = addNameAndType(object_name_idx, void_descriptor_idx);
@@ -222,16 +223,18 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     uint16_t intValue_name_type_idx = addNameAndType(intValue_name_idx, intValue_type_idx);
     uint16_t concat_name_type_idx = addNameAndType(concat_name_idx, concat_type_idx);
     uint16_t substring_name_type_idx = addNameAndType(substring_name_idx, substring_type_idx);
+    uint16_t substring_name_type_single_idx = addNameAndType(substring_name_idx, substring_type_single_idx);
     uint16_t length_name_type_idx = addNameAndType(length_name_idx, intValue_type_idx);
 
     ///  Add method refs
     addMethRef(object_class_idx, object_name_type_idx);
     addMethRef(print_class_idx, print_name_type_idx);
-    addMethRef(integer_class_idx, valueOf_name_type_idx);
-    addMethRef(integer_class_idx, intValue_name_type_idx);
-    addMethRef(string_class_idx, concat_name_type_idx);
-    addMethRef(string_class_idx, substring_name_type_idx);
-    addMethRef(string_class_idx, length_name_type_idx);
+    int_idx.value_of_idx = addMethRef(int_idx.class_idx, valueOf_name_type_idx);
+    int_idx.int_value_idx = addMethRef(int_idx.class_idx, intValue_name_type_idx);
+    str_idx.concat_idx = addMethRef(str_idx.class_idx, concat_name_type_idx);
+    str_idx.substring_2param_idx = addMethRef(str_idx.class_idx, substring_name_type_idx);
+    str_idx.substring_idx = addMethRef(str_idx.class_idx, substring_name_type_single_idx);
+    str_idx.length_idx = addMethRef(str_idx.class_idx, length_name_type_idx);
 
     ///  Add field refs
     addFieldRef(system_class_idx, system_name_type_idx);
