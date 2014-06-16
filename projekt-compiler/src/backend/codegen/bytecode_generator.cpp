@@ -232,9 +232,15 @@ void push_ByteCode(ConstantPool& constantPool,
 void add_integer_calculation(BytecodeGenerator::MNEMONIC calculation,
                              ConstantPool& constantPool,
                              std::vector<char>& result) {
-  uint16_t integer_class = BytecodeGenerator::add_class("java/lang/Integer", constantPool);
-  uint16_t integer_class_intValue_method = BytecodeGenerator::add_method("java/lang/Integer", "intValue", "()I", constantPool);
-  uint16_t integer_class_static_value_of_method = BytecodeGenerator::add_method("java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", constantPool);
+  uint16_t integer_class = constantPool.int_idx.class_idx;
+  if (integer_class == 0)
+    integer_class = BytecodeGenerator::add_class("java/lang/Integer", constantPool);
+  uint16_t integer_class_intValue_method = constantPool.int_idx.int_value_idx;
+  if (integer_class_intValue_method == 0)
+    integer_class_intValue_method = BytecodeGenerator::add_method("java/lang/Integer", "intValue", "()I", constantPool);
+  uint16_t integer_class_static_value_of_method = constantPool.int_idx.value_of_idx;
+  if (integer_class_static_value_of_method == 0)
+    integer_class_static_value_of_method = BytecodeGenerator::add_method("java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", constantPool);
 
   result.push_back(BytecodeGenerator::ASTORE_1);
   result.push_back(BytecodeGenerator::ASTORE_2);
@@ -301,7 +307,9 @@ void cut_ByteCode(ConstantPool& constantPool,
   // iload_0 to add the index until the cut should happend
   result.push_back(BytecodeGenerator::ILOAD_0);
 
-  uint16_t method_idx = BytecodeGenerator::add_method("java/lang/String", "substring", "(II)Ljava/lang/String;", constantPool);
+  uint16_t method_idx = constantPool.str_idx.substring_2param_idx;
+  if (method_idx == 0)
+    method_idx = BytecodeGenerator::add_method("java/lang/String", "substring", "(II)Ljava/lang/String;", constantPool);
   BytecodeGenerator::add_invoke_virtual(method_idx,
                                         constantPool, result);
   // to get begin string
@@ -309,7 +317,9 @@ void cut_ByteCode(ConstantPool& constantPool,
   // index for cut
   result.push_back(BytecodeGenerator::ILOAD_0);
 
-  method_idx = BytecodeGenerator::add_method("java/lang/String", "substring", "(I)Ljava/lang/String;", constantPool);
+  method_idx = constantPool.str_idx.substring_idx;
+  if (method_idx == 0)
+    method_idx = BytecodeGenerator::add_method("java/lang/String", "substring", "(I)Ljava/lang/String;", constantPool);
   BytecodeGenerator::add_invoke_virtual(method_idx,
                                         constantPool, result);
 
@@ -362,7 +372,9 @@ void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result,
                    Graphs::Node_ptr current_node)
 {
   // invokevirtual <Method java/lang/String.length:()I>
-  uint16_t meth_idx = BytecodeGenerator::add_method("java/lang/String", "length", "()I", constantPool);
+  uint16_t meth_idx = constantPool.str_idx.length_idx;
+  if (meth_idx == 0 )
+    meth_idx = BytecodeGenerator::add_method("java/lang/String", "length", "()I", constantPool);
   BytecodeGenerator::add_invoke_virtual(meth_idx,
                                         constantPool, result);
 
