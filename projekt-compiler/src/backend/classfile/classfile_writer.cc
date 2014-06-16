@@ -36,6 +36,8 @@ const char ClassfileWriter::kMagicNumber[] { '\xCA', '\xFE','\xBA', '\xBE' };
 const char ClassfileWriter::kNotRequired[] { '\x00', '\x00' };
 const char ClassfileWriter::kPublicAccessFlag[] { '\x00', '\x01'};
 
+const uint16_t ClassfileWriter::kMaxStack = 20;
+
 std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
     ClassfileWriter::kVersionNumbers {
   {ClassfileWriter::ClassfileVersion::JAVA_7,
@@ -259,7 +261,9 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
   writer.writeU16(constant_pool_->addString("Code"));
   // attribute_legth
   writer.writeU32(attributeCount);
-  // TODO: max_stacks
+
+  // max stack depth. doesn't need to be much since we use a global op stack.
+  writer.writeU16(kMaxStack);
 
   // max_locals
   if(key.compare("main") != 0){

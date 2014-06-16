@@ -98,6 +98,12 @@ class ClassfileWriter {
   static const char kPublicAccessFlag[];
 
   /**
+   * Konstante: Max Stacktiefe lokaler Stack. Nicht viel da wir globalen Op
+   * Stack nutzen.
+   */
+  static const uint16_t kMaxStack;
+
+  /**
    * Schreibt 0xCAFEBABE.
    */
   void WriteMagicNumber();

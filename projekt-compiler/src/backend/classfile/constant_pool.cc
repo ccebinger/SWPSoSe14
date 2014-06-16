@@ -183,6 +183,7 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     uint16_t string_idx = addString("java/lang/String");
     uint16_t main_class_str_idx = addString("Main");
     uint16_t void_descriptor_idx = addString("()V");
+    uint16_t stack_init_idx = addString("<clinit>");
     addString("Code");
     uint16_t object_name_idx = addString("<init>");
     uint16_t stringList_type_idx = addString("([Ljava/lang/String;)V");
@@ -200,6 +201,9 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     uint16_t substring_type_idx = addString("(II)Ljava/lang/String;");
     uint16_t substring_type_single_idx = addString("(I)Ljava/lang/String;");
     uint16_t length_name_idx = addString("length");
+    uint16_t stack_class_name_idx = addString("java/util/ArrayDeque");
+    uint16_t stack_field_name_idx = addString("stack");
+    uint16_t stack_field_type_idx = addString("Ljava/util/ArrayDeque;");
 
     ///  Add Rail-Functionnames as Strings
     std::vector<std::string> keyset = graphs.keyset();
@@ -214,6 +218,7 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     addClassRef(main_class_str_idx);
     int_idx.class_idx = addClassRef(integer_idx);
     str_idx.class_idx = addClassRef(string_idx);
+    uint16_t stack_class_idx = addClassRef(stack_class_name_idx);
 
     ///  Add name and type
     uint16_t object_name_type_idx = addNameAndType(object_name_idx, void_descriptor_idx);
@@ -225,6 +230,8 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     uint16_t substring_name_type_idx = addNameAndType(substring_name_idx, substring_type_idx);
     uint16_t substring_name_type_single_idx = addNameAndType(substring_name_idx, substring_type_single_idx);
     uint16_t length_name_type_idx = addNameAndType(length_name_idx, intValue_type_idx);
+    uint16_t stack_name_type_idx = addNameAndType(stack_init_idx, void_descriptor_idx);
+    uint16_t stack_field_name_type_idx = addNameAndType(stack_field_name_idx, stack_field_type_idx);
 
     ///  Add method refs
     addMethRef(object_class_idx, object_name_type_idx);
@@ -235,9 +242,12 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     str_idx.substring_2param_idx = addMethRef(str_idx.class_idx, substring_name_type_idx);
     str_idx.substring_idx = addMethRef(str_idx.class_idx, substring_name_type_single_idx);
     str_idx.length_idx = addMethRef(str_idx.class_idx, length_name_type_idx);
+    str_idx.length_idx = addMethRef(str_idx.class_idx, length_name_type_idx);
+    addMethRef(stack_class_idx, object_name_type_idx);
 
     ///  Add field refs
     addFieldRef(system_class_idx, system_name_type_idx);
+    addFieldRef(main_class_str_idx, stack_field_name_type_idx);
   }
 
 ////////////////////////////////////////////////////////////////////////
