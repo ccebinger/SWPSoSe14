@@ -56,7 +56,9 @@ BytecodeGenerator::CODE_FUNC_MAPPING = {
   {Command::Type::EASTJUNC, &if_or_while_ByteCode},
   {Command::Type::WESTJUNC, &if_or_while_ByteCode},
   {Command::Type::NORTHJUNC, &if_or_while_ByteCode},
-  {Command::Type::SOUTHJUNC, &if_or_while_ByteCode}
+  {Command::Type::SOUTHJUNC, &if_or_while_ByteCode},
+  {Command::Type::VAR_POP, &pop_Variable},
+  {Command::Type::VAR_PUSH, &push_Variable}
 };
 
 int BytecodeGenerator::localCount = 0;
@@ -315,6 +317,7 @@ void cut_ByteCode(ConstantPool& constantPool,
   result.push_back(BytecodeGenerator::ILOAD_0);
 
   uint16_t method_idx = constantPool.str_idx.substring_2param_idx;
+
   if (method_idx == 0)
     method_idx = BytecodeGenerator::add_method("java/lang/String", "substring", "(II)Ljava/lang/String;", constantPool);
   BytecodeGenerator::add_invoke_virtual(method_idx,
@@ -350,7 +353,8 @@ void append_ByteCode(ConstantPool& constantPool,
   // duplicate object
   result.push_back(BytecodeGenerator::DUP);
 
-  // init StringBuilder
+  // init StringBuilder Close Label
+
   uint16_t meth_idx = BytecodeGenerator::add_method("java/lang/StringBuilder", "'<init>'", "()V", constantPool);
   BytecodeGenerator::add_invoke_virtual(meth_idx,
                                         constantPool, result);
@@ -513,6 +517,16 @@ void type_ByteCode(ConstantPool& pool, std::vector<char>& code,
 //CONTROL STRUCTURE
 void if_or_while_ByteCode(ConstantPool& pool, std::vector<char>& code,
                           Graphs::Node_ptr current_node) {
+}
+//VARIABLES
+
+void pop_Variable(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+
+}
+void push_Variable(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node)
+{
+
 }
 
 std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,

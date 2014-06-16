@@ -109,6 +109,10 @@ void underflow_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Nod
 void type_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
 //CONTROL STRUCTURE
 void if_or_while_ByteCode(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
+//VARIABLES
+void pop_Variable(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
+void push_Variable(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node);
+
 void globalstack_pop(ConstantPool& constant_pool, std::vector<char>& code);
 void globalstack_push(ConstantPool& constant_pool, std::vector<char>& code);
 #endif // BYTECODE_GENERATOR_H
