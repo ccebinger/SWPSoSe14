@@ -159,9 +159,9 @@ void ClassfileWriter::WriteFields() {
  */
 void ClassfileWriter::WriteMethods() {
   std::vector<std::string> keys = this->graphs_.keyset();
-  // plus 1 for the init method
+  // plus 1 for the init method and +1 for stack init method
   size_t size = keys.size();
-  writer.writeU16(size+1);
+  writer.writeU16(size+2);
   WriteInitMethod();
   //hard coded test method
  /* writer.writeU16(9);
