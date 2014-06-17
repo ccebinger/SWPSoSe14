@@ -199,15 +199,35 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			setRowCol(straightRow, straightCol);
 			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil('['), Command::Type::PUSH_CONST, id);
 			break;
-		case '@':
+		case '{': // Function call
+			setRowCol(straightRow, straightCol);
+			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil('}'), Command::Type::CALL, id);
+			break;
+		case '}': // Function call
+			setRowCol(straightRow, straightCol);
+			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil('{'), Command::Type::CALL, id);
+			break;
+		case '(': // Variable push / pop
+			setRowCol(straightRow, straightCol);
+			parsingNotFinished = parseVariable(readCharsUntil(')'), id);
+			break;
+		case ')': // Variable push / pop
+			setRowCol(straightRow, straightCol);
+			parsingNotFinished = parseVariable(readCharsUntil('('), id);
+			break;
+
+		// Misc
+		case '@': // Reflector
 			setRowCol(straightRow, straightCol);
 			reverseDirection();
 			break;
-		case '#':
+		case '#': // Finish
 			setRowCol(straightRow, straightCol);
 			parsingNotFinished = addToAbstractSyntaxGraph("#", Command::Type::FINISH, id);
 			parsingNotFinished = false;
 			break;
+
+		// Juctions
 		case '<':
 			didGoStraight = parseJunctions(E, straightRow, straightCol, SE, NE, "<", Command::Type::EASTJUNC, id);
 			break;
@@ -220,22 +240,8 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 		case 'v':
 			didGoStraight = parseJunctions(N, straightRow, straightCol, NE, NW, "v", Command::Type::NORTHJUNC, id);
 			break;
-		case '{':
-			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil('}'), Command::Type::CALL, id);
-			break;
-		case '}':
-			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil('{'), Command::Type::CALL, id);
-			break;
-		case 't':
-			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("1", Command::Type::TRUE, id);
-			break;
-		case 'f':
-			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("0", Command::Type::FALSE, id);
-			break;
+
+		//Constant Numbers
 		case '0':
 		case '1':
 		case '2':
@@ -321,6 +327,14 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			setRowCol(straightRow, straightCol);
 			parsingNotFinished = addToAbstractSyntaxGraph("q", Command::Type::EQUAL, id);
 			break;
+		case 't': // True
+			setRowCol(straightRow, straightCol);
+			parsingNotFinished = addToAbstractSyntaxGraph("1", Command::Type::TRUE, id);
+			break;
+		case 'f': // False
+			setRowCol(straightRow, straightCol);
+			parsingNotFinished = addToAbstractSyntaxGraph("0", Command::Type::FALSE, id);
+			break;
 
 		// List Operation
 		case 'n': //Nil
@@ -336,15 +350,6 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			parsingNotFinished = addToAbstractSyntaxGraph("~", Command::Type::LIST_BREAKUP, id);
 			break;
 
-		// Variables
-		case '(':
-			setRowCol(straightRow, straightCol);
-			parsingNotFinished = parseVariable(readCharsUntil(')'), id);
-			break;
-		case ')':
-			setRowCol(straightRow, straightCol);
-			parsingNotFinished = parseVariable(readCharsUntil('('), id);
-			break;
 		default:
 			didGoStraight = false;
 			break;
