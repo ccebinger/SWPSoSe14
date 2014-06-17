@@ -98,6 +98,11 @@ class ClassfileWriter {
   static const char kPublicAccessFlag[];
 
   /**
+   * Konstante zum Schreiben für public + static access flag
+   */
+  static const char kPublicStaticAccessFlag[];
+
+  /**
    * Konstante: Max Stacktiefe lokaler Stack. Nicht viel da wir globalen Op
    * Stack nutzen.
    */
@@ -153,6 +158,11 @@ class ClassfileWriter {
    * Schreibt die <init> Methode.
    */
   void WriteInitMethod();
+
+  /**
+   * Schreibt die <clinit> Methode.
+   */
+  void WriteClInitMethod();
 
   /**
    * Schreibt die Attribute, insb. den Methoden-Bytecode.

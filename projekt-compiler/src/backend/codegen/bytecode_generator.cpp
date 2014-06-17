@@ -196,19 +196,15 @@ uint16_t BytecodeGenerator::add_name_type(const std::string& name,
 void output_ByteCode(ConstantPool& constantPool,
                      std::vector<char>& result,
                      Graphs::Node_ptr current_node) {
-  // astore_1
-  result.push_back(BytecodeGenerator::ASTORE_1);
-
+  // push system.out+
   // get <Field java/lang/System.out:Ljava/io/PrintStream;>
-  uint16_t field_idx = BytecodeGenerator::add_field("java/lang/System", "out", "Ljava/io/PrintStream;", constantPool);
-  BytecodeGenerator::add_static_field(field_idx, constantPool, result);
-
-  // aload_1
-  result.push_back(BytecodeGenerator::ALOAD_1);
-
-  // invokevirtual <Method java/io/PrintStream.print:(Ljava/lang/String;)V>
-  uint16_t meth_idx = BytecodeGenerator::add_method("java/io/PrintStream", "print", "(Ljava/lang/String;)V", constantPool);
-  BytecodeGenerator::add_invoke_virtual(meth_idx, constantPool, result);
+  uint16_t field_system_idx = BytecodeGenerator::add_field("java/lang/System", "out", "Ljava/io/PrintStream;", constantPool);
+  BytecodeGenerator::add_static_field(field_system_idx, constantPool, result);
+  globalstack_pop(constantPool,result);
+  uint16_t toString_idx = BytecodeGenerator::add_method("java/lang/Object", "toString", "()Ljava/lang/String;", constantPool);
+  BytecodeGenerator::add_invoke_virtual(toString_idx, constantPool, result);
+  uint16_t println_idx = BytecodeGenerator::add_method("java/io/PrintStream", "println", "(Ljava/lang/String;)V", constantPool);
+  BytecodeGenerator::add_invoke_virtual(println_idx, constantPool, result);
 
   BytecodeGenerator::localCount++;
 }
@@ -546,8 +542,6 @@ std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph
 }
 
 void globalstack_pop(ConstantPool& constant_pool, std::vector<char>& code) {
-  (void) code; // used later
-
   /* Method ref in constant pool (stack.pop()) */
   static uint16_t stack_pop = 0;
   /* Field ref in constant pool to this.stack */
@@ -568,10 +562,24 @@ void globalstack_pop(ConstantPool& constant_pool, std::vector<char>& code) {
 
   /* Lazy init ref to our stack field */
   if (stack_field == 0) {
-    // TODO needs name of our class somehow (or index in pool)
+     uint16_t our_class_utf8 = constant_pool.addString("Main");
+     uint16_t our_class = constant_pool.addClassRef(our_class_utf8);
+     uint16_t stack_utf8 = constant_pool.addString("stack");
+     uint16_t stack_type_utf8 = constant_pool.addString(
+                                                  "Ljava/util/ArrayDeque;");
+     uint16_t stack_name_type = constant_pool.addNameAndType(stack_utf8,
+                                                             stack_type_utf8);
+     stack_field = constant_pool.addFieldRef(our_class, stack_name_type);
   }
 
-  // TODO emit bytecode
+  /* Emitting the bytecode: */
+  /*   getstatic <stack_field> */
+  code.push_back(BytecodeGenerator::GET_STATIC);
+  BytecodeGenerator::add_index(stack_field, code);
+
+  /*   invokevirtual <stack_pop> */
+  code.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
+  BytecodeGenerator::add_index(stack_pop, code);
 }
 
 void globalstack_push(ConstantPool& constant_pool, std::vector<char>& code) {

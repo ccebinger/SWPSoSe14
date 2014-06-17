@@ -204,6 +204,12 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     uint16_t stack_class_name_idx = addString("java/util/ArrayDeque");
     uint16_t stack_field_name_idx = addString("stack");
     uint16_t stack_field_type_idx = addString("Ljava/util/ArrayDeque;");
+    uint16_t pop_name_idx = addString("pop");
+    uint16_t pop_type_idx = addString("()Ljava/lang/Object;");
+    uint16_t push_name_idx = addString("push");
+    uint16_t push_type_idx = addString("(Ljava/lang/Object;)V");
+    uint16_t toString_name_idx = addString("toString");
+    uint16_t toString_type_idx = addString("()Ljava/lang/String;");
 
     ///  Add Rail-Functionnames as Strings
     std::vector<std::string> keyset = graphs.keyset();
@@ -232,6 +238,9 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     uint16_t length_name_type_idx = addNameAndType(length_name_idx, intValue_type_idx);
     uint16_t stack_name_type_idx = addNameAndType(stack_init_idx, void_descriptor_idx);
     uint16_t stack_field_name_type_idx = addNameAndType(stack_field_name_idx, stack_field_type_idx);
+    uint16_t pop_name_type_idx = addNameAndType(pop_name_idx, pop_type_idx);
+    uint16_t push_name_type_idx = addNameAndType(push_name_idx, push_type_idx);
+    uint16_t toString_name_type_idx = addNameAndType(toString_name_idx, toString_type_idx);
 
     ///  Add method refs
     addMethRef(object_class_idx, object_name_type_idx);
@@ -244,6 +253,9 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     str_idx.length_idx = addMethRef(str_idx.class_idx, length_name_type_idx);
     str_idx.length_idx = addMethRef(str_idx.class_idx, length_name_type_idx);
     addMethRef(stack_class_idx, object_name_type_idx);
+    addMethRef(stack_class_idx, pop_name_type_idx);
+    addMethRef(stack_class_idx, push_name_type_idx);
+    addMethRef(str_idx.class_idx, toString_name_type_idx);
 
     ///  Add field refs
     addFieldRef(system_class_idx, system_name_type_idx);
