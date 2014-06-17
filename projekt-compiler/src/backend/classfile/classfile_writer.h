@@ -155,6 +155,11 @@ class ClassfileWriter {
   void WriteInitMethod();
 
   /**
+     * Schreibt die <clinit> Methode.
+     */
+    void WriteClInitMethod();
+
+  /**
    * Schreibt die Attribute, insb. den Methoden-Bytecode.
    */
   void WriteAttributes(const std::string &key);
