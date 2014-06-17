@@ -74,14 +74,14 @@ ClassfileWriter::~ClassfileWriter() {
  * Each method represents an specific part of the class-file
  */
 void ClassfileWriter::WriteClassfile() {
-  WriteMagicNumber();
-  WriteVersionNumber();
-  WriteConstantPool();
-  WriteAccessFlags();
-  WriteClassName();
-  WriteSuperClassName();
-  WriteInterfaces();
-  WriteFields();
+ // WriteMagicNumber();
+ // WriteVersionNumber();
+ // WriteConstantPool();
+ // WriteAccessFlags();
+ // WriteClassName();
+ // WriteSuperClassName();
+ // WriteInterfaces();
+ // WriteFields();
   WriteMethods();
 }
 
@@ -163,6 +163,7 @@ void ClassfileWriter::WriteMethods() {
   size_t size = keys.size();
   writer.writeU16(size+2);
   WriteInitMethod();
+  WriteClInitMethod();
   //hard coded test method
  /* writer.writeU16(9);
   writer.writeU16(constant_pool_->addString("main"));
@@ -237,6 +238,39 @@ void ClassfileWriter::WriteInitMethod() {
   out_->write(kNotRequired, sizeof(kNotRequired));
 }
 
+/*!
+ * \brief Writes the init code for the global stack into the class file
+ */
+void ClassfileWriter::WriteClInitMethod() {
+  writer.writeU16(8); //static access flag
+  writer.writeU16(constant_pool_->addString("<clinit>"));
+  writer.writeU16(constant_pool_->addString("()V"));
+  /* WriteAttributes */
+  // attribute_count=1
+  writer.writeU16(1);
+  writer.writeU16(constant_pool_->addString("Code"));
+  //attribute length
+  writer.writeU32(19);
+  // max_stack=2
+  writer.writeU16(2);
+  // max_locals=0
+  writer.writeU16(0);
+  // code_length=5
+  writer.writeU32(11);
+  //code source
+  writer.writeU8(187);
+  writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("java.util.ArrayDeque")));
+  writer.writeU8(89);
+  writer.writeU8(183);
+  writer.writeU16(constant_pool_->addMethRef(constant_pool_->addClassRef(constant_pool_->addString("java/util/ArrayDeque")),constant_pool_->addNameAndType(constant_pool_->addString("<init>"), constant_pool_->addString("()V"))));
+  writer.writeU8(179);
+  writer.writeU16(constant_pool_->addFieldRef(constant_pool_->addClassRef(constant_pool_->addString("Main")),constant_pool_->addNameAndType(constant_pool_->addString("stack"), constant_pool_->addString("Ljava/util/ArrayDeque;"))));
+  writer.writeU8(177);
+  // exception_table_length=0
+  out_->write(kNotRequired, sizeof(kNotRequired));
+  // attributes_count
+  out_->write(kNotRequired, sizeof(kNotRequired));
+}
 /*!
  * \brief Writes attributes in class-file
  * Every method calls WritesAttributes
