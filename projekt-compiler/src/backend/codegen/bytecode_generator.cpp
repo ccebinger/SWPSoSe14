@@ -546,8 +546,6 @@ std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph
 }
 
 void globalstack_pop(ConstantPool& constant_pool, std::vector<char>& code) {
-  (void) code; // used later
-
   /* Method ref in constant pool (stack.pop()) */
   static uint16_t stack_pop = 0;
   /* Field ref in constant pool to this.stack */
@@ -568,10 +566,24 @@ void globalstack_pop(ConstantPool& constant_pool, std::vector<char>& code) {
 
   /* Lazy init ref to our stack field */
   if (stack_field == 0) {
-    // TODO needs name of our class somehow (or index in pool)
+     uint16_t our_class_utf8 = constant_pool.addString("Main");
+     uint16_t our_class = constant_pool.addClassRef(our_class_utf8);
+     uint16_t stack_utf8 = constant_pool.addString("stack");
+     uint16_t stack_type_utf8 = constant_pool.addString(
+                                                  "Ljava/util/ArrayDeque;");
+     uint16_t stack_name_type = constant_pool.addNameAndType(stack_utf8,
+                                                             stack_type_utf8);
+     stack_field = constant_pool.addFieldRef(our_class, stack_name_type);
   }
 
-  // TODO emit bytecode
+  /* Emitting the bytecode: */
+  /*   getstatic <stack_field> */
+  code.push_back(BytecodeGenerator::GET_STATIC);
+  BytecodeGenerator::add_index(stack_field, code);
+
+  /*   invokevirtual <stack_pop> */
+  code.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
+  BytecodeGenerator::add_index(stack_pop, code);
 }
 
 void globalstack_push(ConstantPool& constant_pool, std::vector<char>& code) {
