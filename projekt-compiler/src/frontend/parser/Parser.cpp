@@ -187,13 +187,15 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 	bool didGoStraight = true;
 	NodeIdentifier id{posRow, posCol, dir};
 	switch(charAtStraight) {
-		case '[':
+
+		//Delimiter
+		case '[': // Reading Constant
 			setRowCol(straightRow, straightCol);
 			//TODO: ueberpruefen ob notwendig: list<char> invalidCharList = {'[','{','(',},;
 			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil(']'), Command::Type::PUSH_CONST, id);
 			//TODO: create pushNode in graph
 			break;
-		case ']':
+		case ']': // Reading Constant
 			setRowCol(straightRow, straightCol);
 			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil('['), Command::Type::PUSH_CONST, id);
 			break;
@@ -249,7 +251,7 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			break;
 
 		// System operation
-		case 'b': //boom
+		case 'b': //Boom
 			setRowCol(straightRow,straightCol);
 			parsingNotFinished = addToAbstractSyntaxGraph("b", Command::Type::BOOM, id);
 			break;
@@ -257,7 +259,7 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			setRowCol(straightRow,straightCol);
 			parsingNotFinished = addToAbstractSyntaxGraph("e", Command::Type::EOF_CHECK, id);
 			break;
-		case 'i': //EOF
+		case 'i': //Input
 			setRowCol(straightRow,straightCol);
 			parsingNotFinished = addToAbstractSyntaxGraph("i", Command::Type::INPUT, id);
 			break;
