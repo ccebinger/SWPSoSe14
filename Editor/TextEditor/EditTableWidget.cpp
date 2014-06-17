@@ -370,6 +370,7 @@ void EditTableWidget::clear()
     m_textMaxRow = 0;
     m_textMaxCol = 0;
     setPosition(0, 0);
+    m_graph.clear();
 }
 
 void EditTableWidget::setPlainText(QString text)
