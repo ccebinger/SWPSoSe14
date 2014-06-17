@@ -242,7 +242,7 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			setRowCol(straightRow,straightCol);
 			parsingNotFinished = addToAbstractSyntaxGraph("i", Command::Type::INPUT,id);
 			break;
-		case 'o':
+		case 'o': //Output
 			setRowCol(straightRow, straightCol);
 			parsingNotFinished = addToAbstractSyntaxGraph("o", Command::Type::OUTPUT,id);
 			break;
@@ -250,10 +250,11 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			setRowCol(straightRow, straightCol);
 			parsingNotFinished = addToAbstractSyntaxGraph("u", Command::Type::UNDERFLOW_CHECK,id);
 			break;
-		case '?':
+		case '?': // Typecheck
 			setRowCol(straightRow, straightCol);
 			parsingNotFinished = addToAbstractSyntaxGraph("?", Command::Type::TYPE_CHECK,id);
 			break;
+
 		// Arithmetic Operations
 		case 'a': // Add
 			setRowCol(straightRow, straightCol);
