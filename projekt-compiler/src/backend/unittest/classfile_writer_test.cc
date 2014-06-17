@@ -22,8 +22,6 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 int main(int argc, char** argv) {
   ConstantPool cp;
   std::ostringstream os;
-  ClassfileWriter cs(ClassfileWriter::ClassfileVersion::JAVA_7,
-                     cp, os);
 }
 
 #endif

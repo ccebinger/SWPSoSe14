@@ -213,3 +213,20 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+################
+## Doxygen
+################
+doc/
+Doc/
+src/latex/
+src/html/
+
+
+#######################
+## Project specific
+#######################
+graphviz.dot
+serialized.csv
+*.class
+Editor/build-TextEditor-Desktop-Debug/*

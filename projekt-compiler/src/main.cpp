@@ -1,59 +1,101 @@
 #include <iostream>
-#include <string.h>
+//#include <string.h>
 
-#include <frontend/parse/lexer.h>
-#include <frontend/Parser.h>
+#include <common/Env.h>
+#include <frontend/lexer/Lexer.h>
+#include <frontend/parser/Parser.h>
 #include <frontend/Graphs.h>
-#include <frontend/Parse_Exception.h>
+#include <backend/backend.h>
 
 using namespace std;
 
-
 int main(int argc, char *argv[]) {
+
+	Env::initIoDirectory();
+	Env::parseParams(argc, argv);
+
+	Graphs graphs;
+
+
 	// ------------------------------------------------------------------------
 	// FRONTEND
 	// ------------------------------------------------------------------------
 
-	// Lexer
-	//FIXME hardcoded. must be provided by commandline
-	Lexer lexer;
-	lexer.lex("test-cases/helloworld.txt");
-	RailFunction func = lexer.functions.at(0); //FIXME hardcoded number of functions
+	if(Env::hasSrcFile()) {
 
 
-	// "Parser"
-	BoardContainer board{func.code, MAX_CHARS_PER_LINE, MAX_LINES_PER_FUNCTION};
-	Parser p(board, func.getName());
-	shared_ptr<Adjacency_list> asg = p.parseGraph();
-	if(asg == NULL) {
-    Parse_Exception pe;
-    pe.set_msg(p.errorMessage);
-		throw pe;
+		Env::printCaption("Frontend - Lexer");
+
+		// Lexer
+		Lexer lexer;
+		lexer.lex(Env::getSrcFile());
+
+
+
+		if(!lexer.hasFunctions()) {
+			throw EnvException(FRONTEND_LEXER, "No rail functions found in " + Env::getSrcFile());
+		}
+		Env::showWarnings();
+
+
+
+
+		// Parser
+		Env::printCaption("Frontend - Parser");
+		for(auto it = lexer.functions.begin(); it < lexer.functions.end(); ++it) {
+			Parser p(*it);
+			shared_ptr<Adjacency_list> asg = p.parseGraph();
+			if(asg == NULL) {
+				throw EnvException(FRONTEND_PARSER, "No Asg present. Parser report: " + p.errorMessage);
+			}
+			Env::showWarnings();
+			graphs.put((*it)->getName(), asg);
+		}
+		Env::showWarnings();
+
+	}
+	else if(Env::hasSrcDeserialize()) {
+		// Deserialize
+		Env::printCaption("ASG - Deserialize");
+		graphs.unmarshall(Env::getSrcDeserialize(), ';');
+		Env::showWarnings();
+	}
+	else {
+		throw EnvException(ENVIRONMENT, "No source specified. Use either -i <file> or -d <file>.");
 	}
 
 
-	// Create Graphs
-	Graphs graphs;
-	graphs.put(func.getName(), asg);
 
+	// ------------------------------------------------------------------------
+	// ASG
+	// ------------------------------------------------------------------------
 
 	// Serialize
-	graphs.marshall("out.csv");
+	if(Env::getDstSerialize() != "") {
+		Env::printCaption("ASG - Serialize");
+		graphs.marshall(Env::getDstSerialize(), ';');
+		Env::showWarnings();
+	}
 
 
-	// Deserialize
-	Graphs sndGraphs;
-	sndGraphs.unmarshall("out.csv", ';'); //FIXME fix delimiter
 
+	// GraphViz
+	if(Env::getDstGraphviz() != "") {
+		Env::printCaption("ASG - GraphViz");
+		graphs.writeGraphViz(Env::getDstGraphviz());
+		Env::showWarnings();
+	}
 
 
 	// ------------------------------------------------------------------------
 	// BACKEND
 	// ------------------------------------------------------------------------
+	Env::printCaption("Backend");
 
+	// TODO #118
+	ofstream outFile(Env::getDstClassfile(), std::ofstream::binary);
+	Backend::Generate(graphs, outFile);
 
-
-
-
+	Env::showWarnings();
 	return 0;
 }

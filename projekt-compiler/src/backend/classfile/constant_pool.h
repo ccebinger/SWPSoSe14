@@ -13,31 +13,122 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with this
 program; if not, see <http://www.gnu.org/licenses/>.*/
 
-#ifndef CONSTANT_POOL_H_
-#define CONSTANT_POOL_H_
+////////////////////////////////////////////////////////////////////////
+// ! \file constant_pool.h
+/// definition
+////////////////////////////////////////////////////////////////////////
 
+#ifndef PROJEKT_COMPILER_SRC_BACKEND_CLASSFILE_CONSTANT_POOL_H_
+#define PROJEKT_COMPILER_SRC_BACKEND_CLASSFILE_CONSTANT_POOL_H_
+#include <backend/classfile/Bytecode_writer.h>
 #include <cstdint>
 #include <vector>
 #include <string>
+#include <functional>
+#include <sstream>
+#include <ios>
+#include <iostream>
 
-/**
- * Repräsentiert einen Constant Pool einer .class-Datei, Version 7.
- * Kann auf einem std::ostream ausgegeben werden, als Teil einer .class-Datei.
- */
+enum ItemType{
+  CLASS = '\x07',
+  FIELD = '\x09',
+  METHOD = '\x0a',
+  IMETHOD = '\x0b',
+  UTF8 = '\x01',
+  STR = '\x08',
+  INT = '\x03',
+  LONG = '\x05',
+  NAME_AND_TYPE = '\x0c'
+};
+
+////////////////////////////////////////////////////////////////////////
+/// ! Item
+////////////////////////////////////////////////////////////////////////
+
+class Item {
+ public:
+  Item();
+  Item(const Item &i);
+  explicit Item(uint16_t _index);
+  Item(uint16_t _index, const Item &i);
+
+  bool operator==(const Item& i)const;
+  bool operator=(const Item& i);
+
+  void set(int32_t intVal);
+  void set(int64_t longVal);
+  void set(ItemType _type, const std::string &_strVal);
+
+  size_t index;  //!< index of item
+  ItemType type;  //!< item type
+  int32_t intVal;  //!< if type integer the value is stored here
+  int64_t longVal;  //!< if type long values is stored here
+  std::string strVal;  //!< if type string value is stored here
+  Item *next;  //!< pointer to next item in list
+  std::vector<unsigned char> getHexRepresentation(Bytecode_writer& writer)
+  {
+    std::vector<unsigned char> result;
+    std::stringstream sstream;
+    //sstream << '0' << type;
+    writer.writeU8(type);
+    //writer.
+    //result.add((char) t);
+    //sstream.width(1);
+//    sstream.fill(prev);
+    if (type == ItemType::INT)
+      sstream << std::hex << intVal;
+    else
+    {
+      if (type == ItemType::UTF8)
+        sstream << std::hex << strVal.size();
+      sstream << std::hex << strVal;
+    }
+
+    std::string str = sstream.str();
+    int len = str.length();
+    for (int i = 0; i < len; i++)
+      result.push_back(str.at(i));
+
+
+    return result;
+  }
+};
+
+////////////////////////////////////////////////////////////////////////
+/// ! ConstantPool
+////////////////////////////////////////////////////////////////////////
+
 class ConstantPool {
  public:
   ConstantPool();
-  virtual ~ConstantPool();
 
-  /**
-   * Schreibt den Pool im .class-Dateiformat (Version 7) in den stream.
-   */
-  uint16_t addString(std::string str);
-  uint16_t addInt(int32_t i);
-  uint16_t addLong(int64_t l);
-  uint16_t addFloat(float f);
-  uint16_t addDouble(double d);
+  size_t addInt(int32_t value);
+  size_t addLong(int64_t value);
+  size_t addNameAndType(int32_t UTF8_name_index, int32_t UTF8_descriptor_index);
+  size_t addString(const std::string &value);
+  size_t addClassRef(const std::string &value);
+  size_t addFieldRef(const std::string &value);
+  size_t addMethRef(const std::string &value);
+  size_t addIMethRef(const std::string &value);
+
   std::vector<uint8_t> getByteArray();
+  bool check(const Item& i) const;   //!< check if item in list
+  const Item& get(const Item &key)const;
+  size_t countItemType(ItemType type);
+
+  std::vector<Item> getItems() {return items;}
+ protected:
+  void putByte(uint8_t b);
+  void putShort(uint16_t s);
+  void putInt(int32_t i);
+  void putLong(int64_t l);
+  void putUTF8(std::string s);
+  void encodeUTF8(std::string s, uint32_t pos);
+
+  size_t put(Item i);
+
+  std::vector<Item> items;  //!< item list
+  std::vector<uint8_t> pool;  //!< byte constant list
 };
 
-#endif /* CONSTANT_POOL_H_ */
+#endif  // PROJEKT_COMPILER_SRC_BACKEND_CLASSFILE_CONSTANT_POOL_H_

@@ -26,7 +26,7 @@ class ClassfileWriter {
    * Stream 'out'. Der Bytecode wird in der map 'codeFunctions' gehalten, Map
    * Funktionsname -> Bytecode.
    */
-  ClassfileWriter(ClassfileVersion version, const ConstantPool& constantPool,
+  ClassfileWriter(ClassfileVersion version, ConstantPool& constantPool,
                   const std::map<std::string,
                     std::vector<char>&> codeFunctions,
                   std::ostream& out);
@@ -45,7 +45,11 @@ class ClassfileWriter {
    */
   static const char kMagicNumber[];
 
-  static std::map<ClassfileVersion, const std::array<const char, 4>> kVersionNumbers;
+  /**
+   * Eine Map die Java-Versionsnummern auf den entsprechenden
+   * Classfile-Versionsnummer-Eintrag (4 byte) mappt.
+   */
+  static std::map<ClassfileVersion, std::array<char, 4>> kVersionNumbers;
 
   /**
    * Der Ausgabestream auf den wir die Datei schreiben.
@@ -60,7 +64,7 @@ class ClassfileWriter {
   /**
    * Der ConstantPool der zu schreibenden Class-Datei.
    */
-  const ConstantPool& constant_pool_;
+  ConstantPool& constant_pool_;
 
   /**
    * Mappt Funktionsnamen auf ihren zugehörigen Bytecode.

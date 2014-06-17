@@ -1,0 +1,3 @@
+sudo apt-get install doxygen graphviz
+cd /projekt-compiler/src/
+doxygen

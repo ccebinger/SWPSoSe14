@@ -45,19 +45,18 @@ Graphs::Graph_map::iterator Graphs::end()
   return graphs.end();
 }
 
-void Graphs::marshall(Graphs::str file) {
+void Graphs::marshall(Graphs::str file, char delimiter) {
 
 	// [function name]
 	// id ; cmd ; adj1 (true,default) ; adj2 (false, not present)
+	if(Env::verbose()) {
+		std::cout << "Serializing to " << file << std::endl;
+	}
 
-	//FIXME delete file
 
-
-	std::ofstream fh(file);
-	if(!fh) {
-		IO_Exception ie;
-		ie.set_file(file);
-		throw ie;
+	std::ofstream ofh(file);
+	if(!ofh) {
+		throw EnvException(ASG, "Cannot read file " + file);
 	}
 
 
@@ -68,51 +67,75 @@ void Graphs::marshall(Graphs::str file) {
 		Graph_ptr gp = it->second;
 		std::size_t count = gp->nodeCount();
 
+		if(Env::verbose()) {
+			std::cout << "\t'" << it->first << "': " << count << " nodes" << std::endl;
+		}
+
 		// Function name
-		fh << "[" << it->first <<"]" << std::endl;
+		ofh << "[" << it->first <<"]" << std::endl;
 
 		// Node
-		for(std::size_t i = 0; i<count; ++i) {
+		for(std::size_t i = 0; i<=count; ++i) {
 			std::shared_ptr<Node> node = gp->find(i);
 
+			if(node == NULL) {
+				continue;
+			}
+
 			// id ; Command
-			fh << node->id << ";" << node->command.arg;
+			ofh << node->id << delimiter << node->command.arg << delimiter;
 
 			// Adjacency list
 			if(node->successor1) {
-				fh << ";" << node->successor1->id;
+				ofh << node->successor1->id;
 			}
 			else {
 				// Error state for Haskell-Group
-				fh << ";0";
+				ofh << "0";
 			}
-
+			ofh << ",";
 			if(node->successor2) {
-				fh << ";" << node->successor2->id;
+				ofh << node->successor2->id;
 			}
 			else {
 				// Error state for Haskell-Group
-				fh << ";0";
+				ofh << "0";
 			}
 
-			fh << std::endl << std::endl;
+			ofh << std::endl;
 		}
 
 	}
 
 
-	fh.close();
+	ofh.close();
+
+	if(Env::verbose()) {
+		std::cout << "\tResult:" << std::endl;
+		std::ifstream ifh(file);
+		std::string line;
+		while(std::getline(ifh, line)) {
+			std::cout << "\t\t" << line << std::endl;
+		}
+		ifh.close();
+		std::cout << "done..." << std::endl;
+	}
+
+
 }
 
-void Graphs::unmarshall(Graphs::str file, char delimiter)
-{
+void Graphs::unmarshall(Graphs::str file, char delimiter) {
+	if(Env::verbose()) {
+		std::cout << "Deserializing " << file << std::endl;
+	}
+
   std::ifstream infile(file);
   std::string line;
   std::getline(infile, line); //must contain function name
   try
   {
     if (!containsFunctionName(line))//if (!std::regex_match(line.begin(), line.end(), regexs[0]))
-      throw Invalid_Format_Exception();
+      throw EnvException(ASG_DESERIALIZE, "Invalid format: " + line);
 
     while (containsFunctionName(line))//(std::regex_match(line.begin(), line.end(), regexs[0]))
     {
@@ -127,12 +150,15 @@ void Graphs::unmarshall(Graphs::str file, char delimiter)
     }
     infile.close();
   }
-  catch (Invalid_Format_Exception& ife)
+  catch (...)
   {
     infile.close();
-    throw ife;
+    throw;
   }
 
+  if(Env::verbose()) {
+	  std::cout << "done..." << std::endl;
+  }
 }
 
 bool Graphs::containsFunctionName(str line)
@@ -153,7 +179,9 @@ void Graphs::skip_empty_lines(std::ifstream& infile, std::string& line)
 Graphs::Graph_ptr Graphs::unmarshall_Function(std::ifstream& infile, std::string& line, char delimiter)
 {
   Graphs::Graph_ptr adj(new Adjacency_list(line));
-  std::cout << "Graph: " << adj->name() << std::endl;
+  if(Env::verbose()) {
+	  std::cout << "\tGraph: " << adj->name() << std::endl;
+  }
   while(std::getline(infile, line) && !line.empty() && !containsFunctionName(line))
   {
     std::shared_ptr<Node> n(unmarshall_line(adj, line, delimiter));
@@ -167,8 +195,9 @@ Graphs::Node_ptr Graphs::unmarshall_line(Graphs::Graph_ptr adj, std::string& lin
   std::stringstream lineStream(line);
   std::string cell;
 
-  if (!std::getline(lineStream, cell, delimiter)) // id
-    throw Invalid_Format_Exception();
+  if (!std::getline(lineStream, cell, delimiter)) { // id
+    throw EnvException(ASG_DESERIALIZE, "Invalid format found");
+  }
 
   int id = std::stoi(cell);
   std::shared_ptr<Node> n(adj->find(id));
@@ -177,23 +206,21 @@ Graphs::Node_ptr Graphs::unmarshall_line(Graphs::Graph_ptr adj, std::string& lin
     n->id = id;
   }
 
-  if (!std::getline(lineStream, cell, delimiter)) // arg
-    throw Invalid_Format_Exception();
+  if (!std::getline(lineStream, cell, delimiter)) { // arg
+	 throw EnvException(ASG_DESERIALIZE, "Invalid format found");
+  }
 
   n->command = getCommand(cell);
 
-  if (!std::getline(lineStream, cell, delimiter)) // adja
-    throw Invalid_Format_Exception();
-
-  if (std::getline(lineStream, cell, ',')) {
-    n->successor1 = findNode(adj, cell);
-    if (std::getline(lineStream, cell, ','))
-    {
-      n->successor2 = findNode(adj, cell);
-    }
+  if (!std::getline(lineStream, cell, delimiter)) { // adja
+    throw EnvException(ASG_DESERIALIZE, "Invalid format found");
   }
-  else
-    n->successor1 = findNode(adj, cell);
+
+  n->successor1 = findNode(adj, cell);
+  if (std::getline(lineStream, cell, delimiter))
+  {
+    n->successor2 = findNode(adj, cell);
+  }
 
   printNode(n);
   return n;
@@ -211,9 +238,11 @@ Command Graphs::getCommand(std::string& cmd)
     else
       c.type = static_cast<Command::Type>(cmd[0]);
   } else if (containsBeginAndEndChar(cmd, '[', ']') ||
-             containsBeginAndEndChar(cmd, '{', '}'))
+             containsBeginAndEndChar(cmd, '{', '}') ||
+             containsBeginAndEndChar(cmd, ']', '[') ||
+             containsBeginAndEndChar(cmd, '}', '{'))
   {
-    if (cmd[0] == '[')
+    if (cmd[0] == '[' || cmd[0] == ']')
       c.type = Command::Type::PUSH_CONST;
     else
       c.type = Command::Type::CALL;
@@ -246,66 +275,179 @@ std::shared_ptr<Node> Graphs::findNode(Graphs::Graph_ptr adj, std::string id)
 
 
 void Graphs::writeGraphViz(Graphs::str file) {
+	if(Env::verbose()) {
+		std::cout << "Creating dot-file" << std::endl;
+	}
+
+
 	std::ofstream fh(file);
 	if(!fh) {
-		IO_Exception ie;
-		ie.set_file(file);
-		throw ie;
+		throw EnvException(ASG_GRAPHVIZ, "Cannot open file: " + file);
 	}
 
 	fh << "digraph G {";
 	fh << std::endl << "	node [shape=\"circle\",fontname=Courir,fontsize=10,style=filled,penwidth=1,fillcolor=\"#EEEEEE\",color=\"#048ABD\"]";
 	fh << std::endl << "	edge [color=\"#000000\", arrowsize=\"0.8\", fontsize=10, decorate=true]";
 	fh << std::endl << "	labelloc=\"t\";";
-	fh << std::endl << "	label=\"NFA\";";
+	fh << std::endl << "	label=\"Rail ASG\";";
 	fh << std::endl << "	rankdir=\"TL\";";
 	fh << std::endl;
 
 
+	// ------------------------------------------------------------------------------------------
 	// Function
+	// ------------------------------------------------------------------------------------------
+	// id + gs = unique id
+	uint32_t gs = 0;
 	std::map<std::string, Graph_ptr>::iterator it;
 	for(it = this->graphs.begin(); it != this->graphs.end(); ++it) {
 		Graph_ptr gp = it->second;
 		std::size_t count = gp->nodeCount();
 
 		// Function name
-		fh << std::endl << "func" << it->first << " [shape=\"invhouse\",fillcolor=\"none\",label=\"Function " << it->first << "\"]";
+		fh << std::endl << "\tfunc_" << it->first << " [shape=\"invhouse\",fillcolor=\"none\",label=\"'" << it->first << "'\"]";
 
 		// Function -> first node
-		fh << std::endl << "func" << it->first << " -> 0";
+
+		fh << std::endl << "\tfunc_" << it->first << " -> " << (gs == 0 ? 1 : gs+1);
 
 
 		// Nodes
-		for(std::size_t i = 0; i<count; ++i) {
+		for(std::size_t i=0; i<=count; ++i) {
 			std::shared_ptr<Node> node = gp->find(i);
+			if(node == NULL) {
+				continue;
+			}
 
 			// Node
-			//FIXME command-based node shapes
-			fh << std::endl << "\t" << node->id << " [label=\"" << node->command.arg << "\"]";
+			fh << std::endl << "\t" << node->id+gs << " " << gvGetNodeStyles(node);
+
+			// Function calls: Node -> Function
+			if(node->command.type == Command::Type::CALL) {
+				std::string funcName = node->command.arg.substr(1, node->command.arg.length()-2);
+				fh << std::endl << "\t" << node->id+gs << " -> func_" << funcName << " [label=\"CALL\",style=dotted]";
+			}
+
 
 			// Edges
 			if(node->successor1) {
-				fh << std::endl << "\t" << node->id << " -> " << node->successor1->id;
+				fh << std::endl << "\t" << node->id+gs << " -> " << node->successor1->id+gs;
 				fh << (node->successor1 && node->successor2 ? " [label=\"true\"]" : "");
 			}
 			if(node->successor2) {
-				fh << std::endl << "\t" << node->id << " -> " << node->successor2->id;
+				fh << std::endl << "\t" << node->id+gs << " -> " << node->successor2->id+gs;
 				fh << (node->successor1 && node->successor2 ? " [label=\"false\"]" : "");
 			}
 		}
+
+
+		gs += count;
 	}
 
 	fh << std::endl << "}";
-
 	fh.close();
+
+	if(Env::verbose()) {
+		std::cout << "done..." << std::endl;
+	}
 }
 
 
 
-void printNode(std::shared_ptr<Node> n)
-{
-  std::cout << "Node: " << n->id
-            << " Cmd Type:" << n->command.type << " Arg: " << n->command.arg
-            << " Succ 1: " << n->successor1->id << std::endl;
+std::string Graphs::gvGetNodeStyles(std::shared_ptr<Node> node) const {
+
+
+
+
+	//FIXME command-based node style - requires a good testfile
+	bool useLabel = true;
+	std::string shape = "";
+	std::string fillColor = "";
+	switch(node->command.type) {
+
+		// Rail
+		case Command::Type::START:				shape="plaintext"; break;
+		case Command::Type::FINISH:				shape="house"; fillColor="none"; break;
+		case Command::Type::BOOM:				useLabel=false; /*shape="proteasesite";*/ break;
+		case Command::Type::REFLECTOR:			break;
+		case Command::Type::LAMBDA:				break;
+		case Command::Type::CALL:				shape="diamond"; break;
+
+
+		// Stack
+		case Command::Type::PUSH_CONST:			shape="signature"; break;
+		case Command::Type::TRUE:				shape="signature"; fillColor="green"; break;
+		case Command::Type::FALSE:				shape="signature"; fillColor="red"; break;
+
+
+		// IO
+		case Command::Type::INPUT:				shape="larrow"; break;
+		case Command::Type::OUTPUT:				shape="rarrow"; break;
+
+		// List
+		case Command::Type::APPEND:				break;
+		case Command::Type::CUT:				break;
+		case Command::Type::LIST_BREAKUP:		break;
+		case Command::Type::LIST_CONS:			break;
+		case Command::Type::NIL:				break;
+		case Command::Type::SIZE:				break;
+
+
+
+		// Math
+		case Command::Type::ADD:
+		case Command::Type::DIV:
+		case Command::Type::MOD:
+		case Command::Type::MULT:
+		case Command::Type::SUB:				shape="note"; break;
+
+		// Compare
+		case Command::Type::EQUAL:				break;
+		case Command::Type::GREATER:			break;
+		case Command::Type::EOF_CHECK:			shape="assembly"; break;
+		case Command::Type::TYPE_CHECK:			break;
+		case Command::Type::UNDERFLOW_CHECK:	break;
+
+		// Junction
+		case Command::Type::EASTJUNC:
+		case Command::Type::NORTHJUNC:
+		case Command::Type::SOUTHJUNC:
+		case Command::Type::WESTJUNC:			shape="triangle"; break;
+
+		default: break;
+	}
+
+
+
+	std::string style = "[";
+
+	style += "label=\"" + (useLabel ? node->command.arg : "") + "\"";
+
+	if(shape != "") {
+		style += ",shape=" + shape;
+	}
+
+	if(fillColor != "") {
+		style += ",fillcolor=" + fillColor;
+	}
+
+
+	style += "]";
+
+//	if(Env::verbose()) {
+//		std::cout << "NODE STYLE: " << style << std::endl;
+//	}
+	return style;
+}
+
+
+
+
+void printNode(std::shared_ptr<Node> n) {
+	if(Env::verbose()) {
+		std::cout << "\t\tNode: " << n->id
+			<< " Cmd Type:" << n->command.type << " Arg: " << n->command.arg
+			<< " Succ 1: " << n->successor1->id << std::endl;
+	}
 }
 

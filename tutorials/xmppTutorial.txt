@@ -1,0 +1,45 @@
+Anleitung für XMPP / Jabber / Pidgin
+
+Empfohlener Client:	http://pidgin.im/
+
+Debian/Ubuntu:		sudo apt-get install pidgin
+Windows:		Installer runterladen, ..., ... <.<
+
+
+WO ihr den Account erstellt ist euch überlassen.
+	1) FU-Berlin -  Der Account ist nach Verlassen der Uni dann weg, also wenn ihr überlegt, XMPP länger zu verwenden, wäre es ratsam direkt einen anderen Anbieter zu wählen!
+	2) Irgendein anderer (z.B. jabber.ccc.de vom Chaos Computer Club)
+
+
+Für den Fall der Fälle: Eine weitaus ausführlichere (und ebenfalls allgemeine) Erklärung gibts hier: http://www.zedat.fu-berlin.de/Jabber
+
+Nach dem Start von Pidgin:
+-> Menü -> Konten -> Konten verwalten -> Hinzufügen:
+	Protokoll: XMPP
+	
+	1) Fu-Account
+	Benutzer:      euer Zedat Accountname
+	Domain:        jabber.fu-berlin.de
+	Resource:      Rechnername/Gerätename/was ihr wollt.
+	Passwort:      -.-
+	Lokaler Alias: Sinnvoll wäre euer Vorname (ist nur für die lokale Darstellung...)
+	ACHTUNG:	KEIN Häkchen für neu anlegen (der Acc besteht bereits seit eurer Uni-Anmeldung)
+
+	2) Sth different
+        Benutzer:      Username / Vorname / Whatever
+        Domain:        jabber.ccc.de
+        Resource:      Rechnername/Gerätename/was ihr wollt.
+        Passwort:      -.-
+        Lokaler Alias: Sinnvoll wäre euer Vorname (ist nur für die lokale Darstellung...)
+	ACHTUNG:       Häkchen SETZEN für "Dieses neue Konto auf dem Server anlegen"
+
+
+Chat-Gruppe hinzufügen:
+Pidgin -> Menü -> Buddys -> Chat hinzufügen
+	Raum: swp
+	Server: conference.jabber.ccc.de
+	pw: 123
+	Unten beide Häkchen setzen
+
+
+
