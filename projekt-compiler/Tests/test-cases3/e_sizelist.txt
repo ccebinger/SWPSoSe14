@@ -1,0 +1,8 @@
+$'main'(--):
+ \
+  \
+   \---n[elem1]:[elem2]:[elem3]:---z-----o---#
+
+
+
+Crash: Type Mismatch

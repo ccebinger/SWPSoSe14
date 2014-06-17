@@ -1,0 +1,52 @@
+Tutorial for CDT Eclipse mit C++11:
+
+Tested with
+- Ubuntu 14.04, gcc 4.8.2
+- Fedora 20, gcc 4.8.2
+-CDT Eclipse version 3.8.1
+
+Step 1: Create a new project
+	- uncheck "use default location"
+	- set path to the projekt-compiler
+	- Toolchain: Linux GCC (it not present: sudo apt-get install build-essential)
+
+Step 2: Add compile flags
+	Project properties -> C/C++ Build -> Settings -> Tool Settings:
+		-> GCC C++ Compiler -> Miscellaneous -> Other Flags -> Append -std=c++11 -Wall -Wextra -Werror -Wtype-limits -pedantic
+		-> GCC C++ Linker -> Miscellaneous -> Other Flags -> append -std=c++11
+
+Step 3: Add symbols
+	Project properties -> C/C++ General -> Paths and Symbols -> Symbols -> GNU C++ -> Add...
+	1. Symbol:
+		Name: __GXX_EXPERIMENTAL_CXX0X__
+		Value: leer lassen
+	2. Symbol:
+		Name: __cplusplus
+		Value: 201103L
+	-> Apply
+
+Step 4: Add include path
+	Project properties -> C/C++ General -> Paths and Symbols -> Includes -> GNU C++ -> Add...
+		Workspace... -> select "src"-Folder
+		check - Add to configurations
+		check - Add to all languages
+		check - is a workspace path
+
+Step 5:
+	Window -> Preferences -> C/C++ -> Build -> Settings -> Tab:discovery:
+	Select: CDT GCC Build-in Compiler Settings [Shared]
+	At line "Command to get compiler specs:"
+	insert -std=c++11 right in front of "${INPUTS}"
+	My line as reference: ${COMMAND} ${FLAGS} -E -P -v -dD -std=c++11 "${INPUTS}"
+
+Step 6:
+	Project -> Clean
+	Project -> C/C++ Index -> Rebuild
+
+
+
+Step 7 (optional): install gcc 4.9:
+	sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+	sudo apt-get update
+	sudo apt-get install g++ 4.9
+

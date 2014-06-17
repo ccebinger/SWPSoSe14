@@ -13,15 +13,15 @@ Bytecode_writer::~Bytecode_writer()
 
 void Bytecode_writer::write(int value, uint8_t size)
 {
-  uint8_t bsize = size / 8;
-  uint8_t bytes[bsize];
-  for (int i = 0; i < bsize; i++)
-  {
-    uint8_t shift =  (size - ((i+1) * 8));
-    bytes[i] = (value >> shift) & 0xFF;
-  }
-
-  filestream.write((char*) bytes, bsize);
+//  uint8_t bsize = size / 8;
+//  uint8_t bytes[bsize];
+//  for (int i = 0; i < bsize; i++)
+//  {
+//    uint8_t shift =  (size - ((i+1) * 8));
+//    bytes[i] = (value >> shift) & 0xFF;
+//  }
+//
+//  filestream.write((char*) bytes, bsize);
 }
 
 void Bytecode_writer::writeU8(uint8_t value)
