@@ -35,6 +35,7 @@
 const char ClassfileWriter::kMagicNumber[] { '\xCA', '\xFE','\xBA', '\xBE' };
 const char ClassfileWriter::kNotRequired[] { '\x00', '\x00' };
 const char ClassfileWriter::kPublicAccessFlag[] { '\x00', '\x01'};
+const char ClassfileWriter::kPublicStaticAccessFlag[] {'\x00', '\x09'};
 
 const uint16_t ClassfileWriter::kMaxStack = 20;
 
@@ -145,8 +146,17 @@ void ClassfileWriter::WriteInterfaces() {
 /*!
  * \brief Write the fields
  * Not used in Rail programms, thus 0x0000
+ * but for the global stack
  */
 void ClassfileWriter::WriteFields() {
+  // access flag
+  out_->write(kPublicStaticAccessFlag,
+                (sizeof(kPublicStaticAccessFlag)/sizeof(kPublicStaticAccessFlag[0])));
+  // name_index
+  writer.writeU16(constant_pool_->addString("stack"));
+  // descriptor_index
+  writer.writeU16(constant_pool_->addString("Ljava/util/ArrayDeque;"));
+  // attributes_count
   out_->write(kNotRequired, (sizeof(kNotRequired) / sizeof(kNotRequired[0])));
 }
 
@@ -194,7 +204,8 @@ void ClassfileWriter::WriteMethods() {
 
     } else {
 
-      writer.writeU16(9);
+      out_->write(kPublicStaticAccessFlag,
+                    (sizeof(kPublicStaticAccessFlag)/sizeof(kPublicStaticAccessFlag[0])));
       writer.writeU16(constant_pool_->addString(keys[i]));
       writer.writeU16(constant_pool_->addString("([Ljava/lang/String;)V"));
     }
