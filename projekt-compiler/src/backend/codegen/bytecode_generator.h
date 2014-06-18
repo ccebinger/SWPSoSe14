@@ -40,6 +40,7 @@ public:
     IDIV = '\x6c',
     IREM = '\x70',
     INSTANCE_OF = '\xc1',
+    CHECKCAST = '\xc0',
     ATHROW = '\xbf',
     IFEQ = '\x99',
     IFNE = '\x9a'
@@ -57,6 +58,7 @@ public:
   static void add_new_object(uint16_t class_idx, ConstantPool& pool, std::vector<char>& code);
   static void add_index(uint16_t indexInPool, std::vector<char>& result);
   static void add_instance_of(uint16_t class_idx, ConstantPool& constantPool, std::vector<char>& result);
+  static void add_cast(uint16_t class_idx, ConstantPool& constantPool, std::vector<char>& result);
   static void add_type_check(uint16_t class_idx, ConstantPool& constantPool, std::vector<char>& result);
   static void add_throw_exception(uint16_t class_idx, ConstantPool& constantPool, std::vector<char>& result);
 
