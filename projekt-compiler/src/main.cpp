@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
   string dstGraphviz = "";
 
   if (argc <= 1) {
-    srcFile = "Tests/test-cases/helloworld.txt";
+    srcFile = "test-cases/helloworld.txt";
     dstSerialize = "io/serialized.csv";
     dstGraphviz = "io/graphviz.dot";
     cout << "No parameters set, using defaults:" << endl;
