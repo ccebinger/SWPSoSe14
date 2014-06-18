@@ -149,6 +149,7 @@ void ClassfileWriter::WriteInterfaces() {
  * but for the global stack
  */
 void ClassfileWriter::WriteFields() {
+  writer.writeU16(1);
   // access flag
   out_->write(kPublicStaticAccessFlag,
                 (sizeof(kPublicStaticAccessFlag)/sizeof(kPublicStaticAccessFlag[0])));
@@ -212,6 +213,8 @@ void ClassfileWriter::WriteMethods() {
 
     WriteAttributes(keys[i]);
   }
+  // file attributes_count
+    out_->write(kNotRequired, sizeof kNotRequired);
 
   // std::vector<char> func = code_functions_.at("main");
   // out_.write((char*)func.data(),
@@ -224,6 +227,8 @@ void ClassfileWriter::WriteMethods() {
 void ClassfileWriter::WriteInitMethod() {
   out_->write(kPublicAccessFlag,
               (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
+  uint16_t init_idx = constant_pool_->addString("java/lang/Object");
+  uint16_t init_name_type_idx = constant_pool_->addNameAndType(constant_pool_->addString("<init>"), constant_pool_->addString("()V"));
   writer.writeU16(constant_pool_->addString("<init>"));
   writer.writeU16(constant_pool_->addString("()V"));
   /* WriteAttributes */
@@ -241,7 +246,7 @@ void ClassfileWriter::WriteInitMethod() {
   //code source
   writer.writeU8(42);
   writer.writeU8(183);
-  writer.writeU16(39);
+  writer.writeU16(constant_pool_->addMethRef(constant_pool_->addClassRef(init_idx), init_name_type_idx));
   writer.writeU8(177);
   // exception_table_length=0
   out_->write(kNotRequired, sizeof(kNotRequired));
@@ -261,7 +266,7 @@ void ClassfileWriter::WriteClInitMethod() {
   writer.writeU16(1);
   writer.writeU16(constant_pool_->addString("Code"));
   //attribute length
-  writer.writeU32(19);
+  writer.writeU32(23);
   // max_stack=2
   writer.writeU16(2);
   // max_locals=0
@@ -270,7 +275,7 @@ void ClassfileWriter::WriteClInitMethod() {
   writer.writeU32(11);
   //code source
   writer.writeU8(187);
-  writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("java.util.ArrayDeque")));
+  writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("java/util/ArrayDeque")));
   writer.writeU8(89);
   writer.writeU8(183);
   writer.writeU16(constant_pool_->addMethRef(constant_pool_->addClassRef(constant_pool_->addString("java/util/ArrayDeque")),constant_pool_->addNameAndType(constant_pool_->addString("<init>"), constant_pool_->addString("()V"))));
@@ -278,9 +283,9 @@ void ClassfileWriter::WriteClInitMethod() {
   writer.writeU16(constant_pool_->addFieldRef(constant_pool_->addClassRef(constant_pool_->addString("Main")),constant_pool_->addNameAndType(constant_pool_->addString("stack"), constant_pool_->addString("Ljava/util/ArrayDeque;"))));
   writer.writeU8(177);
   // exception_table_length=0
-  out_->write(kNotRequired, sizeof(kNotRequired));
+  out_->write(kNotRequired, sizeof(kNotRequired) / sizeof(kNotRequired[0]));
   // attributes_count
-  out_->write(kNotRequired, sizeof(kNotRequired));
+  out_->write(kNotRequired, sizeof(kNotRequired)  / sizeof(kNotRequired[0]));
 }
 /*!
  * \brief Writes attributes in class-file
@@ -314,7 +319,7 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
   if(key.compare("main") != 0){
     writer.writeU16(BytecodeGenerator::localCount);
   } else {
-    writer.writeU16(BytecodeGenerator::localCount++);
+    writer.writeU16(++BytecodeGenerator::localCount);
   }
 
   // code_length
@@ -324,7 +329,7 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
     *out_ << code[i];
   }
   // exception_table_length
-  *out_ << kNotRequired;
+  out_->write(kNotRequired, sizeof kNotRequired);
   // attributes_count
-  *out_ << kNotRequired;
+  out_->write(kNotRequired, sizeof kNotRequired);
 }
