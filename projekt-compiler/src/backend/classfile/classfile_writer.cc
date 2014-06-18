@@ -264,7 +264,7 @@ void ClassfileWriter::WriteClInitMethod() {
   writer.writeU16(1);
   writer.writeU16(constant_pool_->addString("Code"));
   //attribute length
-  writer.writeU32(19);
+  writer.writeU32(23);
   // max_stack=2
   writer.writeU16(2);
   // max_locals=0
