@@ -58,7 +58,13 @@ Backend::Status Backend::Generate(const std::string& graphIn,
 Backend::Status Backend::Generate(Graphs& graphs, std::ostream* codeOut) {
   std::string entryFunctionName("main");
   Graphs::Graph_ptr mainFunction = graphs.find(entryFunctionName);
-  ConstantPool constantPool(graphs);
+  ConstantPool constantPool;
+
+  ///  Add Rail-Functionnames as Strings
+  std::vector<std::string> keyset = graphs.keyset();
+  for (auto it = keyset.begin(); it != keyset.end(); it++) {
+    constantPool.addString(*it);
+  }
 
   std::vector<char> mainCode = BytecodeGenerator::GenerateCodeFromFunctionGraph(mainFunction,
                                                                                 constantPool);

@@ -23,8 +23,7 @@
 unsigned int cp_offset = 0;
 
 bool testConstructor() {
-  Graphs gp;
-  ConstantPool cp(gp);
+  ConstantPool cp;
   auto listInit = cp.getByteArray();
   cp_offset = listInit.size();
   // cp.addClassRef("java/lang/system");
@@ -42,8 +41,7 @@ bool testConstructor() {
 }
 
 bool testAddClassReference() {
-  Graphs gp;
-  ConstantPool cp(gp);
+  ConstantPool cp;
   return false;
 }
 
@@ -54,8 +52,7 @@ bool testAddClassReference() {
  */
 
 bool testAddInt() {
-  Graphs gp;
-  ConstantPool cp(gp);
+  ConstantPool cp;
 
   cp.addInt(0xcafebabe);
   cp.addInt(0xdeadbeef);
@@ -97,8 +94,7 @@ bool testAddString() {
                                     "links-regulaer", "comma-separated-values",
                                     "\r\n\t\t\tFUB"};
 
-  Graphs gp;
-  ConstantPool cp(gp);
+  ConstantPool cp;
   auto list = cp.getByteArray();
   int off = list.size();
 

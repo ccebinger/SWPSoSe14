@@ -22,7 +22,6 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #define PROJEKT_COMPILER_SRC_BACKEND_CLASSFILE_CONSTANT_POOL_H_
 
 #include <backend/classfile/Bytecode_writer.h>
-#include <frontend/Graphs.h>
 #include <cstdint>
 #include <vector>
 #include <string>
@@ -138,7 +137,7 @@ class ConstantPool {
   ArrayDequeIndexes arr_idx;
   ObjectIndexes obj_idx;
 
-  ConstantPool(Graphs& graphs);
+  ConstantPool();
 
   size_t addInt(int32_t value);
   size_t addNameAndType(uint16_t UTF8_name_index,
