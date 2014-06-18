@@ -325,7 +325,7 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
     *out_ << code[i];
   }
   // exception_table_length
-  *out_ << sizeof(kNotRequired) / sizeof(kNotRequired[0]);
+  out_->write(kNotRequired, sizeof kNotRequired);
   // attributes_count
-  *out_ << sizeof(kNotRequired) / sizeof(kNotRequired[0]);
+  out_->write(kNotRequired, sizeof kNotRequired);
 }
