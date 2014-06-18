@@ -50,8 +50,8 @@ rail: rail-interpreter/src/*.cpp
 constant_pool_test.o:
 	$(CC) $(CFLAGS) -D TESTS projekt-compiler/src/backend/unittest/constant_pool_test.cc
 
-unittest_constantpool: constant_pool.o classfile_writer.o Graphs.o Bytecode_writer.o bytecode_generator.o adjacency_list.o Lexer.o Parser.o backend.o constant_pool_test.o
-	$(CC) constant_pool.o classfile_writer.o Graphs.o Bytecode_writer.o bytecode_generator.o adjacency_list.o Lexer.o Parser.o backend.o constant_pool_test.o -o unittest_constantpool
+unittest_constantpool: constant_pool.o Bytecode_writer.o bytecode_generator.o constant_pool_test.o
+	$(CC) constant_pool.o Bytecode_writer.o bytecode_generator.o constant_pool_test.o -o unittest_constantpool
 
 classfile_writer_test.o:
 	$(CC) $(CFLAGS) -D TESTS projekt-compiler/src/backend/unittest/classfile_writer_test.cc
