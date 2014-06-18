@@ -541,5 +541,5 @@ void MainWindow::frontendErrorReady()
 void MainWindow::frontendProcessError(QProcess::ProcessError error)
 {
     qDebug() << "frontend error: " << error;
-    QMessageBox::error(this, "Compiler error.", "Compiler process error: " + QString::number(error));
+    QMessageBox::warning(this, "Compiler error.", "Compiler process error: " + QString::number(error));
 }
