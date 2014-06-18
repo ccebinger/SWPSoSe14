@@ -215,7 +215,7 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     obj_idx.class_idx = addClassRef(obj_cls_idx);
     uint16_t system_class_idx = addClassRef(system_idx);
     uint16_t print_class_idx = addClassRef(print_idx);
-    addClassRef(main_class_str_idx);
+    uint16_t main_class_idx = addClassRef(main_class_str_idx);
     int_idx.class_idx = addClassRef(integer_idx);
     str_idx.class_idx = addClassRef(string_idx);
     arr_idx.class_idx = addClassRef(stack_class_name_idx);
@@ -253,7 +253,7 @@ ConstantPool::ConstantPool(Graphs& graphs) {
 
     ///  Add field refs
     addFieldRef(system_class_idx, system_name_type_idx);
-    arr_idx.field_idx = addFieldRef(main_class_str_idx, stack_field_name_type_idx);
+    arr_idx.field_idx = addFieldRef(main_class_idx, stack_field_name_type_idx);
   }
 
 ////////////////////////////////////////////////////////////////////////
