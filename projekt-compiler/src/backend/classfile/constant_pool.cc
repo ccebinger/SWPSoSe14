@@ -96,11 +96,15 @@ Item& Item::operator=(const Item& i) {
     strVal1 = i.strVal1;
     strVal2 = i.strVal2;
     strVal3 = i.strVal3;
+
+    method_idx = i.method_idx;
+    descriptor_idx = i.descriptor_idx;
+    name_idx = i.name_idx;
+    class_idx = i.class_idx;
+    name_type_idx = i.name_type_idx;
   }
   return *this;
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////
 /// set item to integer value
@@ -109,15 +113,14 @@ Item& Item::operator=(const Item& i) {
 void Item::set(int32_t _intVal) {
   type = INT;
   intVal = _intVal;
-
-  // std::cout << "set int  type: " << type
-  //           << " intVal: " << intVal << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////
 /// set item to string value
 /// \param _type type of the item
-/// \param _strVal  first part of the value of this item.
+/// \param _strVal1  first part of the value of this item.
+/// \param _strVal2  first part of the value of this item.
+/// \param _strVal3  first part of the value of this item.
 ////////////////////////////////////////////////////////////////////////
 void Item::set(ItemType _type, const std::string &_strVal1,
                const std::string &_strVal2, const std::string &_strVal3) {
@@ -127,19 +130,33 @@ void Item::set(ItemType _type, const std::string &_strVal1,
   strVal3 = _strVal3;
 }
 
-
+////////////////////////////////////////////////////////////////////////
+/// set item to string value
+/// \param type type of the item
+/// \param class_idx first part of the value of this item.
+/// \param name_type_idx first part of the value of this item.
+////////////////////////////////////////////////////////////////////////
 void Item::set(ItemType type, uint16_t class_idx, uint16_t name_type_idx) {
   this->type = type;
   this->class_idx = class_idx;
   this->name_type_idx = name_type_idx;
 }
 
-
+////////////////////////////////////////////////////////////////////////
+/// set item to string value
+/// \param type type of the item
+/// \param name_idx first part of the value of this item.
+////////////////////////////////////////////////////////////////////////
 void Item::set(ItemType type, uint16_t name_idx) {
   this->type = type;
   this->name_idx = name_idx;
 }
 
+////////////////////////////////////////////////////////////////////////
+/// set item to string value
+/// \param method_idx type of the item
+/// \param descriptor_idx  first part of the value of this item.
+////////////////////////////////////////////////////////////////////////
 void Item::set_name_type(uint16_t method_idx, uint16_t descriptor_idx) {
   this->type = ItemType::NAME_AND_TYPE;
   this->method_idx = method_idx;
@@ -260,10 +277,11 @@ size_t ConstantPool::addInt(int32_t value) {
 
 ////////////////////////////////////////////////////////////////////////
 /// DRAFT VERSION - NEEDS TO BE DISCUSSED / REVIEWED (because of my lack of
-///                                                   knowledge of constant_pool.cc)
+/// knowledge of constant_pool.cc)
 /// method to put a CONSTANT_NameAndType into the pool
 /// \param UTF8_name_index the index of the name in the constant pool
-/// \param UTF8_descriptor_index the index of the descriptor in the constant pool
+/// \param UTF8_descriptor_index the index of the descriptor in the
+/// constant pool
 /// \return index of the CONSTANT_NameAndType in the pool
 ////////////////////////////////////////////////////////////////////////
 size_t ConstantPool::addNameAndType(uint16_t UTF8_name_index,
@@ -301,6 +319,11 @@ size_t ConstantPool::addString(const std::string &value) {
   return index;
 }
 
+////////////////////////////////////////////////////////////////////////
+/// method to put a string index into the pool
+/// \param string_idx value to add to pool
+/// \return index of the string in pool
+////////////////////////////////////////////////////////////////////////
 size_t ConstantPool::addConstString(uint16_t &string_idx) {
   Item i;
   size_t index = 0;
@@ -335,8 +358,9 @@ size_t ConstantPool::addClassRef(uint16_t name_idx) {
 }
 
 ////////////////////////////////////////////////////////////////////////
-/// method to put a string into the pool
-/// \param value value to add to pool
+/// method to put a string field into the pool
+/// \param class_idx value to add to pool
+/// \param value name_type_idx to add to pool
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
 size_t ConstantPool::addFieldRef(uint16_t class_idx, uint16_t name_type_idx) {
@@ -356,7 +380,8 @@ size_t ConstantPool::addFieldRef(uint16_t class_idx, uint16_t name_type_idx) {
 
 ////////////////////////////////////////////////////////////////////////
 /// method to put a string into the pool
-/// \param value value to add to pool
+/// \param class_idx value to add to pool
+/// \param name_type_idx value to add to pool
 /// \return index of the string in pool
 ////////////////////////////////////////////////////////////////////////
 size_t ConstantPool::addMethRef(uint16_t class_idx, uint16_t name_type_idx) {
@@ -376,6 +401,7 @@ size_t ConstantPool::addMethRef(uint16_t class_idx, uint16_t name_type_idx) {
 
 ////////////////////////////////////////////////////////////////////////
 /// method to count numbers of items with specified type
+/// \param type type that be counted
 /// \return amount of items with types
 ////////////////////////////////////////////////////////////////////////
 size_t ConstantPool::countItemType(ItemType type) {
@@ -410,16 +436,16 @@ const Item &ConstantPool::get(const Item &key) const {
 bool ConstantPool::check(const Item &key) const {
   auto i = std::find(items.begin(), items.end(), key);
   if (i != items.end()) {
-    // std::cout << "true check type: " << i->type
-    //           << " intVal: " << i->intVal
-    //           << " key type: " << key.type
-    //           << " intVal: " << key.intVal << std::endl;
+    std::cout << "true check type: " << i->type
+              << " intVal: " << i->intVal
+              << " key type: " << key.type
+              << " intVal: " << key.intVal << std::endl;
     return true;
   }
-  // std::cout << "false check type: " << i->type
-  //           << " intVal: " << i->intVal
-  //           << " key type: " << key.type
-  //           << " intVal: " << key.intVal << std::endl;
+  std::cout << "false check type: " << i->type
+            << " intVal: " << i->intVal
+            << " key type: " << key.type
+            << " intVal: " << key.intVal << std::endl;
 
   return false;
 }

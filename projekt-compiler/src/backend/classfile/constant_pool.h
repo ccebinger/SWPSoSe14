@@ -44,15 +44,13 @@ enum ItemType{
   NAME_AND_TYPE = 0x0C
 };
 
-struct IntegerIndexes
-{
+struct IntegerIndexes {
   uint16_t class_idx = 0;
   uint16_t value_of_idx = 0;
   uint16_t int_value_idx = 0;
 };
 
-struct StringIndexes
-{
+struct StringIndexes {
   uint16_t class_idx = 0;
   uint16_t concat_idx = 0;
   uint16_t substring_2param_idx = 0;
