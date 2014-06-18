@@ -231,7 +231,7 @@ uint16_t BytecodeGenerator::add_name_type(const std::string& name,
 {
   uint16_t name_idx = constantPool.addString(name);
   uint16_t type_idx = constantPool.addString(type);
-  constantPool.addNameAndType(name_idx, type_idx);
+  return constantPool.addNameAndType(name_idx, type_idx);
 }
 
 
