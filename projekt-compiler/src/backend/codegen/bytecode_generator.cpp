@@ -258,7 +258,7 @@ void push_ByteCode(ConstantPool& constantPool,
                    std::vector<char>& result,
                    Graphs::Node_ptr current_node) {
 
-  uint16_t field_system_idx = BytecodeGenerator::add_field("Main", "stack", "Ljava.util.ArrayDeque;", constantPool);
+  uint16_t field_system_idx = BytecodeGenerator::add_field("Main", "stack", "Ljava/util/ArrayDeque;", constantPool);
   BytecodeGenerator::add_static_field(field_system_idx, constantPool, result);
 	// ldc indexInPool
   result.push_back(BytecodeGenerator::LDC);
