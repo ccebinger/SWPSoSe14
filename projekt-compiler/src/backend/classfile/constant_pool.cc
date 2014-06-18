@@ -113,9 +113,6 @@ Item& Item::operator=(const Item& i) {
 void Item::set(int32_t _intVal) {
   type = INT;
   intVal = _intVal;
-
-  std::cout << "Item::setInt  type: " << type
-            << " intVal: " << intVal << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -127,9 +124,6 @@ void Item::set(int32_t _intVal) {
 ////////////////////////////////////////////////////////////////////////
 void Item::set(ItemType _type, const std::string &_strVal1,
                const std::string &_strVal2, const std::string &_strVal3) {
-  std::cout << "Item::set type: " << _type
-            << " stringVal1: " << _strVal1 << std::endl;
-
   type = _type;
   strVal1 = _strVal1;
   strVal2 = _strVal2;
