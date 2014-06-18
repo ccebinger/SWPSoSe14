@@ -257,7 +257,10 @@ void output_ByteCode(ConstantPool& constantPool,
 void push_ByteCode(ConstantPool& constantPool,
                    std::vector<char>& result,
                    Graphs::Node_ptr current_node) {
-  // ldc indexInPool
+
+  uint16_t field_system_idx = BytecodeGenerator::add_field("Main", "stack", "Ljava.util.ArrayDeque;", constantPool);
+  BytecodeGenerator::add_static_field(field_system_idx, constantPool, result);
+	// ldc indexInPool
   result.push_back(BytecodeGenerator::LDC);
   std::string value = current_node->command.arg;
   try {
@@ -270,6 +273,7 @@ void push_ByteCode(ConstantPool& constantPool,
     uint16_t const_idx = constantPool.addConstString(string_idx);
     // BytecodeGenerator::add_index(string_idx, result);
   }
+  globalstack_push(constantPool, result);
 }
 
 void add_integer_calculation(BytecodeGenerator::MNEMONIC calculation,
