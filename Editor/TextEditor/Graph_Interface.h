@@ -45,18 +45,18 @@ private:
             stringSymbols->y = y;
             stringSymbols->next = NULL;
         }else{
-            stringMarker *tmp = new stringMarker;
-            tmp->x = x;
-            tmp->y = y;
-            tmp->next = NULL;
             stringMarker *temp = stringSymbols;
             while(temp->x != x || temp->y != y){
                 if(temp->next == NULL){
+                    stringMarker *tmp = new stringMarker;
+                    tmp->x = x;
+                    tmp->y = y;
+                    tmp->next = NULL;
                     temp->next = tmp;
                     return;
                 }
                 temp = temp->next;
-            }delete tmp;
+            }
         }
     }
     int stringDirections(int x, int y){
@@ -154,12 +154,15 @@ public:
         return (y < root->countRift()) ? root->getPoint(0,y)->getConnectionsLine(root->getPoint(0,y)->countLine()): NULL;
 	}
 	void clear(void){
-		root->clear();
+        for (int y = getMaxColm(); y >= 0; y--) {
+            for (int x = getMaxRow(); x >= 0; x--) {
+                delete root->getPoint(x,y);
+            }
+        }
         root = new Point(0,0);
 	}
     Stack* deleteSign(int x, int y){
-        // TODO: implement DELETE SIGN
-        return new Stack();
+        return setSign(x,y,' ');
 	}
 
 	Graph_Interface* clone(void){
