@@ -319,7 +319,7 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
   if(key.compare("main") != 0){
     writer.writeU16(BytecodeGenerator::localCount);
   } else {
-    writer.writeU16(BytecodeGenerator::localCount++);
+    writer.writeU16(++BytecodeGenerator::localCount);
   }
 
   // code_length
