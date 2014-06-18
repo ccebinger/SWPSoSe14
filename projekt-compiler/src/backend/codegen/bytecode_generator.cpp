@@ -130,6 +130,14 @@ void BytecodeGenerator::add_new_object(uint16_t class_idx,
   add_index(class_idx, result);
 }
 
+void BytecodeGenerator::add_cast(uint16_t class_idx,
+                                        ConstantPool& constantPool,
+                                        std::vector<char>& result) {
+  result.push_back(BytecodeGenerator::CHECKCAST);
+  add_index(class_idx, result);
+}
+
+
 void BytecodeGenerator::add_instance_of(uint16_t class_idx,
                                         ConstantPool& constantPool,
                                         std::vector<char>& result) {
@@ -580,6 +588,7 @@ void globalstack_pop(ConstantPool& constant_pool, std::vector<char>& code) {
   /*   invokevirtual <stack_pop> */
   code.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
   BytecodeGenerator::add_index(stack_pop, code);
+  //TODO cast to Integer or String (because in ArrayDeque are only Object types)
 }
 
 void globalstack_push(ConstantPool& constant_pool, std::vector<char>& code) {
