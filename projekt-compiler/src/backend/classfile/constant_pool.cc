@@ -170,7 +170,7 @@ ConstantPool::ConstantPool(Graphs& graphs) {
   items.reserve(256);
 
   /// Add strings
-    uint16_t obj_idx = addString("java/lang/Object");
+    uint16_t obj_cls_idx = addString("java/lang/Object");
     uint16_t system_idx = addString("java/lang/System");
     uint16_t print_idx = addString("java/io/PrintStream");
     uint16_t integer_idx = addString("java/lang/Integer");
@@ -212,7 +212,7 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     }
 
     ///  Add classes
-    uint16_t object_class_idx = addClassRef(obj_idx);
+    obj_idx.class_idx = addClassRef(obj_cls_idx);
     uint16_t system_class_idx = addClassRef(system_idx);
     uint16_t print_class_idx = addClassRef(print_idx);
     addClassRef(main_class_str_idx);
@@ -237,7 +237,7 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     uint16_t toString_name_type_idx = addNameAndType(toString_name_idx, toString_type_idx);
 
     ///  Add method refs
-    addMethRef(object_class_idx, object_name_type_idx);
+    addMethRef(obj_idx.class_idx , object_name_type_idx);
     addMethRef(print_class_idx, print_name_type_idx);
     int_idx.value_of_idx = addMethRef(int_idx.class_idx, valueOf_name_type_idx);
     int_idx.int_value_idx = addMethRef(int_idx.class_idx, intValue_name_type_idx);
@@ -249,7 +249,7 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     addMethRef(arr_idx.class_idx, object_name_type_idx);
     arr_idx.pop_idx = addMethRef(arr_idx.class_idx, pop_name_type_idx);
     arr_idx.push_idx = addMethRef(arr_idx.class_idx, push_name_type_idx);
-    addMethRef(obj_idx, toString_name_type_idx);
+    obj_idx.toString = addMethRef(obj_idx.class_idx, toString_name_type_idx);
 
     ///  Add field refs
     addFieldRef(system_class_idx, system_name_type_idx);

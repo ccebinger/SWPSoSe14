@@ -51,6 +51,7 @@ public:
   static std::vector<char> GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
                                ConstantPool& constantPool);
   static void add_conditional_with_instruction(char conditional_stmt, char* conditional_body, std::vector<char>& result);
+  static void add_conditional_with_else_branch(char conditional_stmt, char* conditional_body, char* else_body, std::vector<char>& result);
   static void add_invoke_virtual(uint16_t method_idx, ConstantPool& pool, std::vector<char>& code);
   static void add_invoke_static(uint16_t method_idx,  ConstantPool& constantPool, std::vector<char>& result);
   static void add_invoke_method(MNEMONIC opcode, uint16_t method_idx,  ConstantPool& constantPool, std::vector<char>& result);
