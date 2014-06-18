@@ -1,11 +1,29 @@
+/*[--**--]
+Copyright (C) 2014  SWPSoSe14Cpp Group
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation; either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this
+program; if not, see <http://www.gnu.org/licenses/>.*/
+
 /*!
-* \mainpage backend.cc
-* \author Backend group & friends
-* \date SoSe 2014
-*
-* This class generates the target code from an input graph.
-*
-*/
+ * \mainpage backend.cc
+ * \author Backend group & friends
+ * \date SoSe 2014
+ *
+ * This class generates the target code from an input graph.
+ *
+ */
+#include <vector>
+#include <map>
+#include <string>
 #include "backend/backend.h"
 
 #include "backend/classfile/classfile_writer.h"
@@ -20,33 +38,33 @@
  * \returns Generated class-file
  */
 Backend::Status Backend::Generate(const std::string& graphIn,
-									std::ostream& codeOut) {
+                                  std::ostream* codeOut) {
   Graphs graphs;
   graphs.unmarshall(graphIn, ';');
   Backend::Status ret = Backend::Generate(graphs, codeOut);
   return ret;
 }
 /*!
-* \brief Generates target code from a graph
-* \param graphs The graph
-* \param codeOut The target code on the output stream
-*
-* Start in the graph at the main function. Went on with generating the constant pool
-* to write it and the other member as java class-file.
-* Is called after the serialized graph was unmarshalled.
-*
-* \returns Status of the created file
-*/
-Backend::Status Backend::Generate(Graphs& graphs, std::ostream& codeOut) {
+ * \brief Generates target code from a graph
+ * \param graphs The graph
+ * \param codeOut The target code on the output stream
+ *
+ * Start in the graph at the main function. Went on with generating the constant pool
+ * to write it and the other member as java class-file.
+ * Is called after the serialized graph was unmarshalled.
+ *
+ * \returns Status of the created file
+ */
+Backend::Status Backend::Generate(Graphs& graphs, std::ostream* codeOut) {
   std::string entryFunctionName("main");
   Graphs::Graph_ptr mainFunction = graphs.find(entryFunctionName);
-  ConstantPool constantPool;
+  ConstantPool constantPool(graphs);
 
   std::vector<char> mainCode = BytecodeGenerator::GenerateCodeFromFunctionGraph(mainFunction,
-		  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	constantPool);
+                                                                                constantPool);
   std::map<std::string, std::vector<char>&> codeMap{{"main", mainCode}};
 
-  ClassfileWriter writer(ClassfileWriter::JAVA_7, constantPool, codeMap, codeOut);
+  ClassfileWriter writer(ClassfileWriter::JAVA_7, &constantPool, graphs, codeMap, codeOut);
   writer.WriteClassfile();
   return Backend::Status::SUCCESS;
 }

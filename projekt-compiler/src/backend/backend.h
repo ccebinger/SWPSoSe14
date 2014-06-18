@@ -1,5 +1,20 @@
-#ifndef BACKEND_H_
-#define BACKEND_H_
+/*[--**--]
+Copyright (C) 2014  SWPSoSe14Cpp Group
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation; either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this
+program; if not, see <http://www.gnu.org/licenses/>.*/
+
+#ifndef PROJEKT_COMPILER_SRC_BACKEND_BACKEND_H_
+#define PROJEKT_COMPILER_SRC_BACKEND_BACKEND_H_
 
 #include <iostream>
 
@@ -30,13 +45,13 @@ class Backend {
    * Backend::Status zurück.
    */
   static Backend::Status Generate(const std::string& filename,
-                                  std::ostream& codeOut);
+                                  std::ostream* codeOut);
 
   /**
    * Übersetzt den Graphen aus graph in Target-Code, der auf codeOut
    * geschrieben wird. Gibt je nach Ergebnis einen Backend::Status zurück.
    */
-  static Backend::Status Generate(Graphs& graphs, std::ostream& codeOut);
+  static Backend::Status Generate(Graphs& graphs, std::ostream* codeOut);
 
   /**
    * Gibt eine beschreibende Fehlernachricht zu einem Backend::Status
@@ -56,4 +71,4 @@ class Backend {
   Backend();
 };
 
-#endif /* BACKEND_H_ */
+#endif  // PROJEKT_COMPILER_SRC_BACKEND_BACKEND_H_

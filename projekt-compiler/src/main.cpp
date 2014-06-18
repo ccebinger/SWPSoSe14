@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
 
 	// TODO #118
 	ofstream outFile(Env::getDstClassfile(), std::ofstream::binary);
-	Backend::Generate(graphs, outFile);
+	Backend::Generate(graphs, &outFile);
 
 	Env::showWarnings();
 	return 0;
