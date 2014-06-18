@@ -88,6 +88,34 @@ void BytecodeGenerator::add_conditional_with_instruction(char conditional_stmt,
   }
 }
 
+void BytecodeGenerator::add_conditional_with_else_branch(char conditional_stmt,
+                                                         char* conditional_body,
+                                                         char* else_body,
+                                                         std::vector<char>& result) {
+
+  int if_length = sizeof conditional_body / sizeof conditional_body[0];
+  std::vector<char> if_body;
+  if_body.insert(if_body.begin(), conditional_body, conditional_body + if_length);
+
+  int else_length = sizeof else_body / sizeof else_body[0];
+  int branch_idx = else_length + 2; ///TODO: CHECK IF BRANCH IS CORRECT should be after else branch
+
+  std::stringstream sstream;
+  sstream.fill('\x0');
+  sstream.width(4);
+  sstream << std::hex << branch_idx;
+  std::string branch = sstream.str();
+  if_body.push_back(BytecodeGenerator::GOTO);
+  for (int i = 0; i < 4; i++)
+    if_body.push_back(branch.at(i));
+
+
+  result.push_back(conditional_stmt);
+  add_index(if_body.size(), result); /// TODO: CHECK IF BRANCH IS CORRECT should be after goto!!
+  result.insert(result.end(), if_body.begin(), if_body.end());
+  result.insert(result.end(), else_body, else_body + else_length);
+}
+
 void BytecodeGenerator::add_invoke_virtual(uint16_t method_idx,
                                            ConstantPool& constantPool,
                                            std::vector<char>& result) {
@@ -596,6 +624,25 @@ void globalstack_pop(ConstantPool& constant_pool, std::vector<char>& code) {
 
   BytecodeGenerator::add_static_field_method_call(stack_field, stack_pop, constant_pool, code);
   //TODO cast to Integer or String (because in ArrayDeque are only Object types)
+  uint16_t int_class = constant_pool.int_idx.class_idx;
+  if (int_class == 0)
+    int_class = constant_pool.addClassRef(constant_pool.addString("java/lang/Object"));
+
+  uint16_t to_string_idx = constant_pool.obj_idx.toString;
+  if (to_string_idx == 0)
+  {
+    //TODO if string ref not exists
+  }
+
+  BytecodeGenerator::add_instance_of(int_class, constant_pool, code);
+  //if branch
+  std::vector<char> if_int_body;
+  BytecodeGenerator::add_cast(int_class, constant_pool, if_int_body);
+  // else branch
+  std::vector<char> else_body;
+  BytecodeGenerator::add_invoke_virtual(0, constant_pool, else_body);
+  //
+  BytecodeGenerator::add_conditional_with_else_branch(BytecodeGenerator::IFEQ, &if_int_body[0], &else_body[0], code);
 }
 
 void globalstack_push(ConstantPool& constant_pool, std::vector<char>& code) {
