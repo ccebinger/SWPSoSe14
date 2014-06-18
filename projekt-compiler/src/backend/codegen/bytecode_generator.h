@@ -55,6 +55,7 @@ public:
   static void add_invoke_static(uint16_t method_idx,  ConstantPool& constantPool, std::vector<char>& result);
   static void add_invoke_method(MNEMONIC opcode, uint16_t method_idx,  ConstantPool& constantPool, std::vector<char>& result);
   static void add_static_field(uint16_t field_idx, ConstantPool& pool, std::vector<char>& code);
+  static void add_static_field_method_call(uint16_t field_idx, uint16_t method_idx, ConstantPool& constantPool, std::vector<char>& result);
   static void add_new_object(uint16_t class_idx, ConstantPool& pool, std::vector<char>& code);
   static void add_index(uint16_t indexInPool, std::vector<char>& result);
   static void add_instance_of(uint16_t class_idx, ConstantPool& constantPool, std::vector<char>& result);
