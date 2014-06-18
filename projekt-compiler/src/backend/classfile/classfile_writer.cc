@@ -149,6 +149,7 @@ void ClassfileWriter::WriteInterfaces() {
  * but for the global stack
  */
 void ClassfileWriter::WriteFields() {
+  writer.writeU16(1);
   // access flag
   out_->write(kPublicStaticAccessFlag,
                 (sizeof(kPublicStaticAccessFlag)/sizeof(kPublicStaticAccessFlag[0])));
