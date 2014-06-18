@@ -88,6 +88,34 @@ void BytecodeGenerator::add_conditional_with_instruction(char conditional_stmt,
   }
 }
 
+void BytecodeGenerator::add_conditional_with_else_branch(char conditional_stmt,
+                                                         char* conditional_body,
+                                                         char* else_body,
+                                                         std::vector<char>& result) {
+
+  int if_length = sizeof conditional_body / sizeof conditional_body[0];
+  std::vector<char> if_body;
+  if_body.insert(if_body.begin(), conditional_body, conditional_body + if_length);
+
+  int else_length = sizeof else_body / sizeof else_body[0];
+  int branch_idx = else_length + 2; ///TODO: CHECK IF BRANCH IS CORRECT should be after else branch
+
+  std::stringstream sstream;
+  sstream.fill('\x0');
+  sstream.width(4);
+  sstream << std::hex << branch_idx;
+  std::string branch = sstream.str();
+  if_body.push_back(BytecodeGenerator::GOTO);
+  for (int i = 0; i < 4; i++)
+    if_body.push_back(branch.at(i));
+
+
+  result.push_back(conditional_stmt);
+  add_index(if_body.size(), result); /// TODO: CHECK IF BRANCH IS CORRECT should be after goto!!
+  result.insert(result.end(), if_body.begin(), if_body.end());
+  result.insert(result.end(), else_body, else_body + else_length);
+}
+
 void BytecodeGenerator::add_invoke_virtual(uint16_t method_idx,
                                            ConstantPool& constantPool,
                                            std::vector<char>& result) {
@@ -123,12 +151,29 @@ void BytecodeGenerator::add_static_field(uint16_t field_idx,
   add_index(field_idx, result);
 }
 
+void BytecodeGenerator::add_static_field_method_call(uint16_t field_idx,
+                                                     uint16_t method_idx,
+                                                     ConstantPool& constantPool,
+                                                     std::vector<char>& result)
+{
+  BytecodeGenerator::add_static_field(field_idx, constantPool, result);
+  BytecodeGenerator::add_invoke_virtual(method_idx, constantPool, result);
+}
+
 void BytecodeGenerator::add_new_object(uint16_t class_idx,
                                        ConstantPool& constantPool,
                                        std::vector<char>& result) {
   result.push_back(BytecodeGenerator::NEW);
   add_index(class_idx, result);
 }
+
+void BytecodeGenerator::add_cast(uint16_t class_idx,
+                                        ConstantPool& constantPool,
+                                        std::vector<char>& result) {
+  result.push_back(BytecodeGenerator::CHECKCAST);
+  add_index(class_idx, result);
+}
+
 
 void BytecodeGenerator::add_instance_of(uint16_t class_idx,
                                         ConstantPool& constantPool,
@@ -541,73 +586,82 @@ std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph
   return result;
 }
 
+uint16_t get_stack_method_ref(ConstantPool& constant_pool, const std::string& method, const std::string& descriptor)
+{
+  uint16_t stack_class_utf8 = constant_pool.addString("java/util/ArrayDeque");
+  uint16_t stack_class = constant_pool.addClassRef(stack_class_utf8);
+  uint16_t stack_pop_utf8 = constant_pool.addString(method);
+  uint16_t stack_pop_sig_utf8 = constant_pool.addString(descriptor);
+  uint16_t stack_pop_name_type = constant_pool.addNameAndType(stack_pop_utf8, stack_pop_sig_utf8);
+  return constant_pool.addMethRef(stack_class, stack_pop_name_type);
+}
+
+uint16_t get_stack_field_ref(ConstantPool& constant_pool)
+{
+  uint16_t our_class_utf8 = constant_pool.addString("Main");
+  uint16_t our_class = constant_pool.addClassRef(our_class_utf8);
+  uint16_t stack_utf8 = constant_pool.addString("stack");
+  uint16_t stack_type_utf8 = constant_pool.addString("Ljava/util/ArrayDeque;");
+  uint16_t stack_name_type = constant_pool.addNameAndType(stack_utf8, stack_type_utf8);
+  return constant_pool.addFieldRef(our_class, stack_name_type);
+}
+
+
+
 void globalstack_pop(ConstantPool& constant_pool, std::vector<char>& code) {
   /* Method ref in constant pool (stack.pop()) */
-  static uint16_t stack_pop = 0;
+  uint16_t stack_pop = constant_pool.arr_idx.pop_idx;
   /* Field ref in constant pool to this.stack */
-  static uint16_t stack_field = 0;
+  uint16_t stack_field = constant_pool.arr_idx.field_idx;
 
   /* Lazy init ref to stack.pop() from constant pool */
-  if (stack_pop == 0) {
-    uint16_t stack_class_utf8 = constant_pool.addString("java/util/ArrayDeque");
-    uint16_t stack_class = constant_pool.addClassRef(stack_class_utf8);
-    uint16_t stack_pop_utf8 = constant_pool.addString("pop");
-    uint16_t stack_pop_sig_utf8 = constant_pool.addString("()Ljava/lang/Object;");
-    uint16_t stack_pop_name_type =
-          constant_pool.addNameAndType(stack_pop_utf8,
-                                       stack_pop_sig_utf8);
-    stack_pop = constant_pool.addMethRef(stack_class,
-                                                stack_pop_name_type);
-  }
+  if (stack_pop == 0)
+    stack_pop = get_stack_method_ref(constant_pool, "pop", "()Ljava/lang/Object;");
 
   /* Lazy init ref to our stack field */
-  if (stack_field == 0) {
-     uint16_t our_class_utf8 = constant_pool.addString("Main");
-     uint16_t our_class = constant_pool.addClassRef(our_class_utf8);
-     uint16_t stack_utf8 = constant_pool.addString("stack");
-     uint16_t stack_type_utf8 = constant_pool.addString(
-                                                  "Ljava/util/ArrayDeque;");
-     uint16_t stack_name_type = constant_pool.addNameAndType(stack_utf8,
-                                                             stack_type_utf8);
-     stack_field = constant_pool.addFieldRef(our_class, stack_name_type);
+  if (stack_field == 0)
+    stack_field = get_stack_field_ref(constant_pool);
+
+  BytecodeGenerator::add_static_field_method_call(stack_field, stack_pop, constant_pool, code);
+  //TODO cast to Integer or String (because in ArrayDeque are only Object types)
+  uint16_t int_class = constant_pool.int_idx.class_idx;
+  if (int_class == 0)
+    int_class = constant_pool.addClassRef(constant_pool.addString("java/lang/Object"));
+
+  uint16_t to_string_idx = constant_pool.obj_idx.toString;
+  if (to_string_idx == 0)
+  {
+    //TODO if string ref not exists
   }
 
-  /* Emitting the bytecode: */
-  /*   getstatic <stack_field> */
-  code.push_back(BytecodeGenerator::GET_STATIC);
-  BytecodeGenerator::add_index(stack_field, code);
-
-  /*   invokevirtual <stack_pop> */
-  code.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
-  BytecodeGenerator::add_index(stack_pop, code);
+  BytecodeGenerator::add_instance_of(int_class, constant_pool, code);
+  //if branch
+  std::vector<char> if_int_body;
+  BytecodeGenerator::add_cast(int_class, constant_pool, if_int_body);
+  // else branch
+  std::vector<char> else_body;
+  BytecodeGenerator::add_invoke_virtual(0, constant_pool, else_body);
+  //
+  BytecodeGenerator::add_conditional_with_else_branch(BytecodeGenerator::IFEQ, &if_int_body[0], &else_body[0], code);
 }
 
 void globalstack_push(ConstantPool& constant_pool, std::vector<char>& code) {
-  (void) code; // used later
 
   /* Method ref in constant pool (stack.push()) */
-  static uint16_t stack_push = 0;
+  uint16_t stack_push = constant_pool.arr_idx.push_idx;
   /* Field ref in constant pool to this.stack */
-  static uint16_t stack_field = 0;
+  uint16_t stack_field = constant_pool.arr_idx.field_idx;
 
   /* Lazy init ref to stack.push() from constant pool */
-  if (stack_push == 0) {
-    uint16_t stack_class_utf8 = constant_pool.addString("java/util/ArrayDeque");
-    uint16_t stack_class = constant_pool.addClassRef(stack_class_utf8);
-    uint16_t stack_push_utf8 = constant_pool.addString("push");
-    uint16_t stack_push_sig_utf8 = constant_pool.addString(
-                                                 "(Ljava/lang/Object;)V");
-    uint16_t stack_push_name_type =
-          constant_pool.addNameAndType(stack_push_utf8,
-                                       stack_push_sig_utf8);
-    stack_push = constant_pool.addMethRef(stack_class,
-                                                stack_push_name_type);
-  }
+  if (stack_push == 0)
+    stack_push = get_stack_method_ref(constant_pool, "push", "(Ljava/lang/Object;)V");
 
   /* Lazy init ref to our stack field */
-  if (stack_field == 0) {
-    // TODO needs name of our class somehow (or index in constant pool)
-  }
+  if (stack_field == 0)
+    stack_field = get_stack_field_ref(constant_pool);
 
   // TODO emit bytecode
+  BytecodeGenerator::add_static_field_method_call(stack_field, stack_push, constant_pool, code);
 }
+
+

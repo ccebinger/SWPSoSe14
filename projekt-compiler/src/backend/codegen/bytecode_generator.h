@@ -40,6 +40,7 @@ public:
     IDIV = '\x6c',
     IREM = '\x70',
     INSTANCE_OF = '\xc1',
+    CHECKCAST = '\xc0',
     ATHROW = '\xbf',
     IFEQ = '\x99',
     IFNE = '\x9a'
@@ -50,13 +51,16 @@ public:
   static std::vector<char> GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
                                ConstantPool& constantPool);
   static void add_conditional_with_instruction(char conditional_stmt, char* conditional_body, std::vector<char>& result);
+  static void add_conditional_with_else_branch(char conditional_stmt, char* conditional_body, char* else_body, std::vector<char>& result);
   static void add_invoke_virtual(uint16_t method_idx, ConstantPool& pool, std::vector<char>& code);
   static void add_invoke_static(uint16_t method_idx,  ConstantPool& constantPool, std::vector<char>& result);
   static void add_invoke_method(MNEMONIC opcode, uint16_t method_idx,  ConstantPool& constantPool, std::vector<char>& result);
   static void add_static_field(uint16_t field_idx, ConstantPool& pool, std::vector<char>& code);
+  static void add_static_field_method_call(uint16_t field_idx, uint16_t method_idx, ConstantPool& constantPool, std::vector<char>& result);
   static void add_new_object(uint16_t class_idx, ConstantPool& pool, std::vector<char>& code);
   static void add_index(uint16_t indexInPool, std::vector<char>& result);
   static void add_instance_of(uint16_t class_idx, ConstantPool& constantPool, std::vector<char>& result);
+  static void add_cast(uint16_t class_idx, ConstantPool& constantPool, std::vector<char>& result);
   static void add_type_check(uint16_t class_idx, ConstantPool& constantPool, std::vector<char>& result);
   static void add_throw_exception(uint16_t class_idx, ConstantPool& constantPool, std::vector<char>& result);
 
@@ -115,4 +119,6 @@ void push_Variable(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr
 
 void globalstack_pop(ConstantPool& constant_pool, std::vector<char>& code);
 void globalstack_push(ConstantPool& constant_pool, std::vector<char>& code);
+uint16_t get_stack_method_ref(ConstantPool& constant_pool, const std::string& method, const std::string& descriptor);
+uint16_t get_stack_field_ref(ConstantPool& constant_pool);
 #endif // BYTECODE_GENERATOR_H

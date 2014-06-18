@@ -58,6 +58,20 @@ struct StringIndexes {
   uint16_t length_idx = 0;
 };
 
+
+struct ArrayDequeIndexes {
+  uint16_t class_idx = 0;
+  uint16_t field_idx = 0;
+  uint16_t pop_idx = 0;
+  uint16_t push_idx = 0;
+  uint16_t size = 0;
+};
+
+struct ObjectIndexes {
+  uint16_t class_idx = 0;
+  uint16_t toString = 0;
+  uint16_t equals = 0;
+};
 ////////////////////////////////////////////////////////////////////////
 /// ! Item
 ////////////////////////////////////////////////////////////////////////
@@ -121,6 +135,9 @@ class ConstantPool {
  public:
   IntegerIndexes int_idx;
   StringIndexes str_idx;
+  ArrayDequeIndexes arr_idx;
+  ObjectIndexes obj_idx;
+
   ConstantPool(Graphs& graphs);
 
   size_t addInt(int32_t value);
