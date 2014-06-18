@@ -227,6 +227,8 @@ void ClassfileWriter::WriteMethods() {
 void ClassfileWriter::WriteInitMethod() {
   out_->write(kPublicAccessFlag,
               (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
+  uint16_t init_idx = constant_pool_->addString("java/lang/Object");
+  uint16_t init_name_type_idx = constant_pool_->addNameAndType(constant_pool_->addString("<init>"), constant_pool_->addString("()V"));
   writer.writeU16(constant_pool_->addString("<init>"));
   writer.writeU16(constant_pool_->addString("()V"));
   /* WriteAttributes */
@@ -244,7 +246,7 @@ void ClassfileWriter::WriteInitMethod() {
   //code source
   writer.writeU8(42);
   writer.writeU8(183);
-  writer.writeU16(39);
+  writer.writeU16(constant_pool_->addMethRef(constant_pool_->addClassRef(init_idx), init_name_type_idx));
   writer.writeU8(177);
   // exception_table_length=0
   out_->write(kNotRequired, sizeof(kNotRequired));
