@@ -123,6 +123,15 @@ void BytecodeGenerator::add_static_field(uint16_t field_idx,
   add_index(field_idx, result);
 }
 
+void BytecodeGenerator::add_static_field_method_call(uint16_t field_idx,
+                                                     uint16_t method_idx,
+                                                     ConstantPool& constantPool,
+                                                     std::vector<char>& result)
+{
+  BytecodeGenerator::add_static_field(field_idx, constantPool, result);
+  BytecodeGenerator::add_invoke_virtual(method_idx, constantPool, result);
+}
+
 void BytecodeGenerator::add_new_object(uint16_t class_idx,
                                        ConstantPool& constantPool,
                                        std::vector<char>& result) {
@@ -570,6 +579,7 @@ uint16_t get_stack_field_ref(ConstantPool& constant_pool)
 }
 
 
+
 void globalstack_pop(ConstantPool& constant_pool, std::vector<char>& code) {
   /* Method ref in constant pool (stack.pop()) */
   uint16_t stack_pop = constant_pool.arr_idx.pop_idx;
@@ -584,14 +594,7 @@ void globalstack_pop(ConstantPool& constant_pool, std::vector<char>& code) {
   if (stack_field == 0)
     stack_field = get_stack_field_ref(constant_pool);
 
-  /* Emitting the bytecode: */
-  /*   getstatic <stack_field> */
-  code.push_back(BytecodeGenerator::GET_STATIC);
-  BytecodeGenerator::add_index(stack_field, code);
-
-  /*   invokevirtual <stack_pop> */
-  code.push_back(BytecodeGenerator::INVOKE_VIRTUAL);
-  BytecodeGenerator::add_index(stack_pop, code);
+  BytecodeGenerator::add_static_field_method_call(stack_field, stack_pop, constant_pool, code);
   //TODO cast to Integer or String (because in ArrayDeque are only Object types)
 }
 
@@ -611,6 +614,7 @@ void globalstack_push(ConstantPool& constant_pool, std::vector<char>& code) {
     stack_field = get_stack_field_ref(constant_pool);
 
   // TODO emit bytecode
+  BytecodeGenerator::add_static_field_method_call(stack_field, stack_push, constant_pool, code);
 }
 
 
