@@ -617,7 +617,7 @@ void globalstack_pop(ConstantPool& constant_pool, std::vector<char>& code) {
   uint16_t field_system_idx = BytecodeGenerator::add_field("Main", "stack", "Ljava/util/ArrayDeque;", constant_pool);
   BytecodeGenerator::add_static_field(field_system_idx, constant_pool, code);
 
-  uint16_t pop_idx = BytecodeGenerator::add_method("java/lang/ArrayDeque", "pop", "()Ljava/lang/Object;", constant_pool);
+  uint16_t pop_idx = BytecodeGenerator::add_method("java/util/ArrayDeque", "pop", "()Ljava/lang/Object;", constant_pool);
   BytecodeGenerator::add_invoke_virtual(pop_idx, constant_pool, code);
 
 }
