@@ -271,7 +271,7 @@ void push_ByteCode(ConstantPool& constantPool,
   catch (const std::invalid_argument& ia) {
     uint16_t string_idx = constantPool.addString(current_node->command.arg);
     uint16_t const_idx = constantPool.addConstString(string_idx);
-    // BytecodeGenerator::add_index(string_idx, result);
+    result.push_back(const_idx);
   }
   globalstack_push(constantPool, result);
 }
@@ -613,41 +613,12 @@ uint16_t get_stack_field_ref(ConstantPool& constant_pool)
 
 
 void globalstack_pop(ConstantPool& constant_pool, std::vector<char>& code) {
-  /* Method ref in constant pool (stack.pop()) */
-  uint16_t stack_pop = constant_pool.arr_idx.pop_idx;
-  /* Field ref in constant pool to this.stack */
-  uint16_t stack_field = constant_pool.arr_idx.field_idx;
 
-  /* Lazy init ref to stack.pop() from constant pool */
-  if (stack_pop == 0)
-    stack_pop = get_stack_method_ref(constant_pool, "pop", "()Ljava/lang/Object;");
+  uint16_t pop_idx = BytecodeGenerator::add_method("ArrayDequeue", "pop", "()Ljava/lang/Object;", constant_pool);
+  BytecodeGenerator::add_invoke_virtual(pop_idx, constant_pool, code);
 
-  /* Lazy init ref to our stack field */
-  if (stack_field == 0)
-    stack_field = get_stack_field_ref(constant_pool);
-
-  BytecodeGenerator::add_static_field_method_call(stack_field, stack_pop, constant_pool, code);
-  //TODO cast to Integer or String (because in ArrayDeque are only Object types)
-  uint16_t int_class = constant_pool.int_idx.class_idx;
-  if (int_class == 0)
-    int_class = constant_pool.addClassRef(constant_pool.addString("java/lang/Object"));
-
-  uint16_t to_string_idx = constant_pool.obj_idx.toString;
-  if (to_string_idx == 0)
-  {
-    //TODO if string ref not exists
-  }
-
-  BytecodeGenerator::add_instance_of(int_class, constant_pool, code);
-  //if branch
-  std::vector<char> if_int_body;
-  BytecodeGenerator::add_cast(int_class, constant_pool, if_int_body);
-  // else branch
-  std::vector<char> else_body;
-  BytecodeGenerator::add_invoke_virtual(0, constant_pool, else_body);
-  //
-  BytecodeGenerator::add_conditional_with_else_branch(BytecodeGenerator::IFEQ, &if_int_body[0], &else_body[0], code);
 }
+
 
 void globalstack_push(ConstantPool& constant_pool, std::vector<char>& code) {
 
@@ -664,8 +635,8 @@ void globalstack_push(ConstantPool& constant_pool, std::vector<char>& code) {
   if (stack_field == 0)
     stack_field = get_stack_field_ref(constant_pool);
 
-  // TODO emit bytecode
-  BytecodeGenerator::add_static_field_method_call(stack_field, stack_push, constant_pool, code);
+  uint16_t push_idx = BytecodeGenerator::add_method("java/util/ArrayDequeue", "push", "(Ljava/lang/Object;)V", constant_pool);
+   BytecodeGenerator::add_invoke_virtual(push_idx, constant_pool, code);
 }
 
 
