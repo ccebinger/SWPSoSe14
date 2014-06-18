@@ -379,7 +379,7 @@ public:
 
     void makeCons(InternStack *change){
         muster = posibleCons();
-        if(muster) makeColor();
+        if(start) makeColor();
         else color = 0xFF000000;
         if(bCons & 128)cons[0]->setConnections(1,(muster&128)?true:false,change,(((~128) & start) && (muster & 128))?1:0);
         if(bCons & 64)cons[1]->setConnections(2,(muster&64)?true:false,change,(((~64) & start) && (muster & 64))?2:0);
