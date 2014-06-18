@@ -164,7 +164,7 @@ class ConstantPool {
   void putInt(int32_t i);
   void putUTF8(std::string s);
 
-  size_t put(Item& i);
+  size_t put(Item* i);
 
   void encodeUTF8(std::string s, uint32_t pos);
 
