@@ -64,7 +64,7 @@ shared_ptr<Adjacency_list> Parser::parseGraph(int startPosRow, int startPosCol, 
 	dir = startDir;
 	parsingNotFinished = true;
 	while(parsingNotFinished) {
-		cout << "\t@(" << posRow << ", " << posCol << ", " << Encoding::unicodeToUtf8(board->get(posRow, posCol)) << ")" << endl;
+		cout << "\t@(" << posRow+1 << ", " << posCol+1 << ", " << Encoding::unicodeToUtf8(board->get(posRow, posCol)) << ")" << endl;
 		move();
 		if(errorMessage != ""){
 			cout << "\t" << errorMessage <<endl;
@@ -369,7 +369,6 @@ bool Parser::parseVariable(string data, NodeIdentifier id) {
 			errorMessage = "Syntax Error: Invalid variable action " + data + ": Variable name must not contain '!'";
 			return false;
 		}
-
 		// Variable pop action
 		return addToAbstractSyntaxGraph(data, Command::Type::VAR_POP, id);
 	}
