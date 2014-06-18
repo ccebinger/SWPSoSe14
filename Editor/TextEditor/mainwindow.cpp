@@ -78,6 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_frontendProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(frontendOutputReady()));
     connect(m_frontendProcess, SIGNAL(readyReadStandardError()), this, SLOT(frontendErrorReady()));
     connect(m_frontendProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(frontendFinished(int,QProcess::ExitStatus)));
+    connect(m_frontendProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(frontendProcessError(QProcess::ProcessError)));
 }
 
 MainWindow::~MainWindow()
@@ -495,20 +496,22 @@ void MainWindow::runFrontend()
         return;
     }
 
-    QString basePath = QFileInfo(m_currentFilePath).absoluteFilePath().remove(QRegExp("\\.w*$"));
-    QString inputFile = basePath + ".rail";
-    QString astFile = basePath + ".ast";
-    QString graphFile = basePath + ".dot";
-    QString classFile = basePath + ".class";
+    qDebug() << "Run frontend";
+
+    QString basePath = QFileInfo(m_currentFilePath).absoluteFilePath().remove(QFileInfo(m_currentFilePath).suffix());
+    QString inputFile = basePath + "rail";
+    QString astFile = basePath + "ast";
+    QString graphFile = basePath + "dot";
+    QString classFile = basePath + "class";
 
     // run the compiler
     QStringList parameter;
-    parameter << "-i " + inputFile
-              << "-o " + classFile
-              << "-s " + astFile
-              << "-g " + graphFile
-              << "-q"; // quiet
-    m_frontendProcess->start(m_currentInterpreterPath, parameter);
+    parameter << "-i" << inputFile
+              << "-o" << classFile
+              << "-s" << astFile
+              << "-g" << graphFile;
+              //<< "-q"; // quiet
+    m_frontendProcess->start(m_currentFrontendPath, parameter);
 }
 
 
@@ -533,4 +536,10 @@ void MainWindow::frontendOutputReady()
 void MainWindow::frontendErrorReady()
 {
     ui->ui_compilerOutputPlainTextEdit->appendHtml("<font color=red>" + m_frontendProcess->readAllStandardError() + "</font>\n");
+}
+
+void MainWindow::frontendProcessError(QProcess::ProcessError error)
+{
+    qDebug() << "frontend error: " << error;
+    QMessageBox::error(this, "Compiler error.", "Compiler process error: " + QString::number(error));
 }
