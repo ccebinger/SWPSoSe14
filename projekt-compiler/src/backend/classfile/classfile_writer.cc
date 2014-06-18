@@ -271,7 +271,7 @@ void ClassfileWriter::WriteClInitMethod() {
   writer.writeU32(11);
   //code source
   writer.writeU8(187);
-  writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("java.util.ArrayDeque")));
+  writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("java/util/ArrayDeque")));
   writer.writeU8(89);
   writer.writeU8(183);
   writer.writeU16(constant_pool_->addMethRef(constant_pool_->addClassRef(constant_pool_->addString("java/util/ArrayDeque")),constant_pool_->addNameAndType(constant_pool_->addString("<init>"), constant_pool_->addString("()V"))));
