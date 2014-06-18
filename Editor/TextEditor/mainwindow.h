@@ -73,7 +73,7 @@ private slots:
     void frontendFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void frontendOutputReady();
     void frontendErrorReady();
-
+    void frontendProcessError(QProcess::ProcessError error);
 };
 
 #endif // MAINWINDOW_H
