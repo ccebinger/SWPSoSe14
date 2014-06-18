@@ -213,6 +213,8 @@ void ClassfileWriter::WriteMethods() {
 
     WriteAttributes(keys[i]);
   }
+  // file attributes_count
+    out_->write(kNotRequired, sizeof kNotRequired);
 
   // std::vector<char> func = code_functions_.at("main");
   // out_.write((char*)func.data(),
