@@ -279,9 +279,9 @@ void ClassfileWriter::WriteClInitMethod() {
   writer.writeU16(constant_pool_->addFieldRef(constant_pool_->addClassRef(constant_pool_->addString("Main")),constant_pool_->addNameAndType(constant_pool_->addString("stack"), constant_pool_->addString("Ljava/util/ArrayDeque;"))));
   writer.writeU8(177);
   // exception_table_length=0
-  out_->write(kNotRequired, sizeof(kNotRequired));
+  out_->write(kNotRequired, sizeof(kNotRequired) / sizeof(kNotRequired[0]));
   // attributes_count
-  out_->write(kNotRequired, sizeof(kNotRequired));
+  out_->write(kNotRequired, sizeof(kNotRequired)  / sizeof(kNotRequired[0]));
 }
 /*!
  * \brief Writes attributes in class-file
@@ -325,7 +325,7 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
     *out_ << code[i];
   }
   // exception_table_length
-  *out_ << kNotRequired;
+  *out_ << sizeof(kNotRequired) / sizeof(kNotRequired[0]);
   // attributes_count
-  *out_ << kNotRequired;
+  *out_ << sizeof(kNotRequired) / sizeof(kNotRequired[0]);
 }
