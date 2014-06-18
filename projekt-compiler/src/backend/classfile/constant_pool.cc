@@ -15,7 +15,6 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 
 #include <backend/classfile/constant_pool.h>
 #include <algorithm>
-#include <iostream>
 
 ////////////////////////////////////////////////////////////////////////
 /// default constructor does nothing, bud is needed because we have other
@@ -436,17 +435,8 @@ const Item &ConstantPool::get(const Item &key) const {
 bool ConstantPool::check(const Item &key) const {
   auto i = std::find(items.begin(), items.end(), key);
   if (i != items.end()) {
-    std::cout << "true check type: " << i->type
-              << " intVal: " << i->intVal
-              << " key type: " << key.type
-              << " intVal: " << key.intVal << std::endl;
     return true;
   }
-  std::cout << "false check type: " << i->type
-            << " intVal: " << i->intVal
-            << " key type: " << key.type
-            << " intVal: " << key.intVal << std::endl;
-
   return false;
 }
 
