@@ -1,16 +1,32 @@
+/*[--**--]
+  Copyright (C) 2014  SWPSoSe14Cpp Group
+
+  This program is free software; you can redistribute it and/or modify it under the
+  terms of the GNU General Public License as published by the Free Software
+  Foundation; either version 3 of the License, or (at your option) any later
+  version.
+
+  This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along with this
+  program; if not, see <http://www.gnu.org/licenses/>.*/
+
 /*!
-* \mainpage classfile_writer.cc
-* \author Backend group & friends
-* \date SoSe 2014
-*
-* This class writes the specific class-file we want to create from a rail program.
-* For each function in an rail program (incl. main), we need to produce one class-file.
-*
-*/
+ * \mainpage classfile_writer.cc
+ * \author Backend group & friends
+ * \date SoSe 2014
+ *
+ * This class writes the specific class-file we want to create from a rail program.
+ * For each function in an rail program (incl. main), we need to produce one class-file.
+ *
+ */
 
 #include <backend/classfile/classfile_writer.h>
 #include <backend/classfile/constant_pool.h>
 #include <backend/classfile/Bytecode_writer.h>
+#include <backend/codegen/bytecode_generator.h>
 #include <array>
 #include <iostream>
 #include <map>
@@ -19,11 +35,14 @@
 const char ClassfileWriter::kMagicNumber[] { '\xCA', '\xFE','\xBA', '\xBE' };
 const char ClassfileWriter::kNotRequired[] { '\x00', '\x00' };
 const char ClassfileWriter::kPublicAccessFlag[] { '\x00', '\x01'};
+const char ClassfileWriter::kPublicStaticAccessFlag[] {'\x00', '\x09'};
+
+const uint16_t ClassfileWriter::kMaxStack = 20;
 
 std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
     ClassfileWriter::kVersionNumbers {
-    {ClassfileWriter::ClassfileVersion::JAVA_7,
-    std::array<char, 4>{'\x00', '\x00', '\x00', '\x33'}}
+  {ClassfileWriter::ClassfileVersion::JAVA_7,
+        std::array<char, 4>{'\x00', '\x00', '\x00', '\x33'}}
 };
 
 /*!
@@ -34,12 +53,15 @@ std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
  * \param out The ouput stream
  */
 ClassfileWriter::ClassfileWriter(ClassfileVersion version,
-                                 ConstantPool& constantPool,
-                                 const std::map<std::string,
-                                 	 std::vector<char>&> codeFunctions,
-                                 std::ostream& out) :
-    out_(out), version_(version), constant_pool_(constantPool),
-    code_functions_(codeFunctions) {
+                                 ConstantPool* constantPool,
+                                 Graphs& graphs,
+                                 const std::map<std::string, std::vector<char>&> codeFunctions,
+                                 std::ostream* out) : graphs_(graphs),
+                                                      writer(out),
+                                                      out_(out),
+                                                      version_(version),
+                                                      code_functions_(codeFunctions) {
+  constant_pool_ = std::make_shared<ConstantPool>(*constantPool);
 }
 
 /*!
@@ -69,16 +91,15 @@ void ClassfileWriter::WriteClassfile() {
  * The magic number indicates a java class-file
  */
 void ClassfileWriter::WriteMagicNumber() {
-  out_.write(kMagicNumber, (sizeof(kMagicNumber)/sizeof(kMagicNumber[0])));
+  out_->write(kMagicNumber, (sizeof(kMagicNumber)/sizeof(kMagicNumber[0])));
 }
 
 /*!
  * \brief Write the java version number (e.g. 0x00000033 for v.7)
  */
 void ClassfileWriter::WriteVersionNumber() {
-  out_.write(kVersionNumbers[version_].data(),
-             kVersionNumbers[version_].size());
-
+  out_->write(kVersionNumbers[version_].data(),
+              kVersionNumbers[version_].size());
 }
 
 /*!
@@ -86,50 +107,32 @@ void ClassfileWriter::WriteVersionNumber() {
  * \sa constant_pool.cc
  */
 void ClassfileWriter::WriteConstantPool() {
-
-  Bytecode_writer writer(out_);
-
-
-  std::vector<Item> items = constant_pool_.getItems();
-  writer.writeU16(items.size());
-
-  for (size_t i = 0; i < items.size(); i++)
-  {
-    items.at(i).getHexRepresentation(writer);
-  }
-
-
-
-  //out_.write((char*)constant_pool_.getByteArray().data(),
-    //        constant_pool_.getByteArray().size());
+  size_t size = constant_pool_->size() + 1;
+  writer.writeU16(size);
+  writer.writeVector(constant_pool_->getByteArray());
 }
 
 /*!
  * \brief Write the access flag (e.g. 0x00000001 for public)
  */
 void ClassfileWriter::WriteAccessFlags() {
-  out_.write(kPublicAccessFlag, (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
+  out_->write(kPublicAccessFlag,
+              (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
 }
 
 /*!
  * \brief Write the class name
- * We get the class name from the constant pool.
- * The index of the class name is one postition before the
- * 	java/lang/object super class
+ * we call our outfile Main.class. therefore every classname is Main
  */
 void ClassfileWriter::WriteClassName() {
-	uint16_t indexInPool = (constant_pool_.addString("java/lang/Object"))-1;
-	out_ << ((unsigned char) indexInPool & 0xFF00U >> 8);
-	out_ << ((unsigned char) indexInPool & 0x00FFU);
+  writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("Main")));
 }
 /*!
  * \brief Write super class name
- * For us we always have the java/lang/object class
+ * For us we always have the java/lang/Object class
  */
 void ClassfileWriter::WriteSuperClassName() {
-  uint16_t indexInPool = constant_pool_.addString("java/lang/Object");
-  out_ << ((unsigned char) indexInPool & 0xFF00U >> 8);
-  out_ << ((unsigned char) indexInPool & 0x00FFU);
+  writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("java/lang/Object")));
 }
 
 /*!
@@ -137,15 +140,25 @@ void ClassfileWriter::WriteSuperClassName() {
  * Not used in Rail programms, thus 0x0000
  */
 void ClassfileWriter::WriteInterfaces() {
-  out_.write(kNotRequired, (sizeof(kNotRequired) / sizeof(kNotRequired[0])));
+  out_->write(kNotRequired, (sizeof(kNotRequired) / sizeof(kNotRequired[0])));
 }
 
 /*!
  * \brief Write the fields
  * Not used in Rail programms, thus 0x0000
+ * but for the global stack
  */
 void ClassfileWriter::WriteFields() {
-  out_.write(kNotRequired, (sizeof(kNotRequired) / sizeof(kNotRequired[0])));
+  writer.writeU16(1);
+  // access flag
+  out_->write(kPublicStaticAccessFlag,
+                (sizeof(kPublicStaticAccessFlag)/sizeof(kPublicStaticAccessFlag[0])));
+  // name_index
+  writer.writeU16(constant_pool_->addString("stack"));
+  // descriptor_index
+  writer.writeU16(constant_pool_->addString("Ljava/util/ArrayDeque;"));
+  // attributes_count
+  out_->write(kNotRequired, (sizeof(kNotRequired) / sizeof(kNotRequired[0])));
 }
 
 /*!
@@ -156,94 +169,167 @@ void ClassfileWriter::WriteFields() {
  * FIXME: The init and main is hard coded. Should be replaced later.
  */
 void ClassfileWriter::WriteMethods() {
+  std::vector<std::string> keys = this->graphs_.keyset();
+  // plus 1 for the init method and +1 for stack init method
+  size_t size = keys.size();
+  writer.writeU16(size+2);
+  WriteInitMethod();
+  WriteClInitMethod();
+  //hard coded test method
+ /* writer.writeU16(9);
+  writer.writeU16(constant_pool_->addString("main"));
+  writer.writeU16(constant_pool_->addString("([Ljava/lang/String;)V"));
+  writer.writeU16(1);
+  writer.writeU16(constant_pool_->addString("Code"));
+  writer.writeU32(21);
+  writer.writeU16(2);
+  writer.writeU16(1);
+  writer.writeU32(9);
+  writer.writeU8(178);
+  writer.writeU16(46);
+  writer.writeU8(18);
+  writer.writeU8(48);
+  writer.writeU8(182);
+  writer.writeU16(40);
+  writer.writeU8(177);
+  writer.writeU16(0);
+  writer.writeU16(0);
+  writer.writeU16(0);*/
 
-  out_ << constant_pool_.countItemType(METHOD);
+  for (std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
+    if (keys[i].compare("main") != 0) {
 
-	/**
-	 * Inserts the bytecode for the method init.
-	 * Should be the same in every class-file.
-	 */
-	char methodInit[] { '\x00', '\x01',	/* access_flag=1 */
-						// TODO: insert reference from constant pool here
-						'\x00', '\x07',	/* <inti> */
-						'\x00', '\x08',	/* ()V */
-						'\x00', '\x01',	/* u2 attributes_count=1 */
-						'\x00', '\x09',	/* u2 attribute_name_index=9 */
-						'\x00', '\x00', '\x00', '\x1D',	/* u4 attribute_length=29 */
-						'\x00', '\x01', /* u2 max_stack=1 */
-						'\x00', '\x01', /* u2 max_locals=1 */
-						'\x00', '\x00', '\x00', '\x05',	/* u4 code_length=5 */
-						'\x2A', '\xB7', '\x00', '\x01', '\xB1',
-						'\x00', '\x00',	/* u2 exception_table_length=0 */
-						// TODO: call WriteAttributes to link method with its specific attributes
-						// FIXME: May think about parameters for the WriteAttributes method to determin,
-						//			which attributes belong to which method.
-						// WriteAttributes();
-		};
+      out_->write(kPublicAccessFlag,sizeof(kPublicAccessFlag));
+      writer.writeU16(constant_pool_->addString(keys[i]));
+      writer.writeU16(constant_pool_->addString("()V"));
 
-	out_.write(methodInit, (sizeof(methodInit)/sizeof(methodInit[0])));
+    } else {
 
-	/**
-	 * Inserts the bytecode for the method main.
-	 * Should be the same in every class-file.
-	 * TODO: for MS2: May be replaced by a rail function
-	 */
-	char methodMain[] { '\x00', '\x09',	/* access_flag=9 */
-						// TODO: insert reference from constant pool
-						'\x00', '\x0B',	/* main */
-						'\x00', '\x0C',	/* ([Ljava/lang/String;)V */
-						'\x00', '\x01',	/* u2 attributes_count=1 */
-						'\x00', '\x09',	/* u2 attribute_name_index=9 */
-						'\x00', '\x00', '\x00', '\x25',	/* u4 attribute_length=37 */
-						'\x00', '\x02', /* u2 max_stack=2 */
-						'\x00', '\x01', /* u2 max_locals=1 */
-						'\x00', '\x00', '\x00', '\x09',	/* u4 code_length=9 */
-						'\xB2', '\x00', '\x02', '\x12', '\x03', '\xB6', '\x00', '\x04', '\xB1',
-						'\x00', '\x00',	/* u2 exception_table_length=0 */
-						// TODO: call WriteAttributes to link method with its specific attributes
-		};
-	out_.write(methodMain, (sizeof(methodMain)/sizeof(methodMain[0])));
+      out_->write(kPublicStaticAccessFlag,
+                    (sizeof(kPublicStaticAccessFlag)/sizeof(kPublicStaticAccessFlag[0])));
+      writer.writeU16(constant_pool_->addString(keys[i]));
+      writer.writeU16(constant_pool_->addString("([Ljava/lang/String;)V"));
+    }
 
-	//std::vector<char> func = code_functions_.at("main");
-  //out_.write((char*)func.data(),
-   //          func.size());
+    WriteAttributes(keys[i]);
+  }
+  // file attributes_count
+    out_->write(kNotRequired, sizeof kNotRequired);
 
+  // std::vector<char> func = code_functions_.at("main");
+  // out_.write((char*)func.data(),
+  //          func.size());
+}
+/*!
+ * \brief Writes the <init> in class-file
+ * Is the same in all java classes we generate
+ */
+void ClassfileWriter::WriteInitMethod() {
+  out_->write(kPublicAccessFlag,
+              (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
+  uint16_t init_idx = constant_pool_->addString("java/lang/Object");
+  uint16_t init_name_type_idx = constant_pool_->addNameAndType(constant_pool_->addString("<init>"), constant_pool_->addString("()V"));
+  writer.writeU16(constant_pool_->addString("<init>"));
+  writer.writeU16(constant_pool_->addString("()V"));
+  /* WriteAttributes */
+  // attribute_count=1
+  writer.writeU16(1);
+  writer.writeU16(constant_pool_->addString("Code"));
+  //attribute length
+  writer.writeU32(17);
+  // max_stack=1
+  writer.writeU16(1);
+  // max_locals=1
+  writer.writeU16(1);
+  // code_length=5
+  writer.writeU32(5);
+  //code source
+  writer.writeU8(42);
+  writer.writeU8(183);
+  writer.writeU16(constant_pool_->addMethRef(constant_pool_->addClassRef(init_idx), init_name_type_idx));
+  writer.writeU8(177);
+  // exception_table_length=0
+  out_->write(kNotRequired, sizeof(kNotRequired));
+  // attributes_count
+  out_->write(kNotRequired, sizeof(kNotRequired));
 }
 
+/*!
+ * \brief Writes the init code for the global stack into the class file
+ */
+void ClassfileWriter::WriteClInitMethod() {
+  writer.writeU16(8); //static access flag
+  writer.writeU16(constant_pool_->addString("<clinit>"));
+  writer.writeU16(constant_pool_->addString("()V"));
+  /* WriteAttributes */
+  // attribute_count=1
+  writer.writeU16(1);
+  writer.writeU16(constant_pool_->addString("Code"));
+  //attribute length
+  writer.writeU32(23);
+  // max_stack=2
+  writer.writeU16(2);
+  // max_locals=0
+  writer.writeU16(0);
+  // code_length=5
+  writer.writeU32(11);
+  //code source
+  writer.writeU8(187);
+  writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("java/util/ArrayDeque")));
+  writer.writeU8(89);
+  writer.writeU8(183);
+  writer.writeU16(constant_pool_->addMethRef(constant_pool_->addClassRef(constant_pool_->addString("java/util/ArrayDeque")),constant_pool_->addNameAndType(constant_pool_->addString("<init>"), constant_pool_->addString("()V"))));
+  writer.writeU8(179);
+  writer.writeU16(constant_pool_->addFieldRef(constant_pool_->addClassRef(constant_pool_->addString("Main")),constant_pool_->addNameAndType(constant_pool_->addString("stack"), constant_pool_->addString("Ljava/util/ArrayDeque;"))));
+  writer.writeU8(177);
+  // exception_table_length=0
+  out_->write(kNotRequired, sizeof(kNotRequired) / sizeof(kNotRequired[0]));
+  // attributes_count
+  out_->write(kNotRequired, sizeof(kNotRequired)  / sizeof(kNotRequired[0]));
+}
 /*!
  * \brief Writes attributes in class-file
  * Every method calls WritesAttributes
  */
-void ClassfileWriter::WriteAttributes() {
-/**
- * TODO: 0. insert attribute_count (u2)
+void ClassfileWriter::WriteAttributes(const std::string &key) {
+  /* Local variables definition */
+  Graphs::Graph_ptr currentGraph = graphs_.find(key);
+  std::vector<char> code;
+  size_t codeCount = 0;
+  size_t attributeCount = 0;
 
-	out_ << constant_pool_.countItemType(ATTRIBUTE);
+  code = BytecodeGenerator::GenerateCodeFromFunctionGraph(currentGraph,
+                                                          *constant_pool_);
+  codeCount = code.size();
+  // hint: adjust when implementing more than code attribute
+  attributeCount = codeCount + 12;
 
- *  Code_attribute:
- * TODO: 1. call constant pool to get reference of attribute (u2)
- * 			-> attribute_name_index
- * TODO: 2. indicate the length of the subsequent information in bytes (u4) (without 6 bytes of attribute_name_index)
- * 			-> attributes_length
- * TODO: 3. maximum depth of the operand stack of this method at any point during execution of the method (u2)
- * 			-> max_stack
- * TODO: 4. number of local variables in the local variable array allocated upon invocation of this method (u2)
- * 			-> max_locals
- * TODO: 5. number of bytes in the code array for this method (u4) = should be: max_stack + max_locals
- * 			-> code_length
- */
-	// out_.write(kNotRequired,sizeof(kNotRequired)); //exception_table_length
-/**
- *  LineNumberTable:
- * TODO: 1. insert attribute_count (u2)
+  /* Attribute code */
+  // attributes_count
+  writer.writeU16(1);
+  // attribute_name_index
+  writer.writeU16(constant_pool_->addString("Code"));
+  // attribute_legth
+  writer.writeU32(attributeCount);
 
-	out_ << constant_pool_.countItemType(ATTRIBUTE);
+  // max stack depth. doesn't need to be much since we use a global op stack.
+  writer.writeU16(kMaxStack);
 
- * TODO: 2. call constant pool to get reference of attribute (u2) = +1 of code_attribute
- * 			-> attributes_name_index
- * TODO: 3. indicate the length of the subsequent information in bytes (u4) (without 6 bytes of attribute_name_index)
- * 			-> attributes_length
- *
- *  StackMapTable is needed for variables MS2
- */
+  // max_locals
+  if(key.compare("main") != 0){
+    writer.writeU16(BytecodeGenerator::localCount);
+  } else {
+    writer.writeU16(++BytecodeGenerator::localCount);
+  }
+
+  // code_length
+  writer.writeU32(codeCount);
+  // write code stream
+  for(std::vector<std::string>::size_type i = 0; i != codeCount; i++) {
+    *out_ << code[i];
+  }
+  // exception_table_length
+  out_->write(kNotRequired, sizeof kNotRequired);
+  // attributes_count
+  out_->write(kNotRequired, sizeof kNotRequired);
 }
