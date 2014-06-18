@@ -175,26 +175,6 @@ void ClassfileWriter::WriteMethods() {
   writer.writeU16(size+2);
   WriteInitMethod();
   WriteClInitMethod();
-  //hard coded test method
- /* writer.writeU16(9);
-  writer.writeU16(constant_pool_->addString("main"));
-  writer.writeU16(constant_pool_->addString("([Ljava/lang/String;)V"));
-  writer.writeU16(1);
-  writer.writeU16(constant_pool_->addString("Code"));
-  writer.writeU32(21);
-  writer.writeU16(2);
-  writer.writeU16(1);
-  writer.writeU32(9);
-  writer.writeU8(178);
-  writer.writeU16(46);
-  writer.writeU8(18);
-  writer.writeU8(48);
-  writer.writeU8(182);
-  writer.writeU16(40);
-  writer.writeU8(177);
-  writer.writeU16(0);
-  writer.writeU16(0);
-  writer.writeU16(0);*/
 
   for (std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
     if (keys[i].compare("main") != 0) {
