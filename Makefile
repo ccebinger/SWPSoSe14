@@ -1,24 +1,66 @@
+SUBDIRS = io
 # c.ebinger, 28-04-2014
 # Usage: make fu-rail 
+
+CC=g++
+CFLAGS=-c -g -Wall -Wextra -Wtype-limits -pedantic -std=c++0x -Iprojekt-compiler/src
 
 all: rail fu-rail tests compile run
 
 tests: unittest_constantpool unittest_classfile_writer_test
 
-fu-rail: projekt-compiler/src/main.cpp
-	g++ -D STANDALONE_BACKEND -g -Wall -Wextra -Wtype-limits -pedantic -std=c++0x -o fu-rail projekt-compiler/src/backend/classfile/constant_pool.cc projekt-compiler/src/backend/classfile/classfile_writer.cc projekt-compiler/src/frontend/Graphs.cpp projekt-compiler/src/backend/classfile/Bytecode_writer.cpp projekt-compiler/src/backend/codegen/bytecode_generator.cpp projekt-compiler/src/frontend/adjacency_list.cpp projekt-compiler/src/frontend/lexer/Lexer.cpp projekt-compiler/src/frontend/parser/Parser.cpp projekt-compiler/src/backend/backend.cc projekt-compiler/src/main.cpp -Iprojekt-compiler/src
+constant_pool.o:
+	$(CC) $(CFLAGS) projekt-compiler/src/backend/classfile/constant_pool.cc 
+
+classfile_writer.o:
+	$(CC) $(CFLAGS) projekt-compiler/src/backend/classfile/classfile_writer.cc 
+
+Graphs.o:
+	$(CC) $(CFLAGS) projekt-compiler/src/frontend/Graphs.cpp 
+
+Bytecode_writer.o:
+	$(CC) $(CFLAGS) projekt-compiler/src/backend/classfile/Bytecode_writer.cpp 
+
+bytecode_generator.o:
+	$(CC) $(CFLAGS) projekt-compiler/src/backend/codegen/bytecode_generator.cpp 
+
+adjacency_list.o:
+	$(CC) $(CFLAGS) projekt-compiler/src/frontend/adjacency_list.cpp 
+
+Lexer.o:
+	$(CC) $(CFLAGS) projekt-compiler/src/frontend/lexer/Lexer.cpp 
+
+Parser.o:
+	$(CC) $(CFLAGS) projekt-compiler/src/frontend/parser/Parser.cpp
+
+backend.o:
+	$(CC) $(CFLAGS) projekt-compiler/src/backend/backend.cc
+
+main.o:
+	$(CC) $(CFLAGS) -D STANDALONE_BACKEND projekt-compiler/src/main.cpp
+
+fu-rail: constant_pool.o classfile_writer.o Graphs.o Bytecode_writer.o bytecode_generator.o\
+	 adjacency_list.o Lexer.o Parser.o backend.o main.o
+	$(CC) constant_pool.o classfile_writer.o Graphs.o Bytecode_writer.o bytecode_generator.o\
+	 adjacency_list.o Lexer.o Parser.o backend.o main.o -o fu-rail
 
 rail: rail-interpreter/src/*.cpp
 	g++ -o rail -pedantic rail-interpreter/src/*.cpp
 
-unittest_constantpool: projekt-compiler/src/backend/unittest/constant_pool_test.cc
-	g++ -D TESTS -std=c++0x -Wall -Wextra -Wtype-limits -pedantic -o unittest_constantpool projekt-compiler/src/backend/codegen/bytecode_generator.cpp projekt-compiler/src/frontend/Graphs.cpp projekt-compiler/src/frontend/adjacency_list.cpp projekt-compiler/src/backend/classfile/constant_pool.cc projekt-compiler/src/backend/classfile/Bytecode_writer.cpp projekt-compiler/src/backend/classfile/classfile_writer.cc projekt-compiler/src/backend/unittest/constant_pool_test.cc -Iprojekt-compiler/src
+constant_pool_test.o:
+	$(CC) $(CFLAGS) -D TESTS projekt-compiler/src/backend/unittest/constant_pool_test.cc
+
+unittest_constantpool: constant_pool.o classfile_writer.o Graphs.o Bytecode_writer.o bytecode_generator.o adjacency_list.o Lexer.o Parser.o backend.o constant_pool_test.o
+	$(CC) constant_pool.o classfile_writer.o Graphs.o Bytecode_writer.o bytecode_generator.o adjacency_list.o Lexer.o Parser.o backend.o constant_pool_test.o -o unittest_constantpool
+
+classfile_writer_test.o:
+	$(CC) $(CFLAGS) -D TESTS projekt-compiler/src/backend/unittest/classfile_writer_test.cc
 
 unittest_classfile_writer_test: projekt-compiler/src/backend/unittest/classfile_writer_test.cc
-	g++ -D TESTS -std=c++0x -Wall -Wextra -Wtype-limits -pedantic -o unittest_classfile_writer_test projekt-compiler/src/backend/codegen/bytecode_generator.cpp projekt-compiler/src/frontend/Graphs.cpp projekt-compiler/src/frontend/adjacency_list.cpp projekt-compiler/src/backend/classfile/constant_pool.cc projekt-compiler/src/backend/classfile/Bytecode_writer.cpp projekt-compiler/src/backend/classfile/classfile_writer.cc projekt-compiler/src/backend/unittest/classfile_writer_test.cc -Iprojekt-compiler/src
+	$(CC) constant_pool.o classfile_writer.o Graphs.o Bytecode_writer.o bytecode_generator.o adjacency_list.o Lexer.o Parser.o backend.o classfile_writer_test -o unittest_classfile_writer_test
 
 compile: 
 	./fu-rail -i projekt-compiler/Tests/test-cases/pushConst.txt -s projekt-compiler/io/serialized.csv -g projekt-compiler/io/graphviz.dot
 
 run: 
-	java io/Main
+	cd io;java Main
