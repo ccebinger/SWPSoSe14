@@ -218,7 +218,7 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     addClassRef(main_class_str_idx);
     int_idx.class_idx = addClassRef(integer_idx);
     str_idx.class_idx = addClassRef(string_idx);
-    uint16_t stack_class_idx = addClassRef(stack_class_name_idx);
+    arr_idx.class_idx = addClassRef(stack_class_name_idx);
 
     ///  Add name and type
     uint16_t object_name_type_idx = addNameAndType(object_name_idx, void_descriptor_idx);
@@ -246,14 +246,14 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     str_idx.substring_idx = addMethRef(str_idx.class_idx, substring_name_type_single_idx);
     str_idx.length_idx = addMethRef(str_idx.class_idx, length_name_type_idx);
     str_idx.length_idx = addMethRef(str_idx.class_idx, length_name_type_idx);
-    addMethRef(stack_class_idx, object_name_type_idx);
-    addMethRef(stack_class_idx, pop_name_type_idx);
-    addMethRef(stack_class_idx, push_name_type_idx);
-    addMethRef(str_idx.class_idx, toString_name_type_idx);
+    addMethRef(arr_idx.class_idx, object_name_type_idx);
+    arr_idx.pop_idx = addMethRef(arr_idx.class_idx, pop_name_type_idx);
+    arr_idx.push_idx = addMethRef(arr_idx.class_idx, push_name_type_idx);
+    addMethRef(obj_idx, toString_name_type_idx);
 
     ///  Add field refs
     addFieldRef(system_class_idx, system_name_type_idx);
-    addFieldRef(main_class_str_idx, stack_field_name_type_idx);
+    arr_idx.field_idx = addFieldRef(main_class_str_idx, stack_field_name_type_idx);
   }
 
 ////////////////////////////////////////////////////////////////////////

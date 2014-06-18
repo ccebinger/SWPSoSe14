@@ -117,4 +117,6 @@ void push_Variable(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr
 
 void globalstack_pop(ConstantPool& constant_pool, std::vector<char>& code);
 void globalstack_push(ConstantPool& constant_pool, std::vector<char>& code);
+uint16_t get_stack_method_ref(ConstantPool& constant_pool, const std::string& method, const std::string& descriptor);
+uint16_t get_stack_field_ref(ConstantPool& constant_pool);
 #endif // BYTECODE_GENERATOR_H
