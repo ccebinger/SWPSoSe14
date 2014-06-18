@@ -59,20 +59,28 @@ shared_ptr<Adjacency_list> Parser::parseGraph() {
 }
 
 shared_ptr<Adjacency_list> Parser::parseGraph(int startPosRow, int startPosCol, Direction startDir) {
-	cout << "Begin parsing..." << endl;
+
+	if(Env::verbose()) {
+		cout << "Begin parsing..." << endl;
+	}
 	setRowCol(startPosRow, startPosCol);
 	dir = startDir;
 	parsingNotFinished = true;
 	while(parsingNotFinished) {
-		cout << "\t@(" << posRow+1 << ", " << posCol+1 << ", " << Encoding::unicodeToUtf8(board->get(posRow, posCol)) << ")" << endl;
+		if(Env::verbose()) {
+			cout << "\t@(" << posRow << ", " << posCol << ", " << Encoding::unicodeToUtf8(board->get(posRow, posCol)) << ")" << endl;
+		}
 		move();
-		if(errorMessage != ""){
-			cout << "\t" << errorMessage <<endl;
-			cout << "\tparsing aborted" << endl;
+		if(errorMessage != "") {
+			//FIXME error handling
+			cerr << "\t" << errorMessage <<endl;
+			cerr << "\tparsing aborted" << endl;
 			break;
 		}
 	}
-	cout << "Finished parsing" << endl;
+	if(Env::verbose()) {
+		cout << "Finished parsing" << endl;
+	}
 	return abstractSyntaxGraph;
 }
 
@@ -170,51 +178,70 @@ bool Parser::currentCharIsNoCrossing(){
 
 bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol) {
 	uint32_t charAtStraight = board->get(straightRow, straightCol);
-	//cout << "\tcheckForValidCommandsInStraightDir(" << straightRow << ", " << straightCol << ") " << Encoding::unicodeToUtf8(charAtStraight) << endl;
+
+//	if(Env::verbose()) {
+//		cout << "\tcheckForValidCommandsInStraightDir(" << straightRow << ", " << straightCol << ") " << Encoding::unicodeToUtf8(charAtStraight) << endl;
+//	}
+
+	//
 	bool didGoStraight = true;
-	NodeIdentifier id{posRow,posCol,dir};
+	NodeIdentifier id{posRow, posCol, dir};
 	switch(charAtStraight) {
-		case '[':
+
+		//Delimiter
+		case '[': // Reading Constant
 			setRowCol(straightRow, straightCol);
 			//TODO: ueberpruefen ob notwendig: list<char> invalidCharList = {'[','{','(',},;
-			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil(']'), Command::Type::PUSH_CONST,id);
+			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil(']'), Command::Type::PUSH_CONST, id);
 			//TODO: create pushNode in graph
 			break;
-		case ']':
+		case ']': // Reading Constant
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil('['), Command::Type::PUSH_CONST,id);
+			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil('['), Command::Type::PUSH_CONST, id);
 			break;
-		case '@':
+		case '{': // Function call
+			setRowCol(straightRow, straightCol);
+			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil('}'), Command::Type::CALL, id);
+			break;
+		case '}': // Function call
+			setRowCol(straightRow, straightCol);
+			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil('{'), Command::Type::CALL, id);
+			break;
+		case '(': // Variable push / pop
+			setRowCol(straightRow, straightCol);
+			parsingNotFinished = parseVariable(readCharsUntil(')'), id);
+			break;
+		case ')': // Variable push / pop
+			setRowCol(straightRow, straightCol);
+			parsingNotFinished = parseVariable(readCharsUntil('('), id);
+			break;
+
+		// Misc
+		case '@': // Reflector
 			setRowCol(straightRow, straightCol);
 			reverseDirection();
 			break;
-		case '#':
+		case '#': // Finish
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("#", Command::Type::FINISH,id);
+			parsingNotFinished = addToAbstractSyntaxGraph("#", Command::Type::FINISH, id);
 			parsingNotFinished = false;
 			break;
+
+		// Juctions
 		case '<':
-			didGoStraight = parseJunctions(E, straightRow, straightCol, SE, NE, "<", Command::Type::EASTJUNC,id);
+			didGoStraight = parseJunctions(E, straightRow, straightCol, SE, NE, "<", Command::Type::EASTJUNC, id);
 			break;
 		case '>':
-			didGoStraight = parseJunctions(W, straightRow, straightCol, NW, SW, ">", Command::Type::WESTJUNC,id);
+			didGoStraight = parseJunctions(W, straightRow, straightCol, NW, SW, ">", Command::Type::WESTJUNC, id);
 			break;
 		case '^':
-			didGoStraight = parseJunctions(S, straightRow, straightCol, SW, SE, "^", Command::Type::SOUTHJUNC,id);
+			didGoStraight = parseJunctions(S, straightRow, straightCol, SW, SE, "^", Command::Type::SOUTHJUNC, id);
 			break;
 		case 'v':
-			didGoStraight = parseJunctions(N, straightRow, straightCol, NE, NW, "v", Command::Type::NORTHJUNC,id);
+			didGoStraight = parseJunctions(N, straightRow, straightCol, NE, NW, "v", Command::Type::NORTHJUNC, id);
 			break;
-		case '{':
-			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil('}'), Command::Type::CALL,id);
-			break;
-		case '}':
-			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil('{'), Command::Type::CALL,id);
-			break;
-		case 't':
-		case 'f':
+
+		//Constant Numbers
 		case '0':
 		case '1':
 		case '2':
@@ -226,103 +253,103 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 		case '8':
 		case '9':
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph(Encoding::unicodeToUtf8(charAtStraight), Command::Type::PUSH_CONST,id);
+			parsingNotFinished = addToAbstractSyntaxGraph(Encoding::unicodeToUtf8(charAtStraight), Command::Type::PUSH_CONST, id);
 			break;
 
 		// System operation
-		case 'b': //boom
+		case 'b': //Boom
 			setRowCol(straightRow,straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("b", Command::Type::BOOM,id);
+			parsingNotFinished = addToAbstractSyntaxGraph("b", Command::Type::BOOM, id);
 			break;
 		case 'e': //EOF
 			setRowCol(straightRow,straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("e", Command::Type::EOF_CHECK,id);
+			parsingNotFinished = addToAbstractSyntaxGraph("e", Command::Type::EOF_CHECK, id);
 			break;
-		case 'i': //EOF
+		case 'i': //Input
 			setRowCol(straightRow,straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("i", Command::Type::INPUT,id);
+			parsingNotFinished = addToAbstractSyntaxGraph("i", Command::Type::INPUT, id);
 			break;
-		case 'o':
+		case 'o': //Output
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("o", Command::Type::OUTPUT,id);
+			parsingNotFinished = addToAbstractSyntaxGraph("o", Command::Type::OUTPUT, id);
 			break;
 		case 'u': //Underflowcheck
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("u", Command::Type::UNDERFLOW_CHECK,id);
+			parsingNotFinished = addToAbstractSyntaxGraph("u", Command::Type::UNDERFLOW_CHECK, id);
 			break;
-		case '?':
+		case '?': // Typecheck
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("?", Command::Type::TYPE_CHECK,id);
+			parsingNotFinished = addToAbstractSyntaxGraph("?", Command::Type::TYPE_CHECK, id);
 			break;
+
 		// Arithmetic Operations
 		case 'a': // Add
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("a", Command::Type::ADD,id);
+			parsingNotFinished = addToAbstractSyntaxGraph("a", Command::Type::ADD, id);
 			break;
 		case 'd': // Divide
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("d", Command::Type::DIV,id);
+			parsingNotFinished = addToAbstractSyntaxGraph("d", Command::Type::DIV, id);
 			break;
 		case 'm': // Multiply
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("m", Command::Type::MULT,id);
+			parsingNotFinished = addToAbstractSyntaxGraph("m", Command::Type::MULT, id);
 			break;
 		case 'r': // Remainder
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("r", Command::Type::MOD,id);
+			parsingNotFinished = addToAbstractSyntaxGraph("r", Command::Type::MOD, id);
 			break;
 		case 's': // Subtract
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("s", Command::Type::SUB,id);
+			parsingNotFinished = addToAbstractSyntaxGraph("s", Command::Type::SUB, id);
 			break;
 
 		// String Operations
 		case 'c': // Cut
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("c", Command::Type::CUT,id);
+			parsingNotFinished = addToAbstractSyntaxGraph("c", Command::Type::CUT, id);
 			break;
 		case 'z': // Size
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("z", Command::Type::SIZE,id);
+			parsingNotFinished = addToAbstractSyntaxGraph("z", Command::Type::SIZE, id);
 			break;
 		case 'p': // Append
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("p", Command::Type::APPEND,id);
+			parsingNotFinished = addToAbstractSyntaxGraph("p", Command::Type::APPEND, id);
 			break;
 
 		// Conditionals
 		case 'g': // Greater than
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("g", Command::Type::GREATER,id);
+			parsingNotFinished = addToAbstractSyntaxGraph("g", Command::Type::GREATER, id);
 			break;
 		case 'q': // Is Equal
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("q", Command::Type::EQUAL,id);
+			parsingNotFinished = addToAbstractSyntaxGraph("q", Command::Type::EQUAL, id);
+			break;
+		case 't': // True
+			setRowCol(straightRow, straightCol);
+			parsingNotFinished = addToAbstractSyntaxGraph("1", Command::Type::TRUE, id);
+			break;
+		case 'f': // False
+			setRowCol(straightRow, straightCol);
+			parsingNotFinished = addToAbstractSyntaxGraph("0", Command::Type::FALSE, id);
 			break;
 
 		// List Operation
 		case 'n': //Nil
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("n", Command::Type::NIL,id);
+			parsingNotFinished = addToAbstractSyntaxGraph("n", Command::Type::NIL, id);
 			break;
-		/*case 'c': // Concat
+		case ':': // Concat
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("c", Command::Type::CONCAT);
-			break; */
-		/*case '~': // List breakup
+			parsingNotFinished = addToAbstractSyntaxGraph(":", Command::Type::LIST_CONS, id);
+			break;
+		case '~': // List breakup
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph("~", Command::Type::LIST_BREAKUP);
-			break;*/
+			parsingNotFinished = addToAbstractSyntaxGraph("~", Command::Type::LIST_BREAKUP, id);
+			break;
 
-		// Variables
-		case '(':
-			setRowCol(straightRow, straightCol);
-			parsingNotFinished = parseVariable(readCharsUntil(')'),id);
-			break;
-		case ')':
-			setRowCol(straightRow, straightCol);
-			parsingNotFinished = parseVariable(readCharsUntil('('),id);
-			break;
 		default:
 			didGoStraight = false;
 			break;
@@ -369,6 +396,7 @@ bool Parser::parseVariable(string data, NodeIdentifier id) {
 			errorMessage = "Syntax Error: Invalid variable action " + data + ": Variable name must not contain '!'";
 			return false;
 		}
+
 		// Variable pop action
 		return addToAbstractSyntaxGraph(data, Command::Type::VAR_POP, id);
 	}
@@ -411,14 +439,18 @@ bool Parser::addToAbstractSyntaxGraph(string commandName, Command::Type type, No
 	if(allNodes.find(id)!=allNodes.end()){
 		std::shared_ptr<Node> node;
 		//node already exists
-		cout << "\tReached Node that was already parsed once: " << commandName << endl;
+		if(Env::verbose()) {
+			cout << "\tReached Node that was already parsed once: " << commandName << endl;
+		}
 		node = allNodes.at(id);
 		abstractSyntaxGraph->addEdge(currentNode, node, addNextNodeAsTruePathOfPreviousNode);
 		currentNode = node;
 		nodeWasNew = false;
 	} else{
 		//create a new node
-		cout << "\tNode creation: " << commandName << endl;
+		if(Env::verbose()) {
+			cout << "\tNode creation: " << commandName << endl;
+		}
 		std::shared_ptr<Node> node(new Node());
 		node->command = {type,commandName};
 		//TODO:an Graph Schnittstelle anpassen
@@ -444,9 +476,8 @@ bool Parser::addToAbstractSyntaxGraph(string commandName, Command::Type type, No
 	return nodeWasNew;
 }
 
-//FIXME translate -> english
-//setzt position auf until falls er existiert, und gibt den gelesenen string inklusive anfangs und endzeichen zurueck
-//falls nicht wir ein leerer string zurueckgegeben und die fehlermeldung gesetzt
+//set the position to 'until' if it exists then return the return the string ,which yot red ,inclusive the starts- and end-symbol 
+//just if we didi not return an empty string and the error message is already set.
 string Parser::readCharsUntil(uint32_t until) {
 	string result = "";
 
@@ -474,7 +505,10 @@ string Parser::readCharsUntil(uint32_t until) {
 			break;
 		}
 	}
-	//cout << "readCharsUntil: " << result << endl;
+
+//	if(Env::verbose()) {
+//		cout << "readCharsUntil: " << result << endl;
+//	}
 	return result;
 }
 

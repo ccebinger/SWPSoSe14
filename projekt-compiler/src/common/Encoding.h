@@ -14,14 +14,18 @@
 #include <deque>
 #include <string>
 
+/**
+ * Offers static methods for basic UTF-8 and Unicode string handling
+ * @author Miro B.
+ */
 class Encoding {
+
 private:
 	Encoding();
 	virtual ~Encoding();
 	
 public:
 
-	
 	enum Utf8 {
 		MaxBytes = 4,
 	};
@@ -54,6 +58,14 @@ public:
 		MaskX = 0x3F,		// 0011 1111
 	};
 	
+
+	/**
+	 * Converts one Unicode rune to a string
+	 *
+	 * @param unicode	Unicode rune to be converted
+	 * @param result	Variable at which the UTF-8 string will be appended
+	 * @return			number of bytes within utf-8 representation
+	 */
 	static uint8_t unicodeToUtf8(uint32_t unicode, std::string& result) {
 		
 		uint32_t rune = unicode;
@@ -93,6 +105,13 @@ public:
 	}
 	
 	
+
+	/**
+	 * Converts one Unicode rune to a string
+	 *
+	 * @param unicode	Unicode rune to be converted
+	 * @return			UTF-8 encoded string
+	 */
 	static std::string unicodeToUtf8(uint32_t unicode) {
 		std::string result;
 		Encoding::unicodeToUtf8(unicode, result);
@@ -100,7 +119,11 @@ public:
 	}
 
 
-
+	/**
+	 * Converts a list of Unicode Runes to UTF-8 String
+	 *  @param unicode	List of Unicode runes
+	 *  @param result	string to be appended
+	 */
 	static void unicodeToUtf8String(std::deque<uint32_t>* unicode, std::string& result) {
 		for(auto i=unicode->begin(); i<unicode->end(); ++i) {
 			unicodeToUtf8(*i, result);
@@ -109,7 +132,13 @@ public:
 	
 	
 	
-	
+	/**
+	 * Converts a UTF-8 encoded character to a Unicode Rune
+	 * @param str		String to be converted
+	 * @param start		str-position to start at
+	 * @param rune		Reference to the resulting Rune
+	 * @return			Number of bytes read from str
+	 */
 	static uint8_t utf8ToUnicode(std::string str, uint32_t start, uint32_t* rune) {
 		
 		// 1 byte
@@ -196,7 +225,12 @@ public:
 	
 	
 
-
+	/**
+	 * Converts a UTF-8 string to Unicode
+	 * @param input		String to convert
+	 * @param result	List of resulting Unicode Runes
+	 * @param begin		String start index
+	 */
 	static void utf8StringToUnicode(std::string input, std::deque<uint32_t>* result, uint32_t begin=0) {
 		uint32_t rune;
 		for(size_t i=begin; i < input.size(); ) {
@@ -208,6 +242,8 @@ public:
 
 	/**
 	 * Returns the number of bytes a given rune will require in UTF-8
+	 * @param rune		Unicode rune to be inspected
+	 * @return			Number of bytes in UTF-8 representation
 	 */
 	static uint8_t getRuneByteCount(uint32_t rune) {
 		if(rune <= Rune1) { return 1; }
@@ -219,6 +255,9 @@ public:
 
 	/**
 	 * Returns the highest Unicode value for a given byte sequence length
+	 *
+	 * @param count
+	 * @return			RuneMax for count bytes
 	 */
 	static uint32_t getRuneLimitByCount(uint8_t count) {
 		switch(count) {

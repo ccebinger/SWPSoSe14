@@ -10,7 +10,7 @@
 
 #include <backend/classfile/classfile_writer.h>
 #include <backend/classfile/constant_pool.h>
-
+#include <backend/classfile/Bytecode_writer.h>
 #include <array>
 #include <iostream>
 #include <map>
@@ -18,7 +18,7 @@
 
 const char ClassfileWriter::kMagicNumber[] { '\xCA', '\xFE','\xBA', '\xBE' };
 const char ClassfileWriter::kNotRequired[] { '\x00', '\x00' };
-const char ClassfileWriter::kPublicAccessFlag[] { '\x00', '\x00','\x00', '\x01' };
+const char ClassfileWriter::kPublicAccessFlag[] { '\x00', '\x01'};
 
 std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
     ClassfileWriter::kVersionNumbers {
@@ -86,8 +86,22 @@ void ClassfileWriter::WriteVersionNumber() {
  * \sa constant_pool.cc
  */
 void ClassfileWriter::WriteConstantPool() {
-  out_.write((char*)constant_pool_.getByteArray().data(),
-             constant_pool_.getByteArray().size());
+
+  Bytecode_writer writer(out_);
+
+
+  std::vector<Item> items = constant_pool_.getItems();
+  writer.writeU16(items.size());
+
+  for (size_t i = 0; i < items.size(); i++)
+  {
+    items.at(i).getHexRepresentation(writer);
+  }
+
+
+
+  //out_.write((char*)constant_pool_.getByteArray().data(),
+    //        constant_pool_.getByteArray().size());
 }
 
 /*!

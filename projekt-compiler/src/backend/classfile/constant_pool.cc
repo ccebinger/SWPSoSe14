@@ -147,7 +147,7 @@ size_t ConstantPool::addInt(int32_t value) {
   i.set(value);
   if (!check(i)) {
     std::cout << "new int\n";
-    put2(INT);
+    putByte(INT);
     index = put(i);
     putInt(value);
   } else {
@@ -167,9 +167,33 @@ size_t ConstantPool::addLong(int64_t value) {
   size_t index = 0;
   i.set(value);
   if (!check(i)) {
-    put2(LONG);
+    putByte(LONG);
     index = put(i);
     putLong(value);
+  } else {
+    index = get(i).index;
+  }
+  return index;
+}
+
+////////////////////////////////////////////////////////////////////////
+/// DRAFT VERSION - NEEDS TO BE DISCUSSED / REVIEWED (because of my lack of
+///                                                   knowledge of constant_pool.cc)
+/// method to put a CONSTANT_NameAndType into the pool
+/// \param UTF8_name_index the index of the name in the constant pool
+/// \param UTF8_descriptor_index the index of the descriptor in the constant pool
+/// \return index of the CONSTANT_NameAndType in the pool
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::addNameAndType(int32_t UTF8_name_index,
+                                    int32_t UTF8_descriptor_index) {
+  Item i;
+  size_t index = 0;
+  i.set(UTF8_name_index); // eindeutig?
+  if (!check(i)) {
+    putByte(NAME_AND_TYPE);
+    putInt(UTF8_name_index);
+    putInt(UTF8_descriptor_index);
+    index = put(i);
   } else {
     index = get(i).index;
   }
@@ -186,7 +210,7 @@ size_t ConstantPool::addString(const std::string &value) {
   size_t index = 0;
   i.set(STR, value);
   if (!check(i)) {
-    put2(UTF8);
+    putByte(UTF8);
     putUTF8(value);
     index = put(i);
   } else {
@@ -205,7 +229,7 @@ size_t ConstantPool::addClassRef(const std::string &value) {
   size_t index = 0;
   i.set(CLASS, value);
   if (!check(i)) {
-    put2(CLASS);
+    putByte(CLASS);
     putUTF8(value);
     index = put(i);
   } else {
@@ -213,6 +237,16 @@ size_t ConstantPool::addClassRef(const std::string &value) {
   }
   return index;
 }
+
+// key2.set(CLASS, value, null, null);
+// Item result = get(key2);
+// if (result == null) {
+//   pool.put12(CLASS, newUTF8(value));
+//   result = new Item(index++, key2);
+//   put(result);
+// }
+// return result;
+
 
 ////////////////////////////////////////////////////////////////////////
 /// method to put a string into the pool
@@ -224,7 +258,7 @@ size_t ConstantPool::addFieldRef(const std::string &value) {
   size_t index = 0;
   i.set(FIELD, value);
   if (!check(i)) {
-    put2(FIELD);
+    putByte(FIELD);
     putUTF8(value);
     index = put(i);
   } else {
@@ -232,6 +266,15 @@ size_t ConstantPool::addFieldRef(const std::string &value) {
   }
   return index;
 }
+
+// key3.set(FIELD, owner, name, desc);
+// Item result = get(key3);
+// if (result == null) {
+//   put122(FIELD, newClass(owner), newNameType(name, desc));
+//   result = new Item(index++, key3);
+//   put(result);
+// }
+// return result;
 
 ////////////////////////////////////////////////////////////////////////
 /// method to put a string into the pool
@@ -243,7 +286,7 @@ size_t ConstantPool::addMethRef(const std::string &value) {
   size_t index = 0;
   i.set(METHOD, value);
   if (!check(i)) {
-    put2(METHOD);
+    putByte(METHOD);
     putUTF8(value);
     index = put(i);
   } else {
@@ -251,6 +294,16 @@ size_t ConstantPool::addMethRef(const std::string &value) {
   }
   return index;
 }
+
+// int type = itf ? IMETH : METH;
+// key3.set(type, owner, name, desc);
+// Item result = get(key3);
+// if (result == null) {
+//   put122(type, newClass(owner), newNameType(name, desc));
+//   result = new Item(index++, key3);
+//   put(result);
+// }
+// return result;
 
 ////////////////////////////////////////////////////////////////////////
 /// method to put a string into the pool
@@ -262,7 +315,7 @@ size_t ConstantPool::addIMethRef(const std::string &value) {
   size_t index = 0;
   i.set(IMETHOD, value);
   if (!check(i)) {
-    put2(IMETHOD);
+    putByte(IMETHOD);
     putUTF8(value);
     index = put(i);
   } else {
@@ -270,6 +323,52 @@ size_t ConstantPool::addIMethRef(const std::string &value) {
   }
   return index;
 }
+
+/*
+////////////////////////////////////////////////////////////////////////
+/// ACHTUNG DRAFT !!!!!!!!!!!
+/// Das ist eine Beispielumsetzung, zum Hinzufügen eines xRef (in dem Fall x = Method) in den CP
+/// Kann so (noch) nicht umgesetzt werden, weil einige Signaturen im CP angepasst werden müssen
+/// \param value Name der Methoden-Referenz (z.B. 'java/lang/Object')
+/// \param name Name der eigentlichen Methode (z.B. '<init>')
+/// \param descriptor Repräsentiert den Type der Methode (z.B. '()V')
+/// \return index of the string in pool
+///
+/// Der Aufbau im CP sieht (beispielhaft) wie folgt aus und wird durch nachfolgenden Code repräsentiert
+/// [1] CONSTANT_Methodref class_index=6; name_and_type_index=15	0A 00 06 00 0F
+/// [6] CONSTANT_Class name_index=22								07 00 16
+/// [7] CONSTANT_Utf8 length=6; bytes="<init>"						01 00 06 3C 69 6E 69 74 3E
+/// [8] CONSTANT_Utf8 length=3; bytes="()V"							01 00 03 28 29 56
+/// [15] CONSTANT_NameAndType name_index=7; descriptor_index=8		0C 00 07 00 08
+/// [22] CONSTANT_Utf8 length=16; bytes="java/lang/Object"			01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::addIMethRef(const std::string &value, const std::string &name, const std::string &descriptor) {
+	Item i;
+	size_t methodRef_index = 0;
+	size_t UTF8_index = 0;
+	size_t UTF8_name_index = 0;
+	size_t UTF8_descriptor_index = 0;
+	size_t class_index = 0;
+	size_t name_and_type_index = 0;
+	i.set(MEHTOD, value);
+	if (!check(i)) {
+	  UTF8_index = putUTF8(value);
+	  UTF8_name_index = putUTF8(name);
+	  UTF8_descriptor_index = putUTF8(type);
+	  class_index = addClass(indexUTF8) // u1 tag + u2 name_index
+	  name_and_type_index = addNameAndType(UTF8_name_index, UTF8_descriptor_index) // u1 tag + u2 name_index + u2 descriptor_index
+	  // letzter Schritt: MethodRef zusammenbauen
+	  // u1 tag + u2 class_index + u2 name_and_type_index
+	  putByte(METHOD);
+	  putInt(class_index);
+	  putInt(name_and_type_index);
+	  index = put(i);
+	} else {
+	  index = get(i).index;
+	}
+	  return index;
+}
+*/
 
 ////////////////////////////////////////////////////////////////////////
 /// method to count numbers of items with specified type
@@ -447,6 +546,7 @@ void ConstantPool::encodeUTF8(std::string s, uint32_t pos) {
 size_t ConstantPool::put(Item i) {
   if (!check(i)) {
     i.index = items.size();
+    pool.push_back(i.index);  // WARNING : size can be to small
     items.push_back(i);
     return i.index;
   } else {
@@ -454,63 +554,24 @@ size_t ConstantPool::put(Item i) {
   }
 }
 
-////////////////////////////////////////////////////////////////////////
-/// Puts two bytes into this byte vector. The byte vector is automatically
-/// enlarged if necessary.
-/// \param s short.
-////////////////////////////////////////////////////////////////////////
-void ConstantPool::put2(int32_t s) {
-  pool.push_back((uint8_t) (s>>8));
-  pool.push_back((uint8_t) s);
-}
-
-////////////////////////////////////////////////////////////////////////
-/// Puts two bytes into this byte vector. The byte vector is automatically
-/// enlarged if necessary.
-/// \param b1 first byte.
-/// \param b2 second byte.
-////////////////////////////////////////////////////////////////////////
-void ConstantPool::put11(int32_t b1, int32_t b2) {
-  pool.push_back((uint8_t) b1);
-  pool.push_back((uint8_t) b2);
-}
-
-////////////////////////////////////////////////////////////////////////
-/// Puts a byte and a short into this byte vector. The byte vector is
-/// automatically enlarged if necessary.
-/// \param b first byte.
-/// \param s a short.
-////////////////////////////////////////////////////////////////////////
-void ConstantPool::put12(int32_t b,  int32_t s) {
-  pool.push_back((uint8_t) b);
-  pool.push_back((uint8_t) (s >> 8));
-  pool.push_back((uint8_t) s);
-}
-
-
-////////////////////////////////////////////////////////////////////////
-/// Puts one byte and two shorts into the constant pool.
-/// \param b a byte
-/// \param s1 a short
-/// \param s2 a short
-////////////////////////////////////////////////////////////////////////
-void ConstantPool::put122(int32_t b, int32_t s1, int32_t s2) {
-  pool.push_back(b);
-  pool.push_back(s1>>8);
-  pool.push_back(s1);
-  pool.push_back(s2>>8);
-  pool.push_back(s2);
-}
-
-////////////////////////////////////////////////////////////////////////
-/// Puts two bytes and one short into the constant pool.
-/// \param b1 a byte
-/// \param b2 a byte
-/// \param s a short
-////////////////////////////////////////////////////////////////////////
-void ConstantPool::put112(int32_t b1, int32_t b2, int32_t s) {
-  pool.push_back(b1);
-  pool.push_back(b2);
-  pool.push_back(s>>8);
-  pool.push_back(s);
-}
+// if (index + typeCount > threshold) {
+//   int ll = items.length;
+//   int nl = ll * 2 + 1;
+//   Item[] newItems = new Item[nl];
+//   for (int l = ll - 1; l >= 0; --l) {
+//     Item j = items[l];
+//     while (j != null) {
+//       int index = j.hashCode % newItems.length;
+//       Item k = j.next;
+//       j.next = newItems[index];
+//       newItems[index] = j;
+//       j = k;
+//     }
+//   }
+//   items = newItems;
+//   threshold = (int) (nl * 0.75);
+// }
+// int index = i.hashCode % items.length;
+// i.next = items[index];
+// items[index] = i;
+// }
