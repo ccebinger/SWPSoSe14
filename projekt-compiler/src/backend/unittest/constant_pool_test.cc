@@ -26,10 +26,10 @@ bool testConstructor() {
   ConstantPool cp;
   auto listInit = cp.getByteArray();
   cp_offset = listInit.size();
-  cp.addClassRef("java/lang/system");
-  cp.addFieldRef("java.lang.system.out");
-  cp.addMethRef("Java.io.printStream.println");
-  cp.addMethRef("Main.java");
+  // cp.addClassRef("java/lang/system");
+  // cp.addFieldRef("java.lang.system.out");
+  // cp.addMethRef("Java.io.printStream.println");
+  // cp.addMethRef("Main.java");
 
   auto listChange = cp.getByteArray();
 
@@ -50,33 +50,35 @@ bool testAddClassReference() {
  *			got obsolete, due addByte is not implemented anymore…
  *  2)
  */
-struct ConstantPoolTest:public ConstantPool{
-  bool testAddInt() {
-    addInt(0xcafebabe);
-    addInt(0xdeadbeef);
 
-    auto list = getByteArray();
-    auto iter = list.begin();
+bool testAddInt() {
+  ConstantPool cp;
 
-    for (auto i = items.begin(); i != items.end(); i++) {
-    }
-    bool passed = true;
+  cp.addInt(0xcafebabe);
+  cp.addInt(0xdeadbeef);
 
-    std::string str;
-    char bakval = static_cast<char>(*iter++);;
-    for (; iter != list.end(); iter++) {
-      char val = static_cast<char>(*iter);
-      str += val;
-      if (!(val > bakval)) {
-        //cout << val;
-        passed = false;
-      }
-      bakval = val;
-    }
-    printf("[INFO] constant pool string %s\n", str.c_str());
-    return passed;
+  auto list = cp.getByteArray();
+  auto iter = list.begin();
+
+  for (auto i = cp.getItems().begin(); i != cp.getItems().end(); i++) {
   }
-};
+  bool passed = true;
+
+  std::string str;
+  char bakval = static_cast<char>(*iter++);;
+  for (; iter != list.end(); iter++) {
+    char val = static_cast<char>(*iter);
+    str += val;
+    if (!(val > bakval)) {
+      //cout << val;
+      passed = false;
+    }
+    bakval = val;
+  }
+  printf("[INFO] constant pool string %s\n", str.c_str());
+  return passed;
+}
+
 /*
  *  4)	String
  *
@@ -136,8 +138,7 @@ int main(int argc, char** argv) {
       printf("[ERROR] testAddClassReference failed all system off, everything falls apart ... boom\n");
       } */
 
-  ConstantPoolTest intTest;
-  if (!intTest.testAddInt()) {
+  if (!testAddInt()) {
     printf("[ERROR] testAddInt failed all system off, everything falls apart ... boom\n");
   }
 
