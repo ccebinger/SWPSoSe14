@@ -307,7 +307,7 @@ void add_integer_calculation(BytecodeGenerator::MNEMONIC calculation,
   uint16_t valueOf_idx = BytecodeGenerator::add_method("java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", constantPool);
   BytecodeGenerator::add_invoke_static(valueOf_idx, constantPool,result);
   globalstack_push(constantPool, result);
-
+  BytecodeGenerator::localCount += 2;
 
   /*uint16_t integer_class = constantPool.int_idx.class_idx;
   if (integer_class == 0)
@@ -409,6 +409,7 @@ void cut_ByteCode(ConstantPool& constantPool,
 	result.push_back(BytecodeGenerator::ILOAD_1);
 	BytecodeGenerator::add_invoke_virtual(substring2_idx, constantPool, result);
 	globalstack_push(constantPool, result);
+	BytecodeGenerator::localCount += 2;
 
 
   /*// istore_0 to store the index for the cut
@@ -492,14 +493,20 @@ void append_ByteCode(ConstantPool& constantPool,
 void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result,
                    Graphs::Node_ptr current_node)
 {
-  globalstack_pop(constantPool, result);
+	uint16_t field_stack_idx = BytecodeGenerator::add_field("Main", "stack", "Ljava/util/ArrayDeque;", constantPool);
+	BytecodeGenerator::add_static_field(field_stack_idx, constantPool, result);
+	globalstack_pop(constantPool, result);
   // invokevirtual <Method java/lang/String.length:()I>
   uint16_t meth_idx = constantPool.str_idx.length_idx;
   if (meth_idx == 0 )
-    meth_idx = BytecodeGenerator::add_method("java/lang/String", "length", "()I", constantPool);
+   meth_idx = BytecodeGenerator::add_method("java/lang/String", "length", "()I", constantPool);
+  uint16_t toString_idx = BytecodeGenerator::add_method("java/lang/Object", "toString", "()Ljava/lang/String;", constantPool);
+  uint16_t valueOf_idx = BytecodeGenerator::add_method("java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", constantPool);
+  BytecodeGenerator::add_invoke_virtual(toString_idx, constantPool, result);
   BytecodeGenerator::add_invoke_virtual(meth_idx,
                                         constantPool, result);
-
+  BytecodeGenerator::add_invoke_static(valueOf_idx, constantPool, result);
+  globalstack_push(constantPool, result);
   ///TODO use wrapper class!! also wrap int size with valueOf to Integer (Author Zelldon)
 }
 
