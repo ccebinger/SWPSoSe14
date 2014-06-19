@@ -8,6 +8,7 @@
 #ifndef ENV_H_
 #define ENV_H_
 
+
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
@@ -15,6 +16,10 @@
 #include <string.h>
 #include <exception>
 #include <vector>
+
+
+
+
 
 /**
  * Possible Warning/Exception sources
@@ -38,7 +43,7 @@ enum Source {
 /**
  * Formats a line, pos tuple
  */
-static inline std::string getLineString(int32_t line = -1, int32_t pos = -1) {
+static inline std::string getLineString(int32_t line=-1, int32_t pos=-1) {
 	std::stringstream s;
 	if (line >= 0 && pos >= 0) {
 		s << "[@" << line << "," << pos << "]";
@@ -71,13 +76,15 @@ static inline std::string getSourceName(Source src) {
 	}
 }
 
+
+
+
 /**
  * Offers a default Exception for Compiler-Exceptions
  *
  * @author Miro B.
  */
 class EnvException: public std::exception {
-
 private:
 	const std::string msg;
 
@@ -103,13 +110,10 @@ public:
 		std::cerr << msg << std::endl;
 	}
 
-
 private:
-
 	virtual const char* what() const throw () {
 		return (msg).c_str();
 	}
-
 };
 
 /**
@@ -127,6 +131,7 @@ private:
 	static std::string dstGraphviz;
 	static bool isQuiet;
 
+
 public:
 	// ------------------------------------------------------------------------------
 	// Init
@@ -136,17 +141,18 @@ public:
 	 * Assures the presence of folder "io"
 	 */
 	static void initIoDirectory() {
-		if (access("io", F_OK) == -1) {
-#ifdef _WIN32
+		if(access("io", F_OK) == -1) {
+			#ifdef _WIN32
 			int rMkdir = mkdir("io");
-#else
+			#else
 			int rMkdir = mkdir("io", 0777);
-#endif
+			#endif
 			if (rMkdir == -1) {
 				throw EnvException(ENVIRONMENT, "Folder io cannot be created");
 			}
 		}
 	}
+
 
 	/**
 	 * Parses Parameters
@@ -184,6 +190,8 @@ public:
 			}
 		}
 
+
+
 		// Defaults
 		if (!hasSrcFile() && !hasSrcDeserialize()) { srcFile = "Tests/test-cases/helloworld.txt"; }
 		if (!hasDstClassfile()) { dstClassFile = "io/Main.class"; }
@@ -194,6 +202,7 @@ public:
 		if (hasSrcFile() && hasSrcDeserialize()) {
 			srcDeserialize = "";
 		}
+
 
 		// Print parameters
 		if (verbose()) {
@@ -206,6 +215,7 @@ public:
 			if (isQuiet) { std::cout << "  -q" << std::endl; }
 			std::cout << std::endl;
 		}
+
 
 		// Test file-access
 		if (hasSrcFile() && access(srcFile.c_str(), F_OK) != 0) {
@@ -303,23 +313,23 @@ public:
 // ------------------------------------------------------------------------------
 // Debugging
 // ------------------------------------------------------------------------------
+
 private:
 	static std::vector<std::string> warnings;
 	static std::vector<std::string> errors;
 	static bool warningsOccurred;
 	static bool errorsOccurred;
 
-public:
 
+public:
 	/**
-	 * Stores msg as warning
-	 * @param src Source of the warning (e.g. "Lexer", "Parser", "ASG", "Backend")
-	 * @param msg Textual warning
-	 * @param line (optional) line corresponding to the warning
-	 * @param pos (optional) cursor position corresponding to the warning
-	 */
-	static inline void addWarning(Source src, std::string msg, int32_t line = -1, int32_t pos = -1) {
-		warningsOccurred = true;
+	* Stores msg as warning
+	* @param src	Source of the warning (e.g. "Lexer", "Parser", "ASG", "Backend")
+	* @param msg	Textual warning
+	* @param line	(optional) line corresponding to the warning
+	* @param pos	(optional) cursor position corresponding to the warning
+	*/
+	static inline void addWarning(Source src, std::string msg, int32_t line=-1, int32_t pos=-1) {
 		warnings.push_back("[Warning][" + getSourceName(src) + "]" + getLineString(line, pos) + " " + msg);
 	}
 

@@ -12,7 +12,6 @@ using namespace std;
 int main(int argc, char *argv[]) {
 	try {
 
-
 		Env::initIoDirectory();
 		Env::parseParams(argc, argv);
 		Env::showStatus();
@@ -25,7 +24,6 @@ int main(int argc, char *argv[]) {
 		// ------------------------------------------------------------------------
 
 		if(Env::hasSrcFile()) {
-
 
 			Env::printCaption("Frontend - Lexer");
 
