@@ -478,7 +478,7 @@ bool Parser::addToAbstractSyntaxGraph(string commandName, Command::Type type, No
 	return nodeWasNew;
 }
 
-//set the position to 'until' if it exists then return the return the string ,which yot red ,inclusive the starts- and end-symbol 
+//set the position to 'until' if it exists then return the return the string ,which yot red ,including the starts- and end-symbol 
 //just if we didi not return an empty string and the error message is already set.
 string Parser::readCharsUntil(uint32_t until) {
 	string result = "";
