@@ -307,7 +307,7 @@ void add_integer_calculation(BytecodeGenerator::MNEMONIC calculation,
   uint16_t valueOf_idx = BytecodeGenerator::add_method("java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", constantPool);
   BytecodeGenerator::add_invoke_static(valueOf_idx, constantPool,result);
   globalstack_push(constantPool, result);
-
+  BytecodeGenerator::localCount += 2;
 
   /*uint16_t integer_class = constantPool.int_idx.class_idx;
   if (integer_class == 0)
@@ -409,6 +409,7 @@ void cut_ByteCode(ConstantPool& constantPool,
 	result.push_back(BytecodeGenerator::ILOAD_1);
 	BytecodeGenerator::add_invoke_virtual(substring2_idx, constantPool, result);
 	globalstack_push(constantPool, result);
+	BytecodeGenerator::localCount += 2;
 
 
   /*// istore_0 to store the index for the cut
