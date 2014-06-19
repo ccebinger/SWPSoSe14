@@ -1,3 +1,18 @@
+/*[--**--]
+Copyright (C) 2014  SWPSoSe14Cpp Group
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation; either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this
+program; if not, see <http://www.gnu.org/licenses/>.*/
+
 #include <iostream>
 //#include <string.h>
 
@@ -18,14 +33,14 @@ int main(int argc, char *argv[]) {
   // ------------------------------------------------------------------------
   // FRONTEND
   // ------------------------------------------------------------------------
-  if(Env::hasSrcFile()) {
+  if (Env::hasSrcFile()) {
     Env::printCaption("Frontend - Lexer");
 
     // Lexer
     Lexer lexer;
     lexer.lex(Env::getSrcFile());
 
-    if(!lexer.hasFunctions()) {
+    if (!lexer.hasFunctions()) {
       throw EnvException(FRONTEND_LEXER, "No rail functions found in " + Env::getSrcFile());
     }
     Env::showWarnings();
@@ -42,14 +57,12 @@ int main(int argc, char *argv[]) {
       graphs.put((*it)->getName(), asg);
     }
     Env::showWarnings();
-  }
-  else if(Env::hasSrcDeserialize()) {
+  } else if (Env::hasSrcDeserialize()) {
     // Deserialize
     Env::printCaption("ASG - Deserialize");
     graphs.unmarshall(Env::getSrcDeserialize(), ';');
     Env::showWarnings();
-  }
-  else {
+  } else {
     throw EnvException(ENVIRONMENT, "No source specified. Use either -i <file> or -d <file>.");
   }
 
@@ -58,16 +71,14 @@ int main(int argc, char *argv[]) {
   // ------------------------------------------------------------------------
 
   // Serialize
-  if(Env::getDstSerialize() != "") {
+  if (Env::getDstSerialize() != "") {
     Env::printCaption("ASG - Serialize");
     graphs.marshall(Env::getDstSerialize(), ';');
     Env::showWarnings();
   }
 
-
-
   // GraphViz
-  if(Env::getDstGraphviz() != "") {
+  if (Env::getDstGraphviz() != "") {
     Env::printCaption("ASG - GraphViz");
     graphs.writeGraphViz(Env::getDstGraphviz());
     Env::showWarnings();
@@ -78,7 +89,6 @@ int main(int argc, char *argv[]) {
   // ------------------------------------------------------------------------
   Env::printCaption("Backend");
 
-  // TODO #118
   ofstream outFile(Env::getDstClassfile(), std::ofstream::binary);
   Backend::Generate(graphs, &outFile);
 
