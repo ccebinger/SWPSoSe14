@@ -31,9 +31,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setCurrentPath(QString());
     setModified(false);
+    createTempFiles();
 
     m_interpreterProcess = new QProcess(this);
     m_frontendProcess = new QProcess(this);
+    m_javaProcess = new QProcess(this);
 
     ui->ui_windowMenu->addAction(ui->ui_ioDockWidget->toggleViewAction());
     ui->ui_windowMenu->addAction(ui->ui_compilerDockWidget->toggleViewAction());
@@ -79,6 +81,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_frontendProcess, SIGNAL(readyReadStandardError()), this, SLOT(frontendErrorReady()));
     connect(m_frontendProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(frontendFinished(int,QProcess::ExitStatus)));
     connect(m_frontendProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(frontendProcessError(QProcess::ProcessError)));
+
+    connect(m_javaProcess, SIGNAL(started()), this, SLOT(javaStarted()));
+    connect(m_javaProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(javaOutputReady()));
+    connect(m_javaProcess, SIGNAL(readyReadStandardError()), this, SLOT(javaErrorReady()));
+    connect(m_javaProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(javaFinished(int,QProcess::ExitStatus)));
+    connect(m_javaProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(javaProcessError(QProcess::ProcessError)));
 }
 
 MainWindow::~MainWindow()
@@ -89,6 +97,8 @@ MainWindow::~MainWindow()
     delete m_interpreterProcess;
     m_frontendProcess->close();
     delete m_frontendProcess;
+    m_javaProcess->close();
+    delete m_javaProcess;
 
     delete m_undoRedoStack;
 
@@ -496,13 +506,35 @@ void MainWindow::runFrontend()
         return;
     }
 
-    qDebug() << "Run frontend";
+    // check if the java process is running
+    if(m_javaProcess->state() == QProcess::Running)
+    {
+        QMessageBox closeMessageBox;
+        closeMessageBox.setText("The Java Process is already running.");
+        closeMessageBox.setInformativeText("The Java Process is already running. Do you want to recompile and restart?");
+        QPushButton *yesButton = closeMessageBox.addButton("Yes", QMessageBox::ActionRole);
+        closeMessageBox.addButton("Cancel", QMessageBox::RejectRole);
 
-    QString basePath = QFileInfo(m_currentFilePath).absoluteFilePath().remove(QFileInfo(m_currentFilePath).suffix());
-    QString inputFile = basePath + "rail";
-    QString astFile = basePath + "ast";
-    QString graphFile = basePath + "dot";
-    QString classFile = basePath + "class";
+        closeMessageBox.exec();
+
+        if(closeMessageBox.clickedButton() == yesButton)
+        {
+            m_javaProcess->close();
+        }
+        else
+        {
+            return;
+        }
+    }
+
+    QFileInfo baseFileInfo(m_currentFilePath);
+    QString directory = baseFileInfo.absoluteDir().path();
+    QString baseName = baseFileInfo.completeBaseName();
+
+    QString inputFile = directory + "/" + baseName + ".rail";
+    QString astFile = directory + "/" + baseName + ".ast";
+    QString graphFile = directory + "/" + baseName + ".dot";
+    QString classFile = directory + "/" + "Main" + ".class";
 
     // run the compiler
     QStringList parameter;
@@ -526,6 +558,17 @@ void MainWindow::frontendFinished(int exitCode, QProcess::ExitStatus exitStatus)
     ui->ui_stopFrontendAction->setEnabled(false);
     ui->ui_runFrontendAction->setEnabled(true);
     ui->ui_compilerOutputPlainTextEdit->appendPlainText("Compiler finished with exit code " + QString::number(exitCode) + "\n");
+
+    if(exitCode == 0)
+    {
+        QString classFilePath = m_currentFilePath;
+        // Just for testing:
+        //classFilePath = "/home/muellerz/SWP/Test/HelloWorld.rail";
+        QFileInfo classFile(classFilePath);
+        QString directory(classFile.absoluteDir().path());
+        QString className(classFile.completeBaseName());
+        m_javaProcess->start("java", QStringList() << "-cp" << directory << "Main");//className);
+    }
 }
 
 void MainWindow::frontendOutputReady()
@@ -535,7 +578,7 @@ void MainWindow::frontendOutputReady()
 
 void MainWindow::frontendErrorReady()
 {
-    ui->ui_compilerOutputPlainTextEdit->appendHtml("<font color=red>" + m_frontendProcess->readAllStandardError() + "</font>\n");
+    ui->ui_compilerOutputPlainTextEdit->appendHtml("<font color=red>" + m_frontendProcess->readAllStandardError() + "</font>");
 }
 
 void MainWindow::frontendProcessError(QProcess::ProcessError error)
@@ -543,3 +586,32 @@ void MainWindow::frontendProcessError(QProcess::ProcessError error)
     qDebug() << "frontend error: " << error;
     QMessageBox::warning(this, "Compiler error.", "Compiler process error: " + QString::number(error));
 }
+
+
+void MainWindow::javaStarted()
+{
+    // TODO: (maybe) Clear java console window
+    ui->ui_compilerOutputPlainTextEdit->appendPlainText("Java execution started\n");
+}
+
+void MainWindow::javaFinished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    ui->ui_compilerOutputPlainTextEdit->appendPlainText("Java finished with exit code " + QString::number(exitCode) + "\n");
+}
+
+void MainWindow::javaOutputReady()
+{
+    ui->ui_compilerOutputPlainTextEdit->appendHtml("<font color=green>" + m_javaProcess->readAllStandardOutput() + "</font>");
+}
+
+void MainWindow::javaErrorReady()
+{
+    ui->ui_compilerOutputPlainTextEdit->appendHtml("<font color=red>" + m_javaProcess->readAllStandardError() + "</font>");
+}
+
+void MainWindow::javaProcessError(QProcess::ProcessError error)
+{
+    qDebug() << "java error: " << error;
+    QMessageBox::warning(this, "Java error.", "Java process error: " + QString::number(error));
+}
+
