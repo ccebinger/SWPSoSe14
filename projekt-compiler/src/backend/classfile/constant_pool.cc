@@ -202,7 +202,7 @@ ConstantPool::ConstantPool() {
     uint16_t push_name_idx = addString("push");
     uint16_t push_type_idx = addString("(Ljava/lang/Object;)V");
     uint16_t toString_name_idx = addString("toString");
-    uint16_t intCompare_type_idx = addString("(Ljava/lang/Integer;)I")
+    uint16_t intCompare_type_idx = addString("(Ljava/lang/Integer;)I");
     uint16_t compare_name_idx = addString("compare");
     uint16_t toString_type_idx = addString("()Ljava/lang/String;");
     uint16_t stringbuilder_idx = addString("java/lang/StringBuilder");
