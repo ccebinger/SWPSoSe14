@@ -76,10 +76,18 @@ struct NodeIdentifier{
 //	}
 };
 
-
 bool operator<( const NodeIdentifier&, const NodeIdentifier&);
 
 bool operator==(const NodeIdentifier&,const NodeIdentifier&);
+
+struct Djp{
+	//struct used as keys for the juncDirChangeMap
+	Direction dir;
+	string junction;
+	bool path;
+};
+
+bool operator<( const Djp &l, const Djp &r);
 
 //TODO: x hinzufügen als valid rail und @ implementieren
 class Parser {
@@ -115,7 +123,46 @@ class Parser {
 			{ NE, '-'  },
 		};
 
-
+		/*
+		 * The juncDirChangeMap is used to store the correct direction changes after passing a junction
+		 * keys consist of:
+		 * -the current direction(the one the train was driving in while passing the junction
+		 * -the junction itsself as a string (either "v","^","<",">")
+		 * -the path that shall be taken (true (same as right) or false (same as left) )
+		 * entrys are the new direction based on the three key elements -
+		 * not all combinations of keys elements are possible - for example for each junction there are (naturally) only 3 possible directions through which the train can enter!
+		 * before accessing the map it should be ensured that the input key is valid
+		 */
+		const map<Djp,Direction> juncDirChangeMap = {
+				//junction "<"
+				{{E,"<",true},SE},
+				{{E,"<",false},NE},
+				{{SW,"<",true},W},
+				{{SW,"<",false},SE},
+				{{NW,"<",true},NE},
+				{{NW,"<",false},W},
+				//junction ">"
+				{{W,">",true},NW},
+				{{W,">",false},SW},
+				{{NE,">",true},E},
+				{{NE,">",false},NW},
+				{{SE,">",true},SW},
+				{{SE,">",false},E},
+				//junction "^"
+				{{S,"^",true},SW},
+				{{S,"^",false},SE},
+				{{NW,"^",true},N},
+				{{NW,"^",false},SW},
+				{{NE,"^",true},SE},
+				{{NE,"^",false},N},
+				//junction "v"
+				{{N,"v",true},NE},
+				{{N,"v",false},NW},
+				{{SE,"v",true},S},
+				{{SE,"v",false},NE},
+				{{SW,"v",true},NW},
+				{{SW,"v",false},S},
+		};
 
 		/*
 		 * The xOffsetMap/yOffsetMap are responsible for providing the offsets(based on the current position and Direction) that tell you where to look for the character
@@ -220,8 +267,9 @@ class Parser {
 		void turnRight45Deg();
 		void reverseDirection();
 		bool currentCharIsNoCrossing();
+		Direction getOutPathOfJunction(string,Direction,bool);
 		bool parseVariable(string data,NodeIdentifier);
-		bool parseJunctions(Direction,int,int,Direction,Direction,string,Command::Type,NodeIdentifier);
+		bool parseJunctions(list<Direction>,int,int,string,Command::Type,NodeIdentifier);
 		bool checkForValidCommandsInStraightDir(int,int);
 		int getNextUnusedId();
 		void setRowCol(int,int);

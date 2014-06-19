@@ -8,7 +8,22 @@
 
 #include <frontend/lexer/Lexer.h>
 #include <frontend/parser/Parser.h>
+#include <vector>
 
+bool operator<( const Djp &l, const Djp &r ){
+	if(l.path == r.path){
+			if(l.junction==r.junction){
+				//cols and rows are equal, dir is decisive for comparison
+				return l.dir < r.dir;
+			} else{
+				//rows are equal, col is decisive for comparison
+				return l.junction<r.junction;
+			}
+		} else{
+			//row is decisive for comparison
+			return l.path<r.path;
+		}
+}
 
 bool operator<( const NodeIdentifier &l, const NodeIdentifier &r){
 	if(l.posRow == r.posRow){
@@ -231,16 +246,16 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 
 		// Juctions
 		case '<':
-			didGoStraight = parseJunctions(E, straightRow, straightCol, SE, NE, "<", Command::Type::EASTJUNC, id);
+			didGoStraight = parseJunctions({E,SW,NW}, straightRow, straightCol, "<", Command::Type::EASTJUNC, id);
 			break;
 		case '>':
-			didGoStraight = parseJunctions(W, straightRow, straightCol, NW, SW, ">", Command::Type::WESTJUNC, id);
+			didGoStraight = parseJunctions({W,NE,SE}, straightRow, straightCol, ">", Command::Type::WESTJUNC, id);
 			break;
 		case '^':
-			didGoStraight = parseJunctions(S, straightRow, straightCol, SW, SE, "^", Command::Type::SOUTHJUNC, id);
+			didGoStraight = parseJunctions({S,NW,NE}, straightRow, straightCol, "^", Command::Type::SOUTHJUNC, id);
 			break;
 		case 'v':
-			didGoStraight = parseJunctions(N, straightRow, straightCol, NE, NW, "v", Command::Type::NORTHJUNC, id);
+			didGoStraight = parseJunctions({N,SW,SE}, straightRow, straightCol, "v", Command::Type::NORTHJUNC, id);
 			break;
 
 		//Constant Numbers
@@ -417,12 +432,14 @@ bool Parser::parseVariable(string data, NodeIdentifier id) {
  * command name: the junction symbol as a string
  * juncType: ast.h Command::type enum value of the junction
 */
-bool Parser::parseJunctions(Direction requiredDir, int juncRow, int juncCol, Direction truePathDir, Direction falsePathDir, string commandName, Command::Type juncType, NodeIdentifier id) {
-	if(dir==requiredDir){
+bool Parser::parseJunctions(list<Direction> requiredDir, int juncRow, int juncCol, string commandName, Command::Type juncType, NodeIdentifier id) {
+	if(std::find(requiredDir.begin(),requiredDir.end(),dir) != requiredDir.end()){
 		parsingNotFinished = addToAbstractSyntaxGraph(commandName, juncType,id);
 		if(parsingNotFinished){
 			//if the junction was not already parsed recursively call self:
 			std::shared_ptr<Node> ifNode = currentNode;
+			Direction truePathDir = getOutPathOfJunction(commandName,dir,true);
+			Direction falsePathDir = getOutPathOfJunction(commandName,dir,false);
 			parseGraph(juncRow, juncCol, truePathDir);
 			parsingNotFinished = true;
 			currentNode = ifNode;
@@ -434,6 +451,10 @@ bool Parser::parseJunctions(Direction requiredDir, int juncRow, int juncCol, Dir
 	} else{
 		return false;
 	}
+}
+
+Direction Parser::getOutPathOfJunction(string junction,Direction curDir,bool path){
+	return juncDirChangeMap.at({curDir,junction,path});
 }
 
 bool Parser::addToAbstractSyntaxGraph(string commandName, Command::Type type, NodeIdentifier id) {

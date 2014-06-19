@@ -360,6 +360,10 @@ QString EditTableWidget::toPlainText() const
             text.append("\n");
         }
     }
+    // remove trailing whitespaces
+    qDebug() << text;
+    text = text.replace(QRegExp("\\s*\\n"), "\n");
+    qDebug() << text;
     return text;
 }
 
