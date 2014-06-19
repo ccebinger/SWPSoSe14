@@ -17,11 +17,14 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #define PROJEKT_COMPILER_SRC_BACKEND_BACKEND_H_
 
 #include <iostream>
+#include <vector>
+#include <map>
+#include <string>
 
-#include <common/ast/ast.h>
-#include <frontend/adjacency_list.h>
 #include <frontend/Graphs.h>
-
+#include <backend/classfile/classfile_writer.h>
+#include <backend/codegen/bytecode_generator.h>
+#include <backend/classfile/constant_pool.h>
 /**
  * Die Klasse stellt statische Methoden für das Übersetzen des Graphen in
  * Target-Code zur Verfügung.

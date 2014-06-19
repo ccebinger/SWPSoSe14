@@ -27,3 +27,6 @@ Angenehmes Merge-Tool
 sudo apt-get install meld
 git config --global merge.tool meld
 
+informative Links fuer Merg-Problem :
+https://www.kernel.org/pub/software/scm/git/docs/git-mergetool.html
+http://gitguru.com/2009/02/22/integrating-git-with-a-visual-merge-tool/

@@ -39,6 +39,7 @@ private:
 
     QProcess *m_interpreterProcess;
     QProcess *m_frontendProcess;
+    QProcess *m_javaProcess;
 
     UndoRedoStack *m_undoRedoStack;
 
@@ -74,6 +75,12 @@ private slots:
     void frontendOutputReady();
     void frontendErrorReady();
     void frontendProcessError(QProcess::ProcessError error);
+
+    void javaStarted();
+    void javaFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void javaOutputReady();
+    void javaErrorReady();
+    void javaProcessError(QProcess::ProcessError error);
 };
 
 #endif // MAINWINDOW_H

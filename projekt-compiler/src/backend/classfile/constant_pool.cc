@@ -165,7 +165,7 @@ void Item::set_name_type(uint16_t method_idx, uint16_t descriptor_idx) {
 ////////////////////////////////////////////////////////////////////////
 /// default constructor
 ////////////////////////////////////////////////////////////////////////
-ConstantPool::ConstantPool(Graphs& graphs) {
+ConstantPool::ConstantPool() {
   items.reserve(256);
 
   /// Add strings
@@ -203,12 +203,7 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     uint16_t push_type_idx = addString("(Ljava/lang/Object;)V");
     uint16_t toString_name_idx = addString("toString");
     uint16_t toString_type_idx = addString("()Ljava/lang/String;");
-
-    ///  Add Rail-Functionnames as Strings
-    std::vector<std::string> keyset = graphs.keyset();
-    for (auto it = keyset.begin(); it != keyset.end(); it++) {
-      addString(*it);
-    }
+    uint16_t stringbuilder_idx = addString("java/lang/StringBuilder");
 
     ///  Add classes
     obj_idx.class_idx = addClassRef(obj_cls_idx);
@@ -218,6 +213,7 @@ ConstantPool::ConstantPool(Graphs& graphs) {
     int_idx.class_idx = addClassRef(integer_idx);
     str_idx.class_idx = addClassRef(string_idx);
     arr_idx.class_idx = addClassRef(stack_class_name_idx);
+    uint16_t stringbuilder_class = addClassRef(stringbuilder_idx);
 
     ///  Add name and type
     uint16_t object_name_type_idx = addNameAndType(object_name_idx, void_descriptor_idx);

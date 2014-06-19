@@ -15,17 +15,21 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     EditTableWidget.cpp \
-    Point.cpp
+    Point_Old.cpp \
+    Point.cpp \
+    Graph_Interface.cpp
 
 HEADERS  += mainwindow.h \
     EditTableWidget.h \
-    Point.h \
     Stack.h \
     InterStack.h \
-    Graph_Interface.h \
     UndoRedoTypeCharacter.h \
     UndoRedoElement.h \
-    UndoRedoStack.h
+    UndoRedoStack.h \
+    Graph_Interface_old.h \
+    Point_old.h \
+    Graph_Interface.h \
+    Point.h
 
 FORMS    += mainwindow.ui
 
