@@ -28,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     f.setStyleHint(QFont::Monospace);
     ui->ui_inputPlainTextEdit->setFont(f);
     ui->ui_outputPlainTextEdit->setFont(f);
+    ui->ui_compilerOutputPlainTextEdit->setFont(f);
 
     setCurrentPath(QString());
     setModified(false);
@@ -601,7 +602,9 @@ void MainWindow::javaFinished(int exitCode, QProcess::ExitStatus exitStatus)
 
 void MainWindow::javaOutputReady()
 {
-    ui->ui_compilerOutputPlainTextEdit->appendHtml("<font color=green>" + m_javaProcess->readAllStandardOutput() + "</font>");
+    QString stdOutput = m_javaProcess->readAllStandardOutput();
+    //stdOutput = stdOutput.replace(QRegExp("\n"), "<br>");
+    ui->ui_compilerOutputPlainTextEdit->appendHtml("<font color=green>" + stdOutput + "</font>");
 }
 
 void MainWindow::javaErrorReady()

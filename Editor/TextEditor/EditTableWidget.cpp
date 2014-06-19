@@ -361,9 +361,7 @@ QString EditTableWidget::toPlainText() const
         }
     }
     // remove trailing whitespaces
-    qDebug() << text;
     text = text.replace(QRegExp("\\s*\\n"), "\n");
-    qDebug() << text;
     return text;
 }
 

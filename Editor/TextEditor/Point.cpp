@@ -262,6 +262,7 @@ void Point::make_Node_Type ( void ){
     case 'g':
     case 'q':
     case 't':
+    case 'c':
         type = Function;
         break;
     case '[':
