@@ -17,38 +17,33 @@
 #include <exception>
 #include <vector>
 
-
-
-
-
 /**
  * Possible Warning/Exception sources
  */
 enum Source {
-	ENVIRONMENT,
-	FRONTEND,
-	FRONTEND_LEXER,
-	FRONTEND_PARSER,
-	ASG,
-	ASG_SERIALIZE,
-	ASG_DESERIALIZE,
-	ASG_GRAPHVIZ,
-	BACKEND,
-	BACKEND_BYTECODE_GENERATOR,
-	BACKEND_BYTECODE_WRITER,
-	BACKEND_CONSTANT_POOL,
-	UNKNOWN,
+  ENVIRONMENT,
+  FRONTEND,
+  FRONTEND_LEXER,
+  FRONTEND_PARSER,
+  ASG,
+  ASG_SERIALIZE,
+  ASG_DESERIALIZE,
+  ASG_GRAPHVIZ,
+  BACKEND,
+  BACKEND_BYTECODE_GENERATOR,
+  BACKEND_BYTECODE_WRITER,
+  BACKEND_CONSTANT_POOL,
 };
 
 /**
  * Formats a line, pos tuple
  */
 static inline std::string getLineString(int32_t line=-1, int32_t pos=-1) {
-	std::stringstream s;
-	if (line >= 0 && pos >= 0) {
-		s << "[@" << line << "," << pos << "]";
-	}
-	return s.str();
+  std::stringstream s;
+  if (line >= 0 && pos >= 0) {
+    s << "[@" << line << "," << pos << "]";
+  }
+  return s.str();
 }
 
 /**
@@ -58,26 +53,22 @@ static inline std::string getLineString(int32_t line=-1, int32_t pos=-1) {
  * @return		string-representation
  */
 static inline std::string getSourceName(Source src) {
-	switch (src) {
-		case ENVIRONMENT:				return "Environment";
-		case FRONTEND:					return "Frontend";
-		case FRONTEND_LEXER:			return "Frontend-Lexer";
-		case FRONTEND_PARSER:			return "Frontend-Parser";
-		case ASG:						return "Asg";
-		case ASG_SERIALIZE:				return "Asg-Serialize";
-		case ASG_DESERIALIZE:			return "Asg-Deserialize";
-		case ASG_GRAPHVIZ:				return "Asg-GraphViz";
-		case BACKEND:					return "Backend";
-		case BACKEND_BYTECODE_GENERATOR:return "Backend-Bytecode-Generator";
-		case BACKEND_BYTECODE_WRITER:	return "Backend-Bytecode-Writer";
-		case BACKEND_CONSTANT_POOL:		return "Backend-Constant-Pool";
-		case UNKNOWN:
-		default:						return "Unknown";
-	}
+  switch (src) {
+    case ENVIRONMENT:                 return "Environment";
+    case FRONTEND:                    return "Frontend";
+    case FRONTEND_LEXER:              return "Frontend-Lexer";
+    case FRONTEND_PARSER:             return "Frontend-Parser";
+    case ASG:                         return "Asg";
+    case ASG_SERIALIZE:               return "Asg-Serialize";
+    case ASG_DESERIALIZE:             return "Asg-Deserialize";
+    case ASG_GRAPHVIZ:                return "Asg-GraphViz";
+    case BACKEND:                     return "Backend";
+    case BACKEND_BYTECODE_GENERATOR:  return "Backend-Bytecode-Generator";
+    case BACKEND_BYTECODE_WRITER:     return "Backend-Bytecode-Writer";
+    case BACKEND_CONSTANT_POOL:       return "Backend-Constant-Pool";
+    default:                          return "???";
+  }
 }
-
-
-
 
 /**
  * Offers a default Exception for Compiler-Exceptions
@@ -85,35 +76,24 @@ static inline std::string getSourceName(Source src) {
  * @author Miro B.
  */
 class EnvException: public std::exception {
-private:
-	const std::string msg;
-
-public:
-
-	/**
-	 * Creates a formatted Exception
-	 *
-	 * @param src	Error source
-	 * @param emsg	Exception Message
-	 * @param line	optional, line number
-	 * @param pos	optional, position number
-	 */
-	EnvException(Source src, const std::string&& emsg, int32_t line = -1, int32_t pos = -1)
-	: msg("[Exception][" + getSourceName(src) + "]" + getLineString(line, pos) + " " + emsg) {
-
-	}
-
-	/**
-	 * Prints the exception message to std::cerr
-	 */
-	virtual void showMessage() const {
-		std::cerr << msg << std::endl;
-	}
-
-private:
-	virtual const char* what() const throw () {
-		return (msg).c_str();
-	}
+ private:
+  const std::string msg;
+ public:
+  /**
+   * Creates a formatted Exception
+   *
+   * @param src	Error source
+   * @param emsg	Exception Message
+   * @param line	optional, line number
+   * @param pos	optional, position number
+   */
+  EnvException(Source src, const std::string&& emsg, int32_t line=-1, int32_t pos=-1)
+      : msg("[Exception][" + getSourceName(src) + "]" + getLineString(line, pos) + " " + emsg) {
+  }
+ private:
+  virtual const char* what() const throw() {
+    return (msg).c_str();
+  }
 };
 
 /**
@@ -122,6 +102,13 @@ private:
  * @author Miro B.
  */
 class Env {
+ private:
+  static std::string srcFile;
+  static std::string srcDeserialize;
+  static std::string dstClassFile;
+  static std::string dstSerialize;
+  static std::string dstGraphviz;
+  static bool isQuiet;
 
 private:
 	static std::string srcFile;
