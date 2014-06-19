@@ -47,6 +47,7 @@ struct IntegerIndexes {
   uint16_t class_idx = 0;
   uint16_t value_of_idx = 0;
   uint16_t int_value_idx = 0;
+  uint16_t compare_idx = 0;
 };
 
 struct StringIndexes {
