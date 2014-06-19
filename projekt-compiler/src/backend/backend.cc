@@ -13,6 +13,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with this
 program; if not, see <http://www.gnu.org/licenses/>.*/
 
+#include <backend/backend.h>
 /*!
  * \mainpage backend.cc
  * \author Backend group & friends
@@ -21,14 +22,6 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
  * This class generates the target code from an input graph.
  *
  */
-#include <vector>
-#include <map>
-#include <string>
-#include "backend/backend.h"
-
-#include "backend/classfile/classfile_writer.h"
-#include "backend/codegen/bytecode_generator.h"
-#include "frontend/Graphs.h"
 
 /*!
  * \brief Generates target code from a serialized graph
@@ -58,7 +51,7 @@ Backend::Status Backend::Generate(const std::string& graphIn,
 Backend::Status Backend::Generate(Graphs& graphs, std::ostream* codeOut) {
   std::string entryFunctionName("main");
   Graphs::Graph_ptr mainFunction = graphs.find(entryFunctionName);
-  ConstantPool constantPool(graphs);
+  ConstantPool constantPool;
 
   ///  Add Rail-Functionnames as Strings
   std::vector<std::string> keyset = graphs.keyset();
