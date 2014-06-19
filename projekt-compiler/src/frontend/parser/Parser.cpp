@@ -191,7 +191,8 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 		//Delimiter
 		case '[': // Reading Constant
 			setRowCol(straightRow, straightCol);
-			//TODO: ueberpruefen ob notwendig: list<char> invalidCharList = {'[','{','(',},;
+			//TODO: ueberpruefen ob notwendig: list<char> invalidCharList = {'{','(',},;
+			//'\[\' it will be parsed as '\t\' , '\\' , '\n\' within the String(Constant)
 			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil(']'), Command::Type::PUSH_CONST, id);
 			//TODO: create pushNode in graph
 			break;
