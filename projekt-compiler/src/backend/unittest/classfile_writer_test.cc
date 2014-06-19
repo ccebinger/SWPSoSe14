@@ -15,12 +15,10 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 
 #if TESTS
 
-#include <backend/classfile/constant_pool.h>
 #include <backend/classfile/classfile_writer.h>
 #include <sstream>
 
 int main(int argc, char** argv) {
-  ConstantPool cp;
   std::ostringstream os;
 }
 

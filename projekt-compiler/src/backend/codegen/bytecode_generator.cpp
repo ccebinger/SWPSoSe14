@@ -265,7 +265,9 @@ void push_ByteCode(ConstantPool& constantPool,
   std::string value = current_node->command.arg;
   try {
     int int_val = std::stoi(value);
-    BytecodeGenerator::add_index(constantPool.addInt(int_val), result);
+    result.push_back(constantPool.addInt(int_val));
+    uint16_t valueOf_idx = BytecodeGenerator::add_method("java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", constantPool);
+    BytecodeGenerator::add_invoke_static(valueOf_idx, constantPool,result);
   }
   // the value is a string
   catch (const std::invalid_argument& ia) {
@@ -279,7 +281,35 @@ void push_ByteCode(ConstantPool& constantPool,
 void add_integer_calculation(BytecodeGenerator::MNEMONIC calculation,
                              ConstantPool& constantPool,
                              std::vector<char>& result) {
-  uint16_t integer_class = constantPool.int_idx.class_idx;
+
+  uint16_t field_stack_idx = BytecodeGenerator::add_field("Main", "stack", "Ljava/util/ArrayDeque;", constantPool);
+  uint16_t pop_idx = BytecodeGenerator::add_method("java/util/ArrayDeque", "pop", "()Ljava/lang/Object;", constantPool);
+  uint16_t intValue_idx = BytecodeGenerator::add_method("java/lang/Integer", "intValue", "()I", constantPool);
+
+  BytecodeGenerator::add_static_field(field_stack_idx, constantPool, result);
+  globalstack_pop(constantPool,result);
+  //We may want to change the checkcast here. I needed it for it to work, but maybe we find another way
+
+  result.push_back(BytecodeGenerator::CHECKCAST);
+  result.push_back('\x00');
+  result.push_back(constantPool.addClassRef(constantPool.addString("java/lang/Integer")));
+  //BytecodeGenerator::add_instance_of(constantPool.addClassRef(constantPool.addString("java/lang/Integer")), constantPool, result);
+  BytecodeGenerator::add_invoke_virtual(intValue_idx, constantPool, result);
+  result.push_back(BytecodeGenerator::ISTORE_1);
+  globalstack_pop(constantPool,result);
+  result.push_back(BytecodeGenerator::CHECKCAST);
+  result.push_back('\x00');
+  result.push_back(constantPool.addClassRef(constantPool.addString("java/lang/Integer")));
+  //BytecodeGenerator::add_instance_of(constantPool.addClassRef(constantPool.addString("java/lang/Integer")), constantPool, result);
+  BytecodeGenerator::add_invoke_virtual(intValue_idx, constantPool, result);
+  result.push_back(BytecodeGenerator::ILOAD_1);
+  result.push_back(calculation);
+  uint16_t valueOf_idx = BytecodeGenerator::add_method("java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", constantPool);
+  BytecodeGenerator::add_invoke_static(valueOf_idx, constantPool,result);
+  globalstack_push(constantPool, result);
+
+
+  /*uint16_t integer_class = constantPool.int_idx.class_idx;
   if (integer_class == 0)
     integer_class = BytecodeGenerator::add_class("java/lang/Integer", constantPool);
   uint16_t integer_class_intValue_method = constantPool.int_idx.int_value_idx;
@@ -314,7 +344,7 @@ void add_integer_calculation(BytecodeGenerator::MNEMONIC calculation,
 
   BytecodeGenerator::localCount += 2;
 
-  globalstack_push(constantPool, result);
+  globalstack_push(constantPool, result);*/
 }
 
 void add_ByteCode(ConstantPool& constantPool,
@@ -348,7 +378,40 @@ void mod_ByteCode(ConstantPool& constantPool,
 void cut_ByteCode(ConstantPool& constantPool,
                   std::vector<char>& result,
                   Graphs::Node_ptr current_node) {
-  // istore_0 to store the index for the cut
+
+	uint16_t field_stack_idx = BytecodeGenerator::add_field("Main", "stack", "Ljava/util/ArrayDeque;", constantPool);
+	uint16_t intValue_idx = BytecodeGenerator::add_method("java/lang/Integer", "intValue", "()I", constantPool);
+	uint16_t toString_idx = BytecodeGenerator::add_method("java/lang/Object", "toString", "()Ljava/lang/String;", constantPool);
+	uint16_t substring_idx = BytecodeGenerator::add_method("java/lang/String", "substring", "(II)Ljava/lang/String;", constantPool);
+	uint16_t substring2_idx = BytecodeGenerator::add_method("java/lang/String", "substring", "(I)Ljava/lang/String;", constantPool);
+
+	BytecodeGenerator::add_static_field(field_stack_idx, constantPool, result);
+	globalstack_pop(constantPool,result);
+	result.push_back(BytecodeGenerator::CHECKCAST);
+	result.push_back('\x00');
+	result.push_back(constantPool.addClassRef(constantPool.addString("java/lang/Integer")));
+	//BytecodeGenerator::add_instance_of(constantPool.addClassRef(constantPool.addString("java/lang/Integer")), constantPool, result);
+	BytecodeGenerator::add_invoke_virtual(intValue_idx, constantPool, result);
+	result.push_back(BytecodeGenerator::ISTORE_1);
+	BytecodeGenerator::add_static_field(field_stack_idx, constantPool, result);
+	globalstack_pop(constantPool,result);
+	result.push_back(BytecodeGenerator::ASTORE_2);
+	BytecodeGenerator::add_static_field(field_stack_idx, constantPool, result);
+	result.push_back(BytecodeGenerator::ALOAD_2);
+	BytecodeGenerator::add_invoke_virtual(toString_idx, constantPool, result);
+	result.push_back(BytecodeGenerator::ICONST_0);
+	result.push_back(BytecodeGenerator::ILOAD_1);
+	BytecodeGenerator::add_invoke_virtual(substring_idx, constantPool, result);
+	globalstack_push(constantPool, result);
+	BytecodeGenerator::add_static_field(field_stack_idx, constantPool, result);
+	result.push_back(BytecodeGenerator::ALOAD_2);
+	BytecodeGenerator::add_invoke_virtual(toString_idx, constantPool, result);
+	result.push_back(BytecodeGenerator::ILOAD_1);
+	BytecodeGenerator::add_invoke_virtual(substring2_idx, constantPool, result);
+	globalstack_push(constantPool, result);
+
+
+  /*// istore_0 to store the index for the cut
   globalstack_pop(constantPool, result);
   result.push_back(BytecodeGenerator::ISTORE_0);
   // astore_1 to store the begin string
@@ -378,7 +441,7 @@ void cut_ByteCode(ConstantPool& constantPool,
   BytecodeGenerator::add_invoke_virtual(method_idx,
                                         constantPool, result);
   globalstack_push(constantPool, result);
-  BytecodeGenerator::localCount += 2;
+  BytecodeGenerator::localCount += 2;*/
 }
 
 void append_ByteCode(ConstantPool& constantPool,
@@ -466,7 +529,6 @@ void false_ByteCode(ConstantPool& pool, std::vector<char>& code,
 
   BytecodeGenerator::localCount++;
 }
-
 void greater_ByteCode(ConstantPool& pool, std::vector<char>& result,
                       Graphs::Node_ptr current_node) {
   // store the two integers and load them to get the right order
