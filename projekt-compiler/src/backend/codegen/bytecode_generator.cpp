@@ -522,13 +522,6 @@ void list_pop_ByteCode(ConstantPool& pool, std::vector<char>& code,
 }
 
 // BOOLEAN ARITHMETIC
-void false_ByteCode(ConstantPool& pool, std::vector<char>& code,
-                    Graphs::Node_ptr current_node) {
-  code.push_back(BytecodeGenerator::ICONST_0);
-  globalstack_push(pool, code);
-
-  BytecodeGenerator::localCount++;
-}
 void greater_ByteCode(ConstantPool& pool, std::vector<char>& result,
                       Graphs::Node_ptr current_node) {
   // store the two integers and load them to get the right order
@@ -593,11 +586,22 @@ void equal_ByteCode(ConstantPool& pool, std::vector<char>& result,
   BytecodeGenerator::localCount += 3;
 }
 
+void false_ByteCode(ConstantPool& pool, std::vector<char>& code,
+                    Graphs::Node_ptr current_node) {
+  push_ByteCode(pool, code, current_node);
+  //code.push_back(BytecodeGenerator::ICONST_0);
+  //globalstack_push(pool, code);
+
+  //BytecodeGenerator::localCount++;
+}
+
 void true_ByteCode(ConstantPool& pool, std::vector<char>& code,
                    Graphs::Node_ptr current_node) {
-  code.push_back(BytecodeGenerator::ICONST_1);
-  globalstack_push(pool, code);
-  BytecodeGenerator::localCount++;
+  push_ByteCode(pool, code, current_node);
+  //code.push_back(BytecodeGenerator::ICONST_1);
+  //globalstack_push(pool, code);
+  //BytecodeGenerator::localCount++;
+  //TODO localCount noch notwendig?
 }
 
 // IO OPERATIONS
