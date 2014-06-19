@@ -33,6 +33,7 @@ enum Source {
   BACKEND_BYTECODE_GENERATOR,
   BACKEND_BYTECODE_WRITER,
   BACKEND_CONSTANT_POOL,
+  UNKNOWN,
 };
 
 /**
@@ -66,7 +67,8 @@ static inline std::string getSourceName(Source src) {
     case BACKEND_BYTECODE_GENERATOR:  return "Backend-Bytecode-Generator";
     case BACKEND_BYTECODE_WRITER:     return "Backend-Bytecode-Writer";
     case BACKEND_CONSTANT_POOL:       return "Backend-Constant-Pool";
-    default:                          return "???";
+    case UNKNOWN:
+    default:                          return "Unknown";
   }
 }
 
@@ -76,24 +78,30 @@ static inline std::string getSourceName(Source src) {
  * @author Miro B.
  */
 class EnvException: public std::exception {
- private:
-  const std::string msg;
- public:
-  /**
-   * Creates a formatted Exception
-   *
-   * @param src	Error source
-   * @param emsg	Exception Message
-   * @param line	optional, line number
-   * @param pos	optional, position number
-   */
-  EnvException(Source src, const std::string&& emsg, int32_t line=-1, int32_t pos=-1)
-      : msg("[Exception][" + getSourceName(src) + "]" + getLineString(line, pos) + " " + emsg) {
-  }
- private:
-  virtual const char* what() const throw() {
-    return (msg).c_str();
-  }
+
+private:
+	const std::string msg;
+
+public:
+	/**
+	* Creates a formatted Exception
+	*
+	* @param src	Error source
+	* @param emsg	Exception Message
+	* @param line	optional, line number
+	* @param pos	optional, position number
+	*/
+	EnvException(Source src, const std::string&& emsg, int32_t line=-1, int32_t pos=-1)
+	: msg("[Exception][" + getSourceName(src) + "]" + getLineString(line, pos) + " " + emsg) {
+
+	}
+	void showMessage() {
+		std::cerr << msg << std::endl;
+	}
+private:
+	virtual const char* what() const throw() {
+		return (msg).c_str();
+	}
 };
 
 /**
@@ -102,13 +110,6 @@ class EnvException: public std::exception {
  * @author Miro B.
  */
 class Env {
- private:
-  static std::string srcFile;
-  static std::string srcDeserialize;
-  static std::string dstClassFile;
-  static std::string dstSerialize;
-  static std::string dstGraphviz;
-  static bool isQuiet;
 
 private:
 	static std::string srcFile;
