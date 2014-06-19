@@ -544,14 +544,20 @@ void append_ByteCode(ConstantPool& constantPool,
 void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result,
                    Graphs::Node_ptr current_node)
 {
-  globalstack_pop(constantPool, result);
+	uint16_t field_stack_idx = BytecodeGenerator::add_field("Main", "stack", "Ljava/util/ArrayDeque;", constantPool);
+	BytecodeGenerator::add_static_field(field_stack_idx, constantPool, result);
+	globalstack_pop(constantPool, result);
   // invokevirtual <Method java/lang/String.length:()I>
   uint16_t meth_idx = constantPool.str_idx.length_idx;
   if (meth_idx == 0 )
-    meth_idx = BytecodeGenerator::add_method("java/lang/String", "length", "()I", constantPool);
+   meth_idx = BytecodeGenerator::add_method("java/lang/String", "length", "()I", constantPool);
+  uint16_t toString_idx = BytecodeGenerator::add_method("java/lang/Object", "toString", "()Ljava/lang/String;", constantPool);
+  uint16_t valueOf_idx = BytecodeGenerator::add_method("java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", constantPool);
+  BytecodeGenerator::add_invoke_virtual(toString_idx, constantPool, result);
   BytecodeGenerator::add_invoke_virtual(meth_idx,
                                         constantPool, result);
-
+  BytecodeGenerator::add_invoke_static(valueOf_idx, constantPool, result);
+  globalstack_push(constantPool, result);
   ///TODO use wrapper class!! also wrap int size with valueOf to Integer (Author Zelldon)
 }
 
@@ -576,11 +582,24 @@ void list_pop_ByteCode(ConstantPool& pool, std::vector<char>& code,
 // BOOLEAN ARITHMETIC
 void greater_ByteCode(ConstantPool& pool, std::vector<char>& result,
                       Graphs::Node_ptr current_node) {
-  // store the two integers and load them to get the right order
-  globalstack_pop(pool, result);
+  uint16_t intValue_idx = BytecodeGenerator::add_method("java/lang/Integer", "intValue", "()I", pool);
+  // first typecheck for integer (no way to compare string)
+  // afterwards store the two integers and load them to get the right order
+  globalstack_pop(pool,result);
+  result.push_back(BytecodeGenerator::CHECKCAST);
+  result.push_back('\x00');
+  result.push_back(pool.addClassRef(pool.addString("java/lang/Integer")));
+  BytecodeGenerator::add_invoke_virtual(intValue_idx, pool, result);
   result.push_back(BytecodeGenerator::ISTORE_1);
-  globalstack_pop(pool, result);
+
+  globalstack_pop(pool,result);
+  result.push_back(BytecodeGenerator::CHECKCAST);
+  result.push_back('\x00');
+  result.push_back(pool.addClassRef(pool.addString("java/lang/Integer")));
+  //BytecodeGenerator::add_instance_of(constantPool.addClassRef(constantPool.addString("java/lang/Integer")), constantPool, result);
+  BytecodeGenerator::add_invoke_virtual(intValue_idx, pool, result);
   result.push_back(BytecodeGenerator::ISTORE_2);
+
   result.push_back(BytecodeGenerator::ILOAD_1);
   result.push_back(BytecodeGenerator::ILOAD_2);
 
