@@ -95,7 +95,7 @@ public:
 	: msg("[Exception][" + getSourceName(src) + "]" + getLineString(line, pos) + " " + emsg) {
 
 	}
-	void showMessage() {
+	inline void showMessage() {
 		std::cerr << msg << std::endl;
 	}
 private:
@@ -128,7 +128,7 @@ public:
 	/**
 	 * Assures the presence of folder "io"
 	 */
-	static void initIoDirectory() {
+	static inline void initIoDirectory() {
 		if(access("io", F_OK) == -1) {
 			#ifdef _WIN32
 			int rMkdir = mkdir("io");
@@ -355,7 +355,7 @@ public:
 	/**
 	 * Dumps all pending warnings to std::cout
 	 */
-	static void showStatus() {
+	static inline void showStatus() {
 		for(std::string s : warnings) {
 			std::cout << s << std::endl;
 		}
