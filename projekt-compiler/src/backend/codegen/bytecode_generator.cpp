@@ -307,7 +307,7 @@ void add_integer_calculation(BytecodeGenerator::MNEMONIC calculation,
   uint16_t valueOf_idx = BytecodeGenerator::add_method("java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", constantPool);
   BytecodeGenerator::add_invoke_static(valueOf_idx, constantPool,result);
   globalstack_push(constantPool, result);
-  BytecodeGenerator::localCount += 2;
+
 
   /*uint16_t integer_class = constantPool.int_idx.class_idx;
   if (integer_class == 0)
@@ -409,7 +409,6 @@ void cut_ByteCode(ConstantPool& constantPool,
 	result.push_back(BytecodeGenerator::ILOAD_1);
 	BytecodeGenerator::add_invoke_virtual(substring2_idx, constantPool, result);
 	globalstack_push(constantPool, result);
-	BytecodeGenerator::localCount += 2;
 
 
   /*// istore_0 to store the index for the cut
@@ -493,20 +492,14 @@ void append_ByteCode(ConstantPool& constantPool,
 void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result,
                    Graphs::Node_ptr current_node)
 {
-	uint16_t field_stack_idx = BytecodeGenerator::add_field("Main", "stack", "Ljava/util/ArrayDeque;", constantPool);
-	BytecodeGenerator::add_static_field(field_stack_idx, constantPool, result);
-	globalstack_pop(constantPool, result);
+  globalstack_pop(constantPool, result);
   // invokevirtual <Method java/lang/String.length:()I>
   uint16_t meth_idx = constantPool.str_idx.length_idx;
   if (meth_idx == 0 )
-   meth_idx = BytecodeGenerator::add_method("java/lang/String", "length", "()I", constantPool);
-  uint16_t toString_idx = BytecodeGenerator::add_method("java/lang/Object", "toString", "()Ljava/lang/String;", constantPool);
-  uint16_t valueOf_idx = BytecodeGenerator::add_method("java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", constantPool);
-  BytecodeGenerator::add_invoke_virtual(toString_idx, constantPool, result);
+    meth_idx = BytecodeGenerator::add_method("java/lang/String", "length", "()I", constantPool);
   BytecodeGenerator::add_invoke_virtual(meth_idx,
                                         constantPool, result);
-  BytecodeGenerator::add_invoke_static(valueOf_idx, constantPool, result);
-  globalstack_push(constantPool, result);
+
   ///TODO use wrapper class!! also wrap int size with valueOf to Integer (Author Zelldon)
 }
 
@@ -531,10 +524,13 @@ void list_pop_ByteCode(ConstantPool& pool, std::vector<char>& code,
 // BOOLEAN ARITHMETIC
 void greater_ByteCode(ConstantPool& pool, std::vector<char>& result,
                       Graphs::Node_ptr current_node) {
+  uint16_t valueOf_idx = BytecodeGenerator::add_method("java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", pool);
   uint16_t intValue_idx = BytecodeGenerator::add_method("java/lang/Integer", "intValue", "()I", pool);
+  uint16_t compare_idx = BytecodeGenerator::add_method("java/lang/Integer", "compareTo", "(Ljava/lang/Integer;)I", pool);
   // first typecheck for integer (no way to compare string)
-  // afterwards store the two integers and load them to get the right order
+  // store the two integers and load them to get the right order
   globalstack_pop(pool,result);
+
   result.push_back(BytecodeGenerator::CHECKCAST);
   result.push_back('\x00');
   result.push_back(pool.addClassRef(pool.addString("java/lang/Integer")));
@@ -545,28 +541,22 @@ void greater_ByteCode(ConstantPool& pool, std::vector<char>& result,
   result.push_back(BytecodeGenerator::CHECKCAST);
   result.push_back('\x00');
   result.push_back(pool.addClassRef(pool.addString("java/lang/Integer")));
-  //BytecodeGenerator::add_instance_of(constantPool.addClassRef(constantPool.addString("java/lang/Integer")), constantPool, result);
   BytecodeGenerator::add_invoke_virtual(intValue_idx, pool, result);
   result.push_back(BytecodeGenerator::ISTORE_2);
 
   result.push_back(BytecodeGenerator::ILOAD_1);
+  // wrap int to java/lang/Integer
+  BytecodeGenerator::add_invoke_static(valueOf_idx, pool,result);
   result.push_back(BytecodeGenerator::ILOAD_2);
+  // wrap int to java/lang/Integer
+  BytecodeGenerator::add_invoke_static(valueOf_idx, pool,result);
+  // invoke compareTo method, returns int
+  BytecodeGenerator::add_invoke_virtual(compare_idx, pool, result);
 
-  std::vector<char> if_body;
-  std::vector<char> goto_body;
-  // represents the branch from 'goto' to the end
-  std::vector<char> else_branch;
+  // wrap int to java/lang/Integer
+  BytecodeGenerator::add_invoke_static(valueOf_idx, pool,result);
 
-  goto_body.push_back(BytecodeGenerator::ICONST_0);
-  BytecodeGenerator::add_conditional_with_instruction(BytecodeGenerator::GOTO,
-                                                      &goto_body[0], else_branch);
-
-  // it is necessary to push ICONST_1 before the goto-branch
-  if_body.push_back(BytecodeGenerator::ICONST_1);
-  if_body.insert(if_body.end(), else_branch.begin(), else_branch.end());
-
-  BytecodeGenerator::add_conditional_with_instruction(BytecodeGenerator::IF_ICMPLE,
-                                                      &if_body[0], result);
+  globalstack_push(pool, result);
 
   BytecodeGenerator::localCount += 3;
 }
