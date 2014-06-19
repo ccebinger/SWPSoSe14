@@ -524,39 +524,26 @@ void list_pop_ByteCode(ConstantPool& pool, std::vector<char>& code,
 // BOOLEAN ARITHMETIC
 void greater_ByteCode(ConstantPool& pool, std::vector<char>& result,
                       Graphs::Node_ptr current_node) {
-  uint16_t valueOf_idx = BytecodeGenerator::add_method("java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", pool);
-  uint16_t intValue_idx = BytecodeGenerator::add_method("java/lang/Integer", "intValue", "()I", pool);
+
   uint16_t compare_idx = BytecodeGenerator::add_method("java/lang/Integer", "compareTo", "(Ljava/lang/Integer;)I", pool);
-  // first typecheck for integer (no way to compare string)
-  // store the two integers and load them to get the right order
-  globalstack_pop(pool,result);
-
-  result.push_back(BytecodeGenerator::CHECKCAST);
-  result.push_back('\x00');
-  result.push_back(pool.addClassRef(pool.addString("java/lang/Integer")));
-  BytecodeGenerator::add_invoke_virtual(intValue_idx, pool, result);
-  result.push_back(BytecodeGenerator::ISTORE_1);
 
   globalstack_pop(pool,result);
   result.push_back(BytecodeGenerator::CHECKCAST);
   result.push_back('\x00');
   result.push_back(pool.addClassRef(pool.addString("java/lang/Integer")));
-  BytecodeGenerator::add_invoke_virtual(intValue_idx, pool, result);
-  result.push_back(BytecodeGenerator::ISTORE_2);
+  result.push_back(BytecodeGenerator::ASTORE_1);
 
-  result.push_back(BytecodeGenerator::ILOAD_1);
-  // wrap int to java/lang/Integer
-  BytecodeGenerator::add_invoke_static(valueOf_idx, pool,result);
-  result.push_back(BytecodeGenerator::ILOAD_2);
-  // wrap int to java/lang/Integer
-  BytecodeGenerator::add_invoke_static(valueOf_idx, pool,result);
-  // invoke compareTo method, returns int
+  globalstack_pop(pool,result);
+  result.push_back(BytecodeGenerator::CHECKCAST);
+  result.push_back('\x00');
+  result.push_back(pool.addClassRef(pool.addString("java/lang/Integer")));
+  result.push_back(BytecodeGenerator::ASTORE_2);
+
+  result.push_back(BytecodeGenerator::ALOAD_1);
+  result.push_back(BytecodeGenerator::ALOAD_2);
+
+  // compare the numbers
   BytecodeGenerator::add_invoke_virtual(compare_idx, pool, result);
-
-  // wrap int to java/lang/Integer
-  BytecodeGenerator::add_invoke_static(valueOf_idx, pool,result);
-
-  globalstack_push(pool, result);
 
   BytecodeGenerator::localCount += 3;
 }
