@@ -46,8 +46,6 @@ bool operator==(const NodeIdentifier &l,const NodeIdentifier &r){
 
 Parser::Parser(std::shared_ptr<RailFunction> railFunction) {
 	this->board = railFunction;
-	//errorMessage - empty String: Everything is ok
-	errorMessage = "";
 	abstractSyntaxGraph = NULL;
 }
 
@@ -66,9 +64,8 @@ shared_ptr<Adjacency_list> Parser::parseGraph() {
 			break;
 		}
 	}
-	if(startPosCol==-1){
-		errorMessage ="'" + board->getName() + "': $ not found";
-		return NULL;
+	if(startPosCol == -1) {
+		throw new EnvException(FRONTEND_PARSER, "$ not found");
 	}
 	return parseGraph(0,startPosCol,SE);
 }
@@ -83,15 +80,9 @@ shared_ptr<Adjacency_list> Parser::parseGraph(int startPosRow, int startPosCol, 
 	parsingNotFinished = true;
 	while(parsingNotFinished) {
 		if(Env::verbose()) {
-			cout << "\t@(" << posRow << ", " << posCol << ", " << Encoding::unicodeToUtf8(board->get(posRow, posCol)) << ")" << endl;
+			cout << "\t@(" << board->funcStartLine + posRow << ", " << posCol+1 << ", " << Encoding::unicodeToUtf8(board->get(posRow, posCol)) << ")" << endl;
 		}
 		move();
-		if(errorMessage != "") {
-			//FIXME error handling
-			cerr << "\t" << errorMessage <<endl;
-			cerr << "\tparsing aborted" << endl;
-			break;
-		}
 	}
 	if(Env::verbose()) {
 		cout << "Finished parsing" << endl;
@@ -160,16 +151,10 @@ void Parser::move() {
 	// Begin of error handling
 	// ---------------------------------------------------------------------
 	if(leftIsValidRail && rightIsValidRail) {
-		std::stringstream sstm;
-		sstm << "'" << board->getName() << "' (" << posRow+1 << ", " << posCol+1 << "): ambiguous move";
-		errorMessage = sstm.str();
-		return;
+		throw EnvException(FRONTEND_PARSER, board->getName() + ": ambiguous move", board->funcStartLine + posRow, posCol + 1);
 	}
 	if(!leftIsValidRail && !rightIsValidRail) {
-		std::stringstream sstm;
-		sstm << "'" << board->getName() << "' (" << posRow+1 << ", " << posCol+1 << "): no valid move possible";
-		errorMessage = sstm.str();
-		return;
+		throw EnvException(FRONTEND_PARSER, board->getName() + ": no valid move possible", board->funcStartLine + posRow, posCol + 1);
 	}
 	//error handling end
 	if(leftIsValidRail) {
@@ -182,8 +167,8 @@ void Parser::move() {
 		turnRight45Deg();
 		return;
 	}
-	errorMessage = "'" + board->getName() + "' : end of move-function reached - this should never happen and is an internal error";
-	return;
+
+	throw EnvException(FRONTEND_PARSER, board->getName() + ": end of move-function reached - this should never happen and is an internal error", board->funcStartLine + posRow, posCol + 1);
 }
 
 bool Parser::currentCharIsNoCrossing(){
@@ -226,11 +211,11 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			break;
 		case '(': // Variable push / pop
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = parseVariable(readCharsUntil(')'), id);
+			parseVariable(readCharsUntil(')'), id);
 			break;
 		case ')': // Variable push / pop
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = parseVariable(readCharsUntil('('), id);
+			parseVariable(readCharsUntil('('), id);
 			break;
 
 		// Misc
@@ -371,55 +356,48 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			didGoStraight = false;
 			break;
 	}
-	if(errorMessage != "") {
-		//TODO:Error stuff?
-	}
+
 	return didGoStraight;
 }
 
 
-bool Parser::parseVariable(string data, NodeIdentifier id) {
+void Parser::parseVariable(string data, NodeIdentifier id) {
 
 	// Filter invalid Variable names
 	if(data.length() < 3) {
 		// Too short
-		errorMessage = "Syntax Error: Invalid variable action " + data + ": too short";
-		return false;
+		throw EnvException(FRONTEND_PARSER, board->getName() + ": Syntax Error: Invalid variable action " + data + ": too short", board->funcStartLine + posRow, posCol + 1);
 	}
 
 	// Filter {, } within name
 	if(data.find('{') != string::npos || data.find('}') != string::npos) {
-		errorMessage = "Syntax Error: Invalid variable action " + data + ": must not contain { or }";
-		return false;
+		throw EnvException(FRONTEND_PARSER, board->getName() + ": Syntax Error: Invalid variable action " + data + ": must not contain { or }", board->funcStartLine + posRow, posCol + 1);
 	}
 
 	// Filter () within name
 	string noBraces = data.substr(1, data.length()-2);
 	if(noBraces.find('(') != string::npos || noBraces.find(')') != string::npos) {
-		errorMessage = "Syntax Error: Invalid variable action " + data + ": Variable name must not contain ( or )";
-		return false;
+		throw EnvException(FRONTEND_PARSER, board->getName() + ": Syntax Error: Invalid variable action " + data + ": Variable name must not contain ( or )", board->funcStartLine + posRow, posCol + 1);
 	}
 
 
 	if(data.find('!') != string::npos) {
 
 		if(data[1] != '!' || data[data.length()-2] != '!') {
-			errorMessage = "Syntax Error: Invalid variable action " + data + ": (!name!) required";
-			return false;
+			throw EnvException(FRONTEND_PARSER, board->getName() + ": Syntax Error: Invalid variable action " + data + ": (!name!) required", board->funcStartLine + posRow, posCol + 1);
 		}
 
 		// Filter ! within name
 		if(data.substr(2, data.length()-4).find('!') != string::npos) {
-			errorMessage = "Syntax Error: Invalid variable action " + data + ": Variable name must not contain '!'";
-			return false;
+			throw EnvException(FRONTEND_PARSER, board->getName() + ": Syntax Error: Invalid variable action " + data + ": Variable name must not contain '!'", board->funcStartLine + posRow, posCol + 1);
 		}
 
 		// Variable pop action
-		return addToAbstractSyntaxGraph(data, Command::Type::VAR_POP, id);
+		addToAbstractSyntaxGraph(data, Command::Type::VAR_POP, id);
 	}
 	else {
 		// Variable push action
-		return addToAbstractSyntaxGraph(data, Command::Type::VAR_PUSH, id);
+		addToAbstractSyntaxGraph(data, Command::Type::VAR_PUSH, id);
 	}
 }
 
@@ -513,10 +491,7 @@ string Parser::readCharsUntil(uint32_t until) {
 		int32_t nextCol = posCol + colOffsetMap.at(dir).offsets[STRAIGHT];
 		if(posRow >= board->getHeight() || nextCol >= board->getWidth()) {
 			//TODO:Dir auch ausgeben
-			std::stringstream sstm;
-			sstm << "'" << board->getName() << "' (" << posRow+1 << ", " << posCol+1 << "): Parsing ran out of valid space";
-			errorMessage = sstm.str();
-			return "";
+			throw EnvException(FRONTEND_PARSER, board->getName() + ": Parsing ran out of valid function space", board->funcStartLine + posRow, posCol + 1);
 		}
 		posRow = nextRow;
 		posCol = nextCol;

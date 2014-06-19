@@ -19,4 +19,7 @@ bool Env::isQuiet = false;
 
 
 std::vector<std::string> Env::warnings;
+std::vector<std::string> Env::errors;
+bool Env::warningsOccurred = false;
+bool Env::errorsOccurred = false;
 

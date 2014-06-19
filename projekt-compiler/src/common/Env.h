@@ -8,7 +8,6 @@
 #ifndef ENV_H_
 #define ENV_H_
 
-
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
@@ -16,10 +15,6 @@
 #include <string.h>
 #include <exception>
 #include <vector>
-
-
-
-
 
 /**
  * Possible Warning/Exception sources
@@ -37,14 +32,15 @@ enum Source {
 	BACKEND_BYTECODE_GENERATOR,
 	BACKEND_BYTECODE_WRITER,
 	BACKEND_CONSTANT_POOL,
+	UNKNOWN,
 };
 
 /**
  * Formats a line, pos tuple
  */
-static inline std::string getLineString(int32_t line=-1, int32_t pos=-1) {
+static inline std::string getLineString(int32_t line = -1, int32_t pos = -1) {
 	std::stringstream s;
-	if(line >= 0 && pos >= 0) {
+	if (line >= 0 && pos >= 0) {
 		s << "[@" << line << "," << pos << "]";
 	}
 	return s.str();
@@ -57,25 +53,23 @@ static inline std::string getLineString(int32_t line=-1, int32_t pos=-1) {
  * @return		string-representation
  */
 static inline std::string getSourceName(Source src) {
-	switch(src) {
-		case ENVIRONMENT:                 return "Environment";
-		case FRONTEND:                    return "Frontend";
-		case FRONTEND_LEXER:              return "Frontend-Lexer";
-		case FRONTEND_PARSER:             return "Frontend-Parser";
-		case ASG:                         return "Asg";
-		case ASG_SERIALIZE:               return "Asg-Serialize";
-		case ASG_DESERIALIZE:             return "Asg-Deserialize";
-		case ASG_GRAPHVIZ:                return "Asg-GraphViz";
-		case BACKEND:                     return "Backend";
-		case BACKEND_BYTECODE_GENERATOR:  return "Backend-Bytecode-Generator";
-		case BACKEND_BYTECODE_WRITER:     return "Backend-Bytecode-Writer";
-		case BACKEND_CONSTANT_POOL:       return "Backend-Constant-Pool";
-		default:                          return "???";
+	switch (src) {
+		case ENVIRONMENT:				return "Environment";
+		case FRONTEND:					return "Frontend";
+		case FRONTEND_LEXER:			return "Frontend-Lexer";
+		case FRONTEND_PARSER:			return "Frontend-Parser";
+		case ASG:						return "Asg";
+		case ASG_SERIALIZE:				return "Asg-Serialize";
+		case ASG_DESERIALIZE:			return "Asg-Deserialize";
+		case ASG_GRAPHVIZ:				return "Asg-GraphViz";
+		case BACKEND:					return "Backend";
+		case BACKEND_BYTECODE_GENERATOR:return "Backend-Bytecode-Generator";
+		case BACKEND_BYTECODE_WRITER:	return "Backend-Bytecode-Writer";
+		case BACKEND_CONSTANT_POOL:		return "Backend-Constant-Pool";
+		case UNKNOWN:
+		default:						return "Unknown";
 	}
 }
-
-
-
 
 /**
  * Offers a default Exception for Compiler-Exceptions
@@ -83,9 +77,12 @@ static inline std::string getSourceName(Source src) {
  * @author Miro B.
  */
 class EnvException: public std::exception {
+
 private:
 	const std::string msg;
+
 public:
+
 	/**
 	 * Creates a formatted Exception
 	 *
@@ -94,25 +91,26 @@ public:
 	 * @param line	optional, line number
 	 * @param pos	optional, position number
 	 */
-	EnvException(Source src, const std::string&& emsg, int32_t line=-1, int32_t pos=-1)
-		: msg("[Exception][" + getSourceName(src) + "]" + getLineString(line, pos) + " " + emsg)
-	{
+	EnvException(Source src, const std::string&& emsg, int32_t line = -1, int32_t pos = -1)
+	: msg("[Exception][" + getSourceName(src) + "]" + getLineString(line, pos) + " " + emsg) {
 
 	}
+
+	/**
+	 * Prints the exception message to std::cerr
+	 */
+	virtual void showMessage() const {
+		std::cerr << msg << std::endl;
+	}
+
+
 private:
-	virtual const char* what() const throw() {
+
+	virtual const char* what() const throw () {
 		return (msg).c_str();
 	}
+
 };
-
-
-
-
-
-
-
-
-
 
 /**
  * "static" class to parse commandline parameters, store/show warnings and output styling
@@ -129,7 +127,6 @@ private:
 	static std::string dstGraphviz;
 	static bool isQuiet;
 
-
 public:
 	// ------------------------------------------------------------------------------
 	// Init
@@ -139,18 +136,17 @@ public:
 	 * Assures the presence of folder "io"
 	 */
 	static void initIoDirectory() {
-		if(access("io", F_OK) == -1) {
-			#ifdef _WIN32
+		if (access("io", F_OK) == -1) {
+#ifdef _WIN32
 			int rMkdir = mkdir("io");
-			#else
+#else
 			int rMkdir = mkdir("io", 0777);
-			#endif
+#endif
 			if (rMkdir == -1) {
 				throw EnvException(ENVIRONMENT, "Folder io cannot be created");
 			}
 		}
 	}
-
 
 	/**
 	 * Parses Parameters
@@ -167,26 +163,14 @@ public:
 		isQuiet = false;
 
 		// Parse parameters
-		for(int i = 0; i < argc; ++i) {
-			if(i+1 < argc && strcmp(argv[i], "-i") == 0) {
-				srcFile = argv[++i];
-			}
-			else if(i+1 < argc && strcmp(argv[i], "-d") == 0) {
-				srcDeserialize = argv[++i];
-			}
-			else if(i+1 < argc && strcmp(argv[i], "-s") == 0) {
-				dstSerialize = argv[++i];
-			}
-			else if(i+1 < argc && strcmp(argv[i], "-o") == 0) {
-				dstClassFile = argv[++i];
-			}
-			else if(i+1 < argc && strcmp(argv[i], "-g") == 0) {
-				dstGraphviz = argv[++i];
-			}
-			else if(strcmp(argv[i], "-q") == 0) {
-				isQuiet = true;
-			}
-			else if(i+1 < argc && strcmp(argv[i], "-h") == 0) {
+		for (int i = 0; i < argc; ++i) {
+			if (i + 1 < argc && strcmp(argv[i], "-i") == 0) { srcFile = argv[++i]; }
+			else if (i + 1 < argc && strcmp(argv[i], "-d") == 0) { srcDeserialize = argv[++i]; }
+			else if (i + 1 < argc && strcmp(argv[i], "-s") == 0) { dstSerialize = argv[++i]; }
+			else if (i + 1 < argc && strcmp(argv[i], "-o") == 0) { dstClassFile = argv[++i]; }
+			else if (i + 1 < argc && strcmp(argv[i], "-g") == 0) { dstGraphviz = argv[++i]; }
+			else if (strcmp(argv[i], "-q") == 0) { isQuiet = true; }
+			else if (i + 1 < argc && strcmp(argv[i], "-h") == 0) {
 				std::cout << "Command line help:" << std::endl;
 				std::cout << " -i <file> specifies input sourcefile" << std::endl;
 				std::cout << " -d <file> deserialize csv to graph" << std::endl;
@@ -200,39 +184,34 @@ public:
 			}
 		}
 
-
-
 		// Defaults
-		if(!hasSrcFile()  && !hasSrcDeserialize()) { srcFile = "Tests/test-cases/helloworld.txt"; }
-		if(!hasDstClassfile())                     { dstClassFile  = "io/Main.class"; }
-		if(!hasDstSerialize())                     { dstSerialize = "io/serialized.csv"; }
-		if(!hasDstGraphviz())                      { dstGraphviz = "io/graphviz.dot"; }
-
+		if (!hasSrcFile() && !hasSrcDeserialize()) { srcFile = "Tests/test-cases/helloworld.txt"; }
+		if (!hasDstClassfile()) { dstClassFile = "io/Main.class"; }
+		if (!hasDstSerialize()) { dstSerialize = "io/serialized.csv"; }
+		if (!hasDstGraphviz()) { dstGraphviz = "io/graphviz.dot"; }
 
 		// Sanitize
-		if(hasSrcFile() && hasSrcDeserialize()) {
+		if (hasSrcFile() && hasSrcDeserialize()) {
 			srcDeserialize = "";
 		}
 
-
 		// Print parameters
-		if(verbose()) {
+		if (verbose()) {
 			printCaption("Using parameters");
-			if(hasSrcFile())         { std::cout << "  -i " << srcFile << std::endl; }
-			if(hasSrcDeserialize())  { std::cout << "  -d " << srcDeserialize << std::endl; }
-			if(hasDstClassfile())    { std::cout << "  -o " << dstClassFile << std::endl; }
-			if(hasDstSerialize())    { std::cout << "  -s " << dstSerialize << std::endl; }
-			if(hasDstGraphviz())     { std::cout << "  -g " << dstGraphviz << std::endl; }
-			if(isQuiet)              { std::cout << "  -q"  << std::endl; }
+			if (hasSrcFile()) { std::cout << "  -i " << srcFile << std::endl; }
+			if (hasSrcDeserialize()) { std::cout << "  -d " << srcDeserialize << std::endl; }
+			if (hasDstClassfile()) { std::cout << "  -o " << dstClassFile << std::endl; }
+			if (hasDstSerialize()) { std::cout << "  -s " << dstSerialize << std::endl; }
+			if (hasDstGraphviz()) { std::cout << "  -g " << dstGraphviz << std::endl; }
+			if (isQuiet) { std::cout << "  -q" << std::endl; }
 			std::cout << std::endl;
 		}
 
-
 		// Test file-access
-		if(hasSrcFile() && access(srcFile.c_str(), F_OK) != 0) {
+		if (hasSrcFile() && access(srcFile.c_str(), F_OK) != 0) {
 			throw EnvException(ENVIRONMENT, "File not accessible: " + srcFile);
 		}
-		if(hasSrcDeserialize() && access(srcDeserialize.c_str(), F_OK) != 0) {
+		if (hasSrcDeserialize() && access(srcDeserialize.c_str(), F_OK) != 0) {
 			throw EnvException(ENVIRONMENT, "File not accessible: " + srcDeserialize);
 		}
 	}
@@ -289,87 +268,105 @@ public:
 	/**
 	 * Check if file specified by -i is usable
 	 */
-	static inline bool hasSrcFile()        { return srcFile != ""; }
+	static inline bool hasSrcFile() {
+		return srcFile != "";
+	}
 
 	/**
 	 * Check if file specified by -d is usable
 	 */
-	static inline bool hasSrcDeserialize() { return srcDeserialize != ""; }
+	static inline bool hasSrcDeserialize() {
+		return srcDeserialize != "";
+	}
 
 	/**
 	 * Check if file specified by -o is usable
 	 */
-	static inline bool hasDstClassfile()   { return dstClassFile != ""; }
+	static inline bool hasDstClassfile() {
+		return dstClassFile != "";
+	}
 
 	/**
 	 * Check if file specified by -s is usable
 	 */
-	static inline bool hasDstSerialize()   { return dstSerialize != ""; }
+	static inline bool hasDstSerialize() {
+		return dstSerialize != "";
+	}
 
 	/**
 	 * Check if file specified by -g is usable
 	 */
-	static inline bool hasDstGraphviz()    { return dstGraphviz != ""; }
-
-
-
+	static inline bool hasDstGraphviz() {
+		return dstGraphviz != "";
+	}
 
 // ------------------------------------------------------------------------------
 // Debugging
 // ------------------------------------------------------------------------------
-
 private:
 	static std::vector<std::string> warnings;
-
-
-
-
+	static std::vector<std::string> errors;
+	static bool warningsOccurred;
+	static bool errorsOccurred;
 
 public:
 
 	/**
 	 * Stores msg as warning
-	 * @param src	Source of the warning (e.g. "Lexer", "Parser", "ASG", "Backend")
-	 * @param msg	Textual warning
-	 * @param line	(optional) line corresponding to the warning
-	 * @param pos	(optional) cursor position corresponding to the warning
+	 * @param src Source of the warning (e.g. "Lexer", "Parser", "ASG", "Backend")
+	 * @param msg Textual warning
+	 * @param line (optional) line corresponding to the warning
+	 * @param pos (optional) cursor position corresponding to the warning
 	 */
-	static inline void addWarning(Source src, std::string msg, int32_t line=-1, int32_t pos=-1) {
+	static inline void addWarning(Source src, std::string msg, int32_t line = -1, int32_t pos = -1) {
+		warningsOccurred = true;
 		warnings.push_back("[Warning][" + getSourceName(src) + "]" + getLineString(line, pos) + " " + msg);
 	}
 
 	/**
-	 * Determines if warnings exist
+	 * Determines if warnings exist(ed)
 	 */
 	static inline bool hasWarnings() {
-		return warnings.size() > 0;
+		return warningsOccurred;
+	}
+
+
+
+
+
+	/**
+	 * Show msg as error
+	 * @param src	Source (e.g. "Lexer", "Parser", "ASG", "Backend")
+	 * @param msg	Textual error
+	 * @param line	(optional) line corresponding to the warning
+	 * @param pos	(optional) cursor position corresponding to the warning
+	 */
+	static inline void addError(Source src, std::string msg, int32_t line = -1, int32_t pos = -1) {
+		errorsOccurred = true;
+		errors.push_back("[Error][" + getSourceName(src) + "]" + getLineString(line, pos) + " " + msg);
 	}
 
 	/**
-	 * Determines if no warnings exist
+	 * Determines if errors exist(ed)
 	 */
-	static inline bool hasNoWarnings() {
-		return warnings.size() == 0;
-	}
-
-	/**
-	 * Clears all pending warnings
-	 */
-	static inline void clearWarnings() {
-		warnings.clear();
+	static inline bool hasErrors() {
+		return errorsOccurred;
 	}
 
 
 	/**
 	 * Dumps all pending warnings to std::cout
 	 */
-	static void showWarnings() {
+	static void showStatus() {
 		for(std::string s : warnings) {
 			std::cout << s << std::endl;
 		}
-		clearWarnings();
+		warnings.clear();
+		for(std::string s : errors) {
+			std::cerr << s << std::endl;
+		}
+		errors.clear();
 	}
-
 
 
 
@@ -383,17 +380,14 @@ public:
 	 * @param head	caption text
 	 */
 	static inline void printCaption(const std::string head) {
-		if(Env::verbose()) {
+		if (Env::verbose()) {
 			std::cout << std::endl << "### " << head << " ";
-			for(size_t i=head.length(); i<80; ++i) {
+			for (size_t i = head.length(); i < 80; ++i) {
 				std::cout << "#";
 			}
 			std::cout << std::endl;
 		}
 	}
 };
-
-
-
 
 #endif /* ENV_H_ */
