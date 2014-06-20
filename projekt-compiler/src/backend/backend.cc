@@ -14,6 +14,8 @@ You should have received a copy of the GNU General Public License along with thi
 program; if not, see <http://www.gnu.org/licenses/>.*/
 
 #include <backend/backend.h>
+#include <common/Env.h>
+
 /*!
  * \mainpage backend.cc
  * \author Backend group & friends
@@ -48,10 +50,18 @@ Backend::Status Backend::Generate(const std::string& graphIn,
  *
  * \returns Status of the created file
  */
-Backend::Status Backend::Generate(Graphs& graphs, std::ostream* codeOut) {
+Backend::Status Backend::Generate(Graphs& graphs,
+                                  std::ostream* codeOut) {
   std::string entryFunctionName("main");
   Graphs::Graph_ptr mainFunction = graphs.find(entryFunctionName);
   ConstantPool constantPool;
+
+  uint16_t main_class_str_idx = constantPool.addString(Env::getDstClassName());
+  uint16_t main_class_idx = constantPool.addClassRef(main_class_str_idx);
+  uint16_t stack_field_name_idx = constantPool.addString("stack");
+  uint16_t stack_field_type_idx = constantPool.addString("Ljava/util/ArrayDeque;");
+  uint16_t stack_field_name_type_idx = constantPool.addNameAndType(stack_field_name_idx, stack_field_type_idx);
+  constantPool.arr_idx.field_idx = constantPool.addFieldRef(main_class_idx, stack_field_name_type_idx);
 
   ///  Add Rail-Functionnames as Strings
   std::vector<std::string> keyset = graphs.keyset();

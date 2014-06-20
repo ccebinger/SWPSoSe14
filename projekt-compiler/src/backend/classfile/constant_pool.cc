@@ -174,7 +174,6 @@ ConstantPool::ConstantPool() {
     uint16_t print_idx = addString("java/io/PrintStream");
     uint16_t integer_idx = addString("java/lang/Integer");
     uint16_t string_idx = addString("java/lang/String");
-    uint16_t main_class_str_idx = addString("Main");
     uint16_t void_descriptor_idx = addString("()V");
     uint16_t stack_init_idx = addString("<clinit>");
     addString("Code");
@@ -195,8 +194,6 @@ ConstantPool::ConstantPool() {
     uint16_t substring_type_single_idx = addString("(I)Ljava/lang/String;");
     uint16_t length_name_idx = addString("length");
     uint16_t stack_class_name_idx = addString("java/util/ArrayDeque");
-    uint16_t stack_field_name_idx = addString("stack");
-    uint16_t stack_field_type_idx = addString("Ljava/util/ArrayDeque;");
     uint16_t pop_name_idx = addString("pop");
     uint16_t pop_type_idx = addString("()Ljava/lang/Object;");
     uint16_t push_name_idx = addString("push");
@@ -211,7 +208,6 @@ ConstantPool::ConstantPool() {
     obj_idx.class_idx = addClassRef(obj_cls_idx);
     uint16_t system_class_idx = addClassRef(system_idx);
     uint16_t print_class_idx = addClassRef(print_idx);
-    uint16_t main_class_idx = addClassRef(main_class_str_idx);
     int_idx.class_idx = addClassRef(integer_idx);
     str_idx.class_idx = addClassRef(string_idx);
     arr_idx.class_idx = addClassRef(stack_class_name_idx);
@@ -229,7 +225,6 @@ ConstantPool::ConstantPool() {
     uint16_t substring_name_type_single_idx = addNameAndType(substring_name_idx, substring_type_single_idx);
     uint16_t length_name_type_idx = addNameAndType(length_name_idx, intValue_type_idx);
     uint16_t stack_name_type_idx = addNameAndType(stack_init_idx, void_descriptor_idx);
-    uint16_t stack_field_name_type_idx = addNameAndType(stack_field_name_idx, stack_field_type_idx);
     uint16_t pop_name_type_idx = addNameAndType(pop_name_idx, pop_type_idx);
     uint16_t push_name_type_idx = addNameAndType(push_name_idx, push_type_idx);
     uint16_t toString_name_type_idx = addNameAndType(toString_name_idx, toString_type_idx);
@@ -252,7 +247,6 @@ ConstantPool::ConstantPool() {
 
     ///  Add field refs
     addFieldRef(system_class_idx, system_name_type_idx);
-    arr_idx.field_idx = addFieldRef(main_class_idx, stack_field_name_type_idx);
   }
 
 ////////////////////////////////////////////////////////////////////////

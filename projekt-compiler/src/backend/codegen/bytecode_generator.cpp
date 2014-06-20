@@ -23,6 +23,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <common/Env.h>
 
 const std::map<Command::Type, BytecodeGenerator::func_ptr>
 BytecodeGenerator::CODE_FUNC_MAPPING = {
@@ -249,8 +250,7 @@ void output_ByteCode(ConstantPool& constantPool,
 void push_ByteCode(ConstantPool& constantPool,
                    std::vector<char>& result,
                    Graphs::Node_ptr current_node) {
-
-  uint16_t field_system_idx = BytecodeGenerator::add_field("Main", "stack", "Ljava/util/ArrayDeque;", constantPool);
+  uint16_t field_system_idx = BytecodeGenerator::add_field(Env::getDstClassName(), "stack", "Ljava/util/ArrayDeque;", constantPool);
   BytecodeGenerator::add_static_field(field_system_idx, constantPool, result);
   // ldc indexInPool
   result.push_back(BytecodeGenerator::LDC);
@@ -274,7 +274,7 @@ void add_integer_calculation(BytecodeGenerator::MNEMONIC calculation,
                              ConstantPool& constantPool,
                              std::vector<char>& result) {
 
-  uint16_t field_stack_idx = BytecodeGenerator::add_field("Main", "stack", "Ljava/util/ArrayDeque;", constantPool);
+  uint16_t field_stack_idx = BytecodeGenerator::add_field(Env::getDstClassName(), "stack", "Ljava/util/ArrayDeque;", constantPool);
   uint16_t pop_idx = BytecodeGenerator::add_method("java/util/ArrayDeque", "pop", "()Ljava/lang/Object;", constantPool);
   uint16_t intValue_idx = BytecodeGenerator::add_method("java/lang/Integer", "intValue", "()I", constantPool);
 
@@ -371,7 +371,7 @@ void cut_ByteCode(ConstantPool& constantPool,
                   std::vector<char>& result,
                   Graphs::Node_ptr current_node) {
 
-  uint16_t field_stack_idx = BytecodeGenerator::add_field("Main", "stack", "Ljava/util/ArrayDeque;", constantPool);
+  uint16_t field_stack_idx = BytecodeGenerator::add_field(Env::getDstClassName(), "stack", "Ljava/util/ArrayDeque;", constantPool);
   uint16_t intValue_idx = BytecodeGenerator::add_method("java/lang/Integer", "intValue", "()I", constantPool);
   uint16_t toString_idx = BytecodeGenerator::add_method("java/lang/Object", "toString", "()Ljava/lang/String;", constantPool);
   uint16_t substring_idx = BytecodeGenerator::add_method("java/lang/String", "substring", "(II)Ljava/lang/String;", constantPool);
@@ -661,7 +661,7 @@ uint16_t get_stack_method_ref(ConstantPool& constant_pool,
 }
 
 uint16_t get_stack_field_ref(ConstantPool& constant_pool){
-  uint16_t our_class_utf8 = constant_pool.addString("Main");
+  uint16_t our_class_utf8 = constant_pool.addString(Env::getDstClassName());
   uint16_t our_class = constant_pool.addClassRef(our_class_utf8);
   uint16_t stack_utf8 = constant_pool.addString("stack");
   uint16_t stack_type_utf8 = constant_pool.addString("Ljava/util/ArrayDeque;");
@@ -672,7 +672,7 @@ uint16_t get_stack_field_ref(ConstantPool& constant_pool){
 
 
 void globalstack_pop(ConstantPool& constant_pool, std::vector<char>& code) {
-  uint16_t field_system_idx = BytecodeGenerator::add_field("Main", "stack",
+  uint16_t field_system_idx = BytecodeGenerator::add_field(Env::getDstClassName(), "stack",
                                                            "Ljava/util/ArrayDeque;",
                                                            constant_pool);
   BytecodeGenerator::add_static_field(field_system_idx, constant_pool, code);
