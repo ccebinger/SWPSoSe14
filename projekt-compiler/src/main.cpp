@@ -1,6 +1,7 @@
 #include <iostream>
 //#include <string.h>
 
+
 #include <common/Env.h>
 #include <frontend/lexer/Lexer.h>
 #include <frontend/parser/Parser.h>
@@ -10,10 +11,12 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-	try {
 
-		Env::initIoDirectory();
+	Env::initTimer();
+
+	try {
 		Env::parseParams(argc, argv);
+		Env::initIoDirectory();
 		Env::showStatus();
 
 		Graphs graphs;
@@ -54,7 +57,7 @@ int main(int argc, char *argv[]) {
 			Env::showStatus();
 		}
 		else {
-			throw EnvException(ENVIRONMENT, "No source specified. Use either -i <file> or -d <file>.");
+			// handled within Env.h
 		}
 
 
@@ -64,7 +67,7 @@ int main(int argc, char *argv[]) {
 		// ------------------------------------------------------------------------
 
 		// Serialize
-		if(Env::getDstSerialize() != "") {
+		if(Env::hasDstSerialize()) {
 			Env::printCaption("ASG - Serialize");
 			graphs.marshall(Env::getDstSerialize(), ';');
 		}
@@ -73,52 +76,48 @@ int main(int argc, char *argv[]) {
 
 
 		// GraphViz
-		if(Env::getDstGraphviz() != "") {
+		if(Env::hasDstGraphviz()) {
 			Env::printCaption("ASG - GraphViz");
 			graphs.writeGraphViz(Env::getDstGraphviz());
 		}
 		Env::showStatus();
 
 
+
+
 		// ------------------------------------------------------------------------
 		// BACKEND
 		// ------------------------------------------------------------------------
-		Env::printCaption("Backend");
+		if(Env::hasDstClassfile()) {
+			Env::printCaption("Backend");
 
-		// TODO #118
-		ofstream outFile(Env::getDstClassfile(), std::ofstream::binary);
-		Backend::Generate(graphs, &outFile);
-		Env::showStatus();
-		if(Env::verbose()) {
-			std::cout << "done..." << std::endl;
-		}
-
-
-
-		if(Env::hasErrors()) {
+			// TODO #118
+			ofstream outFile(Env::getDstClassfile(), std::ofstream::binary);
+			Backend::Generate(graphs, &outFile);
+			Env::showStatus();
 			if(Env::verbose()) {
-				std::cout << "Build error(s) occurred" << std::endl;
+				std::cout << "done..." << std::endl;
 			}
-			return 1;
-		}
-		else {
-			if(Env::verbose()) {
-				std::cout << "Build successfull" << std::endl;
-			}
-			return 0;
 		}
 
+
+
+		Env::printCaption("Finished");
+
+		Env::printBuildStatus(!Env::hasErrors());
+		return Env::hasErrors();
 
 	}
 	catch(EnvException &ee) {
+		Env::showStatus();
 		ee.showMessage();
-		std::cout << "Build error(s) occurred" << std::endl;
+		Env::printBuildStatus(false);
 		return 1;
 	}
 	catch(...) {
 		Env::addError(UNKNOWN, "An unhandled exception occurred");
 		Env::showStatus();
-		std::cerr << "Build error(s) occurred" << std::endl;
+		Env::printBuildStatus(false);
 		return 1;
 	}
 
