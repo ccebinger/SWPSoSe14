@@ -53,8 +53,8 @@ rail: rail-interpreter/src/*.cpp
 constant_pool_test.o:
 	$(CC) $(CFLAGS) -D TESTS projekt-compiler/src/backend/unittest/constant_pool_test.cc
 
-unittest_constantpool: constant_pool.o Bytecode_writer.o bytecode_generator.o constant_pool_test.o
-	$(CC) constant_pool.o Bytecode_writer.o bytecode_generator.o constant_pool_test.o -o unittest_constantpool
+unittest_constantpool: Env.o constant_pool.o Bytecode_writer.o bytecode_generator.o constant_pool_test.o
+	$(CC) Env.o constant_pool.o Bytecode_writer.o bytecode_generator.o constant_pool_test.o -o unittest_constantpool
 
 classfile_writer_test.o:
 	$(CC) $(CFLAGS) -D TESTS projekt-compiler/src/backend/unittest/classfile_writer_test.cc
@@ -63,7 +63,7 @@ unittest_classfile_writer_test: constant_pool.o classfile_writer.o Graphs.o Byte
 	$(CC) constant_pool.o classfile_writer.o Graphs.o Bytecode_writer.o bytecode_generator.o adjacency_list.o Lexer.o Parser.o backend.o Env.o classfile_writer_test.o -o unittest_classfile_writer_test
 
 compile: 
-	./fu-rail -i projekt-compiler/Tests/test-cases/pushConst.txt -s projekt-compiler/io/serialized.csv -g projekt-compiler/io/graphviz.dot
+	./fu-rail -i projekt-compiler/Tests/test-cases/pushConst.txt -s projekt-compiler/io/serialized.csv -g projekt-compiler/io/graphviz.dot -o pushConst.class
 
 run: 
 	cd io;java Main
