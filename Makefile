@@ -63,7 +63,7 @@ unittest_classfile_writer_test: constant_pool.o classfile_writer.o Graphs.o Byte
 	$(CC) constant_pool.o classfile_writer.o Graphs.o Bytecode_writer.o bytecode_generator.o adjacency_list.o Lexer.o Parser.o backend.o Env.o classfile_writer_test.o -o unittest_classfile_writer_test
 
 compile: 
-	./fu-rail -i projekt-compiler/Tests/test-cases/pushConst.txt -s projekt-compiler/io/serialized.csv -g projekt-compiler/io/graphviz.dot -o pushConst.class
+	./fu-rail -i projekt-compiler/test/multiCharCommand/constant/success/s_pushConst.rail -s projekt-compiler/io/serialized.csv -g projekt-compiler/io/graphviz.dot -o s_pushConst.class
 
 run: 
-	cd io;java Main
+	java s_pushConst
