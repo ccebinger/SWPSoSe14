@@ -120,7 +120,6 @@ private:
 	static std::string dstSerialize;
 	static std::string dstGraphviz;
 	static bool isQuiet;
-	static bool isHelp;
 
 
 public:
@@ -194,9 +193,6 @@ public:
 		// Sanitize
 		if(hasSrcFile() && hasSrcDeserialize()) {
 			srcDeserialize = "";
-		}
-		else if(!hasSrcFile() && !hasSrcDeserialize()) {
-			Env::addWarning(ENVIRONMENT, "No sourcefile specified. Use either -i <file> or -d <file>.");
 		}
 
 
@@ -391,43 +387,6 @@ public:
 
 
 // ------------------------------------------------------------------------------
-// Timer
-// ------------------------------------------------------------------------------
-private:
-	static timespec timeStart;
-
-public:
-	static inline void initTimer() {
-		//CLOCK_MONOTONIC_RAW
-		clock_gettime(CLOCK_MONOTONIC_RAW, &timeStart);
-	}
-	static inline void printTimer() {
-		timespec timeEnd;
-		clock_gettime(CLOCK_MONOTONIC_RAW, &timeEnd);
-
-		timespec diff;
-		diff.tv_sec = timeEnd.tv_sec - timeStart.tv_sec;
-		diff.tv_nsec = timeEnd.tv_nsec - timeStart.tv_nsec;
-
-
-
-		double result = (diff.tv_sec + (double)diff.tv_nsec / 1000000 / 1000);
-
-
-
-		double test = diff.tv_sec + (((double)diff.tv_nsec / 1000000))/1000;
-
-
-		std::cout << "Secs: " << diff.tv_sec << std::endl;
-		std::cout << "Nsecs: " << diff.tv_nsec << std::endl;
-		std::cout << std::endl;
-
-		std::cout << "A: " << ((int)(result*10000))/10000.0 << " s" << std::endl;
-		std::cout << "B: " << test << " s" << std::endl;
-	}
-
-
-// ------------------------------------------------------------------------------
 // Prints
 // ------------------------------------------------------------------------------
 
@@ -445,27 +404,6 @@ public:
 			std::cout << std::endl;
 		}
 	}
-
-
-	static inline void printBuildStatus(bool success) {
-		if(Env::verbose()) {
-			timespec timeEnd;
-			clock_gettime(CLOCK_MONOTONIC_RAW, &timeEnd);
-			timespec diff;
-			diff.tv_sec = timeEnd.tv_sec - timeStart.tv_sec;
-			diff.tv_nsec = timeEnd.tv_nsec - timeStart.tv_nsec;
-			double time = diff.tv_sec + (((double)diff.tv_nsec / 1000000))/1000;
-
-			if(success && !hasErrors()) {
-				std::cout << "Build successful (took " << ((int)(time*10000))/10000.0 << "s)" << std::endl;
-			}
-			else {
-				std::cout << "Build error(s) occurred (took " << ((int)(time*10000))/10000.0 << "s)" << std::endl;
-			}
-
-		}
-	}
-
 };
 
 #endif /* ENV_H_ */
