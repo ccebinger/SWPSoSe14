@@ -11,6 +11,7 @@
 std::string Env::srcFile = "";
 std::string Env::srcDeserialize = "";
 std::string Env::dstClassFile = "";
+std::string Env::dstClassName = "";
 std::string Env::dstSerialize = "";
 std::string Env::dstGraphviz = "";
 bool Env::isQuiet = false;
