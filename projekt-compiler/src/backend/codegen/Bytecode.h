@@ -6,6 +6,7 @@
 
 #include <backend/classfile/constant_pool.h>
 #include <frontend/Graphs.h>
+#include <common/Env.h>
 
 namespace codegen {
 
@@ -71,8 +72,8 @@ namespace codegen {
       uint16_t get_name_type_idx(const std::string& name, const std::string& type);
       uint16_t get_method_idx(const std::string& class_name, const std::string& member_name, const std::string& descriptor);
       uint16_t get_field_idx(const std::string& class_name, const std::string& member_name, const std::string& descriptor);
-      uint16_t get_stack_method_ref(const std::string& method, const std::string& descriptor);
-      uint16_t get_stack_field_ref();
+      uint16_t get_stack_method_idx(const std::string& method, const std::string& descriptor);
+      uint16_t get_stack_field_idx();
     //ADD CODE
       Bytecode* add_conditional_with_instruction(char conditional_stmt, char* conditional_body);
       Bytecode* add_conditional_with_else_branch(char conditional_stmt, char* conditional_body, char* else_body);

@@ -48,6 +48,9 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph)
   return this;
 }
 
+//================================================================================
+//==================================GETTER========================================
+//================================================================================
 
 size_t codegen::Bytecode::length()
 {
@@ -67,6 +70,42 @@ ConstantPool& codegen::Bytecode::get_constant_pool()
 codegen::Bytecode::Code& codegen::Bytecode::get_bytecode()
 {
   return bytecode;
+}
+
+
+//================================================================================
+//==================================INDICIES======================================
+//================================================================================
+uint16_t codegen::Bytecode::get_class_idx(const std::string& class_name)
+{
+  return pool.addClassRef(pool.addString(class_name));
+}
+
+uint16_t codegen::Bytecode::get_name_type_idx(const std::string& name, const std::string& type) {
+  uint16_t name_idx = pool.addString(name);
+  uint16_t type_idx = pool.addString(type);
+  return pool.addNameAndType(name_idx, type_idx);
+}
+
+uint16_t codegen::Bytecode::get_method_idx(const std::string& class_name, const std::string& member_name, const std::string& descriptor)
+{
+  return pool.addMethRef(get_class_idx(class_name), get_name_type_idx(member_name, descriptor));
+}
+
+uint16_t codegen::Bytecode::get_field_idx(const std::string& class_name, const std::string& member_name, const std::string& descriptor)
+{
+  return pool.addFieldRef(get_class_idx(class_name), get_name_type_idx(member_name, descriptor));
+}
+
+
+uint16_t  codegen::Bytecode::get_stack_method_idx(const std::string& method, const std::string& descriptor)
+{
+  return get_method_idx("java/util/ArrayDeque", method, descriptor);
+}
+
+uint16_t codegen::Bytecode::get_stack_field_idx()
+{
+  return get_field_idx(Env::getDstClassName(), "stack", "Ljava/util/ArrayDeque;");
 }
 
 //================================================================================
