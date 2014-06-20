@@ -2,6 +2,7 @@
 #define BYTECODE_GENERATOR_H
 
 #include <backend/classfile/constant_pool.h>
+#include <backend/codegen/local_variable_stash.h>
 #include <common/ast/ast.h>
 #include <frontend/Graphs.h>
 #include <ios>
@@ -21,8 +22,10 @@ public:
     ISTORE_2 = '\x3d',
     IF_ICMPLE = '\xa4',
     IF_ICMPNE = '\xa6',
+    ALOAD = '\x19',
     ALOAD_1 = '\x2b',
     ALOAD_2 = '\x2c',
+    ASTORE = '\x3a',
     ASTORE_1 = '\x4c',
     ASTORE_2 = '\x4d',
     NEW = '\xbb',
@@ -46,7 +49,7 @@ public:
     IFNE = '\x9a'
   };
 
-  static int localCount;
+  static uint8_t NUM_INTERNAL_LOCALS;
 
   static std::vector<char> GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
                                ConstantPool& constantPool);
@@ -72,6 +75,9 @@ public:
 
   static void add_integer_calculation(BytecodeGenerator::MNEMONIC calculation, ConstantPool& constantPool, std::vector<char>& result);
 
+  static LocalVariableStash local_variables;
+
+  static uint8_t localCount();
 private:
   /**
    * Nur statische Methoden.

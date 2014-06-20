@@ -62,7 +62,10 @@ BytecodeGenerator::CODE_FUNC_MAPPING = {
   {Command::Type::VAR_PUSH, &push_Variable}
 };
 
-int BytecodeGenerator::localCount = 0;
+uint8_t BytecodeGenerator::NUM_INTERNAL_LOCALS = 3;
+
+LocalVariableStash BytecodeGenerator::local_variables =
+                                        LocalVariableStash(NUM_INTERNAL_LOCALS);
 
 //================================================================================================================
 //================================================ADD INSTRUCTIONS================================================
@@ -243,8 +246,6 @@ void output_ByteCode(ConstantPool& constantPool,
   BytecodeGenerator::add_invoke_virtual(toString_idx, constantPool, result);
   uint16_t println_idx = BytecodeGenerator::add_method("java/io/PrintStream", "println", "(Ljava/lang/String;)V", constantPool);
   BytecodeGenerator::add_invoke_virtual(println_idx, constantPool, result);
-
-  BytecodeGenerator::localCount++;
 }
 
 void push_ByteCode(ConstantPool& constantPool,
@@ -299,9 +300,6 @@ void add_integer_calculation(BytecodeGenerator::MNEMONIC calculation,
   uint16_t valueOf_idx = BytecodeGenerator::add_method("java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", constantPool);
   BytecodeGenerator::add_invoke_static(valueOf_idx, constantPool,result);
   globalstack_push(constantPool, result);
-
-  BytecodeGenerator::localCount += 2;
-
 
   /*uint16_t integer_class = constantPool.int_idx.class_idx;
     if (integer_class == 0)
@@ -433,7 +431,6 @@ void cut_ByteCode(ConstantPool& constantPool,
     BytecodeGenerator::add_invoke_virtual(method_idx,
     constantPool, result);
     globalstack_push(constantPool, result); */
-    BytecodeGenerator::localCount += 2;
 }
 
 void append_ByteCode(ConstantPool& constantPool,
@@ -516,7 +513,6 @@ void append_ByteCode(ConstantPool& constantPool,
   BytecodeGenerator::add_invoke_virtual(meth_idx,
                                         constantPool, result);
   globalstack_push(constantPool, result); */
-  BytecodeGenerator::localCount += 2;
 }
 
 void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result,
@@ -584,8 +580,6 @@ void greater_ByteCode(ConstantPool& pool, std::vector<char>& result,
 
   // compare the numbers
   BytecodeGenerator::add_invoke_virtual(compare_idx, pool, result);
-
-  BytecodeGenerator::localCount += 3;
 }
 
 void equal_ByteCode(ConstantPool& pool, std::vector<char>& result,
@@ -612,8 +606,6 @@ uint16_t equals_idx = BytecodeGenerator::add_method("java/lang/Integer", "equals
   BytecodeGenerator::add_invoke_virtual(equals_idx, pool, result);
 
   // globalstack_push(pool, result);
-
-  BytecodeGenerator::localCount += 3;
 }
 
 void false_ByteCode(ConstantPool& pool, std::vector<char>& code,
@@ -661,14 +653,29 @@ void if_or_while_ByteCode(ConstantPool& pool, std::vector<char>& code,
 }
 //VARIABLES
 
-void pop_Variable(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node){
+void pop_Variable(ConstantPool& pool, std::vector<char>& code,
+                  Graphs::Node_ptr current_node){
+  // TODO normalize, remove '(!' or '(', using method.
+  std::string var_name = current_node->command.arg;
+  uint8_t var_index = BytecodeGenerator::local_variables.getIndexForVar(var_name);
+  code.push_back(BytecodeGenerator::ALOAD);
+  code.push_back(var_index);
+  globalstack_push(pool, code);
 }
-void push_Variable(ConstantPool& pool, std::vector<char>& code, Graphs::Node_ptr current_node){
+
+void push_Variable(ConstantPool& pool, std::vector<char>& code,
+                   Graphs::Node_ptr current_node){
+  // TODO normalize, remove '(!' or '(', using method.
+  std::string var_name = current_node->command.arg;
+  uint8_t var_index = BytecodeGenerator::local_variables.getIndexForVar(var_name);
+  globalstack_pop(pool, code);
+  code.push_back(BytecodeGenerator::ASTORE);
+  code.push_back(var_index);
 }
 
 std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph_ptr graph,
                                                                    ConstantPool& constantPool) {
-  BytecodeGenerator::localCount = 0;
+  BytecodeGenerator::local_variables = LocalVariableStash(NUM_INTERNAL_LOCALS);
   std::vector<char> result;
   Graphs::Node_ptr current_node(graph->start());
   while (current_node && current_node->command.type != Command::Type::FINISH) {
@@ -680,6 +687,11 @@ std::vector<char> BytecodeGenerator::GenerateCodeFromFunctionGraph(Graphs::Graph
   }
   result.push_back(BytecodeGenerator::RETURN);
   return result;
+}
+
+uint8_t BytecodeGenerator::localCount() {
+  return local_variables.current_var_count() +
+         BytecodeGenerator::NUM_INTERNAL_LOCALS;
 }
 
 uint16_t get_stack_method_ref(ConstantPool& constant_pool,
