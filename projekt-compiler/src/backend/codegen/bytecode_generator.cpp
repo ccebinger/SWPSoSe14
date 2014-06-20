@@ -550,35 +550,28 @@ void greater_ByteCode(ConstantPool& pool, std::vector<char>& result,
 
 void equal_ByteCode(ConstantPool& pool, std::vector<char>& result,
                     Graphs::Node_ptr current_node) {
-  /*
-   * TODO: "jump-bytes" hard coded, should be replaced by Chris' if-function later
-   *        but actually not necessary, because in this case it is static
-   * The bytecode represents the following Java code: boolean c = (a == b);
-   */
 
-  // store the two integers and load them to get the right order
-  globalstack_pop(pool, result);
-  result.push_back(BytecodeGenerator::ISTORE_1);
-  globalstack_pop(pool, result);
-  result.push_back(BytecodeGenerator::ISTORE_2);
-  result.push_back(BytecodeGenerator::ILOAD_1);
-  result.push_back(BytecodeGenerator::ILOAD_2);
+uint16_t equals_idx = BytecodeGenerator::add_method("java/lang/Integer", "equals", "(Ljava/lang/Object;)Z", pool);
 
-  std::vector<char> if_body;
-  std::vector<char> goto_body;
-  // represents the branch from 'goto' to the end
-  std::vector<char> else_branch;
+  globalstack_pop(pool,result);
+  result.push_back(BytecodeGenerator::CHECKCAST);
+  result.push_back('\x00');
+  result.push_back(pool.addClassRef(pool.addString("java/lang/Integer")));
+  result.push_back(BytecodeGenerator::ASTORE_1);
 
-  goto_body.push_back(BytecodeGenerator::ICONST_0);
-  BytecodeGenerator::add_conditional_with_instruction(BytecodeGenerator::GOTO,
-                                                      &goto_body[0], else_branch);
+  globalstack_pop(pool,result);
+  result.push_back(BytecodeGenerator::CHECKCAST);
+  result.push_back('\x00');
+  result.push_back(pool.addClassRef(pool.addString("java/lang/Integer")));
+  result.push_back(BytecodeGenerator::ASTORE_2);
 
-  // it is necessary to push ICONST_1 before the goto-branch
-  if_body.push_back(BytecodeGenerator::ICONST_1);
-  if_body.insert(if_body.end(), else_branch.begin(), else_branch.end());
+  result.push_back(BytecodeGenerator::ALOAD_1);
+  result.push_back(BytecodeGenerator::ALOAD_2);
 
-  BytecodeGenerator::add_conditional_with_instruction(BytecodeGenerator::IF_ICMPNE,
-                                                      &if_body[0], result);
+  // compare the numbers
+  BytecodeGenerator::add_invoke_virtual(equals_idx, pool, result);
+
+  // globalstack_push(pool, result);
 
   BytecodeGenerator::localCount += 3;
 }

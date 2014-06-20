@@ -204,6 +204,8 @@ ConstantPool::ConstantPool() {
     uint16_t toString_name_idx = addString("toString");
     uint16_t intCompare_type_idx = addString("(Ljava/lang/Integer;)I");
     uint16_t compare_name_idx = addString("compareTo");
+    uint16_t boolEquals_type_idx = addString("(Ljava/lang/Object;)Z");
+    uint16_t equals_name_idx = addString("equals");
     uint16_t toString_type_idx = addString("()Ljava/lang/String;");
     uint16_t stringbuilder_idx = addString("java/lang/StringBuilder");
 
@@ -225,6 +227,7 @@ ConstantPool::ConstantPool() {
     uint16_t intValue_name_type_idx = addNameAndType(intValue_name_idx, intValue_type_idx);
     uint16_t concat_name_type_idx = addNameAndType(concat_name_idx, concat_type_idx);
     uint16_t compare_name_type_idx = addNameAndType(compare_name_idx, intCompare_type_idx);
+    uint16_t equals_name_type_idx = addNameAndType(equals_name_idx, boolEquals_type_idx);
     uint16_t substring_name_type_idx = addNameAndType(substring_name_idx, substring_type_idx);
     uint16_t substring_name_type_single_idx = addNameAndType(substring_name_idx, substring_type_single_idx);
     uint16_t length_name_type_idx = addNameAndType(length_name_idx, intValue_type_idx);
@@ -240,6 +243,7 @@ ConstantPool::ConstantPool() {
     int_idx.value_of_idx = addMethRef(int_idx.class_idx, valueOf_name_type_idx);
     int_idx.int_value_idx = addMethRef(int_idx.class_idx, intValue_name_type_idx);
     int_idx.compare_idx = addMethRef(int_idx.class_idx, compare_name_type_idx);
+    int_idx.equals_idx = addMethRef(int_idx.class_idx, equals_name_type_idx);
     str_idx.concat_idx = addMethRef(str_idx.class_idx, concat_name_type_idx);
     str_idx.substring_2param_idx = addMethRef(str_idx.class_idx, substring_name_type_idx);
     str_idx.substring_idx = addMethRef(str_idx.class_idx, substring_name_type_single_idx);
