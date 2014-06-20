@@ -64,7 +64,7 @@ namespace codegen {
     //GETTER
       size_t length();
       int get_local_count();
-      ConstantPool* get_constant_pool();
+      ConstantPool& get_constant_pool();
       Code& get_bytecode();
     //INDECIES
       uint16_t get_class_idx(const std::string& class_name);

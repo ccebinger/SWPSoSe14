@@ -48,6 +48,27 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph)
   return this;
 }
 
+
+size_t codegen::Bytecode::length()
+{
+  return bytecode.size();
+}
+
+int codegen::Bytecode::get_local_count()
+{
+  return local_count;
+}
+
+ConstantPool& codegen::Bytecode::get_constant_pool()
+{
+  return pool;
+}
+
+codegen::Bytecode::Code& codegen::Bytecode::get_bytecode()
+{
+  return bytecode;
+}
+
 //================================================================================
 //==================================FUNCTORS======================================
 //================================================================================
