@@ -9,12 +9,14 @@
 #define ENV_H_
 
 
+#include <time.h>
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <string.h>
 #include <exception>
+#include <chrono>
 #include <vector>
 
 /**
@@ -118,6 +120,7 @@ private:
 	static std::string dstSerialize;
 	static std::string dstGraphviz;
 	static bool isQuiet;
+	static bool isHelp;
 
 
 public:
@@ -155,6 +158,7 @@ public:
 		dstSerialize = "";
 		dstGraphviz = "";
 		isQuiet = false;
+		isHelp = false;
 
 		// Parse parameters
 		for (int i = 0; i < argc; ++i) {
@@ -165,7 +169,8 @@ public:
 			else if (i + 1 < argc && strcmp(argv[i], "-g") == 0) { dstGraphviz = argv[++i]; }
 			else if (strcmp(argv[i], "-q") == 0) { isQuiet = true; }
 			else if (i + 1 < argc && strcmp(argv[i], "-h") == 0) {
-				std::cout << "Command line help:" << std::endl;
+				isHelp = true;
+				Env::printCaption("Command line help");
 				std::cout << " -i <file> specifies input sourcefile" << std::endl;
 				std::cout << " -d <file> deserialize csv to graph" << std::endl;
 				std::cout << " -s <file> serializes graph to <file>" << std::endl;
@@ -181,26 +186,43 @@ public:
 
 
 		// Defaults
-		if (!hasSrcFile() && !hasSrcDeserialize()) { srcFile = "Tests/test-cases/helloworld.txt"; }
-		if (!hasDstClassfile()) { dstClassFile = "io/Main.class"; }
-		if (!hasDstSerialize()) { dstSerialize = "io/serialized.csv"; }
-		if (!hasDstGraphviz()) { dstGraphviz = "io/graphviz.dot"; }
+//		if (!hasSrcFile() && !hasSrcDeserialize()) { srcFile = "Tests/test-cases/helloworld.txt"; }
+//		if (!hasDstClassfile()) { dstClassFile = "io/Main.class"; }
+//		if (!hasDstSerialize()) { dstSerialize = "io/serialized.csv"; }
+//		if (!hasDstGraphviz()) { dstGraphviz = "io/graphviz.dot"; }
 
 		// Sanitize
-		if (hasSrcFile() && hasSrcDeserialize()) {
+		if(hasSrcFile() && hasSrcDeserialize()) {
 			srcDeserialize = "";
+		}
+		else if(!hasSrcFile() && !hasSrcDeserialize()) {
+			Env::addWarning(ENVIRONMENT, "No sourcefile specified. Use either -i <file> or -d <file>.");
 		}
 
 
 		// Print parameters
-		if (verbose()) {
-			printCaption("Using parameters");
-			if (hasSrcFile()) { std::cout << "  -i " << srcFile << std::endl; }
-			if (hasSrcDeserialize()) { std::cout << "  -d " << srcDeserialize << std::endl; }
-			if (hasDstClassfile()) { std::cout << "  -o " << dstClassFile << std::endl; }
-			if (hasDstSerialize()) { std::cout << "  -s " << dstSerialize << std::endl; }
-			if (hasDstGraphviz()) { std::cout << "  -g " << dstGraphviz << std::endl; }
-			if (isQuiet) { std::cout << "  -q" << std::endl; }
+		if(verbose()) {
+			printCaption("Parameters");
+			if(
+				!hasSrcFile()
+				&& !hasSrcDeserialize()
+				&& !hasDstClassfile()
+				&& !hasDstSerialize()
+				&& !hasDstGraphviz()
+				&& !isQuiet
+				&& !isHelp
+			) {
+				std::cout << "  None set" << std::endl;
+			}
+			else {
+				if (hasSrcFile()) { std::cout << "  -i " << srcFile << std::endl; }
+				if (hasSrcDeserialize()) { std::cout << "  -d " << srcDeserialize << std::endl; }
+				if (hasDstClassfile()) { std::cout << "  -o " << dstClassFile << std::endl; }
+				if (hasDstSerialize()) { std::cout << "  -s " << dstSerialize << std::endl; }
+				if (hasDstGraphviz()) { std::cout << "  -g " << dstGraphviz << std::endl; }
+				if (isQuiet) { std::cout << "  -q" << std::endl; }
+			}
+
 			std::cout << std::endl;
 		}
 
@@ -369,6 +391,43 @@ public:
 
 
 // ------------------------------------------------------------------------------
+// Timer
+// ------------------------------------------------------------------------------
+private:
+	static timespec timeStart;
+
+public:
+	static inline void initTimer() {
+		//CLOCK_MONOTONIC_RAW
+		clock_gettime(CLOCK_MONOTONIC_RAW, &timeStart);
+	}
+	static inline void printTimer() {
+		timespec timeEnd;
+		clock_gettime(CLOCK_MONOTONIC_RAW, &timeEnd);
+
+		timespec diff;
+		diff.tv_sec = timeEnd.tv_sec - timeStart.tv_sec;
+		diff.tv_nsec = timeEnd.tv_nsec - timeStart.tv_nsec;
+
+
+
+		double result = (diff.tv_sec + (double)diff.tv_nsec / 1000000 / 1000);
+
+
+
+		double test = diff.tv_sec + (((double)diff.tv_nsec / 1000000))/1000;
+
+
+		std::cout << "Secs: " << diff.tv_sec << std::endl;
+		std::cout << "Nsecs: " << diff.tv_nsec << std::endl;
+		std::cout << std::endl;
+
+		std::cout << "A: " << ((int)(result*10000))/10000.0 << " s" << std::endl;
+		std::cout << "B: " << test << " s" << std::endl;
+	}
+
+
+// ------------------------------------------------------------------------------
 // Prints
 // ------------------------------------------------------------------------------
 
@@ -377,8 +436,8 @@ public:
 	 * Caption formatting and std::cout
 	 * @param head	caption text
 	 */
-	static inline void printCaption(const std::string head) {
-		if (Env::verbose()) {
+	static inline void printCaption(const std::string head, bool forcePrint=false) {
+		if(Env::verbose() || forcePrint) {
 			std::cout << std::endl << "### " << head << " ";
 			for (size_t i = head.length(); i < 80; ++i) {
 				std::cout << "#";
@@ -386,6 +445,27 @@ public:
 			std::cout << std::endl;
 		}
 	}
+
+
+	static inline void printBuildStatus(bool success) {
+		if(Env::verbose()) {
+			timespec timeEnd;
+			clock_gettime(CLOCK_MONOTONIC_RAW, &timeEnd);
+			timespec diff;
+			diff.tv_sec = timeEnd.tv_sec - timeStart.tv_sec;
+			diff.tv_nsec = timeEnd.tv_nsec - timeStart.tv_nsec;
+			double time = diff.tv_sec + (((double)diff.tv_nsec / 1000000))/1000;
+
+			if(success && !hasErrors()) {
+				std::cout << "Build successful (took " << ((int)(time*10000))/10000.0 << "s)" << std::endl;
+			}
+			else {
+				std::cout << "Build error(s) occurred (took " << ((int)(time*10000))/10000.0 << "s)" << std::endl;
+			}
+
+		}
+	}
+
 };
 
 #endif /* ENV_H_ */
