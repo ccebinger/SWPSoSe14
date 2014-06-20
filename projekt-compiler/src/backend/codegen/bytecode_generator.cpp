@@ -439,6 +439,37 @@ void cut_ByteCode(ConstantPool& constantPool,
 void append_ByteCode(ConstantPool& constantPool,
                      std::vector<char>& result,
                      Graphs::Node_ptr current_node) {
+
+  uint16_t field_stack_idx = BytecodeGenerator::add_field("Main", "stack", "Ljava/util/ArrayDeque;", constantPool);
+  uint16_t toString_idx = BytecodeGenerator::add_method("java/lang/Object", "toString", "()Ljava/lang/String;", constantPool);
+
+  uint16_t builder_toString_idx = BytecodeGenerator::add_method("java/lang/StringBuilder", "toString", "()Ljava/lang/String;", constantPool);
+  uint16_t append_idx = BytecodeGenerator::add_method("java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", constantPool);
+
+  uint16_t valueOf_idx = BytecodeGenerator::add_method("java/lang/String", "valueOf", "(Ljava/lang/Object;)Ljava/lang/String;", constantPool);
+  uint16_t builder_init_idx = BytecodeGenerator::add_method("java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", constantPool);
+  globalstack_pop(constantPool,result);
+
+
+  result.push_back(BytecodeGenerator::ASTORE_1);
+  BytecodeGenerator::add_static_field(field_stack_idx, constantPool, result);
+  result.push_back(BytecodeGenerator::NEW);
+  //TODO: umrechnen auf 2 bytes
+  result.push_back('\x00');
+  result.push_back(constantPool.addClassRef(constantPool.addString("java/lang/StringBuilder")));
+  result.push_back(BytecodeGenerator::DUP);
+  globalstack_pop(constantPool,result);
+  BytecodeGenerator::add_invoke_virtual(toString_idx, constantPool, result);
+
+  BytecodeGenerator::add_invoke_static(valueOf_idx, constantPool,result);
+  BytecodeGenerator::add_invoke_method(BytecodeGenerator::INVOKE_SPECIAL, builder_init_idx, constantPool, result);
+  result.push_back(BytecodeGenerator::ALOAD_1);
+  BytecodeGenerator::add_invoke_virtual(toString_idx, constantPool, result);
+  BytecodeGenerator::add_invoke_virtual(append_idx, constantPool, result);
+  BytecodeGenerator::add_invoke_virtual(builder_toString_idx, constantPool, result);
+  globalstack_push(constantPool, result);
+
+ /* // initial situation: the two strings are on the stacks
   // initial situation: the two strings are on the stacks
   // astore_1 to store the first string
   globalstack_pop(constantPool, result);
@@ -484,7 +515,7 @@ void append_ByteCode(ConstantPool& constantPool,
                                            constantPool);
   BytecodeGenerator::add_invoke_virtual(meth_idx,
                                         constantPool, result);
-  globalstack_push(constantPool, result);
+  globalstack_push(constantPool, result); */
   BytecodeGenerator::localCount += 2;
 }
 
