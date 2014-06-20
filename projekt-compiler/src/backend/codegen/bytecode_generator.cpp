@@ -440,7 +440,7 @@ void append_ByteCode(ConstantPool& constantPool,
                      std::vector<char>& result,
                      Graphs::Node_ptr current_node) {
 
-  uint16_t field_stack_idx = BytecodeGenerator::add_field("Main", "stack", "Ljava/util/ArrayDeque;", constantPool);
+  uint16_t field_stack_idx = BytecodeGenerator::add_field(Env::getDstClassName(), "stack", "Ljava/util/ArrayDeque;", constantPool);
   uint16_t toString_idx = BytecodeGenerator::add_method("java/lang/Object", "toString", "()Ljava/lang/String;", constantPool);
 
   uint16_t builder_toString_idx = BytecodeGenerator::add_method("java/lang/StringBuilder", "toString", "()Ljava/lang/String;", constantPool);
@@ -521,7 +521,7 @@ void append_ByteCode(ConstantPool& constantPool,
 
 void size_ByteCode(ConstantPool& constantPool, std::vector<char>& result,
                    Graphs::Node_ptr current_node){
-  uint16_t field_stack_idx = BytecodeGenerator::add_field("Main", "stack", "Ljava/util/ArrayDeque;", constantPool);
+  uint16_t field_stack_idx = BytecodeGenerator::add_field(Env::getDstClassName(), "stack", "Ljava/util/ArrayDeque;", constantPool);
   BytecodeGenerator::add_static_field(field_stack_idx, constantPool, result);
   globalstack_pop(constantPool, result);
 

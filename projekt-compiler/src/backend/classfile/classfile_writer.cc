@@ -125,7 +125,7 @@ void ClassfileWriter::WriteAccessFlags() {
  * we call our outfile Main.class. therefore every classname is Main
  */
 void ClassfileWriter::WriteClassName() {
-  writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("Main")));
+  writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString(Env::getDstClassName())));
 }
 /*!
  * \brief Write super class name
@@ -260,7 +260,7 @@ void ClassfileWriter::WriteClInitMethod() {
   writer.writeU8(183);
   writer.writeU16(constant_pool_->addMethRef(constant_pool_->addClassRef(constant_pool_->addString("java/util/ArrayDeque")),constant_pool_->addNameAndType(constant_pool_->addString("<init>"), constant_pool_->addString("()V"))));
   writer.writeU8(179);
-  writer.writeU16(constant_pool_->addFieldRef(constant_pool_->addClassRef(constant_pool_->addString("Main")),constant_pool_->addNameAndType(constant_pool_->addString("stack"), constant_pool_->addString("Ljava/util/ArrayDeque;"))));
+  writer.writeU16(constant_pool_->addFieldRef(constant_pool_->addClassRef(constant_pool_->addString(Env::getDstClassName())),constant_pool_->addNameAndType(constant_pool_->addString("stack"), constant_pool_->addString("Ljava/util/ArrayDeque;"))));
   writer.writeU8(177);
   // exception_table_length=0
   out_->write(kNotRequired, sizeof(kNotRequired) / sizeof(kNotRequired[0]));
