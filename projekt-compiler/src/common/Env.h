@@ -16,7 +16,6 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <exception>
-#include <chrono>
 #include <vector>
 
 /**
@@ -117,9 +116,11 @@ private:
 	static std::string srcFile;
 	static std::string srcDeserialize;
 	static std::string dstClassFile;
+	static std::string dstClassName;
 	static std::string dstSerialize;
 	static std::string dstGraphviz;
 	static bool isQuiet;
+	static bool isHelp;
 
 
 public:
@@ -154,6 +155,7 @@ public:
 		srcFile = "";
 		srcDeserialize = "";
 		dstClassFile = "";
+		dstClassName = "";
 		dstSerialize = "";
 		dstGraphviz = "";
 		isQuiet = false;
@@ -189,6 +191,11 @@ public:
 //		if (!hasDstClassfile()) { dstClassFile = "io/Main.class"; }
 //		if (!hasDstSerialize()) { dstSerialize = "io/serialized.csv"; }
 //		if (!hasDstGraphviz()) { dstGraphviz = "io/graphviz.dot"; }
+
+		// reduce classname out of dstClassFile
+		size_t pos = dstClassFile.find_last_of("\\/") + 1;
+		dstClassName = dstClassFile.substr(pos, dstClassFile.find_last_of(".") - pos);
+
 
 		// Sanitize
 		if(hasSrcFile() && hasSrcDeserialize()) {
@@ -251,6 +258,13 @@ public:
 	 */
 	static inline std::string getDstClassfile() {
 		return dstClassFile;
+	}
+
+	/**
+	* @return If present, returns the destination filename for the resulting .class file (-o), "" otherwise
+	*/
+	static inline std::string getDstClassName() {
+		return dstClassName;
 	}
 
 	/**
@@ -384,7 +398,16 @@ public:
 		errors.clear();
 	}
 
+// ------------------------------------------------------------------------------
+// Timer
+// ------------------------------------------------------------------------------
+private:
+	static timespec timeStart;
 
+public:
+	static inline void initTimer() {
+		clock_gettime(CLOCK_MONOTONIC_RAW, &timeStart);
+	}
 
 // ------------------------------------------------------------------------------
 // Prints
@@ -404,6 +427,27 @@ public:
 			std::cout << std::endl;
 		}
 	}
+
+
+
+	static inline void printBuildStatus(bool success) {
+		if(Env::verbose()) {
+			timespec timeEnd;
+			clock_gettime(CLOCK_MONOTONIC_RAW, &timeEnd);
+			timespec diff;
+			diff.tv_sec = timeEnd.tv_sec - timeStart.tv_sec;
+			diff.tv_nsec = timeEnd.tv_nsec - timeStart.tv_nsec;
+			double time = diff.tv_sec + (((double)diff.tv_nsec / 1000000))/1000;
+
+			if(success && !hasErrors()) {
+				std::cout << "Build successful (took " << ((int)(time*10000))/10000.0 << "s)" << std::endl;
+			}
+			else {
+				std::cout << "Build error(s) occurred (took " << ((int)(time*10000))/10000.0 << "s)" << std::endl;
+			}
+		}
+	}
+
 };
 
 #endif /* ENV_H_ */
