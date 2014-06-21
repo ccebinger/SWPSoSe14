@@ -28,9 +28,9 @@ namespace codegen {
     ASTORE_2 = '\x4d',
     NEW = '\xbb',
     INVOKE_VIRTUAL = '\xb6',
-    INVOKE_ = '\xb8',
+    INVOKE_STATIC = '\xb8',
     INVOKE_SPECIAL = '\xb7',
-    GET_ = '\xb2',
+    GET_STATIC = '\xb2',
     GOTO = '\xa7',
     RETURN = '\xb1',
     LDC = '\x12',
@@ -82,18 +82,20 @@ namespace codegen {
       Bytecode* add_index(uint16_t indexInPool, std::vector<unsigned char>& code);
       Bytecode* add_opcode_with_idx(MNEMONIC opcode, uint16_t idx);
       Bytecode* add_opcode_with_idx(codegen::MNEMONIC opcode, uint16_t idx, std::vector<unsigned char>& code);
-
+      Bytecode* add_opcode(MNEMONIC opcode);
+      Bytecode* add_static_field_method_call(uint16_t field_idx, uint16_t method_idx);
+      Bytecode* add_integer_calculation(MNEMONIC calculation);
+      Bytecode* add_type_check(uint16_t class_idx);
+  /*
       Bytecode* add_invoke_virtual(uint16_t method_idx);
       Bytecode* add_invoke_(uint16_t method_idx);
       Bytecode* add_invoke_method(MNEMONIC opcode, uint16_t method_idx);
       Bytecode* add__field(uint16_t field_idx);
-      Bytecode* add__field_method_call(uint16_t field_idx, uint16_t method_idx);
+
       Bytecode* add_new_object(uint16_t class_idx);
       Bytecode* add_instance_of(uint16_t class_idx);
       Bytecode* add_cast(uint16_t class_idx);
-      Bytecode* add_type_check(uint16_t class_idx);
-      Bytecode* add_throw_exception(uint16_t class_idx);
-      Bytecode* add_integer_calculation(MNEMONIC calculation);
+      Bytecode* add_throw_exception(uint16_t class_idx);*/
     //GLOBAL STACK
       Bytecode* globalstack_pop();
       Bytecode* globalstack_push();

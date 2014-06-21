@@ -120,6 +120,9 @@ uint16_t codegen::Bytecode::get_stack_field_idx()
   return get_field_idx(Env::getDstClassName(), "stack", "Ljava/util/ArrayDeque;");
 }
 
+//================================================================================
+//==================================CODE ADD======================================
+//================================================================================
 
 codegen::Bytecode* codegen::Bytecode::add_index(uint16_t indexInPool)
 {
@@ -202,25 +205,106 @@ codegen::Bytecode* codegen::Bytecode::add_type_check(uint16_t class_idx)
   return this;
 }
 
+codegen::Bytecode* codegen::Bytecode::add_static_field_method_call(uint16_t field_idx, uint16_t method_idx)
+{
+  add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_idx);
+  add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, method_idx);
+  return this;
+}
+
+codegen::Bytecode* codegen::Bytecode::add_integer_calculation(MNEMONIC calculation)
+{
+  uint16_t intValue_idx = pool.int_idx.int_value_idx;
+
+
+  add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx);
+  globalstack_pop();
+  //We may want to change the checkcast here. I needed it for it to work, but maybe we find another way
+  add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx);
+  //BytecodeGenerator::add_instance_of(constantPool.addClassRef(constantPool.addString("java/lang/Integer")), constantPool, result);
+  add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, intValue_idx);
+  bytecode.push_back(codegen::MNEMONIC::ISTORE_1);
+  globalstack_pop();
+  add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx);
+  //BytecodeGenerator::add_instance_of(constantPool.addClassRef(constantPool.addString("java/lang/Integer")), constantPool, result);
+  add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, intValue_idx);
+  bytecode.push_back(codegen::MNEMONIC::ILOAD_1);
+  bytecode.push_back(calculation);
+  add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx);
+  globalstack_push();
+
+  return this;
+}
+
+codegen::Bytecode* codegen::Bytecode::add_opcode(codegen::MNEMONIC opcode)
+{
+  bytecode.push_back(opcode);
+  return this;
+}
+
+//================================================================================
+//=================================GLOBAL STACK===================================
+//================================================================================
+
+
+codegen::Bytecode* codegen::Bytecode::globalstack_pop()
+{
+  return add_static_field_method_call(pool.arr_idx.field_idx, pool.arr_idx.pop_idx);
+}
+
+codegen::Bytecode* codegen::Bytecode::globalstack_push()
+{
+  return add_static_field_method_call(pool.arr_idx.field_idx, pool.arr_idx.push_idx);
+}
+
 /*
 Bytecode* add_invoke_virtual(uint16_t method_idx);
 Bytecode* add_invoke_(uint16_t method_idx);
 Bytecode* add__field(uint16_t field_idx);
-Bytecode* add__field_method_call(uint16_t field_idx, uint16_t method_idx);
 Bytecode* add_new_object(uint16_t class_idx);
 
 Bytecode* add_instance_of(uint16_t class_idx);
 Bytecode* add_cast(uint16_t class_idx);
-Bytecode* add_type_check(uint16_t class_idx);
 Bytecode* add_throw_exception(uint16_t class_idx);
-Bytecode* add_integer_calculation(MNEMONIC calculation);
 */
 //================================================================================
 //==================================FUNCTORS======================================
 //================================================================================
 
-void codegen::output_ByteCode(Bytecode::Current_state state) { }
-void codegen::push_ByteCode(Bytecode::Current_state state) { }
+void codegen::output_ByteCode(Bytecode::Current_state state)
+{
+  Bytecode* code = state.current_code;
+  // push system.out+
+  // get <Field java/lang/System.out:Ljava/io/PrintStream;>
+  uint16_t field_system_idx = code->get_field_idx("java/lang/System", "out", "Ljava/io/PrintStream;");
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_system_idx)->globalstack_pop()
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, code->get_constant_pool().obj_idx.toString);
+  uint16_t println_idx = code->get_method_idx("java/io/PrintStream", "println", "(Ljava/lang/String;)V");
+  code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, println_idx);
+}
+
+void codegen::push_ByteCode(Bytecode::Current_state state)
+{
+  Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
+  uint16_t field_idx = pool.arr_idx.field_idx;
+
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_idx)->add_opcode(codegen::MNEMONIC::LDC);
+  std::string value = state.current_node->command.arg;
+  try {
+    int int_val = std::stoi(value);
+    code->add_index(pool.addInt(int_val))->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx);
+    //result.push_back(constantPool.addInt(int_val)); TODO check if add index is correct ?! or perhaps we should use directly push
+  }
+  // the value is a string
+  catch (const std::invalid_argument& ia) {
+    uint16_t string_idx = pool.addString(state.current_node->command.arg);
+    uint16_t const_idx = pool.addConstString(string_idx);
+    code->add_index(const_idx);
+    //result.push_back(const_idx); TODO SAME HERE
+  }
+  code->globalstack_push();
+}
 //ARITMETIC OPERATIONS
 void codegen::add_ByteCode(Bytecode::Current_state state) { }
 void codegen::sub_ByteCode(Bytecode::Current_state state) { }
