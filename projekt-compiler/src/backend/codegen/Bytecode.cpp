@@ -121,9 +121,20 @@ uint16_t codegen::Bytecode::get_stack_field_idx()
 }
 
 
+codegen::Bytecode* codegen::Bytecode::add_index(uint16_t indexInPool)
+{
+  return add_index(indexInPool, bytecode);
+}
 
 
-codegen::Bytecode* codegen::Bytecode::add_conditional_with_instruction(char conditional_stmt, char* conditional_body)
+codegen::Bytecode* codegen::Bytecode::add_index(uint16_t indexInPool, std::vector<unsigned char>& code)
+{
+  code.push_back((indexInPool & 0xFF00U) >> 8);
+  code.push_back(indexInPool & 0x00FFU);
+  return this;
+}
+
+codegen::Bytecode* codegen::Bytecode::add_conditional_with_instruction(unsigned char conditional_stmt, unsigned char* conditional_body)
 {
   int length = sizeof conditional_body / sizeof conditional_body[0];
   int length_plus_branch = length + 2;
@@ -139,16 +150,65 @@ codegen::Bytecode* codegen::Bytecode::add_conditional_with_instruction(char cond
   for (int i = 0; i < length; i++) {
     bytecode.push_back(conditional_body[i]);
   }
+  return this;
 }
-/**
-Bytecode* add_conditional_with_else_branch(char conditional_stmt, char* conditional_body, char* else_body);
+
+codegen::Bytecode* codegen::Bytecode::add_conditional_with_else_branch(unsigned char conditional_stmt, unsigned char* conditional_body, unsigned char* else_body)
+{
+  int if_length = sizeof conditional_body / sizeof conditional_body[0];
+  std::vector<char> if_body;
+  if_body.insert(if_body.begin(), conditional_body, conditional_body + if_length);
+
+  int else_length = sizeof else_body / sizeof else_body[0];
+  int branch_idx = else_length + 2; ///TODO: CHECK IF BRANCH IS CORRECT should be after else branch
+
+  std::stringstream sstream;
+  sstream.fill('\x0');
+  sstream.width(4);
+  sstream << std::hex << branch_idx;
+  std::string branch = sstream.str();
+  if_body.push_back(codegen::MNEMONIC::GOTO);
+  for (int i = 0; i < 4; i++)
+    if_body.push_back(branch.at(i));
+
+
+  bytecode.push_back(conditional_stmt);
+  add_index(if_body.size()); /// TODO: CHECK IF BRANCH IS CORRECT should be after goto!!
+  bytecode.insert(bytecode.end(), if_body.begin(), if_body.end());
+  bytecode.insert(bytecode.end(), else_body, else_body + else_length);
+  return this;
+}
+
+codegen::Bytecode* codegen::Bytecode::add_opcode_with_idx(codegen::MNEMONIC opcode, uint16_t idx)
+{
+  return add_opcode_with_idx(opcode, idx, bytecode);
+}
+
+
+codegen::Bytecode* codegen::Bytecode::add_opcode_with_idx(codegen::MNEMONIC opcode, uint16_t idx, std::vector<unsigned char>& code)
+{
+  code.push_back(opcode);
+  add_index(idx, code);
+  return this;
+}
+
+codegen::Bytecode* codegen::Bytecode::add_type_check(uint16_t class_idx)
+{
+  add_opcode_with_idx(codegen::MNEMONIC::INSTANCE_OF, class_idx);
+  std::vector<unsigned char> body;
+  add_opcode_with_idx(codegen::MNEMONIC::NEW, get_class_idx("java/lang/IllegalArgumentException"), body);
+  body.push_back(codegen::MNEMONIC::ATHROW);
+  add_conditional_with_instruction(codegen::MNEMONIC::IFNE, &body[0]);
+  return this;
+}
+
+/*
 Bytecode* add_invoke_virtual(uint16_t method_idx);
 Bytecode* add_invoke_(uint16_t method_idx);
-Bytecode* add_invoke_method(MNEMONIC opcode, uint16_t method_idx);
 Bytecode* add__field(uint16_t field_idx);
 Bytecode* add__field_method_call(uint16_t field_idx, uint16_t method_idx);
 Bytecode* add_new_object(uint16_t class_idx);
-Bytecode* add_index(uint16_t indexInPool);
+
 Bytecode* add_instance_of(uint16_t class_idx);
 Bytecode* add_cast(uint16_t class_idx);
 Bytecode* add_type_check(uint16_t class_idx);

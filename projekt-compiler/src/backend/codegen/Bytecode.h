@@ -76,15 +76,19 @@ namespace codegen {
       uint16_t get_stack_method_idx(const std::string& method, const std::string& descriptor);
       uint16_t get_stack_field_idx();
     //ADD CODE
-      Bytecode* add_conditional_with_instruction(char conditional_stmt, char* conditional_body);
-      Bytecode* add_conditional_with_else_branch(char conditional_stmt, char* conditional_body, char* else_body);
+      Bytecode* add_conditional_with_instruction(unsigned char conditional_stmt, unsigned char* conditional_body);
+      Bytecode* add_conditional_with_else_branch(unsigned char conditional_stmt, unsigned char* conditional_body, unsigned char* else_body);
+      Bytecode* add_index(uint16_t indexInPool);
+      Bytecode* add_index(uint16_t indexInPool, std::vector<unsigned char>& code);
+      Bytecode* add_opcode_with_idx(MNEMONIC opcode, uint16_t idx);
+      Bytecode* add_opcode_with_idx(codegen::MNEMONIC opcode, uint16_t idx, std::vector<unsigned char>& code);
+
       Bytecode* add_invoke_virtual(uint16_t method_idx);
       Bytecode* add_invoke_(uint16_t method_idx);
       Bytecode* add_invoke_method(MNEMONIC opcode, uint16_t method_idx);
       Bytecode* add__field(uint16_t field_idx);
       Bytecode* add__field_method_call(uint16_t field_idx, uint16_t method_idx);
       Bytecode* add_new_object(uint16_t class_idx);
-      Bytecode* add_index(uint16_t indexInPool);
       Bytecode* add_instance_of(uint16_t class_idx);
       Bytecode* add_cast(uint16_t class_idx);
       Bytecode* add_type_check(uint16_t class_idx);
