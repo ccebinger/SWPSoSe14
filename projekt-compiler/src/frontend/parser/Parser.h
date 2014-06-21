@@ -268,14 +268,13 @@ class Parser {
 		void reverseDirection();
 		bool currentCharIsNoCrossing();
 		Direction getOutPathOfJunction(string,Direction,bool);
-		bool parseVariable(string data,NodeIdentifier);
+		void parseVariable(string data,NodeIdentifier);
 		bool parseJunctions(list<Direction>,int,int,string,Command::Type,NodeIdentifier);
 		bool checkForValidCommandsInStraightDir(int,int);
 		int getNextUnusedId();
 		void setRowCol(int,int);
 		string readCharsUntil(uint32_t);
 	public:
-		string errorMessage;
 		Parser(shared_ptr<RailFunction> railFunction);
 		shared_ptr<Adjacency_list> parseGraph();
 		shared_ptr<Adjacency_list> parseGraph(int,int,Direction);

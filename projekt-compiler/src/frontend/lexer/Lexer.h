@@ -35,16 +35,18 @@ private:
 
 	std::vector<std::vector<uint32_t>> data;
 
-
-
 public:
+	/*
+	 * Source file line position
+	 */
+	const int32_t funcStartLine;
 
 	/**
 	 * Creates a Rail function
 	 * @param name		Name of the Rail function
 	 */
-	RailFunction(std::string name) {
-		this->name = name;
+	RailFunction(std::string _name, int32_t _funcStartLine) : name(_name), funcStartLine(_funcStartLine) {
+
 	}
 
 	virtual ~RailFunction() {}

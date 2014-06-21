@@ -54,7 +54,7 @@ void Lexer::lex(const std::string srcFile) {
 			// name exists && not empty
 			if(nameStart != std::string::npos && nameEnd != std::string::npos && nameStart+1 != nameEnd) {
 				functionName = line.substr(nameStart+1, nameEnd-nameStart-1);
-				act = new RailFunction(functionName);
+				act = new RailFunction(functionName, lineId);
 				functions.push_back(std::shared_ptr<RailFunction>(act));
 			}
 			else {

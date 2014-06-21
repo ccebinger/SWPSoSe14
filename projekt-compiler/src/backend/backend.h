@@ -23,8 +23,8 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 
 #include <frontend/Graphs.h>
 #include <backend/classfile/classfile_writer.h>
-#include <backend/codegen/bytecode_generator.h>
 #include <backend/classfile/constant_pool.h>
+#include <backend/codegen/Bytecode.h>
 /**
  * Die Klasse stellt statische Methoden für das Übersetzen des Graphen in
  * Target-Code zur Verfügung.
@@ -54,7 +54,8 @@ class Backend {
    * Übersetzt den Graphen aus graph in Target-Code, der auf codeOut
    * geschrieben wird. Gibt je nach Ergebnis einen Backend::Status zurück.
    */
-  static Backend::Status Generate(Graphs& graphs, std::ostream* codeOut);
+  static Backend::Status Generate(Graphs& graphs,
+                                  std::ostream* codeOut);
 
   /**
    * Gibt eine beschreibende Fehlernachricht zu einem Backend::Status

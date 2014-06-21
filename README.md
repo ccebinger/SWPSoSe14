@@ -52,9 +52,11 @@ cppRail (-i|-d) <srcFile> [-s <dstFile>] [-g <dstFile>] [-h]
 
 ### Parameters
 - **-i <srcFile>** compiles <srcFile> to .class
+- **-o <dstFile>** compiles source to <dstFile> 
 - **-s <dstFile>** serializes the ASG to csv
 - **-d <srcFile>** deserializes <srcFile> and compiles to .class
 - **-g <dstFile>** generates a graphviz .dot file as ASG-Visualisation
+- **-q** quiet mode (Warnings, Errors, Exceptions only)
 - **-h** Commandline Help
 
 You can either user -i or -d, not both

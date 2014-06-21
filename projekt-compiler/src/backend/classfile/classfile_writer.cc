@@ -26,7 +26,6 @@
 #include <backend/classfile/classfile_writer.h>
 #include <backend/classfile/constant_pool.h>
 #include <backend/classfile/Bytecode_writer.h>
-#include <backend/codegen/bytecode_generator.h>
 #include <array>
 #include <iostream>
 #include <map>
@@ -55,7 +54,7 @@ std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
 ClassfileWriter::ClassfileWriter(ClassfileVersion version,
                                  ConstantPool* constantPool,
                                  Graphs& graphs,
-                                 const std::map<std::string, std::vector<char>&> codeFunctions,
+                                 const std::map<std::string, codegen::Bytecode&> codeFunctions,
                                  std::ostream* out) : graphs_(graphs),
                                                       writer(out),
                                                       out_(out),
@@ -125,7 +124,7 @@ void ClassfileWriter::WriteAccessFlags() {
  * we call our outfile Main.class. therefore every classname is Main
  */
 void ClassfileWriter::WriteClassName() {
-  writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("Main")));
+  writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString(Env::getDstClassName())));
 }
 /*!
  * \brief Write super class name
@@ -260,7 +259,7 @@ void ClassfileWriter::WriteClInitMethod() {
   writer.writeU8(183);
   writer.writeU16(constant_pool_->addMethRef(constant_pool_->addClassRef(constant_pool_->addString("java/util/ArrayDeque")),constant_pool_->addNameAndType(constant_pool_->addString("<init>"), constant_pool_->addString("()V"))));
   writer.writeU8(179);
-  writer.writeU16(constant_pool_->addFieldRef(constant_pool_->addClassRef(constant_pool_->addString("Main")),constant_pool_->addNameAndType(constant_pool_->addString("stack"), constant_pool_->addString("Ljava/util/ArrayDeque;"))));
+  writer.writeU16(constant_pool_->addFieldRef(constant_pool_->addClassRef(constant_pool_->addString(Env::getDstClassName())),constant_pool_->addNameAndType(constant_pool_->addString("stack"), constant_pool_->addString("Ljava/util/ArrayDeque;"))));
   writer.writeU8(177);
   // exception_table_length=0
   out_->write(kNotRequired, sizeof(kNotRequired) / sizeof(kNotRequired[0]));
@@ -273,14 +272,11 @@ void ClassfileWriter::WriteClInitMethod() {
  */
 void ClassfileWriter::WriteAttributes(const std::string &key) {
   /* Local variables definition */
-  Graphs::Graph_ptr currentGraph = graphs_.find(key);
-  std::vector<char> code;
   size_t codeCount = 0;
   size_t attributeCount = 0;
+  codegen::Bytecode& code = code_functions_.at(key);
 
-  code = BytecodeGenerator::GenerateCodeFromFunctionGraph(currentGraph,
-                                                          *constant_pool_);
-  codeCount = code.size();
+  codeCount = code.length();//code.size();
   // hint: adjust when implementing more than code attribute
   attributeCount = codeCount + 12;
 
@@ -296,17 +292,14 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
   writer.writeU16(kMaxStack);
 
   // max_locals
-  if(key.compare("main") != 0){
-    writer.writeU16(BytecodeGenerator::localCount);
-  } else {
-    writer.writeU16(++BytecodeGenerator::localCount);
-  }
+    writer.writeU16(code.get_local_count());
 
   // code_length
   writer.writeU32(codeCount);
   // write code stream
+  std::vector<unsigned char> bytecode = code.get_bytecode();
   for(std::vector<std::string>::size_type i = 0; i != codeCount; i++) {
-    *out_ << code[i];
+    *out_ << bytecode[i];
   }
   // exception_table_length
   out_->write(kNotRequired, sizeof kNotRequired);

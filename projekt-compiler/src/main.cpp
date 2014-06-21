@@ -1,6 +1,7 @@
 #include <iostream>
 //#include <string.h>
 
+
 #include <common/Env.h>
 #include <frontend/lexer/Lexer.h>
 #include <frontend/parser/Parser.h>
@@ -11,92 +12,113 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-	Env::initIoDirectory();
-	Env::parseParams(argc, argv);
+	Env::initTimer();
 
-	Graphs graphs;
+	try {
+		Env::parseParams(argc, argv);
+		Env::initIoDirectory();
+		Env::showStatus();
 
-
-	// ------------------------------------------------------------------------
-	// FRONTEND
-	// ------------------------------------------------------------------------
-
-	if(Env::hasSrcFile()) {
+		Graphs graphs;
 
 
-		Env::printCaption("Frontend - Lexer");
+		// ------------------------------------------------------------------------
+		// FRONTEND
+		// ------------------------------------------------------------------------
 
-		// Lexer
-		Lexer lexer;
-		lexer.lex(Env::getSrcFile());
+		if(Env::hasSrcFile()) {
 
+			Env::printCaption("Frontend - Lexer");
 
-
-		if(!lexer.hasFunctions()) {
-			throw EnvException(FRONTEND_LEXER, "No rail functions found in " + Env::getSrcFile());
-		}
-		Env::showWarnings();
-
-
-
-		Command test{Command::Type::PUSH_CONST,"[abc]"};
-		cout << graphs.extractAstCommandString(test) << "\n";
-		// Parser
-		Env::printCaption("Frontend - Parser");
-		for(auto it = lexer.functions.begin(); it < lexer.functions.end(); ++it) {
-			Parser p(*it);
-			shared_ptr<Adjacency_list> asg = p.parseGraph();
-			if(asg == NULL) {
-				throw EnvException(FRONTEND_PARSER, "No Asg present. Parser report: " + p.errorMessage);
+			// Lexer
+			Lexer lexer;
+			lexer.lex(Env::getSrcFile());
+			Env::showStatus();
+			if(!lexer.hasFunctions()) {
+				throw EnvException(FRONTEND_LEXER, "No rail functions found in " + Env::getSrcFile());
 			}
-			Env::showWarnings();
-			graphs.put((*it)->getName(), asg);
+
+			// Parser
+			Env::printCaption("Frontend - Parser");
+			for(auto it = lexer.functions.begin(); it < lexer.functions.end(); ++it) {
+				Parser p(*it);
+				shared_ptr<Adjacency_list> asg = p.parseGraph();
+				if(asg == NULL) {
+					throw EnvException(FRONTEND_PARSER, "No ASG to return");
+				}
+				graphs.put((*it)->getName(), asg);
+			}
+			Env::showStatus();
 		}
-		Env::showWarnings();
+		else if(Env::hasSrcDeserialize()) {
+			// Deserialize
+			Env::printCaption("ASG - Deserialize");
+			graphs.unmarshall(Env::getSrcDeserialize(), ';');
+			Env::showStatus();
+		}
+		else {
+			// handled within Env.h
+		}
+
+
+
+		// ------------------------------------------------------------------------
+		// ASG
+		// ------------------------------------------------------------------------
+
+		// Serialize
+		if(Env::hasDstSerialize()) {
+			Env::printCaption("ASG - Serialize");
+			graphs.marshall(Env::getDstSerialize(), ';');
+		}
+		Env::showStatus();
+
+
+
+		// GraphViz
+		if(Env::hasDstGraphviz()) {
+			Env::printCaption("ASG - GraphViz");
+			graphs.writeGraphViz(Env::getDstGraphviz());
+		}
+		Env::showStatus();
+
+
+
+
+		// ------------------------------------------------------------------------
+		// BACKEND
+		// ------------------------------------------------------------------------
+		if(Env::hasDstClassfile()) {
+			Env::printCaption("Backend");
+
+			// TODO #118
+			ofstream outFile(Env::getDstClassfile(), std::ofstream::binary);
+			Backend::Generate(graphs, &outFile);
+			Env::showStatus();
+			if(Env::verbose()) {
+				std::cout << "done..." << std::endl;
+			}
+		}
+
+
+
+		Env::printCaption("Finished");
+
+		Env::printBuildStatus(!Env::hasErrors());
+		return Env::hasErrors();
 
 	}
-	else if(Env::hasSrcDeserialize()) {
-		// Deserialize
-		Env::printCaption("ASG - Deserialize");
-		graphs.unmarshall(Env::getSrcDeserialize(), ';');
-		Env::showWarnings();
+	catch(EnvException &ee) {
+		Env::showStatus();
+		ee.showMessage();
+		Env::printBuildStatus(false);
+		return 1;
 	}
-	else {
-		throw EnvException(ENVIRONMENT, "No source specified. Use either -i <file> or -d <file>.");
-	}
-
-
-
-	// ------------------------------------------------------------------------
-	// ASG
-	// ------------------------------------------------------------------------
-
-	// Serialize
-	if(Env::getDstSerialize() != "") {
-		Env::printCaption("ASG - Serialize");
-		graphs.marshall(Env::getDstSerialize(), ';');
-		Env::showWarnings();
+	catch(...) {
+		Env::addError(UNKNOWN, "An unhandled exception occurred");
+		Env::showStatus();
+		Env::printBuildStatus(false);
+		return 1;
 	}
 
-
-
-	// GraphViz
-	if(Env::getDstGraphviz() != "") {
-		Env::printCaption("ASG - GraphViz");
-		graphs.writeGraphViz(Env::getDstGraphviz());
-		Env::showWarnings();
-	}
-
-
-	// ------------------------------------------------------------------------
-	// BACKEND
-	// ------------------------------------------------------------------------
-	Env::printCaption("Backend");
-
-	// TODO #118
-	ofstream outFile(Env::getDstClassfile(), std::ofstream::binary);
-	Backend::Generate(graphs, &outFile);
-
-	Env::showWarnings();
-	return 0;
 }
