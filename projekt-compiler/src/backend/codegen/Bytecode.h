@@ -22,8 +22,10 @@ namespace codegen {
     ISTORE_2 = '\x3d',
     IF_ICMPLE = '\xa4',
     IF_ICMPNE = '\xa6',
+    ALOAD = '\x19',
     ALOAD_1 = '\x2b',
     ALOAD_2 = '\x2c',
+    ASTORE = '\x3a',
     ASTORE_1 = '\x4c',
     ASTORE_2 = '\x4d',
     NEW = '\xbb',
@@ -68,6 +70,7 @@ namespace codegen {
       int get_local_count();
       ConstantPool& get_constant_pool();
       Code& get_bytecode();
+      LocalVariableStash& get_locals();
     //INDECIES
       uint16_t get_class_idx(const std::string& class_name);
       uint16_t get_name_type_idx(const std::string& name, const std::string& type);
@@ -87,16 +90,6 @@ namespace codegen {
       Bytecode* add_static_field_method_call(uint16_t field_idx, uint16_t method_idx);
       Bytecode* add_integer_calculation(MNEMONIC calculation);
       Bytecode* add_type_check(uint16_t class_idx);
-  /*
-      Bytecode* add_invoke_virtual(uint16_t method_idx);
-      Bytecode* add_invoke_(uint16_t method_idx);
-      Bytecode* add_invoke_method(MNEMONIC opcode, uint16_t method_idx);
-      Bytecode* add__field(uint16_t field_idx);
-
-      Bytecode* add_new_object(uint16_t class_idx);
-      Bytecode* add_instance_of(uint16_t class_idx);
-      Bytecode* add_cast(uint16_t class_idx);
-      Bytecode* add_throw_exception(uint16_t class_idx);*/
     //GLOBAL STACK
       Bytecode* globalstack_pop();
       Bytecode* globalstack_push();

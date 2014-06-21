@@ -85,6 +85,11 @@ codegen::Bytecode::Code& codegen::Bytecode::get_bytecode()
 }
 
 
+LocalVariableStash& codegen::Bytecode::get_locals()
+{
+  return locals;
+}
+
 //================================================================================
 //==================================INDICIES======================================
 //================================================================================
@@ -261,16 +266,6 @@ codegen::Bytecode* codegen::Bytecode::globalstack_push()
   return add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.arr_idx.push_idx);
 }
 
-/*
-Bytecode* add_invoke_virtual(uint16_t method_idx);
-Bytecode* add_invoke_(uint16_t method_idx);
-Bytecode* add__field(uint16_t field_idx);
-Bytecode* add_new_object(uint16_t class_idx);
-
-Bytecode* add_instance_of(uint16_t class_idx);
-Bytecode* add_cast(uint16_t class_idx);
-Bytecode* add_throw_exception(uint16_t class_idx);
-*/
 //================================================================================
 //==================================FUNCTORS======================================
 //================================================================================
@@ -470,5 +465,24 @@ void codegen::type_ByteCode(Bytecode::Current_state state) { }
 //CONTROL STRUCTURE
 void codegen::if_or_while_ByteCode(Bytecode::Current_state state) { }
 //VARIABLES
-void codegen::pop_Variable(Bytecode::Current_state state) { }
-void codegen::push_Variable(Bytecode::Current_state state) { }
+void codegen::pop_Variable(Bytecode::Current_state state)
+{
+  Bytecode* code = state.current_code;
+  // TODO normalize, remove '(!' or '(', using method.
+  std::string var_name = state.current_node->command.arg;
+  uint8_t var_index =  code->get_locals().getIndexForVar(var_name);
+  code->add_opcode(codegen::MNEMONIC::ALOAD)
+      ->add_index(var_index)
+      ->globalstack_push();
+}
+
+void codegen::push_Variable(Bytecode::Current_state state)
+{
+  Bytecode* code = state.current_code;
+  // TODO normalize, remove '(!' or '(', using method.
+  std::string var_name = state.current_node->command.arg;
+  uint8_t var_index = code->get_locals().getIndexForVar(var_name);
+  code->globalstack_pop()
+      ->add_opcode(codegen::ASTORE)
+      ->add_index(var_index);
+}
