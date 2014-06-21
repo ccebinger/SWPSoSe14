@@ -154,10 +154,9 @@ Backend::Status Backend::Generate(Graphs& graphs,
   }
   codegen::Bytecode code(constantPool);
   code.build(mainFunction);
-  std::vector<unsigned char> mainCode = code.get_bytecode();
   //std::vector<char> mainCode = BytecodeGenerator::GenerateCodeFromFunctionGraph(mainFunction,
   //                                                                              constantPool);
-  std::map<std::string, std::vector<unsigned char>&> codeMap{{"main", mainCode}};
+  std::map<std::string, codegen::Bytecode&> codeMap{{"main", code}};
 
   ClassfileWriter writer(ClassfileWriter::JAVA_7, &constantPool, graphs, codeMap, codeOut);
   writer.WriteClassfile();

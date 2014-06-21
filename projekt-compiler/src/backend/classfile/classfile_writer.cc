@@ -26,7 +26,6 @@
 #include <backend/classfile/classfile_writer.h>
 #include <backend/classfile/constant_pool.h>
 #include <backend/classfile/Bytecode_writer.h>
-#include <backend/codegen/bytecode_generator.h>
 #include <array>
 #include <iostream>
 #include <map>
@@ -55,7 +54,7 @@ std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
 ClassfileWriter::ClassfileWriter(ClassfileVersion version,
                                  ConstantPool* constantPool,
                                  Graphs& graphs,
-                                 const std::map<std::string, std::vector<unsigned char>&> codeFunctions,
+                                 const std::map<std::string, codegen::Bytecode&> codeFunctions,
                                  std::ostream* out) : graphs_(graphs),
                                                       writer(out),
                                                       out_(out),
@@ -273,14 +272,15 @@ void ClassfileWriter::WriteClInitMethod() {
  */
 void ClassfileWriter::WriteAttributes(const std::string &key) {
   /* Local variables definition */
-  Graphs::Graph_ptr currentGraph = graphs_.find(key);
-  std::vector<char> code;
+  //Graphs::Graph_ptr currentGraph = graphs_.find(key);
+  //std::vector<char> code;
   size_t codeCount = 0;
   size_t attributeCount = 0;
+  codegen::Bytecode& code = code_functions_.at(key);
 
-  code = BytecodeGenerator::GenerateCodeFromFunctionGraph(currentGraph,
-                                                          *constant_pool_);
-  codeCount = code.size();
+//  code = BytecodeGenerator::GenerateCodeFromFunctionGraph(currentGraph,
+  //                                                        *constant_pool_);
+  codeCount = code.length();//code.size();
   // hint: adjust when implementing more than code attribute
   attributeCount = codeCount + 12;
 
@@ -296,13 +296,13 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
   writer.writeU16(kMaxStack);
 
   // max_locals
-    writer.writeU16(BytecodeGenerator::localCount());
+    writer.writeU16(code.get_local_count());
 
   // code_length
   writer.writeU32(codeCount);
   // write code stream
   for(std::vector<std::string>::size_type i = 0; i != codeCount; i++) {
-    *out_ << code[i];
+    *out_ << code.get_bytecode()[i];
   }
   // exception_table_length
   out_->write(kNotRequired, sizeof kNotRequired);

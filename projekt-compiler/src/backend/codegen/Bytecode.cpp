@@ -123,7 +123,11 @@ uint16_t codegen::Bytecode::get_stack_field_idx()
 //================================================================================
 //==================================CODE ADD======================================
 //================================================================================
-
+codegen::Bytecode* codegen::Bytecode::add_index(uint8_t indexInPool)
+{
+  bytecode.push_back(indexInPool & 0xFF);
+  return this;
+}
 codegen::Bytecode* codegen::Bytecode::add_index(uint16_t indexInPool)
 {
   return add_index(indexInPool, bytecode);
@@ -176,7 +180,7 @@ codegen::Bytecode* codegen::Bytecode::add_conditional_with_else_branch(unsigned 
 
 
   bytecode.push_back(conditional_stmt);
-  add_index(if_body.size()); /// TODO: CHECK IF BRANCH IS CORRECT should be after goto!!
+  add_index((uint16_t) if_body.size()); /// TODO: CHECK IF BRANCH IS CORRECT should be after goto!!
   bytecode.insert(bytecode.end(), if_body.begin(), if_body.end());
   bytecode.insert(bytecode.end(), else_body, else_body + else_length);
   return this;
@@ -254,7 +258,7 @@ codegen::Bytecode* codegen::Bytecode::globalstack_pop()
 
 codegen::Bytecode* codegen::Bytecode::globalstack_push()
 {
-  return add_static_field_method_call(pool.arr_idx.field_idx, pool.arr_idx.push_idx);
+  return add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.arr_idx.push_idx);
 }
 
 /*
@@ -277,10 +281,11 @@ void codegen::output_ByteCode(Bytecode::Current_state state)
   // push system.out+
   // get <Field java/lang/System.out:Ljava/io/PrintStream;>
   uint16_t field_system_idx = code->get_field_idx("java/lang/System", "out", "Ljava/io/PrintStream;");
-  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_system_idx)->globalstack_pop()
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, code->get_constant_pool().obj_idx.toString);
   uint16_t println_idx = code->get_method_idx("java/io/PrintStream", "println", "(Ljava/lang/String;)V");
-  code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, println_idx);
+
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_system_idx)->globalstack_pop()
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, code->get_constant_pool().obj_idx.toString)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, println_idx);
 }
 
 void codegen::push_ByteCode(Bytecode::Current_state state)
@@ -289,19 +294,19 @@ void codegen::push_ByteCode(Bytecode::Current_state state)
   ConstantPool& pool = code->get_constant_pool();
   uint16_t field_idx = pool.arr_idx.field_idx;
 
-  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_idx)->add_opcode(codegen::MNEMONIC::LDC);
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_idx)
+      ->add_opcode(codegen::MNEMONIC::LDC);
   std::string value = state.current_node->command.arg;
   try {
     int int_val = std::stoi(value);
-    code->add_index(pool.addInt(int_val))->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx);
-    //result.push_back(constantPool.addInt(int_val)); TODO check if add index is correct ?! or perhaps we should use directly push
+    code->add_index((uint8_t) pool.addInt(int_val))
+        ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx);
   }
   // the value is a string
   catch (const std::invalid_argument& ia) {
     uint16_t string_idx = pool.addString(state.current_node->command.arg);
     uint16_t const_idx = pool.addConstString(string_idx);
-    code->add_index(const_idx);
-    //result.push_back(const_idx); TODO SAME HERE
+    code->add_index((uint8_t) const_idx);
   }
   code->globalstack_push();
 }
@@ -351,7 +356,7 @@ void codegen::cut_ByteCode(Bytecode::Current_state state)
       ->add_opcode(codegen::MNEMONIC::ALOAD_2)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, toString_idx)
       ->add_opcode(codegen::MNEMONIC::ICONST_0)
-      ->add_opcode(codegen::MNEMONIC::ILOAD_0)
+      ->add_opcode(codegen::MNEMONIC::ILOAD_1)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.substring_2param_idx)
       ->globalstack_push()
       ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_stack_idx)
@@ -361,8 +366,51 @@ void codegen::cut_ByteCode(Bytecode::Current_state state)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.substring_idx)
       ->globalstack_push();
 }
-void codegen::append_ByteCode(Bytecode::Current_state state) { }
-void codegen::size_ByteCode(Bytecode::Current_state state) { }
+
+void codegen::append_ByteCode(Bytecode::Current_state state)
+{
+  Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
+
+
+  uint16_t field_stack_idx = pool.arr_idx.field_idx;
+  uint16_t toString_idx = pool.obj_idx.toString;
+  uint16_t builder_toString_idx = code->get_method_idx("java/lang/StringBuilder", "toString", "()Ljava/lang/String;");
+  uint16_t append_idx = code->get_method_idx("java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+  uint16_t builder_init_idx = code->get_method_idx("java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V");
+  uint16_t valueOf_idx =  code->get_method_idx("java/lang/String", "valueOf", "(Ljava/lang/Object;)Ljava/lang/String;");
+
+  //TODO CHECK IF VALUE OF IS USELESS IN THIS METHOD
+
+  code->globalstack_pop()
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1)
+      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_stack_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::NEW, code->get_class_idx("java/lang/StringBuilder"))
+      ->add_opcode(codegen::MNEMONIC::DUP)
+      ->globalstack_pop()
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, toString_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, valueOf_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, builder_init_idx)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, toString_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, append_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, builder_toString_idx)
+      ->globalstack_push();
+}
+
+void codegen::size_ByteCode(Bytecode::Current_state state)
+{
+  Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
+
+  code
+      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
+      ->globalstack_pop()
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.length_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
+      ->globalstack_push();
+}
 //CALL
 void codegen::call_ByteCode(Bytecode::Current_state state) { }
 // LIST OPERATIONS

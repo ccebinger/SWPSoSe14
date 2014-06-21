@@ -78,6 +78,7 @@ namespace codegen {
     //ADD CODE
       Bytecode* add_conditional_with_instruction(unsigned char conditional_stmt, unsigned char* conditional_body);
       Bytecode* add_conditional_with_else_branch(unsigned char conditional_stmt, unsigned char* conditional_body, unsigned char* else_body);
+      Bytecode* add_index(uint8_t indexInPool);
       Bytecode* add_index(uint16_t indexInPool);
       Bytecode* add_index(uint16_t indexInPool, std::vector<unsigned char>& code);
       Bytecode* add_opcode_with_idx(MNEMONIC opcode, uint16_t idx);

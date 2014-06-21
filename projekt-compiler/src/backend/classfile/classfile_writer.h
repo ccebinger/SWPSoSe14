@@ -7,7 +7,7 @@
 #include <memory>
 #include <vector>
 #include <frontend/Graphs.h>
-
+#include <backend/codegen/Bytecode.h>
 #include "constant_pool.h"
 
 /**
@@ -31,7 +31,7 @@ class ClassfileWriter {
    */
   ClassfileWriter(ClassfileVersion version, ConstantPool* constantPool,
                     Graphs& graphs,
-                    const std::map<std::string, std::vector<unsigned char>&> codeFunctions,
+                    const std::map<std::string, codegen::Bytecode&> codeFunctions,
                     std::ostream* out);
 
   virtual ~ClassfileWriter();
@@ -84,7 +84,7 @@ class ClassfileWriter {
   /**
    * Mappt Funktionsnamen auf ihren zugehörigen Bytecode.
    */
-  const std::map<std::string, std::vector<unsigned char>&>& code_functions_;
+  const std::map<std::string, codegen::Bytecode&> code_functions_;
 
   /**
    * Konstante zum Schreiben für nicht verwendete Elemente in der Class-Datei.
