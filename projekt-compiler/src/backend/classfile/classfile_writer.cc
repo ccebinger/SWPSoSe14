@@ -272,14 +272,10 @@ void ClassfileWriter::WriteClInitMethod() {
  */
 void ClassfileWriter::WriteAttributes(const std::string &key) {
   /* Local variables definition */
-  //Graphs::Graph_ptr currentGraph = graphs_.find(key);
-  //std::vector<char> code;
   size_t codeCount = 0;
   size_t attributeCount = 0;
   codegen::Bytecode& code = code_functions_.at(key);
 
-//  code = BytecodeGenerator::GenerateCodeFromFunctionGraph(currentGraph,
-  //                                                        *constant_pool_);
   codeCount = code.length();//code.size();
   // hint: adjust when implementing more than code attribute
   attributeCount = codeCount + 12;
@@ -301,8 +297,9 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
   // code_length
   writer.writeU32(codeCount);
   // write code stream
+  std::vector<unsigned char> bytecode = code.get_bytecode();
   for(std::vector<std::string>::size_type i = 0; i != codeCount; i++) {
-    *out_ << code.get_bytecode()[i];
+    *out_ << bytecode[i];
   }
   // exception_table_length
   out_->write(kNotRequired, sizeof kNotRequired);
