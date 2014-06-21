@@ -306,11 +306,29 @@ void codegen::push_ByteCode(Bytecode::Current_state state)
   code->globalstack_push();
 }
 //ARITMETIC OPERATIONS
-void codegen::add_ByteCode(Bytecode::Current_state state) { }
-void codegen::sub_ByteCode(Bytecode::Current_state state) { }
-void codegen::mult_ByteCode(Bytecode::Current_state state) { }
-void codegen::div_ByteCode(Bytecode::Current_state state) { }
-void codegen::mod_ByteCode(Bytecode::Current_state state) { }
+void codegen::add_ByteCode(Bytecode::Current_state state)
+{
+  state.current_code->add_integer_calculation(codegen::MNEMONIC::IADD);
+}
+void codegen::sub_ByteCode(Bytecode::Current_state state)
+{
+  state.current_code->add_integer_calculation(codegen::MNEMONIC::ISUB);
+}
+
+void codegen::mult_ByteCode(Bytecode::Current_state state)
+{
+  state.current_code->add_integer_calculation(codegen::MNEMONIC::IMULT);
+}
+
+void codegen::div_ByteCode(Bytecode::Current_state state)
+{
+  state.current_code->add_integer_calculation(codegen::MNEMONIC::IDIV);
+}
+
+void codegen::mod_ByteCode(Bytecode::Current_state state)
+{
+  state.current_code->add_integer_calculation(codegen::MNEMONIC::IREM);
+}
 //STRING OPERATIONS
 void codegen::cut_ByteCode(Bytecode::Current_state state) { }
 void codegen::append_ByteCode(Bytecode::Current_state state) { }
