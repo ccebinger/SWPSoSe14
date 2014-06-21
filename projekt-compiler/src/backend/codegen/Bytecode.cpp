@@ -38,13 +38,25 @@ codegen::Bytecode::func_map= {
   {Command::Type::VAR_PUSH, &push_Variable}
 };
 
-codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p) {}
+codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), locals(4) {}
 
 codegen::Bytecode::~Bytecode() {}
 
 
 codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph)
 {
+  Graphs::Node_ptr current_node(graph->start());
+  while (current_node && current_node->command.type != Command::Type::FINISH) {
+    func_ptr f = func_map.at(current_node->command.type);
+    if (f) {
+      Current_state state;
+      state.current_code = this;
+      state.current_node = current_node;
+      f(state);
+    }
+    current_node = current_node->successor1;
+  }
+  bytecode.push_back(codegen::MNEMONIC::RETURN);
   return this;
 }
 
@@ -59,7 +71,7 @@ size_t codegen::Bytecode::length()
 
 int codegen::Bytecode::get_local_count()
 {
-  return local_count;
+  return local_count + locals.current_var_count();
 }
 
 ConstantPool& codegen::Bytecode::get_constant_pool()
@@ -108,6 +120,41 @@ uint16_t codegen::Bytecode::get_stack_field_idx()
   return get_field_idx(Env::getDstClassName(), "stack", "Ljava/util/ArrayDeque;");
 }
 
+
+
+
+codegen::Bytecode* codegen::Bytecode::add_conditional_with_instruction(char conditional_stmt, char* conditional_body)
+{
+  int length = sizeof conditional_body / sizeof conditional_body[0];
+  int length_plus_branch = length + 2;
+  std::stringstream sstream;
+  sstream.fill('\x0');
+  sstream.width(4);
+  sstream << std::hex << length_plus_branch;
+  std::string branch = sstream.str();
+
+  bytecode.push_back(conditional_stmt);
+  for (int i = 0; i < 4; i++)
+    bytecode.push_back(branch.at(i));
+  for (int i = 0; i < length; i++) {
+    bytecode.push_back(conditional_body[i]);
+  }
+}
+/**
+Bytecode* add_conditional_with_else_branch(char conditional_stmt, char* conditional_body, char* else_body);
+Bytecode* add_invoke_virtual(uint16_t method_idx);
+Bytecode* add_invoke_(uint16_t method_idx);
+Bytecode* add_invoke_method(MNEMONIC opcode, uint16_t method_idx);
+Bytecode* add__field(uint16_t field_idx);
+Bytecode* add__field_method_call(uint16_t field_idx, uint16_t method_idx);
+Bytecode* add_new_object(uint16_t class_idx);
+Bytecode* add_index(uint16_t indexInPool);
+Bytecode* add_instance_of(uint16_t class_idx);
+Bytecode* add_cast(uint16_t class_idx);
+Bytecode* add_type_check(uint16_t class_idx);
+Bytecode* add_throw_exception(uint16_t class_idx);
+Bytecode* add_integer_calculation(MNEMONIC calculation);
+*/
 //================================================================================
 //==================================FUNCTORS======================================
 //================================================================================

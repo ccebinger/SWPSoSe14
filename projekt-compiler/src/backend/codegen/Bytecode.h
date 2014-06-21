@@ -5,6 +5,7 @@
 #include <map>
 
 #include <backend/classfile/constant_pool.h>
+#include <backend/codegen/local_variable_stash.h>
 #include <frontend/Graphs.h>
 #include <common/Env.h>
 
@@ -97,6 +98,7 @@ namespace codegen {
       Code bytecode;
       ConstantPool& pool;
       int local_count;
+      LocalVariableStash locals;
 
       static CODE_FUNC_MAPPING func_map;
   };
