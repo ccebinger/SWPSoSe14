@@ -152,10 +152,12 @@ Backend::Status Backend::Generate(Graphs& graphs,
   for (auto it = keyset.begin(); it != keyset.end(); it++) {
     constantPool.addString(*it);
   }
-
-  std::vector<char> mainCode = BytecodeGenerator::GenerateCodeFromFunctionGraph(mainFunction,
-                                                                                constantPool);
-  std::map<std::string, std::vector<char>&> codeMap{{"main", mainCode}};
+  codegen::Bytecode code(constantPool);
+  code.build(mainFunction);
+  std::vector<unsigned char> mainCode = code.get_bytecode();
+  //std::vector<char> mainCode = BytecodeGenerator::GenerateCodeFromFunctionGraph(mainFunction,
+  //                                                                              constantPool);
+  std::map<std::string, std::vector<unsigned char>&> codeMap{{"main", mainCode}};
 
   ClassfileWriter writer(ClassfileWriter::JAVA_7, &constantPool, graphs, codeMap, codeOut);
   writer.WriteClassfile();

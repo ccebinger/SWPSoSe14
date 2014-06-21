@@ -25,6 +25,7 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include <backend/classfile/classfile_writer.h>
 #include <backend/codegen/bytecode_generator.h>
 #include <backend/classfile/constant_pool.h>
+#include <backend/codegen/Bytecode.h>
 /**
  * Die Klasse stellt statische Methoden für das Übersetzen des Graphen in
  * Target-Code zur Verfügung.

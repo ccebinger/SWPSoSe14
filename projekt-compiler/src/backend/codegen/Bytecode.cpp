@@ -329,8 +329,38 @@ void codegen::mod_ByteCode(Bytecode::Current_state state)
 {
   state.current_code->add_integer_calculation(codegen::MNEMONIC::IREM);
 }
+
 //STRING OPERATIONS
-void codegen::cut_ByteCode(Bytecode::Current_state state) { }
+void codegen::cut_ByteCode(Bytecode::Current_state state)
+{
+  Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
+
+  uint16_t field_stack_idx = pool.arr_idx.field_idx;
+  uint16_t toString_idx = pool.obj_idx.toString;
+
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_stack_idx)
+      ->globalstack_pop()
+      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.int_idx.int_value_idx)
+      ->add_opcode(codegen::MNEMONIC::ISTORE_1)
+      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_stack_idx)
+      ->globalstack_pop()
+      ->add_opcode(codegen::MNEMONIC::ASTORE_2)
+      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_stack_idx)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_2)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, toString_idx)
+      ->add_opcode(codegen::MNEMONIC::ICONST_0)
+      ->add_opcode(codegen::MNEMONIC::ILOAD_0)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.substring_2param_idx)
+      ->globalstack_push()
+      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_stack_idx)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_2)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, toString_idx)
+      ->add_opcode(codegen::MNEMONIC::ILOAD_1)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.substring_idx)
+      ->globalstack_push();
+}
 void codegen::append_ByteCode(Bytecode::Current_state state) { }
 void codegen::size_ByteCode(Bytecode::Current_state state) { }
 //CALL
