@@ -418,10 +418,49 @@ void codegen::null_ByteCode(Bytecode::Current_state state) { }
 void codegen::list_push_ByteCode(Bytecode::Current_state state) { }
 void codegen::list_pop_ByteCode(Bytecode::Current_state state) { }
 //BOOLEAN ARITHMETIC
-void codegen::false_ByteCode(Bytecode::Current_state state) { }
-void codegen::greater_ByteCode(Bytecode::Current_state state) { }
-void codegen::equal_ByteCode(Bytecode::Current_state state) { }
-void codegen::true_ByteCode(Bytecode::Current_state state) { }
+void codegen::false_ByteCode(Bytecode::Current_state state)
+{
+  push_ByteCode(state);
+}
+
+void codegen::greater_ByteCode(Bytecode::Current_state state)
+{
+  //TODO after finished impl. ->refactoring 'cause of duplicate code @see equal
+  Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
+
+  code->globalstack_pop()
+      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx)
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1)
+      ->globalstack_pop()
+      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx)
+      ->add_opcode(codegen::MNEMONIC::ASTORE_2)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_2)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.int_idx.compare_idx);
+}
+
+void codegen::equal_ByteCode(Bytecode::Current_state state)
+{
+  //TODO after finished impl. ->refactoring 'cause of duplicate code @see greater
+  Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
+
+  code->globalstack_pop()
+      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx)
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1)
+      ->globalstack_pop()
+      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx)
+      ->add_opcode(codegen::MNEMONIC::ASTORE_2)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_2)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.int_idx.equals_idx);
+}
+
+void codegen::true_ByteCode(Bytecode::Current_state state)
+{
+  push_ByteCode(state);
+}
 //IO OPERATIONS
 void codegen::boom_ByteCode(Bytecode::Current_state state) { }
 void codegen::eof_ByteCode(Bytecode::Current_state state) { }
