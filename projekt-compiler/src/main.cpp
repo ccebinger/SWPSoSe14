@@ -39,7 +39,8 @@ int main(int argc, char *argv[]) {
 
 
 
-
+		Command test{Command::Type::PUSH_CONST,"[abc]"};
+		cout << graphs.extractAstCommandString(test) << "\n";
 		// Parser
 		Env::printCaption("Frontend - Parser");
 		for(auto it = lexer.functions.begin(); it < lexer.functions.end(); ++it) {
