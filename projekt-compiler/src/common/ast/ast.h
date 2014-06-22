@@ -64,6 +64,39 @@ struct Command {
   * The argument of the Rail command.
   */
 	std::string arg;
+
+
+ /**
+	* Extracts the command string from the AST command-struct. For most command types this returns the command string only
+	* PUSH_CONST (if it is in square brackets), VAR_POP, VAR_PUSH and CALL are transformed so that only the constant, variable name or function name is returned
+	* outer brackets and/or exclamation marks are removed
+	*
+	* @param command       the command struct, whose command is to be extracted
+	* @param return        the command string as described above
+	* @author Leon Bornemann
+	*/
+  std::string extractAstCommandString(){
+    std::string commandString;
+    switch(type){
+      case Command::Type::PUSH_CONST:
+        if(arg.at(0)=='[' || arg.at(0)==']'){
+          commandString = arg.substr(1,arg.length()-2);
+        }
+        break;
+      case Command::Type::CALL:
+        commandString = arg.substr(1,arg.length()-2);
+        break;
+      case Command::Type::VAR_POP:
+        commandString = arg.substr(2,arg.length()-4);
+        break;
+      case Command::Type::VAR_PUSH:
+        commandString = arg.substr(1,arg.length()-2);
+        break;
+      default:
+        commandString = arg;
+    }
+    return commandString;
+  }
 };
 
 /**

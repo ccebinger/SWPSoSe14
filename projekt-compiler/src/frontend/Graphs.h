@@ -130,16 +130,6 @@ class Graphs
     */
     virtual void unmarshall(str file, char delimeter);
 
-    /**
-	* Extracts the command string from the AST command-struct. For most command types this returns the command string only
-	* PUSH_CONST (if it is in square brackets), VAR_POP, VAR_PUSH and CALL are transformed so that only the constant, variable name or function name is returned
-	* outer brackets and/or exclamation marks are removed
-	*
-	* @param command       the command struct, whose command is to be extracted
-	* @param return        the command string as described above
-	*/
-	virtual std::string extractAstCommandString(Command command);
-
    /**
     * Writes the current Graphs into a file in dot format in order to illustrate the graphs.
     *

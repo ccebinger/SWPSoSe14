@@ -45,29 +45,6 @@ Graphs::Graph_map::iterator Graphs::end()
   return graphs.end();
 }
 
-std::string extractAstCommandString(Command command){
-	std::string commandString;
-	switch(command.type){
-		case Command::Type::PUSH_CONST:
-			if(command.arg.at(0)=='['){
-				commandString = command.arg.substr(1,command.arg.length()-2);
-			}
-			break;
-		case Command::Type::CALL:
-			commandString = command.arg.substr(1,command.arg.length()-2);
-			break;
-		case Command::Type::VAR_POP:
-			commandString = command.arg.substr(2,command.arg.length()-4);
-			break;
-		case Command::Type::VAR_PUSH:
-			commandString = command.arg.substr(1,command.arg.length()-2);
-			break;
-		default:
-			commandString = command.arg;
-	}
-	return commandString;
-}
-
 void Graphs::marshall(Graphs::str file, char delimiter) {
 
 	// [function name]
