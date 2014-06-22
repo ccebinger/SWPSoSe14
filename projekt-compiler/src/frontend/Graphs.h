@@ -13,7 +13,7 @@
 /**
  * Represents the Graphs class which contains a map of Graph objects or
  * more exact Rail functions.
- * The Graphs/functions are saved in a map so they can accessed over there identifier (name).
+ * The Graphs/functions are saved in a map so they can accessed over their identifier (name).
  * That means the Graphs class returns for a given name a Graph object, if it exists.
  *
  * @author Christopher Zell <Zelldon91@googlemail.com>
