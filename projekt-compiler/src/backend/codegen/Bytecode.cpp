@@ -409,7 +409,11 @@ void codegen::size_ByteCode(Bytecode::Current_state state)
 //CALL
 void codegen::call_ByteCode(Bytecode::Current_state state)
 {
-  (void) state.current_code;
+	Bytecode* code = state.current_code;
+	ConstantPool& pool = code->get_constant_pool();
+	std::string value = state.current_node->command.arg;
+
+	code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, code->get_method_idx("Main", value, "()V"));
 }
 // LIST OPERATIONS
 void codegen::null_ByteCode(Bytecode::Current_state state)

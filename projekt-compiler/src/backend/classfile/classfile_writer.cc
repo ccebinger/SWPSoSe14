@@ -178,7 +178,8 @@ void ClassfileWriter::WriteMethods() {
   for (std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
     if (keys[i].compare("main") != 0) {
 
-      out_->write(kPublicAccessFlag,sizeof(kPublicAccessFlag));
+      out_->write(kPublicStaticAccessFlag,
+    	                    (sizeof(kPublicStaticAccessFlag)/sizeof(kPublicStaticAccessFlag[0])));
       writer.writeU16(constant_pool_->addString(keys[i]));
       writer.writeU16(constant_pool_->addString("()V"));
 
