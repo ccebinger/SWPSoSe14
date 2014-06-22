@@ -407,11 +407,23 @@ void codegen::size_ByteCode(Bytecode::Current_state state)
       ->globalstack_push();
 }
 //CALL
-void codegen::call_ByteCode(Bytecode::Current_state state) { }
+void codegen::call_ByteCode(Bytecode::Current_state state)
+{
+  (void) state.current_code;
+}
 // LIST OPERATIONS
-void codegen::null_ByteCode(Bytecode::Current_state state) { }
-void codegen::list_push_ByteCode(Bytecode::Current_state state) { }
-void codegen::list_pop_ByteCode(Bytecode::Current_state state) { }
+void codegen::null_ByteCode(Bytecode::Current_state state)
+{
+  (void) state.current_code;
+}
+void codegen::list_push_ByteCode(Bytecode::Current_state state)
+{
+  (void) state.current_code;
+}
+void codegen::list_pop_ByteCode(Bytecode::Current_state state)
+{
+  (void) state.current_code;
+}
 //BOOLEAN ARITHMETIC
 void codegen::false_ByteCode(Bytecode::Current_state state)
 {
@@ -457,13 +469,31 @@ void codegen::true_ByteCode(Bytecode::Current_state state)
   push_ByteCode(state);
 }
 //IO OPERATIONS
-void codegen::boom_ByteCode(Bytecode::Current_state state) { }
-void codegen::eof_ByteCode(Bytecode::Current_state state) { }
-void codegen::input_ByteCode(Bytecode::Current_state state) { }
-void codegen::underflow_ByteCode(Bytecode::Current_state state) { }
-void codegen::type_ByteCode(Bytecode::Current_state state) { }
+void codegen::boom_ByteCode(Bytecode::Current_state state)
+{
+  (void) state.current_code;
+}
+void codegen::eof_ByteCode(Bytecode::Current_state state)
+{
+  (void) state.current_code;
+}
+void codegen::input_ByteCode(Bytecode::Current_state state)
+{
+  (void) state.current_code;
+}
+void codegen::underflow_ByteCode(Bytecode::Current_state state)
+{
+  (void) state.current_code;
+}
+void codegen::type_ByteCode(Bytecode::Current_state state)
+{
+  (void) state.current_code;
+}
 //CONTROL STRUCTURE
-void codegen::if_or_while_ByteCode(Bytecode::Current_state state) { }
+void codegen::if_or_while_ByteCode(Bytecode::Current_state state)
+{
+  (void) state.current_code;
+}
 //VARIABLES
 void codegen::pop_Variable(Bytecode::Current_state state)
 {
