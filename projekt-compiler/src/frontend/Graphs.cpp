@@ -240,14 +240,23 @@ Command Graphs::getCommand(std::string& cmd)
   } else if (containsBeginAndEndChar(cmd, '[', ']') ||
              containsBeginAndEndChar(cmd, '{', '}') ||
              containsBeginAndEndChar(cmd, ']', '[') ||
-             containsBeginAndEndChar(cmd, '}', '{'))
+             containsBeginAndEndChar(cmd, '}', '{') ||
+             containsBeginAndEndChar(cmd, '(', ')') ||
+             containsBeginAndEndChar(cmd, ')', '('))
   {
     if (cmd[0] == '[' || cmd[0] == ']')
       c.type = Command::Type::PUSH_CONST;
-    else
+    else if (cmd[0] == '(' || cmd[0] == ')')
+    {
+      if (cmd[1] == '!')
+        c.type = Command::Type::VAR_PUSH;
+      else
+        c.type = Command::Type::VAR_POP;
+    } else
       c.type = Command::Type::CALL;
-      cmd.erase(0,1);
-      cmd.erase(cmd.length()-1, 1);
+
+    cmd.erase(0,1);
+    cmd.erase(cmd.length()-1, 1);
   }
   else
     c.type = Command::Type::OUTPUT;
