@@ -46,7 +46,7 @@ bool operator==(const NodeIdentifier &l,const NodeIdentifier &r){
 
 Parser::Parser(std::shared_ptr<RailFunction> railFunction) {
 	this->board = railFunction;
-	abstractSyntaxGraph = NULL;
+	abstractSyntaxGraph = nullptr;
 }
 
 void Parser::setRowCol(int newRow, int newCol){

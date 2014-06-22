@@ -66,7 +66,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t stack_init_idx = constantPool.addString("<clinit>");
   constantPool.addString("Code");
   uint16_t object_name_idx = constantPool.addString("<init>");
-  uint16_t stringList_type_idx = constantPool.addString("([Ljava/lang/String;)V");
+  constantPool.addString("([Ljava/lang/String;)V");
   uint16_t print_type_idx = constantPool.addString("(Ljava/lang/String;)V");
   uint16_t system_name_idx = constantPool.addString("out");
   uint16_t system_type_idx = constantPool.addString("Ljava/io/PrintStream;");
@@ -101,7 +101,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   constantPool.int_idx.class_idx = constantPool.addClassRef(integer_idx);
   constantPool.str_idx.class_idx = constantPool.addClassRef(string_idx);
   constantPool.arr_idx.class_idx = constantPool.addClassRef(stack_class_name_idx);
-  uint16_t stringbuilder_class = constantPool.addClassRef(stringbuilder_idx);
+  constantPool.addClassRef(stringbuilder_idx);
 
   ///  Add name and type
   uint16_t object_name_type_idx = constantPool.addNameAndType(object_name_idx, void_descriptor_idx);
@@ -115,7 +115,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t substring_name_type_idx = constantPool.addNameAndType(substring_name_idx, substring_type_idx);
   uint16_t substring_name_type_single_idx = constantPool.addNameAndType(substring_name_idx, substring_type_single_idx);
   uint16_t length_name_type_idx = constantPool.addNameAndType(length_name_idx, intValue_type_idx);
-  uint16_t stack_name_type_idx = constantPool.addNameAndType(stack_init_idx, void_descriptor_idx);
+  constantPool.addNameAndType(stack_init_idx, void_descriptor_idx);
   uint16_t pop_name_type_idx = constantPool.addNameAndType(pop_name_idx, pop_type_idx);
   uint16_t push_name_type_idx = constantPool.addNameAndType(push_name_idx, push_type_idx);
   uint16_t toString_name_type_idx = constantPool.addNameAndType(toString_name_idx, toString_type_idx);
