@@ -32,8 +32,8 @@ class Graphs
     typedef std::shared_ptr<Graph> Graph_ptr;
 
    /**
-    * Represents the type for the Graph map, which consist as key of std::string
-    * and as value of Graph_ptr.
+    * Represents the type of the Graph map, which consists of key of std::string
+    * and  value of Graph_ptr.
     */
     typedef std::map<std::string, Graph_ptr> Graph_map;
 
