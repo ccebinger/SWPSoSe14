@@ -208,8 +208,13 @@ codegen::Bytecode* codegen::Bytecode::add_type_check(uint16_t class_idx)
 {
   add_opcode_with_idx(codegen::MNEMONIC::INSTANCE_OF, class_idx);
   std::vector<unsigned char> body;
+
+  uint16_t init_idx = get_method_idx("java/lang/IllegalArgumentException", "<init>", "()V");
   add_opcode_with_idx(codegen::MNEMONIC::NEW, get_class_idx("java/lang/IllegalArgumentException"), body);
+  body.push_back(codegen::MNEMONIC::DUP);
+  add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, init_idx, body);
   body.push_back(codegen::MNEMONIC::ATHROW);
+
   add_conditional_with_instruction(codegen::MNEMONIC::IFNE, &body[0]);
   return this;
 }
@@ -475,7 +480,13 @@ void codegen::true_ByteCode(Bytecode::Current_state state)
 //IO OPERATIONS
 void codegen::boom_ByteCode(Bytecode::Current_state state)
 {
-  (void) state.current_code;
+  Bytecode* code = state.current_code;
+
+  uint16_t init_idx = code->get_method_idx("java/lang/RuntimeException", "<init>", "()V");
+  code->add_opcode_with_idx(codegen::MNEMONIC::NEW, code->get_class_idx("java/lang/RuntimeException"))
+      ->add_opcode(codegen::MNEMONIC::DUP)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, init_idx)
+      ->add_opcode(codegen::MNEMONIC::ATHROW);
 }
 void codegen::eof_ByteCode(Bytecode::Current_state state)
 {
