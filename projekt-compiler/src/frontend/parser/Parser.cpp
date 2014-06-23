@@ -393,11 +393,11 @@ void Parser::parseVariable(string data, NodeIdentifier id) {
 		}
 
 		// Variable pop action
-		addToAbstractSyntaxGraph(data, Command::Type::VAR_POP, id);
+		addToAbstractSyntaxGraph(data, Command::Type::VAR_PUSH, id);
 	}
 	else {
 		// Variable push action
-		addToAbstractSyntaxGraph(data, Command::Type::VAR_PUSH, id);
+		addToAbstractSyntaxGraph(data, Command::Type::VAR_POP, id);
 	}
 }
 
