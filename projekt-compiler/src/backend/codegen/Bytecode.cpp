@@ -479,7 +479,10 @@ void codegen::input_ByteCode(Bytecode::Current_state state) {
 }
 
 void codegen::underflow_ByteCode(Bytecode::Current_state state) {
-  (void) state.current_code;
+  Bytecode* code = state.current_code;
+
+
+  push_ByteCode(state);
 }
 
 void codegen::type_ByteCode(Bytecode::Current_state state) {

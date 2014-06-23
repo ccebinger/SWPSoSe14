@@ -107,25 +107,6 @@ class Item {
   uint16_t name_idx;  //!< index of name/string in constantpool
   uint16_t class_idx;  //!< index of class in constantpool
   uint16_t name_type_idx;  //!< index of name and type in constantpool
-
-  std::vector<unsigned char> getHexRepresentation(Bytecode_writer* writer) {
-    std::vector<unsigned char> result;
-    std::stringstream sstream;
-    writer->writeU8(type);
-    if (type == ItemType::INT) {
-      sstream << std::hex << intVal;
-    } else {
-      if (type == ItemType::UTF8)
-        sstream << std::hex << strVal1.size();
-      sstream << std::hex << strVal1;
-    }
-
-    std::string str = sstream.str();
-    int len = str.length();
-    for (int i = 0; i < len; i++)
-      result.push_back(str.at(i));
-    return result;
-  }
 };
 
 ////////////////////////////////////////////////////////////////////////
