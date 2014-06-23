@@ -291,7 +291,7 @@ void codegen::push_ByteCode(Bytecode::Current_state state)
 
   code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_idx)
       ->add_opcode(codegen::MNEMONIC::LDC);
-  std::string value = state.current_node->command.arg;
+  std::string value = state.current_node->command.extractAstCommandString();
   try {
     int int_val = std::stoi(value);
     code->add_index((uint8_t) pool.addInt(int_val))
@@ -299,7 +299,7 @@ void codegen::push_ByteCode(Bytecode::Current_state state)
   }
   // the value is a string
   catch (const std::invalid_argument& ia) {
-    uint16_t string_idx = pool.addString(state.current_node->command.arg);
+    uint16_t string_idx = pool.addString(value);
     uint16_t const_idx = pool.addConstString(string_idx);
     code->add_index((uint8_t) const_idx);
   }
@@ -411,7 +411,7 @@ void codegen::call_ByteCode(Bytecode::Current_state state)
 {
 	Bytecode* code = state.current_code;
 	ConstantPool& pool = code->get_constant_pool();
-	std::string value = state.current_node->command.arg;
+	std::string value = state.current_node->command.extractAstCommandString();
 
 	code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, code->get_method_idx("Main", value, "()V"));
 }
@@ -503,7 +503,7 @@ void codegen::pop_Variable(Bytecode::Current_state state)
 {
   Bytecode* code = state.current_code;
   // TODO normalize, remove '(!' or '(', using method.
-  std::string var_name = state.current_node->command.arg;
+  std::string var_name = state.current_node->command.extractAstCommandString();
   uint8_t var_index =  code->get_locals().getIndexForVar(var_name);
   code->add_opcode(codegen::MNEMONIC::ALOAD)
       ->add_index(var_index)
@@ -514,7 +514,7 @@ void codegen::push_Variable(Bytecode::Current_state state)
 {
   Bytecode* code = state.current_code;
   // TODO normalize, remove '(!' or '(', using method.
-  std::string var_name = state.current_node->command.arg;
+  std::string var_name = state.current_node->command.extractAstCommandString();
   uint8_t var_index = code->get_locals().getIndexForVar(var_name);
   code->globalstack_pop()
       ->add_opcode(codegen::ASTORE)
