@@ -268,7 +268,7 @@ codegen::Bytecode* codegen::Bytecode::globalstack_push() {
 //==================================FUNCTORS======================================
 //================================================================================
 
-void codegen::output_ByteCode(Bytecode::Current_state state) { 
+void codegen::output_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   // push system.out+
   // get <Field java/lang/System.out:Ljava/io/PrintStream;>
@@ -460,12 +460,7 @@ void codegen::true_ByteCode(Bytecode::Current_state state) {
 }
 
 //IO OPERATIONS
-<<<<<<< HEAD
 void codegen::boom_ByteCode(Bytecode::Current_state state) {
-  (void) state.current_code;
-=======
-void codegen::boom_ByteCode(Bytecode::Current_state state)
-{
   Bytecode* code = state.current_code;
 
   uint16_t init_idx = code->get_method_idx("java/lang/RuntimeException", "<init>", "()V");
@@ -473,7 +468,6 @@ void codegen::boom_ByteCode(Bytecode::Current_state state)
       ->add_opcode(codegen::MNEMONIC::DUP)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, init_idx)
       ->add_opcode(codegen::MNEMONIC::ATHROW);
->>>>>>> 3ca33b7c11363a88c42e39735b661711f52756da
 }
 
 void codegen::eof_ByteCode(Bytecode::Current_state state){
