@@ -494,7 +494,6 @@ void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
 //VARIABLES
 void codegen::pop_Variable(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
-  // TODO normalize, remove '(!' or '(', using method.
   std::string var_name = state.current_node->command.extractAstCommandString();
   uint8_t var_index =  code->get_locals().getIndexForVar(var_name);
   code->add_opcode(codegen::MNEMONIC::ALOAD)
@@ -504,7 +503,6 @@ void codegen::pop_Variable(Bytecode::Current_state state) {
 
 void codegen::push_Variable(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
-  // TODO normalize, remove '(!' or '(', using method.
   std::string var_name = state.current_node->command.extractAstCommandString();
   uint8_t var_index = code->get_locals().getIndexForVar(var_name);
   code->globalstack_pop()
