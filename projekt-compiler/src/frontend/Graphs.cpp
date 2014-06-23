@@ -386,7 +386,7 @@ std::string Graphs::gvGetNodeStyles(std::shared_ptr<Node> node) const {
 		case Command::Type::START:				shape="plaintext"; break;
 		case Command::Type::FINISH:				shape="house"; fillColor="none"; break;
 		case Command::Type::BOOM:				useLabel=false; /*shape="proteasesite";*/ break;
-		case Command::Type::REFLECTOR:			break;
+		case Command::Type::REFLECTOR:			break; //we can change the arrow direction in Graph ?
 		case Command::Type::LAMBDA:				break;
 		case Command::Type::CALL:				shape="diamond"; break;
 
