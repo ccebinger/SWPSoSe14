@@ -480,9 +480,13 @@ void codegen::input_ByteCode(Bytecode::Current_state state) {
 
 void codegen::underflow_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
+      ->add_opcode(codegen::MNEMONIC::DUP)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.arr_idx.size)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
+      ->globalstack_push();
 
-
-  push_ByteCode(state);
 }
 
 void codegen::type_ByteCode(Bytecode::Current_state state) {
