@@ -1,4 +1,5 @@
 #include <backend/codegen/Bytecode.h>
+#include <backend/classfile/classfile_writer.h>
 
 
 codegen::Bytecode::CODE_FUNC_MAPPING
@@ -448,6 +449,8 @@ void codegen::greater_ByteCode(Bytecode::Current_state state) {
   code->add_conditional_with_else_branch(codegen::MNEMONIC::IF_ICMPLE, &conditional_body[0], &else_body[0])
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
       -> globalstack_push();
+
+  ClassfileWriter::stackMapTableFlag = true;
 }
 
 void codegen::equal_ByteCode(Bytecode::Current_state state) {

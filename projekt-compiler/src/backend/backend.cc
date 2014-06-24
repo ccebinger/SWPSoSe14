@@ -65,6 +65,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t void_descriptor_idx = constantPool.addString("()V");
   uint16_t stack_init_idx = constantPool.addString("<clinit>");
   constantPool.addString("Code");
+  constantPool.addString("StackMapTable");
   uint16_t object_name_idx = constantPool.addString("<init>");
   constantPool.addString("([Ljava/lang/String;)V");
   uint16_t print_type_idx = constantPool.addString("(Ljava/lang/String;)V");

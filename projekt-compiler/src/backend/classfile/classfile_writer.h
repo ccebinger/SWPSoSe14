@@ -42,6 +42,13 @@ class ClassfileWriter {
    */
   void WriteClassfile();
 
+  /**
+   * Flag zum Überprüfen, ob eine StackMapTable angelegt werden soll.
+   * Wird von Bytecode benutzt, um in den entsprechenden
+   * Methoden das Flag zu setzen.
+   */
+  static bool stackMapTableFlag;
+
  private:
 
 
@@ -163,6 +170,11 @@ class ClassfileWriter {
    * Schreibt die <clinit> Methode.
    */
   void WriteClInitMethod();
+
+  /**
+   * Schreibt das StackMapTable Attribut.
+   */
+  void WriteStackMapTableAttribute();
 
   /**
    * Schreibt die Attribute, insb. den Methoden-Bytecode.
