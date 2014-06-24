@@ -38,7 +38,7 @@ codegen::Bytecode::func_map= {
   {Command::Type::VAR_PUSH, &push_Variable}
 };
 
-codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), locals(4) {}
+codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), locals(4), local_count(3) {}
 
 codegen::Bytecode::~Bytecode() {}
 
