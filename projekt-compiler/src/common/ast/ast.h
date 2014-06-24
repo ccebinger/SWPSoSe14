@@ -82,6 +82,8 @@ struct Command {
         if(arg.at(0)=='[' || arg.at(0)==']'){
           commandString = arg.substr(1,arg.length()-2);
         }
+        else
+          commandString = arg;
         break;
       case Command::Type::CALL:
         commandString = arg.substr(1,arg.length()-2);
