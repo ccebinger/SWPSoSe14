@@ -281,7 +281,11 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
 
   codeCount = code.length();//code.size();
   // hint: adjust when implementing more than code attribute
-  attributeCount = codeCount + 12 + 15;
+  if(ClassfileWriter::stackMapTableFlag){
+      attributeCount = codeCount + 12 + 15;
+  } else {
+      attributeCount = codeCount + 12;
+  }
 
   /* Attribute code */
   // attributes_count
