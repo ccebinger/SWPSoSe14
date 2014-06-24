@@ -86,10 +86,10 @@ struct Command {
       case Command::Type::CALL:
         commandString = arg.substr(1,arg.length()-2);
         break;
-      case Command::Type::VAR_POP:
+      case Command::Type::VAR_PUSH:
         commandString = arg.substr(2,arg.length()-4);
         break;
-      case Command::Type::VAR_PUSH:
+      case Command::Type::VAR_POP:
         commandString = arg.substr(1,arg.length()-2);
         break;
       default:
