@@ -38,7 +38,9 @@ codegen::Bytecode::func_map= {
   {Command::Type::VAR_PUSH, &push_Variable}
 };
 
-codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), locals(4) {}
+codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), locals(4) {
+  Bytecode::local_count = 0;
+}
 
 codegen::Bytecode::~Bytecode() {}
 
@@ -399,7 +401,7 @@ void codegen::size_ByteCode(Bytecode::Current_state state) {
 //CALL
 void codegen::call_ByteCode(Bytecode::Current_state state) {
 	Bytecode* code = state.current_code;
-	ConstantPool& pool = code->get_constant_pool();
+	// ConstantPool& pool = code->get_constant_pool(); // comment out when pool is needed
 	std::string value = state.current_node->command.extractAstCommandString();
 
 	code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, code->get_method_idx("Main", value, "()V"));
