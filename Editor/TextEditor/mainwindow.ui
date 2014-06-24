@@ -287,7 +287,7 @@
    <addaction name="ui_compileMenu"/>
    <addaction name="ui_windowMenu"/>
   </widget>
-  <widget class="QStatusBar" name="ui_statusbar"/>
+  <widget class="QStatusBar" name="ui_statusBar"/>
   <widget class="QDockWidget" name="ui_ioDockWidget">
    <property name="windowTitle">
     <string>Interpreter I/O</string>
@@ -339,8 +339,8 @@
     <number>8</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_3">
-    <layout class="QGridLayout" name="gridLayout_3">
-     <item row="0" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
       <widget class="QPlainTextEdit" name="ui_compilerOutputPlainTextEdit">
        <property name="lineWrapMode">
         <enum>QPlainTextEdit::NoWrap</enum>
@@ -361,9 +361,16 @@
     <number>8</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_2">
-    <layout class="QGridLayout" name="gridLayout_4">
-     <item row="0" column="0">
-      <widget class="QPlainTextEdit" name="ui_consolePlainTextEdit"/>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="ApplicationConsole" name="ui_consolePlainTextEdit">
+       <property name="lineWrapMode">
+        <enum>QPlainTextEdit::NoWrap</enum>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
@@ -532,6 +539,11 @@
    <class>EditTableWidget</class>
    <extends>QTableWidget</extends>
    <header location="global">EditTableWidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ApplicationConsole</class>
+   <extends>QPlainTextEdit</extends>
+   <header location="global">ApplicationConsole.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

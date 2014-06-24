@@ -84,6 +84,8 @@ private slots:
     void javaOutputReady();
     void javaErrorReady();
     void javaProcessError(QProcess::ProcessError error);
+
+    void consoleLineEntered(QString line);
 };
 
 #endif // MAINWINDOW_H
