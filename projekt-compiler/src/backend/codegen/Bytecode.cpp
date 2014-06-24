@@ -38,9 +38,7 @@ codegen::Bytecode::func_map= {
   {Command::Type::VAR_PUSH, &push_Variable}
 };
 
-codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), locals(4) {
-  Bytecode::local_count = 0;
-}
+codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), locals(4) {}
 
 codegen::Bytecode::~Bytecode() {}
 
@@ -429,16 +427,27 @@ void codegen::greater_ByteCode(Bytecode::Current_state state) {
   //TODO after finished impl. ->refactoring 'cause of duplicate code @see equal
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
+  uint16_t intValue_idx = pool.int_idx.int_value_idx;
+
+  std::vector<unsigned char> conditional_body;
+  std::vector<unsigned char> else_body;
 
   code->globalstack_pop()
       ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx)
-      ->add_opcode(codegen::MNEMONIC::ASTORE_1)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, intValue_idx)
+      ->add_opcode(codegen::MNEMONIC::ISTORE_1)
       ->globalstack_pop()
       ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx)
-      ->add_opcode(codegen::MNEMONIC::ASTORE_2)
-      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
-      ->add_opcode(codegen::MNEMONIC::ALOAD_2)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.int_idx.compare_idx);
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, intValue_idx)
+      ->add_opcode(codegen::MNEMONIC::ISTORE_2)
+      ->add_opcode(codegen::MNEMONIC::ILOAD_1)
+      ->add_opcode(codegen::MNEMONIC::ILOAD_2);
+//      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.int_idx.compare_idx);
+  conditional_body.push_back(codegen::MNEMONIC::ICONST_1);
+  else_body.push_back(codegen::MNEMONIC::ICONST_0);
+  code->add_conditional_with_else_branch(codegen::MNEMONIC::IF_ICMPLE, &conditional_body[0], &else_body[0])
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
+      -> globalstack_push();
 }
 
 void codegen::equal_ByteCode(Bytecode::Current_state state) {
