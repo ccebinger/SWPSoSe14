@@ -22,7 +22,9 @@ private:
     // savedAt > 0: last safed state is in redo-Stack
 
 public:
-    explicit UndoRedoStack(QObject *parent = 0) {
+    explicit UndoRedoStack(QObject *parent = 0)
+        : QObject(parent)
+    {
         internalUndoStack = new QStack<UndoRedoElement*>();
         internalRedoStack = new QStack<UndoRedoElement*>();
         savedAt = 0;
@@ -97,12 +99,12 @@ public:
 
     QString undoDisplay() {
         if(internalUndoStack->isEmpty()) return QString();
-        return QString(internalUndoStack->top()->getUndoName());
+        return QString(internalUndoStack->top()->getDisplayName());
     }
 
     QString redoDisplay() {
         if(internalRedoStack->isEmpty()) return QString();
-        return QString(internalRedoStack->top()->getRedoName());
+        return QString(internalRedoStack->top()->getDisplayName());
     }
 };
 

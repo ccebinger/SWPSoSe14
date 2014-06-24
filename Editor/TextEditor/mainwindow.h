@@ -60,6 +60,9 @@ private slots:
 
     void undo();
     void redo();
+    void cut();
+    void copy();
+    void paste();
     void setInterpreter();
     void runInterpreter();
     void setFrontend();

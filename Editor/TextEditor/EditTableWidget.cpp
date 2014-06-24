@@ -22,6 +22,7 @@
 #include <UndoRedoStack.h>
 #include <UndoRedoElement.h>
 #include <UndoRedoTypeCharacter.h>
+#include <UndoRedoCutPaste.h>
 
 EditTableWidget::EditTableWidget(QWidget *parent) :
     QTableWidget(parent),
@@ -30,7 +31,13 @@ EditTableWidget::EditTableWidget(QWidget *parent) :
 {
     m_cursorRowPos = -1;
     m_cursorColPos = -1;
-    setPosition(0, 0);
+    m_selectionStartColPos = 0;
+    m_selectionStartRowPos = 0;
+    setPosition(0, 0);    
+
+    m_clipboard = QList<QChar>();
+    m_clipboardHeight = 0;
+    m_clipboardWidth = 0;
 
     QHeaderView *verticalHeader = this->verticalHeader();
     verticalHeader->setDefaultSectionSize(m_elementHeight);
@@ -39,31 +46,91 @@ EditTableWidget::EditTableWidget(QWidget *parent) :
     horizontalHeader->setDefaultSectionSize(m_elementWidth);
 }
 
-void EditTableWidget::mousePressEvent(QMouseEvent *mouseEvent)
+void EditTableWidget::calculateCellFromPos(QPoint pos, int *row, int *column) const
 {
-    mouseEvent->accept();
-    QPoint pos = mouseEvent->pos();
     int rowAt = this->rowAt(pos.y());
     int colAt = this->columnAt(pos.x());
     int cellRow, cellCol;
     if(rowAt == -1)
     {
-        cellRow = ceil((double)pos.y() / (double)m_elementHeight);
+        cellRow = ceil((double)pos.y() / (double)m_elementHeight) - 1;
     }
     else
     {
-        cellRow = rowAt + 1;
+        cellRow = rowAt;
     }
     if(colAt == -1)
     {
-        cellCol = ceil((double)pos.x() / (double)m_elementWidth);
+        cellCol = ceil((double)pos.x() / (double)m_elementWidth) - 1;
     }
     else
     {
-        cellCol = colAt + 1;
+        cellCol = colAt;
     }
 
-    setPosition(cellRow - 1, cellCol - 1);
+    *row = std::max(0, cellRow);
+    *column = std::max(0, cellCol);
+}
+
+void EditTableWidget::recalculateMaximumValues()
+{
+    // find the max column
+    bool newMaxFound = false;
+    for(int col = this->columnCount(); col >= 0 && !newMaxFound; col--)
+    {
+        for(int row = 0; row < this->rowCount() && !newMaxFound; row++)
+        {
+            if(this->cellWidget(row, col))
+            {
+                m_textMaxCol = col;
+                newMaxFound = true;
+            }
+        }
+    }
+    if(!newMaxFound)
+    {
+        m_textMaxCol = 0;
+    }
+
+    // find the max row
+    newMaxFound = false;
+    for(int row = this->rowCount(); row >= 0 && !newMaxFound; row--)
+    {
+        for(int col = 0; col < this->columnCount() && !newMaxFound; col++)
+        {
+            if(this->cellWidget(row, col))
+            {
+                m_textMaxRow = row;
+                newMaxFound = true;
+            }
+        }
+    }
+    if(!newMaxFound)
+    {
+        m_textMaxRow = 0;
+    }
+}
+
+void EditTableWidget::mousePressEvent(QMouseEvent *mouseEvent)
+{
+    mouseEvent->accept();
+    QPoint pos = mouseEvent->pos();
+    int row, col;
+    calculateCellFromPos(pos, &row, &col);
+
+    // check if shift-key is pressed
+    bool shiftPressed = mouseEvent->modifiers() & Qt::ShiftModifier;
+    setPosition(row, col, shiftPressed);
+}
+
+void EditTableWidget::mouseMoveEvent(QMouseEvent *mouseEvent)
+{
+    mouseEvent->accept();
+    QPoint pos = mouseEvent->pos();
+    int row, col;
+    calculateCellFromPos(pos, &row, &col);
+
+    setPosition(row, col, true);
 }
 
 void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
@@ -81,13 +148,13 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
         {
             if(m_cursorColPos > 0)
             {
-                setPosition(m_cursorRowPos, m_cursorColPos - 1);
                 removeSign();
+                setPosition(m_cursorRowPos, m_cursorColPos - 1);
             }
             else if(m_cursorRowPos > 0)
             {
-                setPosition(m_cursorRowPos - 1,this->columnCount());
                 removeSign();
+                setPosition(m_cursorRowPos - 1,this->columnCount());
             }
         }
         else if(key == Qt::Key_Delete)
@@ -102,23 +169,24 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
     }
     else
     {
+        bool shiftPressed = keyEvent->modifiers() & Qt::ShiftModifier;
         if(key == Qt::Key_Right)
         {
-            setPosition(m_cursorRowPos, m_cursorColPos + 1);
+            setPosition(m_cursorRowPos, m_cursorColPos + 1, shiftPressed);
         }
         else if(key == Qt::Key_Left)
         {
             int colPos = std::max(0, m_cursorColPos - 1);
-            setPosition(m_cursorRowPos, colPos);
+            setPosition(m_cursorRowPos, colPos, shiftPressed);
         }
         else if(key == Qt::Key_Up)
         {
             int rowPos = std::max(0, m_cursorRowPos - 1);
-            setPosition(rowPos, m_cursorColPos);
+            setPosition(rowPos, m_cursorColPos,shiftPressed);
         }
         else if(key == Qt::Key_Down)
         {
-            setPosition(m_cursorRowPos + 1, m_cursorColPos);
+            setPosition(m_cursorRowPos + 1, m_cursorColPos, shiftPressed);
         }
     }
 }
@@ -132,28 +200,42 @@ void EditTableWidget::inputMethodEvent(QInputMethodEvent *event)
     event->accept();
 }
 
-void EditTableWidget::setPosition(int row, int col)
+void EditTableWidget::setPosition(int row, int col, bool extendSelection)
 {
     assert(row >= 0);
     assert(col >= 0);
-    //qDebug() << "set " << row << col;
-    if((row != m_cursorRowPos) || (col != m_cursorColPos))
+    //if((row != m_cursorRowPos) || (col != m_cursorColPos))
     {
-        this->setCurrentCell(m_cursorRowPos, m_cursorColPos, QItemSelectionModel::Deselect);
+        this->clearSelection();
         m_cursorRowPos = row;
         m_cursorColPos = col;
 
-        int rowCount = std::max(m_cursorRowPos, m_textMaxRow);
-        int columnCount = std::max(m_cursorColPos, m_textMaxCol);
-        this->setRowCount(rowCount + 1);
-        this->setColumnCount(columnCount + 1);
+        if(extendSelection)
+        {
+            int rowCount = std::max(m_selectionStartRowPos, std::max(m_cursorRowPos, m_textMaxRow));
+            int columnCount = std::max(m_selectionStartColPos, std::max(m_cursorColPos, m_textMaxCol));
+            this->setRowCount(rowCount + 1);
+            this->setColumnCount(columnCount + 1);
 
-        this->setCurrentCell(m_cursorRowPos, m_cursorColPos, QItemSelectionModel::Select);
+            QTableWidgetSelectionRange selectedCells(m_selectionStartRowPos, m_selectionStartColPos, m_cursorRowPos, m_cursorColPos);
+            this->setRangeSelected(selectedCells, true);
+        }
+        else
+        {
+            int rowCount = std::max(m_cursorRowPos, m_textMaxRow);
+            int columnCount = std::max(m_cursorColPos, m_textMaxCol);
+            this->setRowCount(rowCount + 1);
+            this->setColumnCount(columnCount + 1);
+
+            this->setCurrentCell(m_cursorRowPos, m_cursorColPos, QItemSelectionModel::Select);
+            m_selectionStartRowPos = m_cursorRowPos;
+            m_selectionStartColPos = m_cursorColPos;
+        }
         emit cursorPositionChanged(row, col);
     }
 }
 
-void EditTableWidget::setSign(QChar c, bool isUndoRedo)
+void EditTableWidget::setSign(QChar c, bool suppressUndoRedoCreation)
 {
     QWidget *w = this->cellWidget(m_cursorRowPos, m_cursorColPos);
     QString color;
@@ -198,7 +280,7 @@ void EditTableWidget::setSign(QChar c, bool isUndoRedo)
     }
 
     // generate undo/redo-element
-    if(!isUndoRedo && !this->signalsBlocked())
+    if(!suppressUndoRedoCreation && !this->signalsBlocked())
     {
         UndoRedoTypeCharacter *undoRedoElement = new UndoRedoTypeCharacter(m_cursorRowPos, m_cursorColPos, pre, c);
         emit undoRedoElementCreated(undoRedoElement);
@@ -210,30 +292,24 @@ void EditTableWidget::setSign(QChar c, bool isUndoRedo)
 
     Stack *stack = m_graph.setSign(m_cursorColPos, m_cursorRowPos, text.at(0).toLatin1());
     applyStyleChanges(stack);
-
-    // just for testing
-    //               red           green         blue       style
-    //int byteMask = (255 << 24) | (170 << 16) | (0 << 8) | 3; // orange, bold, italic
-    //setSignStyle(m_cursorRowPos, m_cursorColPos, byteMask);
-
     if(stack != NULL)
     {
         delete stack;
     }
-    if(!isUndoRedo)
+    if(!suppressUndoRedoCreation)
     {
         emit textChanged();
     }
 
 }
 
-void EditTableWidget::removeSign(bool isUndoRedo)
+void EditTableWidget::removeSign(bool suppressUndoRedoCreation)
 {
     QWidget *w = this->cellWidget(m_cursorRowPos, m_cursorColPos);
     if(w != NULL)
     {        
         // generate undo/redo-element
-        if(!isUndoRedo && !this->signalsBlocked())
+        if(!suppressUndoRedoCreation && !this->signalsBlocked())
         {
             QLabel *l = dynamic_cast<QLabel *>(w);
             assert(l);
@@ -244,44 +320,9 @@ void EditTableWidget::removeSign(bool isUndoRedo)
 
         removeCellWidget(m_cursorRowPos, m_cursorColPos);
         // TODO: move all elements on the right one position to the left(?)
-        bool newMaxFound;
-        if(m_cursorColPos == m_textMaxCol)
+        if((m_cursorColPos == m_textMaxCol) || (m_cursorRowPos == m_textMaxRow))
         {
-            newMaxFound = false;
-            for(int col = this->columnCount(); col >= 0 && !newMaxFound; col--)
-            {
-                for(int row = 0; row < this->rowCount() && !newMaxFound; row++)
-                {
-                    if(this->cellWidget(row, col))
-                    {
-                        m_textMaxCol = col;
-                        newMaxFound = true;
-                    }
-                }
-            }
-            if(!newMaxFound)
-            {
-                m_textMaxCol = 0;
-            }
-        }
-        if(m_cursorRowPos == m_textMaxRow)
-        {
-            newMaxFound = false;
-            for(int row = this->rowCount(); row >= 0 && !newMaxFound; row--)
-            {
-                for(int col = 0; col < this->rowCount() && !newMaxFound; col++)
-                {
-                    if(this->cellWidget(row, col))
-                    {
-                        m_textMaxRow = row;
-                        newMaxFound = true;
-                    }
-                }
-            }
-            if(!newMaxFound)
-            {
-                m_textMaxRow = 0;
-            }
+            recalculateMaximumValues();
         }
         Stack *stack = m_graph.deleteSign(m_cursorColPos, m_cursorRowPos);
         applyStyleChanges(stack);
@@ -290,7 +331,7 @@ void EditTableWidget::removeSign(bool isUndoRedo)
             delete stack;
         }
 
-        if(!isUndoRedo)
+        if(!suppressUndoRedoCreation)
         {
             emit textChanged();
         }
@@ -402,34 +443,237 @@ void EditTableWidget::setPlainText(QString text)
 
 void EditTableWidget::undo(UndoRedoElement *e)
 {
-    UndoRedoTypeCharacter *typeUndo = dynamic_cast< UndoRedoTypeCharacter * >( e );
-    assert(typeUndo);
-    // TODO: later try if and else to determine the derived type of e
-    this->setPosition(typeUndo->getRow(), typeUndo->getColumn());
-    QChar pre = typeUndo->getPre();
-    if(pre != QChar())
+    UndoRedoTypeCharacter *typeUndo = dynamic_cast<UndoRedoTypeCharacter *>(e);
+    if(typeUndo)
     {
-        this->setSign(pre, true);
+        this->setPosition(typeUndo->getRow(), typeUndo->getColumn());
+        QChar pre = typeUndo->getPre();
+        if(pre != QChar())
+        {
+            this->setSign(pre, true);
+        }
+        else
+        {
+            this->removeSign(true);
+        }
     }
-    else
+    UndoRedoCutPaste *cutPasteUndo = dynamic_cast<UndoRedoCutPaste *>(e);
+    if(cutPasteUndo)
     {
-        this->removeSign(true);
+        QList<QChar> tmpClipboard = m_clipboard;
+        int tmpClipboardHeight = m_clipboardHeight;
+        int tmpClipboardWidth = m_clipboardWidth;
+
+        m_clipboard = cutPasteUndo->getPre();
+        m_clipboardHeight = cutPasteUndo->getBottom() - cutPasteUndo->getTop();
+        m_clipboardWidth = cutPasteUndo->getRight() - cutPasteUndo->getLeft();
+        setPosition(cutPasteUndo->getTop(), cutPasteUndo->getLeft());
+        paste(true);
+
+        m_clipboard = tmpClipboard;
+        m_clipboardHeight = tmpClipboardHeight;
+        m_clipboardWidth = tmpClipboardWidth;
     }
 }
 
 void EditTableWidget::redo(UndoRedoElement *e)
 {
-    UndoRedoTypeCharacter *typeRedo = dynamic_cast< UndoRedoTypeCharacter * >( e );
-    assert(typeRedo);
-    // TODO: later try if and else to determine the derived type of e
-    this->setPosition(typeRedo->getRow(), typeRedo->getColumn());
-    QChar post = typeRedo->getPost();
-    if(post != QChar())
+    UndoRedoTypeCharacter *typeRedo = dynamic_cast<UndoRedoTypeCharacter *>(e);
+    if(typeRedo)
     {
-        this->setSign(post, true);
+        this->setPosition(typeRedo->getRow(), typeRedo->getColumn());
+        QChar post = typeRedo->getPost();
+        if(post != QChar())
+        {
+            this->setSign(post, true);
+        }
+        else
+        {
+            this->removeSign(true);
+        }
     }
-    else
+    UndoRedoCutPaste *cutPasteRedo = dynamic_cast<UndoRedoCutPaste *>(e);
+    if(cutPasteRedo)
     {
-        this->removeSign(true);
+        QList<QChar> tmpClipboard = m_clipboard;
+        int tmpClipboardHeight = m_clipboardHeight;
+        int tmpClipboardWidth = m_clipboardWidth;
+
+        m_clipboard = cutPasteRedo->getPost();
+        m_clipboardHeight = cutPasteRedo->getBottom() - cutPasteRedo->getTop();
+        m_clipboardWidth = cutPasteRedo->getRight() - cutPasteRedo->getLeft();
+        setPosition(cutPasteRedo->getTop(), cutPasteRedo->getLeft());
+        paste(true);
+
+        m_clipboard = tmpClipboard;
+        m_clipboardHeight = tmpClipboardHeight;
+        m_clipboardWidth = tmpClipboardWidth;
+    }
+}
+
+void EditTableWidget::cut()
+{
+    QTableWidgetSelectionRange selection = this->selectedRanges().first();
+    QWidget *w;
+    QLabel *l;
+    QList<QChar> pre, post;
+    for(int row = selection.topRow(); row <= selection.bottomRow(); row++)
+    {
+        for(int col = selection.leftColumn(); col <= selection.rightColumn(); col++)
+        {
+            w = this->cellWidget(row, col);
+            if(w == NULL)
+            {
+                pre << QChar();
+            }
+            else
+            {
+                l = dynamic_cast<QLabel *>(w);
+                assert(l);
+                pre << l->text().at(0);
+                removeCellWidget(row, col);
+            }
+            post << QChar();
+            Stack *stack = m_graph.deleteSign(col, row);
+            applyStyleChanges(stack);
+            if(stack != NULL)
+            {
+                delete stack;
+            }
+        }
+    }
+    recalculateMaximumValues();
+
+    m_clipboard = pre;
+    m_clipboardHeight = selection.bottomRow() - selection.topRow();
+    m_clipboardWidth = selection.rightColumn() - selection.leftColumn();
+
+    // generate undo/redo-element
+    if(!this->signalsBlocked())
+    {
+        UndoRedoCutPaste *undoRedoElement = new UndoRedoCutPaste(selection.topRow(), selection.leftColumn(), selection.bottomRow(), selection.rightColumn(), pre, post, "Cut");
+        emit undoRedoElementCreated(undoRedoElement);
+        emit textChanged();
+    }
+}
+
+void EditTableWidget::copy()
+{
+    QTableWidgetSelectionRange selection = this->selectedRanges().first();
+    QWidget *w;
+    QLabel *l;
+    QList<QChar> pre;
+    for(int row = selection.topRow(); row <= selection.bottomRow(); row++)
+    {
+        for(int col = selection.leftColumn(); col <= selection.rightColumn(); col++)
+        {
+            w = this->cellWidget(row, col);
+            if(w == NULL)
+            {
+                pre << QChar();
+            }
+            else
+            {
+                l = dynamic_cast<QLabel *>(w);
+                assert(l);
+                pre << l->text().at(0);
+            }
+        }
+    }
+
+    m_clipboard = pre;
+    m_clipboardHeight = selection.bottomRow() - selection.topRow();
+    m_clipboardWidth = selection.rightColumn() - selection.leftColumn();
+}
+
+void EditTableWidget::paste()
+{
+    paste(false);
+}
+
+void EditTableWidget::paste(bool suppressUndoRedoCreation)
+{
+    // extend the table, if necessary
+    int maxRow = std::max(this->rowCount(), m_cursorRowPos + m_clipboardHeight+1);
+    int maxCol = std::max(this->columnCount(), m_cursorColPos + m_clipboardWidth+1);
+
+    this->setRowCount(maxRow);
+    this->setColumnCount(maxCol);
+
+    QWidget *w;
+    QLabel *l;
+    QList<QChar> pre, post;
+    int i = 0;
+    for(int row = m_cursorRowPos; row <= m_cursorRowPos + m_clipboardHeight; row++)
+    {
+        for(int col = m_cursorColPos; col <= m_cursorColPos + m_clipboardWidth; col++)
+        {
+            w = this->cellWidget(row, col);
+            QChar c = m_clipboard.at(i++);
+            post << c;
+            if(w)
+            {
+                l = dynamic_cast<QLabel *>(w);
+                assert(l);
+                pre << l->text().at(0);
+                if(c == QChar())
+                {
+                    // remove sign
+                    this->removeCellWidget(row, col);
+                    Stack *stack = m_graph.deleteSign(col, row);
+                    applyStyleChanges(stack);
+                    if(stack != NULL)
+                    {
+                        delete stack;
+                    }
+                }
+                else
+                {
+                    l->setText(c);
+
+                    Stack *stack = m_graph.setSign(col, row, c.toLatin1());
+                    applyStyleChanges(stack);
+                    if(stack != NULL)
+                    {
+                        delete stack;
+                    }
+                }
+            }
+            else
+            {
+                pre << QChar();
+                if(c == QChar())
+                {
+                    // do nothing
+                }
+                else
+                {
+                    // set sign
+                    QFont f("unexistent");
+                    f.setStyleHint(QFont::Monospace);
+
+                    l = new QLabel(c);
+                    l->setFont(f);
+                    l->setAlignment(Qt::AlignCenter);
+                    this->setCellWidget(row, col, l);
+
+                    Stack *stack = m_graph.setSign(col, row, c.toLatin1());
+                    applyStyleChanges(stack);
+                    if(stack != NULL)
+                    {
+                        delete stack;
+                    }
+                }
+            }
+        }
+    }
+    recalculateMaximumValues();
+
+    // generate undo/redo-element
+    if(!suppressUndoRedoCreation && !this->signalsBlocked())
+    {
+        UndoRedoCutPaste *undoRedoElement = new UndoRedoCutPaste(m_cursorRowPos, m_cursorColPos, m_cursorRowPos+m_clipboardHeight, m_cursorColPos+m_clipboardWidth, pre, post, "Paste");
+        emit undoRedoElementCreated(undoRedoElement);
+        emit textChanged();
     }
 }

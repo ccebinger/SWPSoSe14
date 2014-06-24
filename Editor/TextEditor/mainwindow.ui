@@ -260,6 +260,10 @@
     </property>
     <addaction name="ui_undoAction"/>
     <addaction name="ui_redoAction"/>
+    <addaction name="separator"/>
+    <addaction name="ui_cutAction"/>
+    <addaction name="ui_copyAction"/>
+    <addaction name="ui_pasteAction"/>
    </widget>
    <widget class="QMenu" name="ui_compileMenu">
     <property name="title">
@@ -345,6 +349,36 @@
         <bool>true</bool>
        </property>
       </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="ui_consoleDockWidget">
+   <property name="windowTitle">
+    <string>Application Console</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2">
+    <layout class="QGridLayout" name="gridLayout_4">
+     <item row="0" column="0">
+      <widget class="QPlainTextEdit" name="ui_consolePlainTextEdit"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="ui_issuesDockWidget">
+   <property name="windowTitle">
+    <string>Issues</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_4">
+    <layout class="QGridLayout" name="gridLayout_6">
+     <item row="0" column="0">
+      <widget class="QTableWidget" name="ui_issuesTableWidget"/>
      </item>
     </layout>
    </widget>
@@ -466,6 +500,30 @@
   <action name="ui_stopFrontendAction">
    <property name="text">
     <string>Stop Compiler</string>
+   </property>
+  </action>
+  <action name="ui_cutAction">
+   <property name="text">
+    <string>Cut</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="ui_copyAction">
+   <property name="text">
+    <string>Copy</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="ui_pasteAction">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
    </property>
   </action>
  </widget>

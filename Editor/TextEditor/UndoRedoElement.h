@@ -5,26 +5,20 @@
 
 class UndoRedoElement {
 protected:
-    QString undoDisplayName;
-    QString redoDisplayName;
+    QString displayName;
 
 public:
 
     UndoRedoElement(void) {
-        undoDisplayName = "";
-        redoDisplayName = "";
+        displayName = "";
     }
 
     virtual ~UndoRedoElement() {
 
     }
 
-    QString getUndoName() {
-        return undoDisplayName;
-    }
-
-    QString getRedoName() {
-        return redoDisplayName;
+    QString getDisplayName() {
+        return displayName;
     }
 };
 

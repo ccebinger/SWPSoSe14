@@ -29,7 +29,8 @@ HEADERS  += mainwindow.h \
     Graph_Interface_old.h \
     Point_old.h \
     Graph_Interface.h \
-    Point.h
+    Point.h \
+    UndoRedoCutPaste.h
 
 FORMS    += mainwindow.ui
 

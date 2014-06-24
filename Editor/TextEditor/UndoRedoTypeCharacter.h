@@ -18,8 +18,7 @@ public:
 
         QString preString = pre.isNull() ? QString() : QString(pre);
         QString postString = post.isNull() ? QString() : QString(post);
-        undoDisplayName = "Overwrite '" + postString + "' with '" + preString + "' at (" + QString::number(row+1) + ", " + QString::number(column+1) + ")";
-        redoDisplayName = "Overwrite '" + preString + "' with '" + postString + "' at (" + QString::number(row+1) + ", " + QString::number(column+1) + ")";
+        displayName = "Overwrite '" + preString + "' with '" + postString + "' at (" + QString::number(row+1) + ", " + QString::number(column+1) + ")";
     }
 
     int getRow() const {

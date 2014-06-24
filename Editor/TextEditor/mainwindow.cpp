@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->ui_insertModeGroupBox->hide();
     ui->ui_writeDirectionGroupBox->hide();
+    ui->ui_consoleDockWidget->hide();
+    ui->ui_issuesDockWidget->hide();
 
     QFont f("unexistent");
     f.setStyleHint(QFont::Monospace);
@@ -49,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_undoRedoStack, SIGNAL(redoAvailable(bool)), this, SLOT(redoAvailable(bool)));
     ui->ui_undoAction->setEnabled(false);
     ui->ui_redoAction->setEnabled(false);
+    ui->ui_pasteAction->setEnabled(false);
 
     ui->ui_stopInterpreterAction->setEnabled(false);
     ui->ui_stopFrontendAction->setEnabled(false);
@@ -63,6 +66,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->ui_undoAction, SIGNAL(triggered()), this, SLOT(undo()));
     connect(ui->ui_redoAction, SIGNAL(triggered()), this, SLOT(redo()));
+    connect(ui->ui_cutAction, SIGNAL(triggered()), this, SLOT(cut()));
+    connect(ui->ui_copyAction, SIGNAL(triggered()), this, SLOT(copy()));
+    connect(ui->ui_pasteAction, SIGNAL(triggered()), this, SLOT(paste()));
 
     connect(ui->ui_setInterpreterAction, SIGNAL(triggered()), this, SLOT(setInterpreter()));
     connect(ui->ui_runInterpreterAction, SIGNAL(triggered()), this, SLOT(runInterpreter()));
@@ -357,6 +363,25 @@ void MainWindow::redoAvailable(bool redoAvailable)
     ui->ui_redoAction->setText("Redo: " + display );
 }
 
+void MainWindow::cut()
+{
+    ui->ui_sourceEditTableWidget->cut();
+    ui->ui_pasteAction->setEnabled(true);
+}
+
+void MainWindow::copy()
+{
+    ui->ui_sourceEditTableWidget->copy();
+    ui->ui_pasteAction->setEnabled(true);
+}
+
+void MainWindow::paste()
+{
+   ui->ui_sourceEditTableWidget->paste();
+}
+
+// ----------------------------------------------------------------------------------------- interpreter
+
 void MainWindow::setInterpreter()
 {
     QFileDialog openDialog(this);
@@ -584,8 +609,7 @@ void MainWindow::frontendErrorReady()
 
 void MainWindow::frontendProcessError(QProcess::ProcessError error)
 {
-    qDebug() << "frontend error: " << error;
-    QMessageBox::warning(this, "Compiler error.", "Compiler process error: " + QString::number(error));
+    //QMessageBox::warning(this, "Compiler error.", "Compiler process error: " + QString::number(error));
 }
 
 
