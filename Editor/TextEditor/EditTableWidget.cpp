@@ -148,13 +148,13 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
         {
             if(m_cursorColPos > 0)
             {
-                removeSign();
                 setPosition(m_cursorRowPos, m_cursorColPos - 1);
+                removeSign();
             }
             else if(m_cursorRowPos > 0)
             {
-                removeSign();
                 setPosition(m_cursorRowPos - 1,this->columnCount());
+                removeSign();
             }
         }
         else if(key == Qt::Key_Delete)
@@ -402,7 +402,7 @@ QString EditTableWidget::toPlainText() const
         }
     }
     // remove trailing whitespaces
-    text = text.replace(QRegExp("\\s*\\n"), "\n");
+    text = text.replace(QRegExp("[ \\t]*\\n"), "\n");
     return text;
 }
 
