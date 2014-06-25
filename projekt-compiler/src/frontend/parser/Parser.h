@@ -250,6 +250,7 @@ class Parser {
 		const int STRAIGHT = 1;
 		const int RIGHT = 2;
 
+		int32_t moveCount = 0;
 		int32_t posRow = 0;
 		int32_t posCol = 0;
 		Direction dir = SE;
