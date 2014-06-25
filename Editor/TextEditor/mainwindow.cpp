@@ -15,6 +15,8 @@
 #include "UndoRedoElement.h"
 #include "UndoRedoTypeCharacter.h"
 
+#include <assert.h>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -23,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->ui_insertModeGroupBox->hide();
     ui->ui_writeDirectionGroupBox->hide();
+    ui->ui_issuesDockWidget->hide();
 
     QFont f("unexistent");
     f.setStyleHint(QFont::Monospace);
@@ -49,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_undoRedoStack, SIGNAL(redoAvailable(bool)), this, SLOT(redoAvailable(bool)));
     ui->ui_undoAction->setEnabled(false);
     ui->ui_redoAction->setEnabled(false);
+    ui->ui_pasteAction->setEnabled(false);
 
     ui->ui_stopInterpreterAction->setEnabled(false);
     ui->ui_stopFrontendAction->setEnabled(false);
@@ -63,6 +67,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->ui_undoAction, SIGNAL(triggered()), this, SLOT(undo()));
     connect(ui->ui_redoAction, SIGNAL(triggered()), this, SLOT(redo()));
+    connect(ui->ui_cutAction, SIGNAL(triggered()), this, SLOT(cut()));
+    connect(ui->ui_copyAction, SIGNAL(triggered()), this, SLOT(copy()));
+    connect(ui->ui_pasteAction, SIGNAL(triggered()), this, SLOT(paste()));
 
     connect(ui->ui_setInterpreterAction, SIGNAL(triggered()), this, SLOT(setInterpreter()));
     connect(ui->ui_runInterpreterAction, SIGNAL(triggered()), this, SLOT(runInterpreter()));
@@ -357,6 +364,25 @@ void MainWindow::redoAvailable(bool redoAvailable)
     ui->ui_redoAction->setText("Redo: " + display );
 }
 
+void MainWindow::cut()
+{
+    ui->ui_sourceEditTableWidget->cut();
+    ui->ui_pasteAction->setEnabled(true);
+}
+
+void MainWindow::copy()
+{
+    ui->ui_sourceEditTableWidget->copy();
+    ui->ui_pasteAction->setEnabled(true);
+}
+
+void MainWindow::paste()
+{
+   ui->ui_sourceEditTableWidget->paste();
+}
+
+// ----------------------------------------------------------------------------------------- interpreter
+
 void MainWindow::setInterpreter()
 {
     QFileDialog openDialog(this);
@@ -579,42 +605,52 @@ void MainWindow::frontendOutputReady()
 
 void MainWindow::frontendErrorReady()
 {
-    ui->ui_compilerOutputPlainTextEdit->appendHtml("<font color=red>" + m_frontendProcess->readAllStandardError() + "</font>");
+    ui->ui_compilerOutputPlainTextEdit->appendHtml("<font color=red>" + m_frontendProcess->readAllStandardError() + "</font><br>");
 }
 
 void MainWindow::frontendProcessError(QProcess::ProcessError error)
 {
-    qDebug() << "frontend error: " << error;
-    QMessageBox::warning(this, "Compiler error.", "Compiler process error: " + QString::number(error));
+    //QMessageBox::warning(this, "Compiler error.", "Compiler process error: " + QString::number(error));
 }
 
 
 void MainWindow::javaStarted()
 {
     // TODO: (maybe) Clear java console window
-    ui->ui_compilerOutputPlainTextEdit->appendPlainText("Java execution started\n");
+    ui->ui_consolePlainTextEdit->setReadOnly(false);
+    ui->ui_consolePlainTextEdit->appendPlainText("Java execution started\n");
+    connect(ui->ui_consolePlainTextEdit, SIGNAL(lineEntered(QString)), this, SLOT(consoleLineEntered(QString)));
 }
 
 void MainWindow::javaFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    ui->ui_compilerOutputPlainTextEdit->appendPlainText("Java finished with exit code " + QString::number(exitCode) + "\n");
+    ui->ui_consolePlainTextEdit->appendPlainText("Java finished with exit code " + QString::number(exitCode) + "\n");
+    ui->ui_consolePlainTextEdit->setReadOnly(true);
+    disconnect(ui->ui_consolePlainTextEdit, SIGNAL(lineEntered(QString)), this, SLOT(consoleLineEntered(QString)));
 }
 
 void MainWindow::javaOutputReady()
 {
     QString stdOutput = m_javaProcess->readAllStandardOutput();
     //stdOutput = stdOutput.replace(QRegExp("\n"), "<br>");
-    ui->ui_compilerOutputPlainTextEdit->appendHtml("<font color=green>" + stdOutput + "</font>");
+    ui->ui_consolePlainTextEdit->appendPlainText(stdOutput);
 }
 
 void MainWindow::javaErrorReady()
 {
-    ui->ui_compilerOutputPlainTextEdit->appendHtml("<font color=red>" + m_javaProcess->readAllStandardError() + "</font>");
+    QString stdError = m_javaProcess->readAllStandardError();
+    ui->ui_consolePlainTextEdit->appendHtml("<font color=red>" + stdError + "</font><br>");
 }
 
 void MainWindow::javaProcessError(QProcess::ProcessError error)
 {
     qDebug() << "java error: " << error;
     QMessageBox::warning(this, "Java error.", "Java process error: " + QString::number(error));
+}
+
+void MainWindow::consoleLineEntered(QString line)
+{
+    assert(m_javaProcess->state() == QProcess::Running);
+    m_javaProcess->write(line.toStdString().c_str());
 }
 

@@ -13,7 +13,7 @@
 /**
  * Represents the Graphs class which contains a map of Graph objects or
  * more exact Rail functions.
- * The Graphs/functions are saved in a map so they can accessed over there identifier (name).
+ * The Graphs/functions are saved in a map so they can accessed over their identifier (name).
  * That means the Graphs class returns for a given name a Graph object, if it exists.
  *
  * @author Christopher Zell <Zelldon91@googlemail.com>
@@ -32,8 +32,8 @@ class Graphs
     typedef std::shared_ptr<Graph> Graph_ptr;
 
    /**
-    * Represents the type for the Graph map, which consist as key of std::string
-    * and as value of Graph_ptr.
+    * Represents the type of the Graph map, which consists of key of std::string
+    * and  value of Graph_ptr.
     */
     typedef std::map<std::string, Graph_ptr> Graph_map;
 
@@ -129,16 +129,6 @@ class Graphs
     * @param delimeter        the delimeter which is used in the csv file
     */
     virtual void unmarshall(str file, char delimeter);
-
-    /**
-	* Extracts the command string from the AST command-struct. For most command types this returns the command string only
-	* PUSH_CONST (if it is in square brackets), VAR_POP, VAR_PUSH and CALL are transformed so that only the constant, variable name or function name is returned
-	* outer brackets and/or exclamation marks are removed
-	*
-	* @param command       the command struct, whose command is to be extracted
-	* @param return        the command string as described above
-	*/
-	virtual std::string extractAstCommandString(Command command);
 
    /**
     * Writes the current Graphs into a file in dot format in order to illustrate the graphs.

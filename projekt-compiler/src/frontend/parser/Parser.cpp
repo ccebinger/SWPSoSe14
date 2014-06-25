@@ -46,7 +46,7 @@ bool operator==(const NodeIdentifier &l,const NodeIdentifier &r){
 
 Parser::Parser(std::shared_ptr<RailFunction> railFunction) {
 	this->board = railFunction;
-	abstractSyntaxGraph = NULL;
+	abstractSyntaxGraph = nullptr;
 }
 
 void Parser::setRowCol(int newRow, int newCol){
@@ -393,11 +393,11 @@ void Parser::parseVariable(string data, NodeIdentifier id) {
 		}
 
 		// Variable pop action
-		addToAbstractSyntaxGraph(data, Command::Type::VAR_POP, id);
+		addToAbstractSyntaxGraph(data, Command::Type::VAR_PUSH, id);
 	}
 	else {
 		// Variable push action
-		addToAbstractSyntaxGraph(data, Command::Type::VAR_PUSH, id);
+		addToAbstractSyntaxGraph(data, Command::Type::VAR_POP, id);
 	}
 }
 
@@ -477,7 +477,7 @@ bool Parser::addToAbstractSyntaxGraph(string commandName, Command::Type type, No
 	return nodeWasNew;
 }
 
-//set the position to 'until' if it exists then return the return the string ,which yot red ,including the starts- and end-symbol 
+//set the position to 'until' if it exists then return the return the string ,which yot red ,including the starts- and end-symbol
 //just if we didi not return an empty string and the error message is already set.
 string Parser::readCharsUntil(uint32_t until) {
 	string result = "";

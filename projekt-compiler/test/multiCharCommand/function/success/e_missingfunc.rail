@@ -1,9 +1,0 @@
-$'main'(--):
- \
-  \
-   \
-    \----{DoesNotExist}---#
-
-
-
-Crash: There is no global binding with that name

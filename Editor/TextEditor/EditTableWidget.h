@@ -22,24 +22,35 @@ public:
     QPoint cursorPos() const;
     void clear();
     void setPlainText(QString text);
+    void cut();
+    void copy();
+    void paste();
 
 private:
     void mousePressEvent(QMouseEvent *mouseEvent);
+    void mouseMoveEvent(QMouseEvent *mouseEvent);
     void keyPressEvent(QKeyEvent *keyEvent);
-
-    void setPosition(int row, int col);
-    void setSign(QChar c, bool isUndoRedo = false);
-    void removeSign(bool isUndoRedo = false);
     void inputMethodEvent(QInputMethodEvent *event);
 
-    void applyStyleChanges( Stack *stack );
+    void calculateCellFromPos(QPoint pos, int *row, int *column) const;
+    void recalculateMaximumValues();
+    void setPosition(int row, int col, bool extendSelection = false);
+    void setSign(QChar c, bool suppressUndoRedoCreation = false);
+    void removeSign(bool suppressUndoRedoCreation = false);
+    void paste(bool suppressUndoRedoCreation);
+
+    void applyStyleChanges(Stack *stack);
     void setSignStyle(int row, int col, int byteMask);
 
 private:
     int m_cursorRowPos, m_cursorColPos;
+    int m_selectionStartRowPos, m_selectionStartColPos;
     int m_textMaxRow, m_textMaxCol;
     const int m_elementHeight, m_elementWidth;
     Graph_Interface m_graph;
+    QList<QChar> m_clipboard;
+    int m_clipboardWidth;
+    int m_clipboardHeight;
 
     void calculateDimensions();
 };

@@ -17,7 +17,8 @@ SOURCES += main.cpp\
     EditTableWidget.cpp \
     Point_Old.cpp \
     Point.cpp \
-    Graph_Interface.cpp
+    Graph_Interface.cpp \
+    ApplicationConsole.cpp
 
 HEADERS  += mainwindow.h \
     EditTableWidget.h \
@@ -29,7 +30,9 @@ HEADERS  += mainwindow.h \
     Graph_Interface_old.h \
     Point_old.h \
     Graph_Interface.h \
-    Point.h
+    Point.h \
+    UndoRedoCutPaste.h \
+    ApplicationConsole.h
 
 FORMS    += mainwindow.ui
 

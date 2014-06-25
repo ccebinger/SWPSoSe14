@@ -71,6 +71,9 @@ namespace codegen {
       ConstantPool& get_constant_pool();
       Code& get_bytecode();
       LocalVariableStash& get_locals();
+    //SETTER
+      void inc_local_count(int inc);
+      void set_local_count(int count);
     //INDECIES
       uint16_t get_class_idx(const std::string& class_name);
       uint16_t get_name_type_idx(const std::string& name, const std::string& type);

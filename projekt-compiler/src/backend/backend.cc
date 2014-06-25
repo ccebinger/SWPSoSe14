@@ -65,8 +65,9 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t void_descriptor_idx = constantPool.addString("()V");
   uint16_t stack_init_idx = constantPool.addString("<clinit>");
   constantPool.addString("Code");
+  constantPool.addString("StackMapTable");
   uint16_t object_name_idx = constantPool.addString("<init>");
-  uint16_t stringList_type_idx = constantPool.addString("([Ljava/lang/String;)V");
+  constantPool.addString("([Ljava/lang/String;)V");
   uint16_t print_type_idx = constantPool.addString("(Ljava/lang/String;)V");
   uint16_t system_name_idx = constantPool.addString("out");
   uint16_t system_type_idx = constantPool.addString("Ljava/io/PrintStream;");
@@ -93,6 +94,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t equals_name_idx = constantPool.addString("equals");
   uint16_t toString_type_idx = constantPool.addString("()Ljava/lang/String;");
   uint16_t stringbuilder_idx = constantPool.addString("java/lang/StringBuilder");
+  uint16_t size_str_idx = constantPool.addString("size");
 
   ///  Add classes
   constantPool.obj_idx.class_idx = constantPool.addClassRef(obj_cls_idx);
@@ -101,7 +103,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   constantPool.int_idx.class_idx = constantPool.addClassRef(integer_idx);
   constantPool.str_idx.class_idx = constantPool.addClassRef(string_idx);
   constantPool.arr_idx.class_idx = constantPool.addClassRef(stack_class_name_idx);
-  uint16_t stringbuilder_class = constantPool.addClassRef(stringbuilder_idx);
+  constantPool.addClassRef(stringbuilder_idx);
 
   ///  Add name and type
   uint16_t object_name_type_idx = constantPool.addNameAndType(object_name_idx, void_descriptor_idx);
@@ -115,10 +117,11 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t substring_name_type_idx = constantPool.addNameAndType(substring_name_idx, substring_type_idx);
   uint16_t substring_name_type_single_idx = constantPool.addNameAndType(substring_name_idx, substring_type_single_idx);
   uint16_t length_name_type_idx = constantPool.addNameAndType(length_name_idx, intValue_type_idx);
-  uint16_t stack_name_type_idx = constantPool.addNameAndType(stack_init_idx, void_descriptor_idx);
+  constantPool.addNameAndType(stack_init_idx, void_descriptor_idx);
   uint16_t pop_name_type_idx = constantPool.addNameAndType(pop_name_idx, pop_type_idx);
   uint16_t push_name_type_idx = constantPool.addNameAndType(push_name_idx, push_type_idx);
   uint16_t toString_name_type_idx = constantPool.addNameAndType(toString_name_idx, toString_type_idx);
+  uint16_t size_name_type_idx = constantPool.addNameAndType(size_str_idx, intValue_type_idx);
 
   ///  Add method refs
   constantPool.addMethRef(constantPool.obj_idx.class_idx , object_name_type_idx);
@@ -135,6 +138,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   constantPool.addMethRef(constantPool.arr_idx.class_idx, object_name_type_idx);
   constantPool.arr_idx.pop_idx = constantPool.addMethRef(constantPool.arr_idx.class_idx, pop_name_type_idx);
   constantPool.arr_idx.push_idx = constantPool.addMethRef(constantPool.arr_idx.class_idx, push_name_type_idx);
+  constantPool.arr_idx.size = constantPool.addMethRef(constantPool.arr_idx.class_idx, size_name_type_idx);
   constantPool.obj_idx.toString = constantPool.addMethRef(constantPool.obj_idx.class_idx, toString_name_type_idx);
 
   ///  Add field refs

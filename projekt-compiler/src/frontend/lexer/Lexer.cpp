@@ -64,7 +64,7 @@ void Lexer::lex(const std::string srcFile) {
 				 * 		1. do nothing -> adds this line to the actual RailFunction
 				 * 		2. act = NULL; -> assume this is a new (misspelled) function -> ignore whole function
 				 */
-				act = NULL;
+				act = nullptr;
 				Env::addWarning(FRONTEND_LEXER, "Found $ but no proper function name given (skipping...): " + line, lineId, 0);
 			}
 		}

@@ -60,6 +60,9 @@ private slots:
 
     void undo();
     void redo();
+    void cut();
+    void copy();
+    void paste();
     void setInterpreter();
     void runInterpreter();
     void setFrontend();
@@ -81,6 +84,8 @@ private slots:
     void javaOutputReady();
     void javaErrorReady();
     void javaProcessError(QProcess::ProcessError error);
+
+    void consoleLineEntered(QString line);
 };
 
 #endif // MAINWINDOW_H
