@@ -35,10 +35,10 @@ private:
     bool m_modified;
     QString m_currentFilePath;
     QString m_currentInterpreterPath;
-    QString m_currentFrontendPath;
+    QString m_currentBuildPath;
 
     QProcess *m_interpreterProcess;
-    QProcess *m_frontendProcess;
+    QProcess *m_buildProcess;
     QProcess *m_javaProcess;
 
     UndoRedoStack *m_undoRedoStack;
@@ -65,19 +65,21 @@ private slots:
     void paste();
     void setInterpreter();
     void runInterpreter();
-    void setFrontend();
-    void runFrontend();
+    void setBuild();
+    void runBuild();
+    void buildAndRun();
+    void runJava();
 
     void interpreterStarted();
     void interpreterFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void interpreterOutputReady();
     void interpreterErrorReady();
 
-    void frontendStarted();
-    void frontendFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void frontendOutputReady();
-    void frontendErrorReady();
-    void frontendProcessError(QProcess::ProcessError error);
+    void buildStarted();
+    void buildFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void buildOutputReady();
+    void buildErrorReady();
+    void buildProcessError(QProcess::ProcessError error);
 
     void javaStarted();
     void javaFinished(int exitCode, QProcess::ExitStatus exitStatus);

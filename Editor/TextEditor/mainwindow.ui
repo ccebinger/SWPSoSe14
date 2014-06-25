@@ -273,9 +273,13 @@
     <addaction name="ui_runInterpreterAction"/>
     <addaction name="ui_stopInterpreterAction"/>
     <addaction name="separator"/>
-    <addaction name="ui_setFrontendAction"/>
-    <addaction name="ui_runFrontendAction"/>
-    <addaction name="ui_stopFrontendAction"/>
+    <addaction name="ui_setBuildAction"/>
+    <addaction name="ui_runBuildAction"/>
+    <addaction name="ui_stopBuildAction"/>
+    <addaction name="separator"/>
+    <addaction name="ui_buildAndRunJavaAction"/>
+    <addaction name="ui_runJavaAction"/>
+    <addaction name="ui_stopJavaAction"/>
    </widget>
    <widget class="QMenu" name="ui_windowMenu">
     <property name="title">
@@ -390,6 +394,20 @@
     </layout>
    </widget>
   </widget>
+  <widget class="QToolBar" name="ui_toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="ui_runBuildAction"/>
+   <addaction name="ui_buildAndRunJavaAction"/>
+   <addaction name="ui_stopJavaAction"/>
+  </widget>
   <action name="ui_newFileAction">
    <property name="text">
     <string>New File</string>
@@ -488,25 +506,32 @@
     <string>Stop Interpreter</string>
    </property>
   </action>
-  <action name="ui_setFrontendAction">
+  <action name="ui_setBuildAction">
    <property name="text">
     <string>Set Compiler Location</string>
    </property>
   </action>
-  <action name="ui_runFrontendAction">
+  <action name="ui_runBuildAction">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/Buttons/Build.png</normaloff>icons/Buttons/Build.png</iconset>
+   </property>
    <property name="text">
-    <string>Run Compiler</string>
+    <string>Build</string>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Build&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+R</string>
+    <string>Ctrl+B</string>
    </property>
    <property name="shortcutContext">
     <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
-  <action name="ui_stopFrontendAction">
+  <action name="ui_stopBuildAction">
    <property name="text">
-    <string>Stop Compiler</string>
+    <string>Cancel Build</string>
    </property>
   </action>
   <action name="ui_cutAction">
@@ -531,6 +556,32 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+V</string>
+   </property>
+  </action>
+  <action name="ui_buildAndRunJavaAction">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/Buttons/Run.png</normaloff>icons/Buttons/Run.png</iconset>
+   </property>
+   <property name="text">
+    <string>Run</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="ui_runJavaAction">
+   <property name="text">
+    <string>Run Without Build</string>
+   </property>
+  </action>
+  <action name="ui_stopJavaAction">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/Buttons/Stop.png</normaloff>icons/Buttons/Stop.png</iconset>
+   </property>
+   <property name="text">
+    <string>Stop</string>
    </property>
   </action>
  </widget>
