@@ -25,6 +25,7 @@ public:
     void cut();
     void copy();
     void paste();
+    void gotoPostion(int row, int column);
 
 private:
     void mousePressEvent(QMouseEvent *mouseEvent);

@@ -25,7 +25,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->ui_insertModeGroupBox->hide();
     ui->ui_writeDirectionGroupBox->hide();
-    ui->ui_issuesDockWidget->hide();
 
     QFont f("unexistent");
     f.setStyleHint(QFont::Monospace);
@@ -44,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->ui_windowMenu->addAction(ui->ui_ioDockWidget->toggleViewAction());
     ui->ui_windowMenu->addAction(ui->ui_compilerDockWidget->toggleViewAction());
     ui->ui_windowMenu->addAction(ui->ui_consoleDockWidget->toggleViewAction());
+    ui->ui_windowMenu->addAction(ui->ui_issuesDockWidget->toggleViewAction());
 
     connect(ui->ui_sourceEditTableWidget, SIGNAL(undoRedoElementCreated(UndoRedoElement*)), this, SLOT(undoRedoElementCreated(UndoRedoElement*)));
 
@@ -101,6 +101,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_javaProcess, SIGNAL(readyReadStandardError()), this, SLOT(javaErrorReady()));
     connect(m_javaProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(javaFinished(int,QProcess::ExitStatus)));
     connect(m_javaProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(javaProcessError(QProcess::ProcessError)));
+
+    // default compiler path
+    //m_currentBuildPath = "/home/muellerz/SWP/Repository/SWPSoSe14/projekt-compiler/Debug/Compiler";
+    connect(ui->ui_issuesListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(issueDoubleClicked(QListWidgetItem*)));
 }
 
 MainWindow::~MainWindow()
@@ -546,7 +550,7 @@ void MainWindow::runBuild()
     QString inputFile = directory + "/" + baseName + ".rail";
     QString astFile = directory + "/" + baseName + ".ast";
     QString graphFile = directory + "/" + baseName + ".dot";
-    QString classFile = directory + "/" + "Main" + ".class";
+    QString classFile = directory + "/" + baseName + ".class";
 
     // run the compiler
     QStringList parameter;
@@ -565,6 +569,8 @@ void MainWindow::buildStarted()
     ui->ui_runBuildAction->setEnabled(false);
     ui->ui_buildAndRunJavaAction->setEnabled(false);
     ui->ui_runJavaAction->setEnabled(false);
+
+    ui->ui_issuesListWidget->clear();
 }
 
 void MainWindow::buildFinished(int exitCode, QProcess::ExitStatus exitStatus)
@@ -578,12 +584,15 @@ void MainWindow::buildFinished(int exitCode, QProcess::ExitStatus exitStatus)
 
 void MainWindow::buildOutputReady()
 {
-    ui->ui_compilerOutputPlainTextEdit->appendPlainText(m_buildProcess->readAllStandardOutput());
+    QString stdOut = m_buildProcess->readAllStandardOutput();
+    ui->ui_compilerOutputPlainTextEdit->appendPlainText(stdOut);
 }
 
 void MainWindow::buildErrorReady()
 {
-    ui->ui_compilerOutputPlainTextEdit->appendHtml("<font color=red>" + m_buildProcess->readAllStandardError() + "</font><br>");
+    QString stdError = m_buildProcess->readAllStandardError();
+    ui->ui_compilerOutputPlainTextEdit->appendHtml("<font color=red>" + stdError + "</font><br>");
+    ui->ui_issuesListWidget->addItem(stdError);
 }
 
 void MainWindow::buildProcessError(QProcess::ProcessError error)
@@ -618,16 +627,14 @@ void MainWindow::runJava()
     }
 
     // Just for testing: Start an echo-program
-    m_javaProcess->start("java", QStringList() << "-cp" << "/home/muellerz/SWP/Test/" << "Main");//className);
-    return;
+    //m_javaProcess->start("java", QStringList() << "-cp" << "/home/muellerz/SWP/Test/" << "Main");//className);
+    //return;
 
     QString classFilePath = m_currentFilePath;
-    // Just for testing:
-    //classFilePath = "/home/muellerz/SWP/Test/HelloWorld.rail";
     QFileInfo classFile(classFilePath);
     QString directory(classFile.absoluteDir().path());
     QString className(classFile.completeBaseName());
-    m_javaProcess->start("java", QStringList() << "-cp" << directory << "Main");//className);
+    m_javaProcess->start("java", QStringList() << "-cp" << directory << className);
 }
 
 void MainWindow::javaStarted()
@@ -674,6 +681,8 @@ void MainWindow::javaProcessError(QProcess::ProcessError error)
     QMessageBox::warning(this, "Java error.", "Java process error: " + QString::number(error));
 }
 
+
+// -------------------------------------------------------------------------------------- others again^^
 void MainWindow::consoleLineEntered(QString line)
 {
     assert(m_javaProcess->state() == QProcess::Running);
@@ -687,5 +696,52 @@ void MainWindow::buildAndRun()
     runBuild();
     loop.exec();
     disconnect(m_buildProcess, SIGNAL(finished(int)), &loop, SLOT(quit()));
+    if(m_buildProcess->exitCode() != 0)
+    {
+        QMessageBox closeMessageBox;
+        closeMessageBox.setText("Build failed.");
+        closeMessageBox.setInformativeText("The Build failed. Do you want to start the previous build.");
+        closeMessageBox.addButton("Yes", QMessageBox::ActionRole);
+        QPushButton *noButton = closeMessageBox.addButton("No", QMessageBox::RejectRole);
+
+        closeMessageBox.exec();
+
+        if(closeMessageBox.clickedButton() == noButton)
+        {
+            return;
+        }
+    }
     runJava();
+}
+
+void MainWindow::issueDoubleClicked(QListWidgetItem *item)
+{
+    // get string of the clicked item
+    QString text = item->text();
+    // parse index to see if there is a row and column information
+    QRegExp re("\\[@[^\\]]*\\]");
+    if(text.contains(re))
+    {
+        // we want to parse the row and the column
+        // the first two signs are "[@"
+        int rowColStart = text.indexOf(re) + 2;
+        int row = 0, col = 0;
+        while(text.at(rowColStart).isDigit())
+        {
+            row *= 10;
+            row += text.at(rowColStart).digitValue();
+            rowColStart++;
+        }
+        rowColStart++;
+        while(text.at(rowColStart).isDigit())
+        {
+            col *= 10;
+            col += text.at(rowColStart).digitValue();
+            rowColStart++;
+        }
+        // the output starts with (1/1), but internally we start with (0/0)
+        // hence we need to decrement the values by one
+        ui->ui_sourceEditTableWidget->gotoPostion(row-1, col-1);
+        ui->ui_sourceEditTableWidget->setFocus();
+    }
 }

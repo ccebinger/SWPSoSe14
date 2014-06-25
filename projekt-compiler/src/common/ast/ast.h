@@ -50,7 +50,7 @@ struct Command {
 		WESTJUNC		= 62,	/**>*/
 		NORTHJUNC		= 118,	/**v*/
 		SOUTHJUNC		= 94,	/**^*/
-
+		NOOP			= 46,   /**.*/
 		//FIXME those won't work with unmarshall by default
 		VAR_PUSH		= 2,
 		VAR_POP			= 3,
