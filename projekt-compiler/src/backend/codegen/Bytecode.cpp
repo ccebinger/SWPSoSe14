@@ -503,11 +503,26 @@ void codegen::boom_ByteCode(Bytecode::Current_state state) {
 }
 
 void codegen::eof_ByteCode(Bytecode::Current_state state){
-  (void) state.current_code;
+  Bytecode* code = state.current_code;
+
+  uint16_t system_in_idx = code->get_field_idx("java/lang/System", "in", "Ljava/io/InputStream;");
+  uint16_t avail_idx = code->get_method_idx("java/io/InputStream", "available", "()I");
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, system_in_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, avail_idx);
+
+  // TODO branch on result > 0 -> push Integer 0; 0 -> push Integer 1 on global stack.
 }
 
 void codegen::input_ByteCode(Bytecode::Current_state state) {
-  (void) state.current_code;
+  Bytecode* code = state.current_code;
+
+  uint16_t system_in_idx = code->get_field_idx("java/lang/System", "in", "Ljava/io/InputStream;");
+  uint16_t read_idx = code->get_method_idx("java/io/InputStream", "read", "()I");
+
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, system_in_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, read_idx);
+
+  // TODO convert result to String/Integer as needed and push on global stack.
 }
 
 void codegen::underflow_ByteCode(Bytecode::Current_state state) {

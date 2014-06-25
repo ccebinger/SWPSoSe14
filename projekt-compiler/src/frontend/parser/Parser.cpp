@@ -83,6 +83,17 @@ shared_ptr<Adjacency_list> Parser::parseGraph(int startPosRow, int startPosCol, 
 			cout << "\t@(" << board->funcStartLine + posRow << ", " << posCol+1 << ", " << Encoding::unicodeToUtf8(board->get(posRow, posCol)) << ")" << endl;
 		}
 		move();
+		moveCount++;
+		if(moveCount >= board->getWidth()*board->getHeight()*8){
+			// we have detected an inifinite loop.
+			//TODO: add infinite noop loop to ast and terminate
+			cout << "warning: empty infinite loop detected!";
+			//dummy default values for the nodeIdentifier since they are not relevant
+			NodeIdentifier id{0,0,E};
+			addToAbstractSyntaxGraph(".",Command::Type::NOOP,id);
+			addToAbstractSyntaxGraph(".",Command::Type::NOOP,id);
+			parsingNotFinished = false;
+		}
 	}
 	if(Env::verbose()) {
 		cout << "Finished parsing" << endl;
@@ -129,6 +140,7 @@ void Parser::move() {
 		//check for other symbols that are allowed
 		bool didGoStraight = checkForValidCommandsInStraightDir(straightRow, straightCol);
 		if(didGoStraight) {
+			moveCount=0;
 			return;
 		}
 	}
