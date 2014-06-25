@@ -19,7 +19,9 @@
 using namespace std;
 
 
-/*assignment of the enum values must not be changed without adapting the functions
+/**
+ * All 8 possible Directions (compass directions) in which the train can move.
+ * Assignment of the enum values must not be changed without adapting the functions
  * void turnLeft45Deg() and
  * void turnRight45Deg()
  * in Parser.cpp since they rely on this order
@@ -35,71 +37,70 @@ enum Direction {
 	NE = 7
 };
 
-
+/**
+ * 	Used to store the offsets on where to look(concerning the current position).
+ * 	First in offsets is for looking to the left, second looks straight ahead, third for looking right
+ */
 struct offsetvalues {
-	//used to store the offsets on where to look(concerning the current position), first in offsets is for looking to the left, second looks straight ahead, third for looking right
 	int offsets[3];
 };
 
-
+/**
+ * Struct used to store the acceptable chars for looking left, straight or right.
+ */
 struct allowedChars {
-	//used to store the acceptable chars for looking left, straight or right
 	list<uint32_t> left;
 	list<uint32_t> straight;
 	list<uint32_t> right;
 };
 
+/**
+* Struct used to unmistakenly identify rail-command-nodes in the graph in order to avoid creating them multiple times.
+* Nodes are identified by their position in the file and the Direction they were entered through while parsing)
+* this is relevant so that nodes in a loop will not be parsed an infinite number of times but instead are reused(because they already exist)
+*/
 struct NodeIdentifier{
-	//used to unmistakenly identify nodes(by their position in the file and the Direction they were entered through while parsing)
-	//this is relevant so that nodes in a loop will not be parsed multiple times
-	//but instead are reused(because they already exist)
 	int32_t posRow;
 	int32_t posCol;
 	Direction dir;
-	//operator necessary so NodeIdentifier can be used in a map.
-//	bool operator<( const NodeIdentifier &r){
-//		if(posRow == r.posRow){
-//			if(posCol==r.posCol){
-//				//cols and rows are equal, dir is decisive for comparison
-//				return dir < r.dir;
-//			} else{
-//				//rows are equal, col is decisive for comparison
-//				return posCol<r.posCol;
-//			}
-//		} else{
-//			//row is decisive for comparison
-//			return posRow<r.posRow;
-//		}
-//	}
-//	bool operator==(const NodeIdentifier &r){
-//		return posRow==r.posRow && posCol==r.posCol && dir==r.dir;
-//	}
 };
 
+/**
+* Operator must be overloaded so that NodeIdentifier can serve as a map key.
+*/
 bool operator<( const NodeIdentifier&, const NodeIdentifier&);
 
+/**
+* Operator must be overloaded so that NodeIdentifier can be found in a map.
+*/
 bool operator==(const NodeIdentifier&,const NodeIdentifier&);
 
+/**
+* struct used as key for the juncDirChangeMap in the Parser.
+*/
 struct Djp{
-	//struct used as keys for the juncDirChangeMap
 	Direction dir;
 	string junction;
 	bool path;
 };
 
+/**
+* Operator must be overloaded so that Djp can serve as a map key.
+*/
 bool operator<( const Djp &l, const Djp &r);
 
-//TODO: x hinzufügen als valid rail und @ implementieren
+/**
+* The class responsible for parsing rail functions.
+*/
 class Parser {
 
 	private:
-		/*
-		 * The leftDirChangeMap/rightDirChangeMap are needed for the following case:
+
+		/**
+		 * Informs you when to turn left 45 deg after going straight. The leftDirChangeMap/rightDirChangeMap are needed for the following case:
 		 * The train did go straight and now it needs to be decided, if the direction needs to be changed
 		 * For Example if your Direction is East and you go straight by reading '/' you need to change the direction (left turn)
-		 */
-		//if the train moves straight but reads a specific character the direction needs to be changesd
-		//when to turn left 45 deg
+		*/
 		const map<Direction, uint32_t> leftDirChangeMap = {
 			{ E,  '/'  },
 			{ SE, '-'  },
@@ -111,7 +112,9 @@ class Parser {
 			{ NE, '|'  },
 		};
 
-		//when to turn right 45 deg
+		/**Informs you when to turn right 45 deg after going straight. Has the same semantics as leftDirChangeMap
+		 *
+		 */
 		const map<Direction,uint32_t> rightDirChangeMap = {
 			{ E,  '\\' },
 			{ SE, '|'  },
@@ -123,13 +126,12 @@ class Parser {
 			{ NE, '-'  },
 		};
 
-		/*
-		 * The juncDirChangeMap is used to store the correct direction changes after passing a junction
-		 * keys consist of:
+		/**
+		 * The juncDirChangeMap is used to store the correct direction changes after passing a junction. Keys consist of:
 		 * -the current direction(the one the train was driving in while passing the junction
 		 * -the junction itsself as a string (either "v","^","<",">")
 		 * -the path that shall be taken (true (same as right) or false (same as left) )
-		 * entrys are the new direction based on the three key elements -
+		 * Entrys are the new direction based on the three key elements -
 		 * not all combinations of keys elements are possible - for example for each junction there are (naturally) only 3 possible directions through which the train can enter!
 		 * before accessing the map it should be ensured that the input key is valid
 		 */
@@ -164,13 +166,11 @@ class Parser {
 				{{SW,"v",false},S},
 		};
 
-		/*
-		 * The xOffsetMap/yOffsetMap are responsible for providing the offsets(based on the current position and Direction) that tell you where to look for the character
-		 * For Example if you are going east and you want to look left, x(rowNumber) needs to be lowered by 1, if you are going straight x stays the same(0), if you are going right x needs to be increased by 1 (+1)
+		/**
+		 * The rowOffsetMap is responsible for providing the offsets(based on the current Direction) that tell you in which row to look for the next character(based on your current row).
+		 * For Example if you are going east and you want to look left, the row needs to be lowered by 1, if you are going straight the row stays the same(0), if you are going right the row needs to be increased by 1 (+1)
 		 * Thus the offset-values are saved as a triple of ints, first one being for left, second for straight, third right
 		 */
-		//Order in offsetvalues: [0] - Left, [1] - straight, [2] - right
-		//x offsets
 		const map<Direction, offsetvalues> rowOffsetMap = {
 			{ E,  offsetvalues{{ -1,  0, +1 }} },
 			{ SE, offsetvalues{{  0, +1, +1 }} },
@@ -181,7 +181,10 @@ class Parser {
 			{ N,  offsetvalues{{ -1, -1, -1 }} },
 			{ NE, offsetvalues{{ -1, -1,  0 }} },
 		};
-		//y offsets:
+		/**
+		 * The colOffsetMap is responsible for providing the offsets(based on the current Direction) that tell you in which column to look for the next character(based on your current column).
+		 * Works the same way as rowOffsetMap
+		 */
 		const map<Direction, offsetvalues> colOffsetMap = {
 			{ E,  offsetvalues{{ +1, +1, +1 }} },
 			{ SE, offsetvalues{{ +1, +1,  0 }} },
@@ -193,10 +196,11 @@ class Parser {
 			{ NE, offsetvalues{{  0, +1, +1 }} },
 		};
 
-
-
-
-
+		/**
+		 * The validRailMap is responsible for identifying valid rails(based on the current Direction that can be read by going left, straight or right.
+		 * For Example if you are going east and you want to go left, you can only read '/' if you want to go straight any character of {'-','/','\\','+','*'} is allowed
+		 * Thus the valid rails are saved as triples of character arrays, first array being for left, second for straight, third for right.
+		 */
 		const map<Direction, allowedChars> validRailMap = {
 			{ E, allowedChars {
 				{'/'},				// left
@@ -259,7 +263,6 @@ class Parser {
 
 
 
-		//string graphName;
 		bool parsingNotFinished = true;
 		void move();
 		bool addToAbstractSyntaxGraph(string,Command::Type,NodeIdentifier);
@@ -274,10 +277,19 @@ class Parser {
 		int getNextUnusedId();
 		void setRowCol(int,int);
 		string readCharsUntil(uint32_t);
-	public:
-		Parser(shared_ptr<RailFunction> railFunction);
-		shared_ptr<Adjacency_list> parseGraph();
 		shared_ptr<Adjacency_list> parseGraph(int,int,Direction);
+	public:
+		/**
+		* Creates a Parser object.
+		* The object should only be used for parsing one Rail-Function at the Moment. For a subsequent function, a new Parser-object should be created
+		* @param railFunction a RailFunction object containing the rail function to be parsed.
+		*/
+		Parser(shared_ptr<RailFunction> railFunction);
+		/**
+		* Parses a rail function and returns its contents as a serializable graph.
+		* @returns An Adjacency_List object, which is basically a graph consisting of the rail-commands used in the function.
+		*/
+		shared_ptr<Adjacency_list> parseGraph();
 };
 
 #endif
