@@ -6,6 +6,7 @@
  */
 
 #include <frontend/lexer/Lexer.h>
+#include <set>
 
 Lexer::Lexer() {
 
@@ -19,7 +20,7 @@ Lexer::~Lexer() {
 
 
 void Lexer::lex(const std::string srcFile) {
-
+	std::set<std::string> readFunctionNames;
 	// open source file
 	std::ifstream is;
 	is.open(srcFile);
@@ -54,6 +55,12 @@ void Lexer::lex(const std::string srcFile) {
 			// name exists && not empty
 			if(nameStart != std::string::npos && nameEnd != std::string::npos && nameStart+1 != nameEnd) {
 				functionName = line.substr(nameStart+1, nameEnd-nameStart-1);
+				if(readFunctionNames.find(functionName) != readFunctionNames.end()){
+					//functionname is new
+					Env::addWarning(FRONTEND_LEXER, "Function in line " + line + " was already defined previously", lineId, 0);
+				} else{
+					readFunctionNames.insert(functionName);
+				}
 				act = new RailFunction(functionName, lineId);
 				functions.push_back(std::shared_ptr<RailFunction>(act));
 			}
