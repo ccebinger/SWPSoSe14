@@ -181,19 +181,20 @@ Backend::Status Backend::Generate(Graphs& graphs,
      constantPool.addString(*it);
    }
   //Create code for each function
-   codegen::Bytecode code(constantPool);
-   code.build(mainFunction);
-   std::map<std::string, codegen::Bytecode&> codeMap{{"main", code}};
-   for (auto it = keyset.begin(); it != keyset.end(); it++) {
- 	  if((*it) != "main"){
- 		  code.build(graphs.find(*it));
- 		  codeMap.insert({*it, code});
- 	  }
+   std::map<std::string, codegen::Bytecode&> codeMap;
+   for (std::vector<std::string>::iterator it = keyset.begin(); it != keyset.end(); it++) {
+      codegen::Bytecode* code = new codegen::Bytecode(constantPool);
+ 		  code->build(graphs.find(*it));
+ 		  codeMap.insert(std::pair<std::string, codegen::Bytecode&>(*it, *code));
    }
 
 
   ClassfileWriter writer(ClassfileWriter::JAVA_7, &constantPool, graphs, codeMap, codeOut);
   writer.WriteClassfile();
+
+  for (std::map<std::string, codegen::Bytecode&>::iterator it = codeMap.begin(); it != codeMap.end(); it++) {
+    delete &it->second;
+  }
   return Backend::Status::SUCCESS;
 }
 
