@@ -174,8 +174,10 @@ Backend::Status Backend::Generate(Graphs& graphs,
    code.build(mainFunction);
    std::map<std::string, codegen::Bytecode&> codeMap{{"main", code}};
    for (auto it = keyset.begin(); it != keyset.end(); it++) {
- 	  code.build(graphs.find(*it));
- 	  codeMap.insert({*it, code});
+ 	  if((*it) != "main"){
+ 		  code.build(graphs.find(*it));
+ 		  codeMap.insert({*it, code});
+ 	  }
    }
 
 
