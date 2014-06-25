@@ -163,14 +163,21 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t stack_field_name_type_idx = constantPool.addNameAndType(stack_field_name_idx, stack_field_type_idx);
   constantPool.arr_idx.field_idx = constantPool.addFieldRef(main_class_idx, stack_field_name_type_idx);
 
+
   ///  Add Rail-Functionnames as Strings
-  std::vector<std::string> keyset = graphs.keyset();
-  for (auto it = keyset.begin(); it != keyset.end(); it++) {
-    constantPool.addString(*it);
-  }
-  codegen::Bytecode code(constantPool);
-  code.build(mainFunction);
-  std::map<std::string, codegen::Bytecode&> codeMap{{"main", code}};
+   std::vector<std::string> keyset = graphs.keyset();
+   for (auto it = keyset.begin(); it != keyset.end(); it++) {
+     constantPool.addString(*it);
+   }
+  //Create code for each function
+   codegen::Bytecode code(constantPool);
+   code.build(mainFunction);
+   std::map<std::string, codegen::Bytecode&> codeMap{{"main", code}};
+   for (auto it = keyset.begin(); it != keyset.end(); it++) {
+ 	  code.build(graphs.find(*it));
+ 	  codeMap.insert({*it, code});
+   }
+
 
   ClassfileWriter writer(ClassfileWriter::JAVA_7, &constantPool, graphs, codeMap, codeOut);
   writer.WriteClassfile();
