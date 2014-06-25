@@ -60,8 +60,6 @@ int main(int argc, char *argv[]) {
 			// handled within Env.h
 		}
 
-
-
 		// ------------------------------------------------------------------------
 		// ASG
 		// ------------------------------------------------------------------------
@@ -72,8 +70,6 @@ int main(int argc, char *argv[]) {
 			graphs.marshall(Env::getDstSerialize(), ';');
 		}
 		Env::showStatus();
-
-
 
 		// GraphViz
 		if(Env::hasDstGraphviz()) {

@@ -45,7 +45,7 @@ Graphs::Graph_map::iterator Graphs::end()
   return graphs.end();
 }
 
-std::string extractAstCommandString(Command command){
+std::string Graphs::extractAstCommandString(Command command){
 	std::string commandString;
 	switch(command.type){
 		case Command::Type::PUSH_CONST:
