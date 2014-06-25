@@ -570,6 +570,7 @@ void MainWindow::buildStarted()
     ui->ui_buildAndRunJavaAction->setEnabled(false);
     ui->ui_runJavaAction->setEnabled(false);
 
+    ui->ui_compilerOutputPlainTextEdit->clear();
     ui->ui_issuesListWidget->clear();
 }
 
@@ -591,8 +592,14 @@ void MainWindow::buildOutputReady()
 void MainWindow::buildErrorReady()
 {
     QString stdError = m_buildProcess->readAllStandardError();
-    ui->ui_compilerOutputPlainTextEdit->appendHtml("<font color=red>" + stdError + "</font><br>");
-    ui->ui_issuesListWidget->addItem(stdError);
+    // the error can consist of muliple lines
+    // so we split them up, so that they can be processed individually
+    QStringList errorList = stdError.split("\n");
+    foreach(QString error, errorList)
+    {
+        ui->ui_compilerOutputPlainTextEdit->appendHtml("<font color=red>" + error + "</font><br>");
+        ui->ui_issuesListWidget->addItem(error);
+    }
 }
 
 void MainWindow::buildProcessError(QProcess::ProcessError error)
@@ -618,7 +625,7 @@ void MainWindow::runJava()
 
         if(closeMessageBox.clickedButton() == yesButton)
         {
-            m_javaProcess->close();
+            m_javaProcess->terminate();
         }
         else
         {
@@ -741,7 +748,7 @@ void MainWindow::issueDoubleClicked(QListWidgetItem *item)
         }
         // the output starts with (1/1), but internally we start with (0/0)
         // hence we need to decrement the values by one
-        ui->ui_sourceEditTableWidget->gotoPostion(row-1, col-1);
+        ui->ui_sourceEditTableWidget->gotoPostion(std::max(0, row-1), std::max(0, col-1));
         ui->ui_sourceEditTableWidget->setFocus();
     }
 }
