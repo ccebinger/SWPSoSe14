@@ -399,7 +399,7 @@
     <string>toolBar</string>
    </property>
    <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
+    <enum>LeftToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
     <bool>false</bool>
@@ -513,8 +513,8 @@
   </action>
   <action name="ui_runBuildAction">
    <property name="icon">
-    <iconset>
-     <normaloff>icons/Buttons/Build.png</normaloff>icons/Buttons/Build.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/Build.png</normaloff>:/icons/Buttons/Build.png</iconset>
    </property>
    <property name="text">
     <string>Build</string>
@@ -560,8 +560,8 @@
   </action>
   <action name="ui_buildAndRunJavaAction">
    <property name="icon">
-    <iconset>
-     <normaloff>icons/Buttons/Run.png</normaloff>icons/Buttons/Run.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/Run.png</normaloff>:/icons/Buttons/Run.png</iconset>
    </property>
    <property name="text">
     <string>Run</string>
@@ -577,8 +577,8 @@
   </action>
   <action name="ui_stopJavaAction">
    <property name="icon">
-    <iconset>
-     <normaloff>icons/Buttons/Stop.png</normaloff>icons/Buttons/Stop.png</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/Stop.png</normaloff>:/icons/Buttons/Stop.png</iconset>
    </property>
    <property name="text">
     <string>Stop</string>
@@ -597,6 +597,8 @@
    <header location="global">ApplicationConsole.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

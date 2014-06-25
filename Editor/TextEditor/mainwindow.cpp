@@ -43,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->ui_windowMenu->addAction(ui->ui_ioDockWidget->toggleViewAction());
     ui->ui_windowMenu->addAction(ui->ui_compilerDockWidget->toggleViewAction());
+    ui->ui_windowMenu->addAction(ui->ui_consoleDockWidget->toggleViewAction());
 
     connect(ui->ui_sourceEditTableWidget, SIGNAL(undoRedoElementCreated(UndoRedoElement*)), this, SLOT(undoRedoElementCreated(UndoRedoElement*)));
 
@@ -56,6 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->ui_stopInterpreterAction->setEnabled(false);
     ui->ui_stopBuildAction->setEnabled(false);
+    ui->ui_stopJavaAction->setEnabled(false);
 
     connect(ui->ui_sourceEditTableWidget, SIGNAL(cursorPositionChanged(int,int)), this, SLOT(cursorPositionChanged(int,int)));
     connect(ui->ui_sourceEditTableWidget, SIGNAL(textChanged()), this, SLOT(textChanged()));
