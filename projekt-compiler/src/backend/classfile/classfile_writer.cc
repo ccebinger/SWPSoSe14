@@ -44,8 +44,6 @@ std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
         std::array<char, 4>{'\x00', '\x00', '\x00', '\x33'}}
 };
 
-bool ClassfileWriter::stackMapTableFlag = false;
-
 /*!
  * \brief Constructor for ClassfileWriter
  * \param version The java version of the class-file
@@ -281,11 +279,7 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
 
   codeCount = code.length();//code.size();
   // hint: adjust when implementing more than code attribute
-  if(ClassfileWriter::stackMapTableFlag){
-      attributeCount = codeCount + 12 + 15;
-  } else {
-      attributeCount = codeCount + 12;
-  }
+  attributeCount = codeCount + 12;
 
   /* Attribute code */
   // attributes_count
@@ -299,7 +293,7 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
   writer.writeU16(kMaxStack);
 
   // max_locals
-    writer.writeU16(code.get_local_count());
+  writer.writeU16(code.get_local_count());
 
   // code_length
   writer.writeU32(codeCount);
@@ -310,35 +304,6 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
   }
   // exception_table_length
   out_->write(kNotRequired, sizeof(kNotRequired)  / sizeof(kNotRequired[0]));
-
-  if(ClassfileWriter::stackMapTableFlag){
-    WriteStackMapTableAttribute();
-    ClassfileWriter::stackMapTableFlag = false;
-  } else {
-    // attributes_count
-    out_->write(kNotRequired, sizeof(kNotRequired)  / sizeof(kNotRequired[0]));
-  }
-}
-
-void ClassfileWriter::WriteStackMapTableAttribute(){
   // attributes_count
-  writer.writeU16(1);
-  // attribute_name_index
-  writer.writeU16(constant_pool_->addString("StackMapTable"));
-  // attribute_length
-  writer.writeU32(9);
-  // frame_count
-  writer.writeU16(2);
-  // attribute code
-  // frame_type (append)
-  writer.writeU8(253);
-  // offset_delta
-  writer.writeU16(15);
-  // locals (int, int)
-  writer.writeU8(1);
-  writer.writeU8(1);
-  // frame_type (same_locals_1_stack_item)
-  writer.writeU8(64);
-  // stack (int)
-  writer.writeU8(1);
+  out_->write(kNotRequired, sizeof(kNotRequired)  / sizeof(kNotRequired[0]));
 }

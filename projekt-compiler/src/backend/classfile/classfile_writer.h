@@ -42,15 +42,7 @@ class ClassfileWriter {
    */
   void WriteClassfile();
 
-  /**
-   * Flag zum Überprüfen, ob eine StackMapTable angelegt werden soll.
-   * Wird von Bytecode benutzt, um in den entsprechenden
-   * Methoden das Flag zu setzen.
-   */
-  static bool stackMapTableFlag;
-
  private:
-
 
   /**
    * Graph aus dem Frontend

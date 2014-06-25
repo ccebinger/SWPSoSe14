@@ -466,8 +466,6 @@ void codegen::greater_ByteCode(Bytecode::Current_state state) {
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
       -> globalstack_push()
       ->inc_local_count(3);
-
-  ClassfileWriter::stackMapTableFlag = true;
 }
 
 void codegen::equal_ByteCode(Bytecode::Current_state state) {
