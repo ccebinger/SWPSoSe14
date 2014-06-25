@@ -389,7 +389,7 @@ public:
 	 */
 	static inline void showStatus() {
 		for(std::string s : warnings) {
-			std::cout << s << std::endl;
+			std::cerr << s << std::endl;
 		}
 		warnings.clear();
 		for(std::string s : errors) {
