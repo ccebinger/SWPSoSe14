@@ -88,6 +88,8 @@ private slots:
     void javaProcessError(QProcess::ProcessError error);
 
     void consoleLineEntered(QString line);
+
+    void issueDoubleClicked(QListWidgetItem *item);
 };
 
 #endif // MAINWINDOW_H

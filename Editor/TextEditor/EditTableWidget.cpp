@@ -677,3 +677,8 @@ void EditTableWidget::paste(bool suppressUndoRedoCreation)
         emit textChanged();
     }
 }
+
+void EditTableWidget::gotoPostion(int row, int column)
+{
+    setPosition(row, column, false);
+}
