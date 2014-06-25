@@ -527,6 +527,8 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
 
 //CONTROL STRUCTURE
 void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
+  // My Code fits in here
+  std::cout << "codegen::if_or_while_ByteCode\n";
   (void) state.current_code;
 }
 
