@@ -1,5 +1,4 @@
 #include "ApplicationConsole.h"
-#include <qdebug.h>
 
 ApplicationConsole::ApplicationConsole(QWidget *parent)
     : QPlainTextEdit(parent)
@@ -36,15 +35,13 @@ void ApplicationConsole::appendPlainText(const QString &text)
 
 void ApplicationConsole::keyPressEvent(QKeyEvent *keyEvent)
 {
-    int maxPos = this->toPlainText().count();
     int cursorPos = this->textCursor().position();
     if( cursorPos < m_userInputStartPosition)
     {
-        QTextCursor tmp = this->textCursor();
-        tmp.setPosition(maxPos);
-        this->setTextCursor(tmp);
+        this->moveCursor(QTextCursor::End);
     }
     int key = keyEvent->key();
+    // only delete the previous char if the cursor is ahead the start of the modifiable text
     if(key == Qt::Key_Backspace && m_userInputStartPosition >= cursorPos)
     {
         keyEvent->ignore();
