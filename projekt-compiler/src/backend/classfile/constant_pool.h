@@ -73,6 +73,13 @@ struct ObjectIndexes {
   uint16_t toString = 0;
   uint16_t equals = 0;
 };
+
+
+struct ListIndexes {
+  uint16_t class_idx = 0;
+  uint16_t add_idx = 0;
+  uint16_t get_idx = 0;
+};
 ////////////////////////////////////////////////////////////////////////
 /// ! Item
 ////////////////////////////////////////////////////////////////////////
@@ -109,6 +116,7 @@ class Item {
   uint16_t name_type_idx;  //!< index of name and type in constantpool
 };
 
+
 ////////////////////////////////////////////////////////////////////////
 /// ! ConstantPool
 ////////////////////////////////////////////////////////////////////////
@@ -119,6 +127,7 @@ class ConstantPool {
   StringIndexes str_idx;
   ArrayDequeIndexes arr_idx;
   ObjectIndexes obj_idx;
+  ListIndexes list_idx;
 
   ConstantPool();
 

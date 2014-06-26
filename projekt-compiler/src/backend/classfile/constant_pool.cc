@@ -63,8 +63,9 @@ bool Item::operator==(const Item& i)const {
 
   switch (type) {
     case UTF8:
-    case STR:
       return i.strVal1 == strVal1;
+    case STR:
+      return i.name_idx == name_idx;
     case LONG:
       return i.longVal == longVal;
     case INT: {
