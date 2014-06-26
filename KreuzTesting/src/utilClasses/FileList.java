@@ -1,8 +1,13 @@
 package utilClasses;
 
 
-import java.io.File;
+
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.DirectoryIteratorException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Vector;
 
 public class FileList implements Serializable {
@@ -11,50 +16,39 @@ public class FileList implements Serializable {
 	 * 
 	 */
 
-	private static final long serialVersionUID = 1L;
-	private String Path;
-	public Vector<String> FileListVector = new Vector<String>();
+	private static final long serialVersionUID = 2L;
+	private Path path;
 
-	public FileList() {
+	public FileList(Path path) {
+
+		this.path = path;
 
 	}
 
-	public void setPath(String path) {
+	public void setPath(Path path) {
 
-		this.Path = path;
+		this.path = path;
 	}
 
-	public String getPath() {
+	public Path getPath() {
 
-		return (this.Path);
+		return (this.path);
 	}
 
-	public Vector<String> getTxtFileList() {
-		File folder = new File(this.Path);
-		File[] listOfFiles = folder.listFiles();
-		for (int i = 0; i < listOfFiles.length; i++) {
+	public Vector<Path> getFileList() {
+		Vector<Path> FileListVector = new Vector<Path>();
 
-			if (listOfFiles[i].getName().endsWith(".txt")
-					|| listOfFiles[i].getName().endsWith(".TXT")) {
-				this.FileListVector.add(listOfFiles[i].getName());
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(path,".rail")) {
+			for (Path entry : stream) {
+				FileListVector.add(entry.getFileName());
 			}
 
-		}
+		} catch (IOException | DirectoryIteratorException x) {
 
-		return this.FileListVector;
-	}
-	public Vector<String> getCSVFileList() {
-		File folder = new File(this.Path);
-		File[] listOfFiles = folder.listFiles();
-		for (int i = 0; i < listOfFiles.length; i++) {
-
-			if (listOfFiles[i].getName().endsWith(".csv")
-					|| listOfFiles[i].getName().endsWith(".CSV")) {
-				this.FileListVector.add(listOfFiles[i].getName());
-			}
+			System.err.println(x);
 
 		}
-
-		return this.FileListVector;
-	}
+		return FileListVector;
+		
+}
 }

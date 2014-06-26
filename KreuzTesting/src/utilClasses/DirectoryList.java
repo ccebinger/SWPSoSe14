@@ -17,10 +17,9 @@ public class DirectoryList implements Serializable {
 
 	private static final long serialVersionUID = 2L;
 	private Path path;
-	
 
 	public DirectoryList(Path path) {
-		
+
 		this.path = path;
 
 	}
@@ -34,24 +33,19 @@ public class DirectoryList implements Serializable {
 
 		return (this.path);
 	}
-	
-	
-
-
 
 	public Vector<Path> getDirectoryList() {
-		 Vector<Path> FileListVector = new Vector<Path>();
-		 
-		 try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
-			   // for (Path entry: stream) {
-			    //	FileListVector.add(entry.getFileName());
-			 //   }
-		
+		Vector<Path> FileListVector = new Vector<Path>();
+
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+			for (Path entry : stream) {
+				FileListVector.add(entry.getFileName());
+			}
+
 		} catch (IOException | DirectoryIteratorException x) {
-		    
-		    System.err.println("aaaaa"+x);
-		   
-		    
+
+			System.err.println(x);
+
 		}
 		return FileListVector;
 		
