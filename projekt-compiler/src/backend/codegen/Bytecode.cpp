@@ -39,7 +39,7 @@ codegen::Bytecode::func_map= {
   {Command::Type::VAR_PUSH, &push_Variable}
 };
 
-codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), locals(4), local_count(1) {}
+codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), local_count(1), locals(4) {}
 
 codegen::Bytecode::~Bytecode() {}
 
@@ -453,7 +453,23 @@ void codegen::list_push_ByteCode(Bytecode::Current_state state) {
 }
 
 void codegen::list_pop_ByteCode(Bytecode::Current_state state) {
-  (void) state.current_code;
+  codegen::Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
+
+
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
+      ->add_opcode(codegen::MNEMONIC::DUP)
+      ->globalstack_pop() //LIST
+      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.list_idx.class_idx)
+      ->add_opcode(codegen::MNEMONIC::DUP)
+      ->add_opcode(codegen::MNEMONIC::ICONST_0)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.remove_idx)
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1) //remove obj
+      ->globalstack_push()
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1) //get saved obj
+      ->globalstack_push()
+      ->inc_local_count(1);
+
 }
 
 //BOOLEAN ARITHMETIC

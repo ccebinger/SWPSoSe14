@@ -78,7 +78,7 @@ struct ObjectIndexes {
 struct ListIndexes {
   uint16_t class_idx = 0;
   uint16_t add_idx = 0;
-  uint16_t get_idx = 0;
+  uint16_t remove_idx = 0;
   uint16_t init_idx = 0;
 };
 ////////////////////////////////////////////////////////////////////////
