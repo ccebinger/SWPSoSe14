@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <map>
 #include <memory>
 
 
@@ -127,7 +128,8 @@ public:
 class Lexer {
 
 public:
-	std::vector<std::shared_ptr<RailFunction>> functions;
+	//std::vector<std::shared_ptr<RailFunction>> functions;
+	std::map<std::string, std::shared_ptr<RailFunction>> functions;
 
 	Lexer();
 	virtual ~Lexer();
