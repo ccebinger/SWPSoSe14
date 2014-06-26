@@ -425,7 +425,6 @@ void ConstantPool::putUTF8(std::string s) {
 /// \param i the index of the first character to encode. The previous
 ///          characters are supposed to have already been encoded, using
 ///          only one byte per character.
-/// \return this byte vector.
 ////////////////////////////////////////////////////////////////////////
 void ConstantPool::encodeUTF8(std::string s, uint32_t pos) {
   // calculcate utf8 string size
