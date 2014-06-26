@@ -155,45 +155,27 @@ codegen::Bytecode* codegen::Bytecode::add_index(uint16_t indexInPool,
 }
 
 codegen::Bytecode* codegen::Bytecode::add_conditional_with_instruction(unsigned char conditional_stmt,
-                                                                       unsigned char* conditional_body) {
-  int length = sizeof conditional_body / sizeof conditional_body[0];
-  int length_plus_branch = length + 2;
-  std::stringstream sstream;
-  sstream.fill('\x0');
-  sstream.width(4);
-  sstream << std::hex << length_plus_branch;
-  std::string branch = sstream.str();
-
+                                                                       std::vector<unsigned char> conditional_body) {
+  int length = conditional_body.size();
+  uint16_t length_plus_branch = length + 2;
   bytecode.push_back(conditional_stmt);
-  for (int i = 0; i < 4; i++)
-    bytecode.push_back(branch.at(i));
-  for (int i = 0; i < length; i++) {
-    bytecode.push_back(conditional_body[i]);
-  }
+  add_index(length_plus_branch);
+  bytecode.insert(bytecode.end(), conditional_body.begin(), conditional_body.end());
   return this;
 }
 
 codegen::Bytecode* codegen::Bytecode::add_conditional_with_else_branch(unsigned char conditional_stmt,
                                                                        std::vector<unsigned char> conditional_body,
                                                                        std::vector<unsigned char> else_body) {
-  int if_length = conditional_body.size();
-  std::vector<char> if_body;
+  std::vector<unsigned char> if_body;
   if_body.insert(if_body.begin(), conditional_body.begin(),
                  conditional_body.end());
 
   int else_length = else_body.size();
-  uint16_t branch_idx = else_length + 2; ///TODO: CHECK IF BRANCH IS CORRECT should be after else branch
-/*
-  std::stringstream sstream;
-  sstream.fill('\x0');
-  sstream.width(2);
-  sstream << std::hex << branch_idx;
-  std::string branch = sstream.str(); */
+  uint16_t branch_idx = else_length + 3; //+1 to jump over the last else stmt
   if_body.push_back(codegen::MNEMONIC::GOTO);
-  /*for (int i = 0; i < branch.length(); i++)
-    if_body.push_back(branch.at(i));*/
-  add_index(branch_idx);
-  branch_idx = if_body.size() + 2;
+  add_index(branch_idx, if_body);
+  branch_idx = if_body.size() + 2 + else_length; //+ 2 for branch idx
 
   bytecode.push_back(conditional_stmt);
   add_index(branch_idx); /// TODO: CHECK IF BRANCH IS CORRECT should be after goto!!
@@ -226,7 +208,7 @@ codegen::Bytecode* codegen::Bytecode::add_type_check(uint16_t class_idx) {
   add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, init_idx, body);
   body.push_back(codegen::MNEMONIC::ATHROW);
 
-  add_conditional_with_instruction(codegen::MNEMONIC::IFNE, &body[0]);
+  add_conditional_with_instruction(codegen::MNEMONIC::IFNE, body);
   return this;
 }
 
