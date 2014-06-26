@@ -69,7 +69,7 @@ struct Command {
  /**
 	* Extracts the command string from the AST command-struct. For most command types this returns the command string only
 	* PUSH_CONST (if it is in square brackets), VAR_POP, VAR_PUSH and CALL are transformed so that only the constant, variable name or function name is returned
-	* outer brackets and/or exclamation marks are removed
+	* outer brackets and/or exclamation marks are removed. Additionally in constant strings rail-escaped symbols are converted (For example the substring "\n\" becomes the character '\n')
 	*
 	* @param command       the command struct, whose command is to be extracted
 	* @param return        the command string as described above
@@ -81,6 +81,12 @@ struct Command {
       case Command::Type::PUSH_CONST:
         if(arg.at(0)=='[' || arg.at(0)==']'){
           commandString = arg.substr(1,arg.length()-2);
+          //deal with escaping
+          replaceAll(commandString,"\\n\\","\n");
+          replaceAll(commandString,"\\]\\","]");
+          replaceAll(commandString,"\\[\\","[");
+          replaceAll(commandString,"\\t\\","\t");
+          replaceAll(commandString,"\\\\","\\");
         }
         else
           commandString = arg;
@@ -99,6 +105,25 @@ struct Command {
     }
     return commandString;
   }
+
+  /**
+  	* Replaces all occurences of a substring within a string by another string. Helping function needed in extractAstCommandString()
+  	*
+  	* @param str       		The string in which to replace other string occurences
+  	* @param toReplace 		The substring to be replaced
+  	* @param afterReplace 	The string to replace the substring with
+  	* @author Leon Bornemann
+  	*/
+  void replaceAll(std::string& str, const std::string& toReplace, const std::string& afterReplace) {
+      if(toReplace.empty())
+          return;
+      size_t start_pos = 0;
+      while((start_pos = str.find(toReplace, start_pos)) != std::string::npos) {
+          str.replace(start_pos, toReplace.length(), afterReplace);
+          start_pos += afterReplace.length();
+      }
+  }
+
 };
 
 /**

@@ -277,7 +277,9 @@ class Parser {
 		bool checkForValidCommandsInStraightDir(int,int);
 		int getNextUnusedId();
 		void setRowCol(int,int);
+		void stepStraight();
 		string readCharsUntil(uint32_t);
+		string readConstantStringUntil(uint32_t);
 		shared_ptr<Adjacency_list> parseGraph(int,int,Direction);
 	public:
 		/**
@@ -288,7 +290,7 @@ class Parser {
 		Parser(shared_ptr<RailFunction> railFunction);
 		/**
 		* Parses a rail function and returns its contents as a serializable graph.
-		* @returns An Adjacency_List object, which is basically a graph consisting of the rail-commands used in the function.
+		* @returns An Adjacency_list object, which is basically a graph consisting of the rail-commands used in the function.
 		*/
 		shared_ptr<Adjacency_list> parseGraph();
 };

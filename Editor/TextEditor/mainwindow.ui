@@ -99,16 +99,7 @@
             <string>Insert Mode</string>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
@@ -176,16 +167,7 @@
             <string>Write Direction</string>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_4">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
+            <property name="margin">
              <number>0</number>
             </property>
             <item>
@@ -425,8 +407,14 @@
    <addaction name="ui_runBuildAction"/>
    <addaction name="ui_buildAndRunJavaAction"/>
    <addaction name="ui_stopJavaAction"/>
+   <addaction name="ui_undoAction"/>
+   <addaction name="ui_redoAction"/>
   </widget>
   <action name="ui_newFileAction">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/New File.png</normaloff>:/icons/Buttons/New File.png</iconset>
+   </property>
    <property name="text">
     <string>New File</string>
    </property>
@@ -438,6 +426,10 @@
    </property>
   </action>
   <action name="ui_openFileAction">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/Open File.png</normaloff>:/icons/Buttons/Open File.png</iconset>
+   </property>
    <property name="text">
     <string>Open File</string>
    </property>
@@ -449,6 +441,10 @@
    </property>
   </action>
   <action name="ui_saveFileAction">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/Save File.png</normaloff>:/icons/Buttons/Save File.png</iconset>
+   </property>
    <property name="text">
     <string>Save File</string>
    </property>
@@ -460,6 +456,10 @@
    </property>
   </action>
   <action name="ui_quitAction">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/Quit.png</normaloff>:/icons/Buttons/Quit.png</iconset>
+   </property>
    <property name="text">
     <string>Quit</string>
    </property>
@@ -471,6 +471,10 @@
    </property>
   </action>
   <action name="ui_saveAsAction">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/Save As.png</normaloff>:/icons/Buttons/Save As.png</iconset>
+   </property>
    <property name="text">
     <string>Save As</string>
    </property>
@@ -498,6 +502,10 @@
    </property>
   </action>
   <action name="ui_undoAction">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/Undo.png</normaloff>:/icons/Buttons/Undo.png</iconset>
+   </property>
    <property name="text">
     <string>Undo</string>
    </property>
@@ -509,6 +517,10 @@
    </property>
   </action>
   <action name="ui_redoAction">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/Redo.png</normaloff>:/icons/Buttons/Redo.png</iconset>
+   </property>
    <property name="text">
     <string>Redo</string>
    </property>
@@ -553,6 +565,10 @@
    </property>
   </action>
   <action name="ui_cutAction">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/Cut.png</normaloff>:/icons/Buttons/Cut.png</iconset>
+   </property>
    <property name="text">
     <string>Cut</string>
    </property>
@@ -561,6 +577,10 @@
    </property>
   </action>
   <action name="ui_copyAction">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/Copy.png</normaloff>:/icons/Buttons/Copy.png</iconset>
+   </property>
    <property name="text">
     <string>Copy</string>
    </property>
@@ -569,6 +589,10 @@
    </property>
   </action>
   <action name="ui_pasteAction">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/Paste.png</normaloff>:/icons/Buttons/Paste.png</iconset>
+   </property>
    <property name="text">
     <string>Paste</string>
    </property>
