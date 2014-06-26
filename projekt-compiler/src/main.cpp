@@ -40,13 +40,13 @@ int main(int argc, char *argv[]) {
 
 			// Parser
 			Env::printCaption("Frontend - Parser");
-			for(auto it = lexer.functions.begin(); it < lexer.functions.end(); ++it) {
-				Parser p(*it);
+			for(auto fun : lexer.functions) {
+				Parser p(fun.second);
 				shared_ptr<Adjacency_list> asg = p.parseGraph();
 				if(asg == NULL) {
 					throw EnvException(FRONTEND_PARSER, "No ASG to return");
 				}
-				graphs.put((*it)->getName(), asg);
+				graphs.put(fun.first, asg);
 			}
 			Env::showStatus();
 		}
