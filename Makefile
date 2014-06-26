@@ -4,6 +4,7 @@ SUBDIRS = io
 
 CC=g++
 CFLAGS=-c -g -Wall -Wextra -Wtype-limits -pedantic -std=c++0x -Iprojekt-compiler/src
+LDFLAGS=-lrt
 
 all: rail fu-rail tests compile run
 
@@ -49,7 +50,7 @@ main.o: constant_pool.o classfile_writer.o Graphs.o Bytecode_writer.o Bytecode.o
 fu-rail: constant_pool.o classfile_writer.o Graphs.o Bytecode_writer.o Bytecode.o\
 	 adjacency_list.o Lexer.o Parser.o backend.o Env.o main.o
 	$(CC) constant_pool.o classfile_writer.o Graphs.o Bytecode_writer.o local_variable_stash.o Bytecode.o\
-	 adjacency_list.o Lexer.o Parser.o backend.o Env.o main.o -o fu-rail
+	 adjacency_list.o Lexer.o Parser.o backend.o Env.o main.o $(LDFLAGS) -o fu-rail
 
 rail: rail-interpreter/src/*.cpp
 	g++ -o rail -pedantic rail-interpreter/src/*.cpp
@@ -71,3 +72,6 @@ compile:
 
 run: 
 	java s_pushConst
+
+clean:
+	rm *.o fu-rail rail unittest_constantpool unittest_classfile_writer_test
