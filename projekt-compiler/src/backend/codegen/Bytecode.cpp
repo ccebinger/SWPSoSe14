@@ -424,11 +424,32 @@ void codegen::call_ByteCode(Bytecode::Current_state state) {
 
 // LIST OPERATIONS
 void codegen::null_ByteCode(Bytecode::Current_state state) {
-  (void) state.current_code;
+  codegen::Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
+
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::NEW, pool.list_idx.class_idx)
+      ->add_opcode(codegen::MNEMONIC::DUP)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, pool.list_idx.init_idx)
+      ->globalstack_push()
+      ->inc_local_count(1);
 }
 
 void codegen::list_push_ByteCode(Bytecode::Current_state state) {
-  (void) state.current_code;
+  codegen::Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
+
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
+      ->globalstack_pop()
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1) // pop VALUE
+      ->globalstack_pop()
+      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.list_idx.class_idx)
+      ->add_opcode(codegen::MNEMONIC::DUP)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1) // push value before list
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.add_idx)
+      ->add_opcode(codegen::MNEMONIC::POP)
+      ->globalstack_push()
+      ->inc_local_count(1);
 }
 
 void codegen::list_pop_ByteCode(Bytecode::Current_state state) {

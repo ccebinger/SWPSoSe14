@@ -46,7 +46,8 @@ namespace codegen {
     CHECKCAST = '\xc0',
     ATHROW = '\xbf',
     IFEQ = '\x99',
-    IFNE = '\x9a'
+    IFNE = '\x9a',
+    POP = '\x57'
   };
 
 

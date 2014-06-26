@@ -161,7 +161,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   constantPool.obj_idx.toString = constantPool.addMethRef(constantPool.obj_idx.class_idx, toString_name_type_idx);
   constantPool.list_idx.add_idx = constantPool.addMethRef(constantPool.list_idx.class_idx, add_name_type_idx);
   constantPool.list_idx.get_idx = constantPool.addMethRef(constantPool.list_idx.class_idx, get_name_type_idx);
-
+  constantPool.list_idx.init_idx = constantPool.addMethRef(constantPool.list_idx.class_idx, object_name_type_idx);
   ///  Add field refs
   constantPool.addFieldRef(system_class_idx, system_name_type_idx);
   constantPool.addFieldRef(system_class_idx, system_in_name_type_idx);
