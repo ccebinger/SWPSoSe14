@@ -57,7 +57,7 @@ void Lexer::lex(const std::string srcFile) {
 				functionName = line.substr(nameStart+1, nameEnd-nameStart-1);
 				if(readFunctionNames.find(functionName) != readFunctionNames.end()){
 					//functionname is new
-					Env::addWarning(FRONTEND_LEXER, "Function in line " + line + " was already defined previously", lineId, 0);
+					Env::addWarning(FRONTEND_LEXER, "Function in line " + line + " was already defined previously", lineId, 1);
 				} else{
 					readFunctionNames.insert(functionName);
 				}
@@ -72,7 +72,7 @@ void Lexer::lex(const std::string srcFile) {
 				 * 		2. act = NULL; -> assume this is a new (misspelled) function -> ignore whole function
 				 */
 				act = nullptr;
-				Env::addWarning(FRONTEND_LEXER, "Found $ but no proper function name given (skipping...): " + line, lineId, 0);
+				Env::addWarning(FRONTEND_LEXER, "Found $ but no proper function name given (skipping...): " + line, lineId, 1);
 			}
 		}
 
