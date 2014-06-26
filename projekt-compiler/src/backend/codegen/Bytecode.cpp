@@ -174,30 +174,31 @@ codegen::Bytecode* codegen::Bytecode::add_conditional_with_instruction(unsigned 
 }
 
 codegen::Bytecode* codegen::Bytecode::add_conditional_with_else_branch(unsigned char conditional_stmt,
-                                                                       unsigned char* conditional_body,
-                                                                       unsigned char* else_body) {
-  int if_length = sizeof conditional_body / sizeof conditional_body[0];
+                                                                       std::vector<unsigned char> conditional_body,
+                                                                       std::vector<unsigned char> else_body) {
+  int if_length = conditional_body.size();
   std::vector<char> if_body;
-  if_body.insert(if_body.begin(), conditional_body,
-                 conditional_body + if_length);
+  if_body.insert(if_body.begin(), conditional_body.begin(),
+                 conditional_body.end());
 
-  int else_length = sizeof else_body / sizeof else_body[0];
-  int branch_idx = else_length + 2; ///TODO: CHECK IF BRANCH IS CORRECT should be after else branch
-
+  int else_length = else_body.size();
+  uint16_t branch_idx = else_length + 2; ///TODO: CHECK IF BRANCH IS CORRECT should be after else branch
+/*
   std::stringstream sstream;
   sstream.fill('\x0');
-  sstream.width(4);
+  sstream.width(2);
   sstream << std::hex << branch_idx;
-  std::string branch = sstream.str();
+  std::string branch = sstream.str(); */
   if_body.push_back(codegen::MNEMONIC::GOTO);
-  for (int i = 0; i < 4; i++)
-    if_body.push_back(branch.at(i));
-
+  /*for (int i = 0; i < branch.length(); i++)
+    if_body.push_back(branch.at(i));*/
+  add_index(branch_idx);
+  branch_idx = if_body.size() + 2;
 
   bytecode.push_back(conditional_stmt);
-  add_index((uint16_t) if_body.size()); /// TODO: CHECK IF BRANCH IS CORRECT should be after goto!!
+  add_index(branch_idx); /// TODO: CHECK IF BRANCH IS CORRECT should be after goto!!
   bytecode.insert(bytecode.end(), if_body.begin(), if_body.end());
-  bytecode.insert(bytecode.end(), else_body, else_body + else_length);
+  bytecode.insert(bytecode.end(), else_body.begin(), else_body.end());
   return this;
 }
 
@@ -499,7 +500,8 @@ void codegen::greater_ByteCode(Bytecode::Current_state state) {
 //      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.int_idx.compare_idx);
   conditional_body.push_back(codegen::MNEMONIC::ICONST_1);
   else_body.push_back(codegen::MNEMONIC::ICONST_0);
-  code->add_conditional_with_else_branch(codegen::MNEMONIC::IF_ICMPLE, &conditional_body[0], &else_body[0])
+
+  code->add_conditional_with_else_branch(codegen::MNEMONIC::IF_ICMPLE, conditional_body, else_body)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
       -> globalstack_push()
       ->inc_local_count(3);
