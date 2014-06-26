@@ -18,7 +18,8 @@ SOURCES += main.cpp\
     Point_Old.cpp \
     Point.cpp \
     Graph_Interface.cpp \
-    ApplicationConsole.cpp
+    ApplicationConsole.cpp \
+    ApplicationPreferencesDialog.cpp
 
 HEADERS  += mainwindow.h \
     EditTableWidget.h \
@@ -32,9 +33,11 @@ HEADERS  += mainwindow.h \
     Graph_Interface.h \
     Point.h \
     UndoRedoCutPaste.h \
-    ApplicationConsole.h
+    ApplicationConsole.h \
+    ApplicationPreferencesDialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    ApplicationPreferencesDialog.ui
 
 RESOURCES += \
     resources.qrc

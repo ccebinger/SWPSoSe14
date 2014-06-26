@@ -285,6 +285,8 @@
     <property name="title">
      <string>Window</string>
     </property>
+    <addaction name="ui_preferencesAction"/>
+    <addaction name="separator"/>
    </widget>
    <addaction name="ui_menuMenu"/>
    <addaction name="ui_editMenu"/>
@@ -598,6 +600,16 @@
    </property>
    <property name="text">
     <string>Stop</string>
+   </property>
+  </action>
+  <action name="ui_preferencesAction">
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionOpen_Recent">
+   <property name="text">
+    <string>Open Recent</string>
    </property>
   </action>
  </widget>

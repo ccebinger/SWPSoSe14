@@ -634,8 +634,8 @@ void MainWindow::runJava()
     }
 
     // Just for testing: Start an echo-program
-    //m_javaProcess->start("java", QStringList() << "-cp" << "/home/muellerz/SWP/Test/" << "Main");//className);
-    //return;
+    m_javaProcess->start("java", QStringList() << "-cp" << "/home/muellerz/SWP/Test/" << "Main");//className);
+    return;
 
     QString classFilePath = m_currentFilePath;
     QFileInfo classFile(classFilePath);
