@@ -206,12 +206,12 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			//TODO: ueberpruefen ob notwendig: list<char> invalidCharList = {'['};
 			//'\[\' it will be parsed as '\t\' , '\\' , '\n\' within the String(Constant)
 			//but (,{,},) are as any other chars .
-			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil(']'), Command::Type::PUSH_CONST, id);
+			parsingNotFinished = addToAbstractSyntaxGraph(readConstantStringUntil(']'), Command::Type::PUSH_CONST, id);
 			//TODO: create pushNode in graph
 			break;
 		case ']': // Reading Constant
 			setRowCol(straightRow, straightCol);
-			parsingNotFinished = addToAbstractSyntaxGraph(readCharsUntil('['), Command::Type::PUSH_CONST, id);
+			parsingNotFinished = addToAbstractSyntaxGraph(readConstantStringUntil('['), Command::Type::PUSH_CONST, id);
 			break;
 		case '{': // Function call
 			setRowCol(straightRow, straightCol);
@@ -489,7 +489,61 @@ bool Parser::addToAbstractSyntaxGraph(string commandName, Command::Type type, No
 	return nodeWasNew;
 }
 
-//set the position to 'until' if it exists then return the return the string ,which yot red ,including the starts- and end-symbol
+string Parser::readConstantStringUntil(uint32_t until) {
+	//doubly escaped symbols, i.e "\\n\\" for example
+	list<string> escapableSymbols{"n","t","]","["};
+	list<string> mustEscapeSymbols{"]","["};
+	string result = "";
+	result += Encoding::unicodeToUtf8(board->get(posRow, posCol));
+	while(true) {
+		stepStraight();
+		string curChar = Encoding::unicodeToUtf8(board->get(posRow, posCol));
+		if(curChar == "\\"){
+			//we need to read an escaped character
+			stepStraight();
+			string secondChar = Encoding::unicodeToUtf8(board->get(posRow, posCol));
+			if(secondChar == "\\"){
+				//the only allowed single-escaped character was found: continue
+				result += curChar += secondChar;
+			} else if(std::find(escapableSymbols.begin(),escapableSymbols.end(),secondChar) != escapableSymbols.end()){
+				//now another '\\' needs to follow
+				stepStraight();
+				string thirdChar =  Encoding::unicodeToUtf8(board->get(posRow, posCol));
+				if(thirdChar == "\\"){
+					result += curChar += secondChar += thirdChar;
+				} else{
+					throw EnvException(FRONTEND_PARSER, board->getName() + ": Invalid escape sequence in constant string: All escapable characters except for \\ must be escaped by \\ on both sides", board->funcStartLine + posRow, posCol + 1);
+				}
+			} else{
+				throw EnvException(FRONTEND_PARSER, board->getName() + ": Invalid escape sequence in constant string: \\ must be followed by '\\','n','t',']' or '['", board->funcStartLine + posRow, posCol + 1);
+			}
+		} else if (std::find(mustEscapeSymbols.begin(),mustEscapeSymbols.end(),curChar)!=mustEscapeSymbols.end()){
+			if(curChar == Encoding::unicodeToUtf8(until)){
+				//we reached the end
+				result +=curChar;
+				break;
+			} else{
+				throw EnvException(FRONTEND_PARSER, board->getName() + ": Invalid character in constant string: '" + curChar + "' needs to be escaped", board->funcStartLine + posRow, posCol + 1);
+			}
+		} else{
+			//it was a normal char just append it
+			result +=curChar;
+		}
+	}
+	return result;
+}
+
+void Parser::stepStraight(){
+	int32_t nextRow = posRow + rowOffsetMap.at(dir).offsets[STRAIGHT];
+	int32_t nextCol = posCol + colOffsetMap.at(dir).offsets[STRAIGHT];
+	if(posRow >= board->getHeight() || nextCol >= board->getWidth()) {
+		throw EnvException(FRONTEND_PARSER, board->getName() + ": Parsing ran out of valid function space", board->funcStartLine + posRow, posCol + 1);
+	}
+	posRow = nextRow;
+	posCol = nextCol;
+}
+
+//set the position to 'until' if it exists then return the return the string ,which was read ,including the starts- and end-symbol
 //just if we didi not return an empty string and the error message is already set.
 string Parser::readCharsUntil(uint32_t until) {
 	string result = "";
