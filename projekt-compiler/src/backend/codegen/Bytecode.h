@@ -83,8 +83,8 @@ namespace codegen {
       uint16_t get_stack_method_idx(const std::string& method, const std::string& descriptor);
       uint16_t get_stack_field_idx();
     //ADD CODE
-      Bytecode* add_conditional_with_instruction(unsigned char conditional_stmt, unsigned char* conditional_body);
-      Bytecode* add_conditional_with_else_branch(unsigned char conditional_stmt, unsigned char* conditional_body, unsigned char* else_body);
+      Bytecode* add_conditional_with_instruction(unsigned char conditional_stmt, std::vector<unsigned char> conditional_body);
+      Bytecode* add_conditional_with_else_branch(unsigned char conditional_stmt, std::vector<unsigned char> conditional_body, std::vector<unsigned char> else_body);
       Bytecode* add_index(uint8_t indexInPool);
       Bytecode* add_index(uint16_t indexInPool);
       Bytecode* add_index(uint16_t indexInPool, std::vector<unsigned char>& code);

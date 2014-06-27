@@ -13,13 +13,6 @@ public class ExecuteClass {
 	}
 	public void launchFileinOrdner(String pathOrdner) throws IOException {
 
-		FileList lsf = new FileList();
-		lsf.setPath("../projekt-compiler/Tests/test-cases");
-		lsf.getTxtFileList();
-		for (int j = 0; j < lsf.FileListVector.size() ; j++) {
-			Runtime x = Runtime.getRuntime();
-			x.exec(pathOrdner);
-		}
 		
 
 	}

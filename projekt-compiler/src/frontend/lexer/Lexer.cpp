@@ -20,7 +20,6 @@ Lexer::~Lexer() {
 
 
 void Lexer::lex(const std::string srcFile) {
-	std::set<std::string> readFunctionNames;
 	// open source file
 	std::ifstream is;
 	is.open(srcFile);
@@ -55,14 +54,18 @@ void Lexer::lex(const std::string srcFile) {
 			// name exists && not empty
 			if(nameStart != std::string::npos && nameEnd != std::string::npos && nameStart+1 != nameEnd) {
 				functionName = line.substr(nameStart+1, nameEnd-nameStart-1);
-				if(readFunctionNames.find(functionName) != readFunctionNames.end()){
-					//functionname is new
-					Env::addWarning(FRONTEND_LEXER, "Function in line " + line + " was already defined previously", lineId, 1);
-				} else{
-					readFunctionNames.insert(functionName);
+
+
+				if(functions.find(functionName) == functions.end()) {
+					// Store new function
+					act = new RailFunction(functionName, lineId);
+					functions[functionName] = std::shared_ptr<RailFunction>(act);
 				}
-				act = new RailFunction(functionName, lineId);
-				functions.push_back(std::shared_ptr<RailFunction>(act));
+				else {
+					// Function name already defined, skipping this one
+					Env::addWarning(FRONTEND_LEXER, "Function name '" + functionName + "' already defined, skipping this one", lineId, 1);
+					act = nullptr;
+				}
 			}
 			else {
 				/*
@@ -99,8 +102,8 @@ void Lexer::lex(const std::string srcFile) {
 
 
 	if(Env::verbose()) {
-		for(auto it=functions.begin(); it<functions.end(); ++it) {
-			(*it)->dump();
+		for(auto item : functions) {
+			item.second->dump();
 		}
 	}
 
