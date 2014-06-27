@@ -103,6 +103,8 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t list_str_idx = constantPool.addString("java/util/ArrayList");
   uint16_t add_str_idx = constantPool.addString("add");
   uint16_t remove_str_idx = constantPool.addString("remove");
+  uint16_t get_class_name_idx = constantPool.addString("getClass");
+  uint16_t get_class_type_idx = constantPool.addString("()Ljava/lang/Class;");
   uint16_t remove_type_idx = constantPool.addString("(I)Ljava/lang/Object;");
   //uint16_t add_type_idx = constantPool.addString("(Ljava/lang/Object)Z")  same like bool equals
 
@@ -141,9 +143,11 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t size_name_type_idx = constantPool.addNameAndType(size_str_idx, intValue_type_idx);
   uint16_t add_name_type_idx = constantPool.addNameAndType(add_str_idx, boolEquals_type_idx);
   uint16_t remove_name_type_idx = constantPool.addNameAndType(remove_str_idx, remove_type_idx);
+  uint16_t get_class_name_type_idx = constantPool.addNameAndType(get_class_name_idx, get_class_type_idx);
 
   ///  Add method refs
   constantPool.addMethRef(constantPool.obj_idx.class_idx , object_name_type_idx);
+  constantPool.addMethRef(constantPool.obj_idx.class_idx , get_class_name_type_idx);
   constantPool.addMethRef(print_class_idx, print_name_type_idx);
   constantPool.addMethRef(system_in_class_idx, system_in_avail_name_type_idx);
   constantPool.addMethRef(system_in_class_idx, system_in_read_name_type_idx);
