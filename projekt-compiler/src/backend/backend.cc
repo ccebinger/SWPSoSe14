@@ -146,7 +146,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t get_class_name_type_idx = constantPool.addNameAndType(get_class_name_idx, get_class_type_idx);
 
   ///  Add method refs
-  constantPool.addMethRef(constantPool.obj_idx.class_idx , object_name_type_idx);
+  constantPool.obj_idx.getClass = constantPool.addMethRef(constantPool.obj_idx.class_idx , object_name_type_idx);
   constantPool.addMethRef(constantPool.obj_idx.class_idx , get_class_name_type_idx);
   constantPool.addMethRef(print_class_idx, print_name_type_idx);
   constantPool.addMethRef(system_in_class_idx, system_in_avail_name_type_idx);

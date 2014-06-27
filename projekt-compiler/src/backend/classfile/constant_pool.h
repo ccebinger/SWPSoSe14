@@ -72,6 +72,7 @@ struct ObjectIndexes {
   uint16_t class_idx = 0;
   uint16_t toString = 0;
   uint16_t equals = 0;
+  uint16_t getClass = 0;
 };
 
 
