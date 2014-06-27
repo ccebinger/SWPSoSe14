@@ -247,6 +247,11 @@ codegen::Bytecode* codegen::Bytecode::add_opcode(codegen::MNEMONIC opcode) {
   return this;
 }
 
+codegen::Bytecode* codegen::Bytecode::add_byte(uint8_t byte) {
+  bytecode.push_back(byte);
+  return this;
+}
+
 //================================================================================
 //=================================GLOBAL STACK===================================
 //================================================================================
@@ -258,7 +263,11 @@ codegen::Bytecode* codegen::Bytecode::globalstack_pop() {
 }
 
 codegen::Bytecode* codegen::Bytecode::globalstack_push() {
-  return add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.arr_idx.push_idx);
+  add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx);
+  // argument needs to be on top of stack
+  add_opcode(codegen::MNEMONIC::SWAP);
+  add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.arr_idx.push_idx);
+  return this;
 }
 
 //================================================================================
@@ -526,9 +535,9 @@ void codegen::eof_ByteCode(Bytecode::Current_state state){
 
   uint16_t system_in_idx = code->get_field_idx("java/lang/System", "in", "Ljava/io/InputStream;");
   uint16_t avail_idx = code->get_method_idx("java/io/InputStream", "available", "()I");
+
   code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, system_in_idx)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, avail_idx);
-
   // TODO branch on result > 0 -> push Integer 0; 0 -> push Integer 1 on global stack.
 }
 
@@ -538,10 +547,49 @@ void codegen::input_ByteCode(Bytecode::Current_state state) {
   uint16_t system_in_idx = code->get_field_idx("java/lang/System", "in", "Ljava/io/InputStream;");
   uint16_t read_idx = code->get_method_idx("java/io/InputStream", "read", "()I");
 
-  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, system_in_idx)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, read_idx);
+  // Push String/Integer depending on input.
+   // getstatic [System.in]  // System.in.read() -> result:int
+   code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, system_in_idx);
+   // invokevirtual [read()]
+   code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, read_idx);
+   // istore_1               // if (result >= 48 && result <= 57) [result is digit]
+   code->add_opcode(codegen::MNEMONIC::ISTORE_1);
+   // iload_1
+   code->add_opcode(codegen::MNEMONIC::ILOAD_1);
+   // bipush 48
+   code->add_opcode(codegen::MNEMONIC::BIPUSH);
+   code->add_byte(48);
+   // if_icmplt [not_digit]  // cond. jump to else
+   code->add_opcode_with_idx(codegen::MNEMONIC::IF_ICMPLT, 19);
+   // iload_1
+   code->add_opcode(codegen::MNEMONIC::ILOAD_1);
+   // bipush 57
+   code->add_opcode(codegen::MNEMONIC::BIPUSH);
+   code->add_byte(57);
+   // if_icmpgt [not_digit]  // cond. jump to else
+   code->add_opcode_with_idx(codegen::MNEMONIC::IF_ICMPGT, 13);
+   // iload_1
+   code->add_opcode(codegen::MNEMONIC::ILOAD_1);
+   // bipush 48              // push Integer.valueOf(result-48)
+   code->add_opcode(codegen::MNEMONIC::BIPUSH);
+   code->add_byte(48);
+   // isub
+   code->add_opcode(codegen::MNEMONIC::ISUB);
+   // invokestatic [Integer.valueOf()]
+   code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, code->get_method_idx("java/lang/Integer","valueOf","(I)Ljava/lang/Integer;"));
+   // goto [end_if_else]
+   code->add_opcode_with_idx(codegen::MNEMONIC::GOTO, 8);
+   // [[not_digit]]
+   // iload_1                // push String.valueOf((char) result)
+   code->add_opcode(codegen::MNEMONIC::ILOAD_1);
+   // i2c
+   code->add_opcode(codegen::MNEMONIC::I2C);
+   // invokestatic [String.valueOf()]
+   code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, code->get_method_idx("java/lang/String","valueOf","(C)Ljava/lang/String;"));
+   // [[end_if_else]]
+   code->globalstack_push();
 
-  // TODO convert result to String/Integer as needed and push on global stack.
+   code->inc_local_count(2);
 }
 
 void codegen::underflow_ByteCode(Bytecode::Current_state state) {
