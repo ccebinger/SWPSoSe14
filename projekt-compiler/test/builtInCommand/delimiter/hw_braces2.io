@@ -1,4 +1,4 @@
-§1
+ï»¿$1
 ---
 %
 Crash: invalid character in constant

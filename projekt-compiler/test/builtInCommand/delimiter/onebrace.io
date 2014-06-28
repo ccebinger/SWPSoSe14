@@ -1,4 +1,4 @@
-§1
+ï»¿$1
 ---
 %
 Crash: no end delimiter found for multicharacter
