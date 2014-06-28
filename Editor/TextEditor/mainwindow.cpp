@@ -413,13 +413,13 @@ void MainWindow::setInterpreter()
 
     if(openDialog.exec() && !openDialog.selectedFiles().isEmpty())
     {
-        ApplicationPreferences::compilerLocation = openDialog.selectedFiles().first();
+        ApplicationPreferences::interpreterLocation = openDialog.selectedFiles().first();
     }
 }
 
 void MainWindow::runInterpreter()
 {
-    if(ApplicationPreferences::compilerLocation.isEmpty())
+    if(ApplicationPreferences::interpreterLocation.isEmpty())
     {
         QMessageBox::information(this, "No Interpreter set.", "You need to set an Interpreter first.");
         return;
@@ -476,7 +476,7 @@ void MainWindow::runInterpreter()
     parameter << "--input=" + QFileInfo(input).absoluteFilePath()
               << "--output=" + QFileInfo(output).absoluteFilePath()
               << QFileInfo(source).absoluteFilePath();
-    m_interpreterProcess->start(ApplicationPreferences::compilerLocation, parameter);
+    m_interpreterProcess->start(ApplicationPreferences::interpreterLocation, parameter);
 }
 
 void MainWindow::interpreterStarted()
