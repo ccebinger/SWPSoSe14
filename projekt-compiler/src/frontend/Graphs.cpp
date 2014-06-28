@@ -56,7 +56,7 @@ void Graphs::marshall(Graphs::str file, char delimiter) {
 
 	std::ofstream ofh(file);
 	if(!ofh) {
-		throw EnvException(ASG, "Cannot read file " + file);
+		throw EnvException(ASG_SERIALIZE, "Cannot write file " + file);
 	}
 
 
