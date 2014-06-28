@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
 
 	try {
 		Env::parseParams(argc, argv);
-		Env::initIoDirectory();
+		//Env::initIoDirectory();		// produces io folders from the callers location - not intended
 		Env::showStatus();
 
 		Graphs graphs;

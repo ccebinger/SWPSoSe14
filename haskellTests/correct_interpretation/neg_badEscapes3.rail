@@ -1,0 +1,5 @@
+Should fail since it contains an unhandled escape sequence.
+
+$ 'main'
+ \
+  \--[Who needs \v\ertical tabs?]--#
