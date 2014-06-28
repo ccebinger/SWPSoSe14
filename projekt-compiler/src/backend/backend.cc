@@ -125,7 +125,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   ///  Add name and type
   uint16_t object_name_type_idx = constantPool.addNameAndType(object_name_idx, void_descriptor_idx);
   uint16_t system_name_type_idx = constantPool.addNameAndType(system_name_idx, system_type_idx);
-//  uint16_t system_in_name_type_idx = constantPool.addNameAndType(system_in_str_idx, system_in_type_str_idx);
+  uint16_t system_in_name_type_idx = constantPool.addNameAndType(system_in_str_idx, system_in_type_str_idx);
   uint16_t print_name_type_idx =  constantPool.addNameAndType(print_name_idx, print_type_idx);
   uint16_t system_in_read_name_type_idx = constantPool.addNameAndType(system_in_read_str_idx, intValue_type_idx);
   uint16_t system_in_avail_name_type_idx = constantPool.addNameAndType(system_in_avail_str_idx, intValue_type_idx);
@@ -179,7 +179,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   constantPool.list_idx.init_idx = constantPool.addMethRef(constantPool.list_idx.class_idx, object_name_type_idx);
   ///  Add field refs
   constantPool.system_idx.out_idx = constantPool.addFieldRef(constantPool.system_idx.class_idx, system_name_type_idx);
-  constantPool.system_idx.in_idx = constantPool.addFieldRef(constantPool.system_idx.class_idx, system_name_type_idx);
+  constantPool.system_idx.in_idx = constantPool.addFieldRef(constantPool.system_idx.class_idx, system_in_name_type_idx);
 
   uint16_t main_class_str_idx = constantPool.addString(Env::getDstClassName());
   uint16_t main_class_idx = constantPool.addClassRef(main_class_str_idx);
