@@ -34,6 +34,8 @@ private:
     void createTempFiles();
     void readSettings();
     void writeSettings() const;
+    void updateRecentFiles();
+    void openFile(QString const& filePath);
 
     bool m_modified;
     QString m_currentFilePath;
@@ -55,6 +57,7 @@ private slots:
     void redoAvailable(bool redoAvailable);
     void newFile();
     void openFile();
+    void openRecent();
     bool saveFile();
     bool saveFileAs();
     void setModified(bool modified);

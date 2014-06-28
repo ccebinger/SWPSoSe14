@@ -114,7 +114,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->ui_preferencesAction, SIGNAL(triggered()), this, SLOT(showApplicationPreferences()));
 
     readSettings();
-    // add recent files
+    updateRecentFiles();
 }
 
 MainWindow::~MainWindow()
@@ -326,20 +326,29 @@ void MainWindow::openFile()
         if(openDialog.exec() && !openDialog.selectedFiles().isEmpty())
         {
             QString filePath = openDialog.selectedFiles().first();
-            QFile file(filePath);
-            if(file.open(QIODevice::ReadOnly | QIODevice::Text))
-            {
-                setCurrentPath(filePath);
-                ui->ui_sourceEditTableWidget->clear();
-                ui->ui_inputPlainTextEdit->clear();
-                ui->ui_outputPlainTextEdit->clear();
-                ui->ui_sourceEditTableWidget->setPlainText(file.readAll());
-                m_undoRedoStack->clear();
-                setModified(false);
-            }
-            file.close();
+            openFile(filePath);
         }
     }
+}
+
+void MainWindow::openFile(QString const& filePath)
+{
+    QFile file(filePath);
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        setCurrentPath(filePath);
+        ui->ui_sourceEditTableWidget->clear();
+        ui->ui_inputPlainTextEdit->clear();
+        ui->ui_outputPlainTextEdit->clear();
+        ui->ui_sourceEditTableWidget->setPlainText(file.readAll());
+        m_undoRedoStack->clear();
+        setModified(false);
+
+        ApplicationPreferences::recentFiles.removeAll(filePath);
+        ApplicationPreferences::recentFiles.prepend(filePath);
+        updateRecentFiles();
+    }
+    file.close();
 }
 
 void MainWindow::newFile()
@@ -816,7 +825,8 @@ void MainWindow::readSettings()
     colorVariant = settings.value("colors/variables", colorDefaultVariant);
     ApplicationPreferences::variablesColor = colorVariant.value<QColor>();
 
-    ApplicationPreferences::recentFiles = settings.value("general/recentFiles", ApplicationDefaultValues::recentFiles).toStringList();
+    ApplicationPreferences::recentFiles = settings.value("common/recentFiles", ApplicationDefaultValues::recentFiles).toStringList();
+
     ApplicationPreferences::createASGFiles = settings.value("build/createASG", ApplicationDefaultValues::createASGFiles).toBool();
     ApplicationPreferences::createGraphVizFiles = settings.value("build/createGraphViz", ApplicationDefaultValues::createGraphVizFiles).toBool();
     ApplicationPreferences::quietCompilerOutput = settings.value("build/quietOutput", ApplicationDefaultValues::quietCompilerOutput).toBool();
@@ -835,6 +845,12 @@ void MainWindow::writeSettings() const
 {
     QSettings settings(QSettings::UserScope, QApplication::organizationName(), QApplication::applicationName());
 
+    QStringList shortenendRecent;
+    for(int i = 0; i < std::min(5, ApplicationPreferences::recentFiles.size()); i++)
+    {
+        shortenendRecent.append(ApplicationPreferences::recentFiles.at(i));
+    }
+
     settings.setValue("paths/interpreter", ApplicationPreferences::interpreterLocation);
     settings.setValue("paths/compiler", ApplicationPreferences::compilerLocation);
 
@@ -844,7 +860,9 @@ void MainWindow::writeSettings() const
     settings.setValue("colors/functionCalls", ApplicationPreferences::functionCallsColor);
     settings.setValue("colors/strings", ApplicationPreferences::stringsColor);
     settings.setValue("colors/variables", ApplicationPreferences::variablesColor);
-    settings.setValue("general/recentFiles", ApplicationPreferences::recentFiles);
+
+    settings.setValue("common/recentFiles", shortenendRecent);
+
     settings.setValue("build/createASG", ApplicationPreferences::createASGFiles);
     settings.setValue("build/createGraphViz", ApplicationPreferences::createGraphVizFiles);
     settings.setValue("build/quietOutput", ApplicationPreferences::quietCompilerOutput);
@@ -856,5 +874,38 @@ void MainWindow::writeSettings() const
     {
         settings.setValue("window/pos", this->pos());
         settings.setValue("window/size", this->size());
+    }
+}
+
+void MainWindow::updateRecentFiles()
+{
+    foreach(QAction *action, ui->ui_openRecentMenu->actions())
+    {
+        disconnect(action, SIGNAL(triggered()), this, SLOT(openRecent()));
+        delete action;
+    }
+    ui->ui_openRecentMenu->clear();
+    for(int i = 0; i < std::min(5, ApplicationPreferences::recentFiles.size()); i++)
+    {
+        QFileInfo info(ApplicationPreferences::recentFiles.at(i));
+        QAction *recentAction = new QAction(info.fileName(), ui->ui_openRecentMenu);
+        ui->ui_openRecentMenu->addAction(recentAction);
+        recentAction->setData(info.absoluteFilePath());
+        connect(recentAction, SIGNAL(triggered()), this, SLOT(openRecent()));
+    }
+}
+
+void MainWindow::openRecent()
+{
+    QAction *action = dynamic_cast< QAction * >(sender());
+    assert(action);
+    foreach(QAction *recentAction, ui->ui_openRecentMenu->actions())
+    {
+        if(recentAction == action)
+        {
+            QString filePath = recentAction->data().toString();
+            openFile(filePath);
+            return;
+        }
     }
 }

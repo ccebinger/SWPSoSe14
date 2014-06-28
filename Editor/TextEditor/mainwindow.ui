@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>795</width>
+    <width>847</width>
     <height>505</height>
    </rect>
   </property>
@@ -239,7 +239,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>795</width>
+     <width>847</width>
      <height>25</height>
     </rect>
    </property>
@@ -247,8 +247,15 @@
     <property name="title">
      <string>Menu</string>
     </property>
+    <widget class="QMenu" name="ui_openRecentMenu">
+     <property name="title">
+      <string>Open Recent</string>
+     </property>
+     <addaction name="actionTemp"/>
+    </widget>
     <addaction name="ui_newFileAction"/>
     <addaction name="ui_openFileAction"/>
+    <addaction name="ui_openRecentMenu"/>
     <addaction name="ui_saveFileAction"/>
     <addaction name="ui_saveAsAction"/>
     <addaction name="separator"/>
@@ -676,6 +683,11 @@
   <action name="ui_preferencesAction">
    <property name="text">
     <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionTemp">
+   <property name="text">
+    <string>Temp</string>
    </property>
   </action>
  </widget>
