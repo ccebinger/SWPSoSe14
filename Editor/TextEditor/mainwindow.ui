@@ -63,7 +63,64 @@
        </item>
        <item>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="3">
+         <item row="0" column="0">
+          <widget class="QGroupBox" name="ui_writeDirectionGroupBox">
+           <property name="title">
+            <string>Write Direction</string>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QRadioButton" name="ui_horizontalDirectionRadioButton">
+              <property name="text">
+               <string>Horizontal</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="ui_verticalDirectionRadioButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Vertical</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="ui_smartDirectionRadioButton">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="text">
+               <string>Smart</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="0" column="4">
           <widget class="QLabel" name="ui_rowValueLabel">
            <property name="text">
             <string>1</string>
@@ -73,7 +130,30 @@
            </property>
           </widget>
          </item>
+         <item row="0" column="6">
+          <widget class="QLabel" name="ui_columnValueLabel">
+           <property name="text">
+            <string>1</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="2">
+          <spacer name="ui_sourceSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="3">
           <widget class="QLabel" name="ui_rowLabel">
            <property name="text">
             <string>Row</string>
@@ -84,22 +164,31 @@
           </widget>
          </item>
          <item row="0" column="5">
-          <widget class="QLabel" name="ui_columnValueLabel">
+          <widget class="QLabel" name="ui_columnLabel">
            <property name="text">
-            <string>1</string>
+            <string>Column</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
+         <item row="0" column="1">
           <widget class="QGroupBox" name="ui_insertModeGroupBox">
            <property name="title">
             <string>Insert Mode</string>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <property name="margin">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
              <number>0</number>
             </property>
             <item>
@@ -129,77 +218,6 @@
               </property>
               <property name="text">
                <string>SMART</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <spacer name="ui_sourceSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="0" column="4">
-          <widget class="QLabel" name="ui_columnLabel">
-           <property name="text">
-            <string>Column</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QGroupBox" name="ui_writeDirectionGroupBox">
-           <property name="title">
-            <string>Write Direction</string>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
-            <property name="margin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QRadioButton" name="ui_horizontalDirectionRadioButton">
-              <property name="text">
-               <string>Horizontal</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="ui_verticalDirectionRadioButton">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Vertical</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="ui_smartDirectionRadioButton">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Smart</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -394,9 +412,23 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QToolBar" name="ui_toolBar">
+  <widget class="QToolBar" name="ui_menuToolBar">
    <property name="windowTitle">
-    <string>toolBar</string>
+    <string>Menu Toolbar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="ui_newFileAction"/>
+   <addaction name="ui_openFileAction"/>
+   <addaction name="ui_saveFileAction"/>
+  </widget>
+  <widget class="QToolBar" name="ui_compileToolBar">
+   <property name="windowTitle">
+    <string>Build Toolbar</string>
    </property>
    <attribute name="toolBarArea">
     <enum>LeftToolBarArea</enum>
@@ -407,8 +439,23 @@
    <addaction name="ui_runBuildAction"/>
    <addaction name="ui_buildAndRunJavaAction"/>
    <addaction name="ui_stopJavaAction"/>
+  </widget>
+  <widget class="QToolBar" name="ui_editToolBar">
+   <property name="windowTitle">
+    <string>Edit Toolbar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
    <addaction name="ui_undoAction"/>
    <addaction name="ui_redoAction"/>
+   <addaction name="separator"/>
+   <addaction name="ui_cutAction"/>
+   <addaction name="ui_copyAction"/>
+   <addaction name="ui_pasteAction"/>
   </widget>
   <action name="ui_newFileAction">
    <property name="icon">
@@ -629,11 +676,6 @@
   <action name="ui_preferencesAction">
    <property name="text">
     <string>Preferences</string>
-   </property>
-  </action>
-  <action name="actionOpen_Recent">
-   <property name="text">
-    <string>Open Recent</string>
    </property>
   </action>
  </widget>

@@ -19,7 +19,9 @@ SOURCES += main.cpp\
     Point.cpp \
     Graph_Interface.cpp \
     ApplicationConsole.cpp \
-    ApplicationPreferencesDialog.cpp
+    ApplicationPreferencesDialog.cpp \
+    FileSelectLineEdit.cpp \
+    ApplicationPreferences.cpp
 
 HEADERS  += mainwindow.h \
     EditTableWidget.h \
@@ -34,7 +36,9 @@ HEADERS  += mainwindow.h \
     Point.h \
     UndoRedoCutPaste.h \
     ApplicationConsole.h \
-    ApplicationPreferencesDialog.h
+    ApplicationPreferencesDialog.h \
+    FileSelectLineEdit.h \
+    ApplicationPreferences.h
 
 FORMS    += mainwindow.ui \
     ApplicationPreferencesDialog.ui

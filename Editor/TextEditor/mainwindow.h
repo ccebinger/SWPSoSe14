@@ -5,6 +5,7 @@
 #include <ui_mainwindow.h>
 #include <iostream>
 #include <QProcess>
+#include <QSettings>
 
 #include "UndoRedoStack.h"
 #include "UndoRedoElement.h"
@@ -31,11 +32,11 @@ private:
     void setCurrentPath(QString currentFilePath);
     bool save(QString filePath);
     void createTempFiles();
+    void readSettings();
+    void writeSettings() const;
 
     bool m_modified;
     QString m_currentFilePath;
-    QString m_currentInterpreterPath;
-    QString m_currentBuildPath;
 
     QProcess *m_interpreterProcess;
     QProcess *m_buildProcess;
@@ -66,9 +67,10 @@ private slots:
     void setInterpreter();
     void runInterpreter();
     void setBuild();
-    void runBuild();
+    bool runBuild();
     void buildAndRun();
     void runJava();
+    void showApplicationPreferences();
 
     void interpreterStarted();
     void interpreterFinished(int exitCode, QProcess::ExitStatus exitStatus);
