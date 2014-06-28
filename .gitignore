@@ -230,3 +230,10 @@ graphviz.dot
 serialized.csv
 *.class
 Editor/build-TextEditor-Desktop-Debug/*
+
+
+
+
+## Rail Interpreter
+rail-interpreter/*
+
