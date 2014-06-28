@@ -1,6 +1,4 @@
-§0
--------
-5
-b
+§1
+---
 %
 Crash: type mismatch
