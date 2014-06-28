@@ -1,4 +1,4 @@
 §1
 ---
-%
-Crash: type mismatch
+#
+Equal
