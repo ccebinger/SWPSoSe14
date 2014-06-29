@@ -53,12 +53,13 @@ struct IntegerIndexes {
 
 struct StringIndexes {
   uint16_t class_idx = 0;
+  uint16_t class_builder_idx = 0;
   uint16_t concat_idx = 0;
   uint16_t substring_2param_idx = 0;
   uint16_t substring_idx = 0;
   uint16_t length_idx = 0;
+  uint16_t value_of_idx = 0;
 };
-
 
 struct ArrayDequeIndexes {
   uint16_t class_idx = 0;
@@ -66,6 +67,7 @@ struct ArrayDequeIndexes {
   uint16_t pop_idx = 0;
   uint16_t push_idx = 0;
   uint16_t size = 0;
+  uint16_t init_idx = 0;
 };
 
 struct ObjectIndexes {
@@ -75,12 +77,25 @@ struct ObjectIndexes {
   uint16_t getClass = 0;
 };
 
-
 struct ListIndexes {
   uint16_t class_idx = 0;
   uint16_t add_idx = 0;
   uint16_t remove_idx = 0;
   uint16_t init_idx = 0;
+};
+
+struct SystemIndexes {
+  uint16_t class_idx = 0;
+  uint16_t in_idx = 0;
+  uint16_t out_idx = 0;
+};
+
+struct StreamIndexes {
+  uint16_t class_out_idx = 0;
+  uint16_t class_in_idx = 0;
+  uint16_t available_idx = 0;
+  uint16_t read_idx = 0;
+  uint16_t print_idx = 0;
 };
 ////////////////////////////////////////////////////////////////////////
 /// ! Item
@@ -130,6 +145,8 @@ class ConstantPool {
   ArrayDequeIndexes arr_idx;
   ObjectIndexes obj_idx;
   ListIndexes list_idx;
+  SystemIndexes system_idx;
+  StreamIndexes stream_idx;
 
   ConstantPool();
 
