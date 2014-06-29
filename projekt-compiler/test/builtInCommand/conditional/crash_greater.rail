@@ -1,8 +1,8 @@
 $'main'(--):
  \
   \
-   \                 /---#
+   \                 /--[Not Equal]-#
     \----5---[b]-g--<
-                     \---#
+                     \--[Equal]-#
 
 Crash: Type mismatch
