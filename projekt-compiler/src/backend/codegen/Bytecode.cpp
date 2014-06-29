@@ -520,7 +520,13 @@ void codegen::equal_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
 
-  code->add_two_int_compare(codegen::MNEMONIC::IF_ICMPNE)
+  code->globalstack_pop()
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1)
+      ->globalstack_pop()
+      ->add_opcode(codegen::MNEMONIC::ASTORE_2)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_2)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.equals)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
       ->globalstack_push()
       ->inc_local_count(3);
