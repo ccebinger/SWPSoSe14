@@ -1,0 +1,5 @@
+Should fail since it contains a non-symmetric escape sequence.
+
+$ 'main'
+ \
+  \--[You cannot escape from a boss fight! \[Hahahaha!]--#
