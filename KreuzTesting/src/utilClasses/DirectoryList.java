@@ -39,6 +39,7 @@ public class DirectoryList implements Serializable {
 
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
 			for (Path entry : stream) {
+				if ()
 				FileListVector.add(entry.getFileName());
 			}
 

@@ -27,15 +27,19 @@ namespace codegen {
     ILOAD_0 = '\x1a',
     ILOAD_1 = '\x1b',
     ILOAD_2 = '\x1c',
+    ILOAD_3 = '\x1d',
     ICONST_0 = '\x03',
     ICONST_1 = '\x04',
     ISTORE_0 = '\x3b',
     ISTORE_1 = '\x3c',
     ISTORE_2 = '\x3d',
+    ISTORE_3 = '\x3e',
+    IF_ACMPNE = '\xa6',
     IF_ICMPGT = '\xa3',
     IF_ICMPLE = '\xa4',
     IF_ICMPLT = '\xa1',
-    IF_ICMPNE = '\xa6',
+    IF_ICMPNE = '\xa0',
+    IF_ICMPGE = '\xa2',
     ALOAD = '\x19',
     ALOAD_0 = '\x2a',
     ALOAD_1 = '\x2b',
@@ -113,6 +117,7 @@ namespace codegen {
       Bytecode* add_static_field_method_call(uint16_t field_idx, uint16_t method_idx);
       Bytecode* add_integer_calculation(MNEMONIC calculation);
       Bytecode* add_type_check(uint16_t class_idx);
+      Bytecode* add_two_int_compare(MNEMONIC comparator);
     //GLOBAL STACK
       Bytecode* globalstack_pop();
       Bytecode* globalstack_push();

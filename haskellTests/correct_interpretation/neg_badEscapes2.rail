@@ -1,0 +1,5 @@
+Should fail since it contains a nested opening bracket.
+
+$ 'main'
+ \
+  \--[May the source be [with you!]--#
