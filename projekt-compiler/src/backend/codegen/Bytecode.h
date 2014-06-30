@@ -73,6 +73,46 @@ namespace codegen {
   };
 
 
+  /**
+  * The Bytecode class represents the Java Bytecode which should be generated from the Rail-Compiler.
+  * It contains a std::map to map each Rail-Command to a function which generates different Java Bytecode.
+  * The generate bytecode is saved in a std::vector and can be return by calling get_bytecode.
+  * To generate and reference to the constantpool in the classfile a Constantpool must be given by creating a Bytecode class object.
+  * After that the Java bytecode can be created by calling the build method. This method expects a Graph_ptr which points
+  * to a Graph class object. The Graph represents a function in Rail, is also named ASG in the compiler.
+  * The Bytecode provides some useful methods to add bytecode to the current bytecode vector.
+  * Each of these methods returns a pointer of the current Bytecode class object, which makes it possible to
+  * chain the method calls. (syntactic sugar see example below)
+  * <p>Example chaining</p>
+  * <pre><code class="c++">
+  *   code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
+  *       ->globalstack_pop()
+  *       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
+  *       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.length_idx)
+  *       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
+  *       ->globalstack_push();
+  * </code></pre>
+  *
+  * <p>To create Java Bytecode see the following Example:</p>
+  * <pre><code class="c++">
+  * codegen::Bytecode* code = new codegen::Bytecode(ConstantPool);
+  * code->build(Graph);
+  * ...//some code
+  * //clean up
+  * delete code;
+  * </code></pre>
+  * <p> The build method creates the Java Bytecode for each node of the Graph step by step.
+  * That means for each node the map will be checked and for the corresponding command type the function will be called.
+  * For example for the Command::Type::PUSH the push_Bytecode function will be called.
+  * <b>That makes it easy to override these functions and change the created bytecode later.</b>
+  * Each function have the same appearance and should look like void (*func_ptr) (Bytecode::Current_state state).
+  * The parameter state is a struct Current_state which contains the current node of the graph and also the current state
+  * of the Bytecode. That means the struct contains a pointer of the current Bytecode class object.
+  *
+  * @see Graph, Graphs, Constantpool
+  * @author Christopher Zell <Zelldon91@googlemail.com>
+  *
+  */
   class Bytecode
   {
     public:
