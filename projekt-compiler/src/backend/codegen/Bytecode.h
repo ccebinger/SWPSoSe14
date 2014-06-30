@@ -9,8 +9,19 @@
 #include <frontend/Graphs.h>
 #include <common/Env.h>
 
+/**
+ * The codegen namespace contains everything to generate Java Bytecode.
+ *
+ * @author Christopher Zell <Zelldon91@googlemail.com>, Sascha Kretzschmann, Vincent Bohlen, Jonas Dettlaff
+ */
 namespace codegen {
 
+  /**
+  * The enum represents the MNEMONIC Java opcodes.
+  * Each enum member has his own hex representation.
+  * See for more information http://en.wikipedia.org/wiki/Java_bytecode_instruction_listings.
+  *
+  */
   enum MNEMONIC {
     I2C = '\x92',
     ILOAD_0 = '\x1a',
