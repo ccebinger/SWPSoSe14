@@ -197,21 +197,78 @@ namespace codegen {
     //SETTER
       /**
       * Increments the current local variable count with the given value.
-      * @param          the value which will be used to increment the local variable count
+      * @param inc        the value which will be used to increment the local variable count
       */
       void inc_local_count(int inc);
 
       /**
       * Replaces the current local variable count with the given value.
-      * @param          the value which will be used to replace the current local variable count
+      * @param count        the value which will be used to replace the current local variable count
       */
       void set_local_count(int count);
     //INDECIES
+     /**
+      * Checks the constant pool for the given class name and returns the idx on the constantpool if the
+      * class exists. If not the class name is added and the new idx is returned.
+      *
+      * @param  class_name        the class name
+      * @return         the idx of the class in the constantpool
+      */
       uint16_t get_class_idx(const std::string& class_name);
+
+     /**
+      * Checks the constant pool for the given name and type and returns the idx on the constantpool if the
+      * name and type exists. If not the name and type is added and the new idx is returned.
+      *
+      * @param name     the name
+      * @param type     the type
+      * @return         the idx of the name and type in the constantpool
+      */
       uint16_t get_name_type_idx(const std::string& name, const std::string& type);
+
+
+     /**
+      * Checks the constant pool for the given method and returns the idx on the constantpool if the
+      * method exists. If not the method is added and the new idx is returned.
+      * The method consists of the class_name and a name and type which is the method name and the method descriptor.
+      *
+      * @param class_name     the name of the class on which the method belongs to
+      * @param member_name    the name of the method
+      * @param descriptor     the method descriptor like ()V for return void and void param
+      * @return               the idx of the method in the constantpool
+      */
       uint16_t get_method_idx(const std::string& class_name, const std::string& member_name, const std::string& descriptor);
+
+      /**
+      * Checks the constant pool for the given field and returns the idx on the constantpool if the field exists.
+      * If not the field is added and the new idx is returned.
+      * The field consists of the class_name, member name (in the class) and a descriptor (contains the type).
+      *
+      * @param class_name         the name of the class on which the field belongs to
+      * @param member_name        the name of the field in the class
+      * @param descriptor         the type of the field
+      * @return                   the idx of the field in the constantpool
+      */
       uint16_t get_field_idx(const std::string& class_name, const std::string& member_name, const std::string& descriptor);
+
+     /**
+      * Checks the constant pool for the given method of the stack field (from the own classfile ArrayDeque field)
+      * and returns the idx on the constantpool if the method exists.
+      * If not the method is added and the new idx is returned.
+      *
+      * @param method         the name of the method
+      * @param descriptor     the method descriptor like ()V for return void and void param
+      * @return               the idx of the method in the constantpool
+      */
       uint16_t get_stack_method_idx(const std::string& method, const std::string& descriptor);
+
+     /**
+      * Checks the constant pool for the stack field (from the own classfile ArrayDeque field)
+      * and returns the idx on the constantpool if the field exists.
+      * If not the field is added and the new idx is returned.
+      *
+      * @return               the idx of the field in the constantpool
+      */
       uint16_t get_stack_field_idx();
     //ADD CODE
       Bytecode* add_conditional_with_instruction(unsigned char conditional_stmt, std::vector<unsigned char> conditional_body);
