@@ -197,36 +197,197 @@ namespace codegen {
     //SETTER
       /**
       * Increments the current local variable count with the given value.
-      * @param          the value which will be used to increment the local variable count
+      * @param inc        the value which will be used to increment the local variable count
       */
       void inc_local_count(int inc);
 
       /**
       * Replaces the current local variable count with the given value.
-      * @param          the value which will be used to replace the current local variable count
+      * @param count        the value which will be used to replace the current local variable count
       */
       void set_local_count(int count);
     //INDECIES
+     /**
+      * Checks the constant pool for the given class name and returns the idx on the constantpool if the
+      * class exists. If not the class name is added and the new idx is returned.
+      *
+      * @param  class_name        the class name
+      * @return         the idx of the class in the constantpool
+      */
       uint16_t get_class_idx(const std::string& class_name);
+
+     /**
+      * Checks the constant pool for the given name and type and returns the idx on the constantpool if the
+      * name and type exists. If not the name and type is added and the new idx is returned.
+      *
+      * @param name     the name
+      * @param type     the type
+      * @return         the idx of the name and type in the constantpool
+      */
       uint16_t get_name_type_idx(const std::string& name, const std::string& type);
+
+
+     /**
+      * Checks the constant pool for the given method and returns the idx on the constantpool if the
+      * method exists. If not the method is added and the new idx is returned.
+      * The method consists of the class_name and a name and type which is the method name and the method descriptor.
+      *
+      * @param class_name     the name of the class on which the method belongs to
+      * @param member_name    the name of the method
+      * @param descriptor     the method descriptor like ()V for return void and void param
+      * @return               the idx of the method in the constantpool
+      */
       uint16_t get_method_idx(const std::string& class_name, const std::string& member_name, const std::string& descriptor);
+
+      /**
+      * Checks the constant pool for the given field and returns the idx on the constantpool if the field exists.
+      * If not the field is added and the new idx is returned.
+      * The field consists of the class_name, member name (in the class) and a descriptor (contains the type).
+      *
+      * @param class_name         the name of the class on which the field belongs to
+      * @param member_name        the name of the field in the class
+      * @param descriptor         the type of the field
+      * @return                   the idx of the field in the constantpool
+      */
       uint16_t get_field_idx(const std::string& class_name, const std::string& member_name, const std::string& descriptor);
+
+     /**
+      * Checks the constant pool for the given method of the stack field (from the own classfile ArrayDeque field)
+      * and returns the idx on the constantpool if the method exists.
+      * If not the method is added and the new idx is returned.
+      *
+      * @param method         the name of the method
+      * @param descriptor     the method descriptor like ()V for return void and void param
+      * @return               the idx of the method in the constantpool
+      */
       uint16_t get_stack_method_idx(const std::string& method, const std::string& descriptor);
+
+     /**
+      * Checks the constant pool for the stack field (from the own classfile ArrayDeque field)
+      * and returns the idx on the constantpool if the field exists.
+      * If not the field is added and the new idx is returned.
+      *
+      * @return               the idx of the field in the constantpool
+      */
       uint16_t get_stack_field_idx();
     //ADD CODE
+      /**
+      * Adds given conditional and instructions to the current bytecode.
+      * The instructions after the conditional instruction is given as std::vector.
+      *
+      * @param conditional_stmt       the conditional statement which should be added
+      * @param conditional_body       the instructions which should be also added after the cond. stmt.
+      * @return                       the pointer of the current Bytecode class object
+      */
       Bytecode* add_conditional_with_instruction(unsigned char conditional_stmt, std::vector<unsigned char> conditional_body);
-      Bytecode* add_conditional_with_else_branch(unsigned char conditional_stmt, std::vector<unsigned char> conditional_body, std::vector<unsigned char> else_body);
-      Bytecode* add_index(uint8_t indexInPool);
-      Bytecode* add_index(uint16_t indexInPool);
-      Bytecode* add_index(uint16_t indexInPool, std::vector<unsigned char>& code);
-      Bytecode* add_opcode_with_idx(MNEMONIC opcode, uint16_t idx);
-      Bytecode* add_opcode_with_idx(codegen::MNEMONIC opcode, uint16_t idx, std::vector<unsigned char>& code);
-      Bytecode* add_opcode(MNEMONIC opcode);
-      Bytecode* add_byte(uint8_t byte);
-      Bytecode* add_static_field_method_call(uint16_t field_idx, uint16_t method_idx);
-      Bytecode* add_integer_calculation(MNEMONIC calculation);
-      Bytecode* add_type_check(uint16_t class_idx);
 
+      /**
+      * Adds given conditional, some instructions and also an else branch with instructions to the current bytecode.
+      * The instructions after the conditional instruction is given as std::vector, also the else body.
+      *
+      * @param conditional_stmt       the conditional statement which should be added
+      * @param conditional_body       the instructions which should be also added after the cond. stmt.
+      * @param else_body              the instructions for the else body which should be added to the bytecode
+      * @return                       the pointer of the current Bytecode class object
+      */
+      Bytecode* add_conditional_with_else_branch(unsigned char conditional_stmt, std::vector<unsigned char> conditional_body, std::vector<unsigned char> else_body);
+
+      /**
+      * Adds an u8 index from the constantpool to the bytecode.
+      *
+      * The index will be cast to big endian via:
+      *<pre>
+      * (idx & 0xFF)
+      *</pre>
+      *
+      * @param indexInPool            the index in the constantpool
+      * @return                       the pointer of the current Bytecode class object
+      */
+      Bytecode* add_index(uint8_t indexInPool);
+
+      /**
+      * Adds an u16 index from the constantpool to the bytecode.
+      * The index will be cast to big endian via:
+      *<pre>
+      * (idx & 0xFF00U) >> 8
+      * (idx & 0xFF00U)
+      *</pre>
+      *
+      * @param indexInPool            the index in the constantpool
+      * @return                       the pointer of the current Bytecode class object
+      */
+      Bytecode* add_index(uint16_t indexInPool);
+
+      /**
+      * Adds an u16 index from the constantpool to the given code vector.
+      * The index will be cast to big endian via:
+      *<pre>
+      * (idx & 0xFF00U) >> 8
+      * (idx & 0xFF00U)
+      *</pre>
+      *
+      * @param indexInPool            the index in the constantpool
+      * @param code                   the code vector on which the index should be pushed
+      * @return                       the pointer of the current Bytecode class object
+      */
+      Bytecode* add_index(uint16_t indexInPool, std::vector<unsigned char>& code);
+
+      /**
+      * Adds a given opcode with an index to the bytecode.
+      *
+      * @param opcode                 the Java opcode should be a member of the MNEMONIC enum
+      * @param idx                    the index which should be added to the bytecode after the opcode
+      * @return                       the pointer of the current Bytecode class object
+      */
+      Bytecode* add_opcode_with_idx(MNEMONIC opcode, uint16_t idx);
+
+
+      /**
+      * Adds a given opcode with an index to the given code vector.
+      *
+      * @param opcode                 the Java opcode should be a member of the MNEMONIC enum
+      * @param idx                    the index which should be added to the code vector after the opcode
+      * @param code                   the vector which should get the bytecode
+      * @return                       the pointer of the current Bytecode class object
+      */
+      Bytecode* add_opcode_with_idx(codegen::MNEMONIC opcode, uint16_t idx, std::vector<unsigned char>& code);
+
+
+      /**
+      * Adds a given opcode to the bytecode.
+      *
+      * @param opcode                 the Java opcode should be a member of the MNEMONIC enum
+      * @return                       the pointer of the current Bytecode class object
+      */
+      Bytecode* add_opcode(MNEMONIC opcode);
+
+
+      /**
+      * Adds a given byte value to the bytecode
+      *
+      * @param byte                   the byte which should be added to the bytecode
+      * @return                       the pointer of the current Bytecode class object
+      */
+      Bytecode* add_byte(uint8_t byte);
+
+      /**
+      * Adds a static field method call to the bytecode.
+      * Like invoke_virtual push from ArrayDeque.
+      *
+      * @param field_idx              the index of the field in the constantpool
+      * @param method_idx             the index of the method in the constantpool
+      * @return                       the pointer of the current Bytecode class object
+      */
+      Bytecode* add_static_field_method_call(uint16_t field_idx, uint16_t method_idx);
+
+     /**
+      * Adds for the given calculation opcode like IADD, IDIV, IREM etc. the
+      * correct bytecode with type checking.
+      *
+      * @param  calculation     the opcode for the calculation
+      * @return                       the pointer of the current Bytecode class object
+      */
+      Bytecode* add_integer_calculation(MNEMONIC calculation);
 
     /**
      * The method compares two ints. The way of comparing is given dynamically via
@@ -245,15 +406,46 @@ namespace codegen {
      */
       Bytecode* add_two_int_compare(MNEMONIC comparator);
     //GLOBAL STACK
+     /**
+      * Adds bytecode which pops a value from the static ArrayDeque field.
+      * (Field is named stack)
+      *
+      * @return        The bytecode generated by the method
+      */
       Bytecode* globalstack_pop();
+
+      /**
+      * Adds bytecode which pushes a value into the static ArrayDeque field.
+      * (Field is named stack)
+      *
+      * @return       The bytecode generated by the method
+      */
       Bytecode* globalstack_push();
 
     private:
+      /**
+      * The bytecode vector which contains the created Java Bytecode.
+      */
       Code bytecode;
+
+      /**
+      * The constantpool which is used for the bytecode creation.
+      */
       ConstantPool& pool;
+
+      /**
+      * The local variable count.
+      */
       int local_count;
+
+      /**
+      * The LocalVariableStash class object which contains the mapping of the local variables.
+      */
       LocalVariableStash locals;
 
+      /**
+      * Functor map which maps the command types to each corresponding function.
+      */
       static CODE_FUNC_MAPPING func_map;
   };
 
