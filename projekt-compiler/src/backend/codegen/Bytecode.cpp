@@ -313,23 +313,22 @@ codegen::Bytecode* codegen::Bytecode::globalstack_push() {
 
 void codegen::output_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
   // push system.out+
   // get <Field java/lang/System.out:Ljava/io/PrintStream;>
-  uint16_t field_system_idx = code->get_field_idx("java/lang/System", "out", "Ljava/io/PrintStream;");
-  uint16_t println_idx = code->get_method_idx("java/io/PrintStream", "println", "(Ljava/lang/String;)V");
 
-  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_system_idx)->globalstack_pop()
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, code->get_constant_pool().obj_idx.toString)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, println_idx)
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.system_idx.out_idx)
+      ->globalstack_pop()
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.stream_idx.print_idx)
       ->inc_local_count(1);
 }
 
 void codegen::push_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
-  uint16_t field_idx = pool.arr_idx.field_idx;
 
-  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_idx)
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
       ->add_opcode(codegen::MNEMONIC::LDC);
   std::string value = state.current_node->command.extractAstCommandString();
   try {
@@ -403,26 +402,23 @@ void codegen::append_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
 
-  uint16_t field_stack_idx = pool.arr_idx.field_idx;
-  uint16_t toString_idx = pool.obj_idx.toString;
   uint16_t builder_toString_idx = code->get_method_idx("java/lang/StringBuilder", "toString", "()Ljava/lang/String;");
   uint16_t append_idx = code->get_method_idx("java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
   uint16_t builder_init_idx = code->get_method_idx("java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V");
-  uint16_t valueOf_idx =  code->get_method_idx("java/lang/String", "valueOf", "(Ljava/lang/Object;)Ljava/lang/String;");
 
   //TODO CHECK IF VALUE OF IS USELESS IN THIS METHOD
 
   code->globalstack_pop()
       ->add_opcode(codegen::MNEMONIC::ASTORE_1)
-      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_stack_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
       ->add_opcode_with_idx(codegen::MNEMONIC::NEW, code->get_class_idx("java/lang/StringBuilder"))
       ->add_opcode(codegen::MNEMONIC::DUP)
       ->globalstack_pop()
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, toString_idx)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, valueOf_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.str_idx.value_of_idx)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, builder_init_idx)
       ->add_opcode(codegen::MNEMONIC::ALOAD_1)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, toString_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, append_idx)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, builder_toString_idx)
       ->globalstack_push()
@@ -549,26 +545,22 @@ void codegen::boom_ByteCode(Bytecode::Current_state state) {
 
 void codegen::eof_ByteCode(Bytecode::Current_state state){
   Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
 
-  uint16_t system_in_idx = code->get_field_idx("java/lang/System", "in", "Ljava/io/InputStream;");
-  uint16_t avail_idx = code->get_method_idx("java/io/InputStream", "available", "()I");
-
-  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, system_in_idx)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, avail_idx);
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.system_idx.in_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.stream_idx.available_idx);
   // TODO branch on result > 0 -> push Integer 0; 0 -> push Integer 1 on global stack.
 }
 
 void codegen::input_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
-
-  uint16_t system_in_idx = code->get_field_idx("java/lang/System", "in", "Ljava/io/InputStream;");
-  uint16_t read_idx = code->get_method_idx("java/io/InputStream", "read", "()I");
+  ConstantPool& pool = code->get_constant_pool();
 
   // Push String/Integer depending on input.
    // getstatic [System.in]  // System.in.read() -> result:int
-   code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, system_in_idx);
+   code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.system_idx.in_idx);
    // invokevirtual [read()]
-   code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, read_idx);
+   code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.stream_idx.read_idx);
    // istore_1               // if (result >= 48 && result <= 57) [result is digit]
    code->add_opcode(codegen::MNEMONIC::ISTORE_1);
    // iload_1
@@ -593,7 +585,7 @@ void codegen::input_ByteCode(Bytecode::Current_state state) {
    // isub
    code->add_opcode(codegen::MNEMONIC::ISUB);
    // invokestatic [Integer.valueOf()]
-   code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, code->get_method_idx("java/lang/Integer","valueOf","(I)Ljava/lang/Integer;"));
+   code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx);
    // goto [end_if_else]
    code->add_opcode_with_idx(codegen::MNEMONIC::GOTO, 8);
    // [[not_digit]]
@@ -602,7 +594,7 @@ void codegen::input_ByteCode(Bytecode::Current_state state) {
    // i2c
    code->add_opcode(codegen::MNEMONIC::I2C);
    // invokestatic [String.valueOf()]
-   code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, code->get_method_idx("java/lang/String","valueOf","(C)Ljava/lang/String;"));
+   code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.str_idx.value_of_idx);
    // [[end_if_else]]
    code->globalstack_push();
 
