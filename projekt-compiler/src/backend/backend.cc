@@ -125,7 +125,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   ///  Add name and type
   uint16_t object_name_type_idx = constantPool.addNameAndType(object_name_idx, void_descriptor_idx);
   uint16_t system_name_type_idx = constantPool.addNameAndType(system_name_idx, system_type_idx);
-  uint16_t system_in_name_type_idx = constantPool.addNameAndType(system_in_str_idx, system_in_type_str_idx);
+//  uint16_t system_in_name_type_idx = constantPool.addNameAndType(system_in_str_idx, system_in_type_str_idx);
   uint16_t print_name_type_idx =  constantPool.addNameAndType(print_name_idx, print_type_idx);
   uint16_t system_in_read_name_type_idx = constantPool.addNameAndType(system_in_read_str_idx, intValue_type_idx);
   uint16_t system_in_avail_name_type_idx = constantPool.addNameAndType(system_in_avail_str_idx, intValue_type_idx);
