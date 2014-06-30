@@ -507,9 +507,24 @@ void codegen::eof_ByteCode(Bytecode::Current_state state){
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
 
-  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.system_idx.in_idx)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.stream_idx.available_idx);
-  // TODO branch on result > 0 -> push Integer 0; 0 -> push Integer 1 on global stack.
+  // getstatic [System.in]
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.system_idx.in_idx);
+  // invokevirtual [available()]
+  code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.stream_idx.available_idx);
+  // ifne [push0] (if available > 0)
+  code->add_opcode_with_idx(codegen::MNEMONIC::IFNE, 7);
+  // iconst_1
+  code->add_opcode(MNEMONIC::ICONST_1);
+  // goto [end]
+  code->add_opcode_with_idx(MNEMONIC::GOTO, 4);
+  // [[push0]]
+  // iconst_0
+  code->add_opcode(MNEMONIC::ICONST_0);
+  // [[end]]
+  // invokestatic [Integer.valueOf()]
+  code->add_opcode_with_idx(MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx);
+
+  code->globalstack_push();
 }
 
 void codegen::input_ByteCode(Bytecode::Current_state state) {
