@@ -117,25 +117,94 @@ namespace codegen {
   {
     public:
     //TYPDEFS
+      /**
+      * Represents the current state of the Bytecode object.
+      */
       struct Current_state {
+        /**
+        * The pointer of the current Bytecode object.
+        */
         Bytecode* current_code;
+
+        /**
+        * The current node which will be processed.
+        */
         Graphs::Node_ptr current_node;
       };
+
+      /**
+      * The typedef for the functor which will be used to map the functions to each Command::Type.
+      */
       typedef void (*func_ptr) (Bytecode::Current_state state);
+
+      /**
+      * The typedef for the std::map to map the functors and commands.
+      */
       typedef const std::map<Command::Type, func_ptr> CODE_FUNC_MAPPING;
+
+      /**
+      * The typedef for the std::vector which should contain the Java Bytecode.
+      */
       typedef std::vector<unsigned char> Code;
     //UTIL
+      /**
+      * The ctor to create a Bytecode class object.
+      * @param pool     the constantpool which will be used to reference to the method and classes in the bytecode
+      */
       Bytecode(ConstantPool& pool);
+
+      /**
+      * The destructor to clean up the Bytecode class object.
+      */
       virtual ~Bytecode();
+
+      /**
+      * The build method to build/create the Java Bytecode for the corresponding Graph (Rail-function).
+      * @param graph    the Graph_ptr which points on the Graph for which the bytecode will be created
+      * @return         the Bytecode class object
+      */
       Bytecode* build(Graphs::Graph_ptr graph);
     //GETTER
+      /**
+      * Returns the length of the bytecode.
+      * @return         the length of the bytecode
+      */
       size_t length();
+
+      /**
+      * Returns the local variable count of the current bytecode.
+      * @return         the current local variable count
+      */
       int get_local_count();
+
+      /**
+      * Returns the constantpool which is used to create the Bytecode.
+      * @return         the constantpool object.
+      */
       ConstantPool& get_constant_pool();
+
+      /**
+      * Returns the created bytecode as std::vector<unsinged char> (Code typedef).
+      * @return         the created bytecode
+      */
       Code& get_bytecode();
+
+      /**
+      * Returns the LocalVariableStash class object which contains the local variables of the current bytecode.
+      * @return         the LocalVariableStash class object
+      */
       LocalVariableStash& get_locals();
     //SETTER
+      /**
+      * Increments the current local variable count with the given value.
+      * @param          the value which will be used to increment the local variable count
+      */
       void inc_local_count(int inc);
+
+      /**
+      * Replaces the current local variable count with the given value.
+      * @param          the value which will be used to replace the current local variable count
+      */
       void set_local_count(int count);
     //INDECIES
       uint16_t get_class_idx(const std::string& class_name);
