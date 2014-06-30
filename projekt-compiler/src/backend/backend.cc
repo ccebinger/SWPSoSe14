@@ -78,7 +78,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t system_in_read_str_idx = constantPool.addString("read");
   uint16_t valueOf_name_idx = constantPool.addString("valueOf");
   uint16_t valueOf_type_idx = constantPool.addString("(I)Ljava/lang/Integer;");
-  uint16_t string_valueof_type_idx = constantPool.addString("(C)Ljava/lang/String;");
+  uint16_t string_valueof_type_idx = constantPool.addString("(Ljava/lang/Object;)Ljava/lang/String;");
   uint16_t intValue_name_idx = constantPool.addString("intValue");
   uint16_t intValue_type_idx = constantPool.addString("()I");
   uint16_t concat_name_idx = constantPool.addString("concat");
@@ -89,6 +89,8 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t length_name_idx = constantPool.addString("length");
   uint16_t stack_class_name_idx = constantPool.addString("java/util/ArrayDeque");
   uint16_t pop_name_idx = constantPool.addString("pop");
+  uint16_t append_name_idx = constantPool.addString("append");
+  uint16_t append_type_idx = constantPool.addString("(Ljava/lang/String;)Ljava/lang/StringBuilder;");
   uint16_t pop_type_idx = constantPool.addString("()Ljava/lang/Object;");
   uint16_t push_name_idx = constantPool.addString("push");
   uint16_t push_type_idx = constantPool.addString("(Ljava/lang/Object;)V");
@@ -117,7 +119,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   constantPool.str_idx.class_idx = constantPool.addClassRef(string_idx);
   constantPool.arr_idx.class_idx = constantPool.addClassRef(stack_class_name_idx);
   constantPool.list_idx.class_idx = constantPool.addClassRef(list_str_idx);
-  constantPool.str_idx.class_builder_idx = constantPool.addClassRef(stringbuilder_idx);
+  constantPool.str_builder_idx.class_idx = constantPool.addClassRef(stringbuilder_idx);
 
 
   ///  Add name and type
@@ -136,6 +138,8 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t substring_name_type_idx = constantPool.addNameAndType(substring_name_idx, substring_type_idx);
   uint16_t substring_name_type_single_idx = constantPool.addNameAndType(substring_name_idx, substring_type_single_idx);
   uint16_t length_name_type_idx = constantPool.addNameAndType(length_name_idx, intValue_type_idx);
+  uint16_t append_name_type_idx = constantPool.addNameAndType(append_name_idx, append_type_idx);
+  uint16_t init_builder_name_type_idx = constantPool.addNameAndType(object_name_idx, print_type_idx);
   constantPool.addNameAndType(stack_init_idx, void_descriptor_idx);
   uint16_t pop_name_type_idx = constantPool.addNameAndType(pop_name_idx, pop_type_idx);
   uint16_t push_name_type_idx = constantPool.addNameAndType(push_name_idx, push_type_idx);
@@ -163,6 +167,8 @@ Backend::Status Backend::Generate(Graphs& graphs,
   constantPool.str_idx.substring_idx = constantPool.addMethRef(constantPool.str_idx.class_idx, substring_name_type_single_idx);
   constantPool.str_idx.length_idx = constantPool.addMethRef(constantPool.str_idx.class_idx, length_name_type_idx);
   constantPool.str_idx.length_idx = constantPool.addMethRef(constantPool.str_idx.class_idx, length_name_type_idx);
+  constantPool.str_builder_idx.append_idx = constantPool.addMethRef(constantPool.str_builder_idx.class_idx, append_name_type_idx);
+  constantPool.str_builder_idx.init_idx = constantPool.addMethRef(constantPool.str_builder_idx.class_idx, init_builder_name_type_idx);
   constantPool.arr_idx.init_idx = constantPool.addMethRef(constantPool.arr_idx.class_idx, object_name_type_idx);
   constantPool.arr_idx.pop_idx = constantPool.addMethRef(constantPool.arr_idx.class_idx, pop_name_type_idx);
   constantPool.arr_idx.push_idx = constantPool.addMethRef(constantPool.arr_idx.class_idx, push_name_type_idx);

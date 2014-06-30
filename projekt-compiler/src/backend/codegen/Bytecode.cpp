@@ -254,7 +254,9 @@ codegen::Bytecode* codegen::Bytecode::add_byte(uint8_t byte) {
 
 /**
  * The method compares two ints. The way of comparing is given dynamically via
- * the comparator parameter.
+ * the comparator parameter. It is needed to implement the greater method.
+ * More utility may follow.
+ *
  * IF_ICMPEQ     a != b
  * IF_ICMPGE      a < b
  * IF_ICMPGT     a <= b
@@ -367,64 +369,78 @@ void codegen::mod_ByteCode(Bytecode::Current_state state) {
 }
 
 //STRING OPERATIONS
+/**
+ * The method cuts a string at a given index.
+ * It works with Java's substring() method.
+ * It is the bytecode implementation of the rail command 'c'.
+ *
+ * @param state        The current state of the bytecode stream.
+ * @return void
+ */
 void codegen::cut_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
 
-  uint16_t field_stack_idx = pool.arr_idx.field_idx;
-  uint16_t toString_idx = pool.obj_idx.toString;
-
-  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_stack_idx)
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
       ->globalstack_pop()
       ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.int_idx.int_value_idx)
       ->add_opcode(codegen::MNEMONIC::ISTORE_1)
-      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_stack_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
       ->globalstack_pop()
       ->add_opcode(codegen::MNEMONIC::ASTORE_2)
-      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_stack_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
       ->add_opcode(codegen::MNEMONIC::ALOAD_2)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, toString_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
       ->add_opcode(codegen::MNEMONIC::ICONST_0)
       ->add_opcode(codegen::MNEMONIC::ILOAD_1)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.substring_2param_idx)
       ->globalstack_push()
-      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_stack_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
       ->add_opcode(codegen::MNEMONIC::ALOAD_2)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, toString_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
       ->add_opcode(codegen::MNEMONIC::ILOAD_1)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.substring_idx)
       ->globalstack_push()
       ->inc_local_count(2);
 }
 
+/**
+ * The method appends a string with another one.
+ * It works with Java's append() method in class StringBuilder.
+ * It is the bytecode implementation of the rail command 'p'.
+ *
+ * @param state        The current state of the bytecode stream.
+ * @return void
+ */
 void codegen::append_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
 
-  uint16_t builder_toString_idx = code->get_method_idx("java/lang/StringBuilder", "toString", "()Ljava/lang/String;");
-  uint16_t append_idx = code->get_method_idx("java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
-  uint16_t builder_init_idx = code->get_method_idx("java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V");
-
-  //TODO CHECK IF VALUE OF IS USELESS IN THIS METHOD
-
   code->globalstack_pop()
       ->add_opcode(codegen::MNEMONIC::ASTORE_1)
       ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
-      ->add_opcode_with_idx(codegen::MNEMONIC::NEW, code->get_class_idx("java/lang/StringBuilder"))
+      ->add_opcode_with_idx(codegen::MNEMONIC::NEW, pool.str_builder_idx.class_idx)
       ->add_opcode(codegen::MNEMONIC::DUP)
       ->globalstack_pop()
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.str_idx.value_of_idx)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, builder_init_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, pool.str_builder_idx.init_idx)
       ->add_opcode(codegen::MNEMONIC::ALOAD_1)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, append_idx)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, builder_toString_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_builder_idx.append_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
       ->globalstack_push()
       ->inc_local_count(2);
 }
 
+/**
+ * The method determines the size of a given string
+ * It works with Java's length() method of the class java.lang.String.
+ * It is the bytecode implementation of the rail command 'z'.
+ *
+ * @param state        The current state of the bytecode stream.
+ * @return void
+ */
 void codegen::size_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
@@ -498,10 +514,26 @@ void codegen::list_pop_ByteCode(Bytecode::Current_state state) {
 }
 
 //BOOLEAN ARITHMETIC
+/**
+ * The method push a 0 on the stack to indicate a false.
+ * It is the bytecode implementation of the rail command 'f'.
+ *
+ * @param state        The current state of the bytecode stream.
+ * @return void
+ */
 void codegen::false_ByteCode(Bytecode::Current_state state) {
   push_ByteCode(state);
 }
 
+/**
+ * The method determines whether the first value is greater than the
+ * second value and pushes a 1 for true or a 0 for false, respectively.
+ * It uses the method @see add_two_int_compare to compare two ints.
+ * It is the bytecode implementation of the rail command 'g'.
+ *
+ * @param state        The current state of the bytecode stream.
+ * @return void
+ */
 void codegen::greater_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
@@ -512,6 +544,15 @@ void codegen::greater_ByteCode(Bytecode::Current_state state) {
       ->inc_local_count(3);
 }
 
+/**
+ * The method determines whether the first value and the second value
+ * are equal or not and pushes a 1 for true or a 0 for false, respectively.
+ * It works with references and Java's equals() method.
+ * It is the bytecode implementation of the rail command 'q'.
+ *
+ * @param state        The current state of the bytecode stream.
+ * @return void
+ */
 void codegen::equal_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
@@ -528,6 +569,13 @@ void codegen::equal_ByteCode(Bytecode::Current_state state) {
       ->inc_local_count(3);
 }
 
+/**
+ * The method push a 1 on the stack to indicate a true.
+ * It is the bytecode implementation of the rail command 't'.
+ *
+ * @param state        The current state of the bytecode stream.
+ * @return void
+ */
 void codegen::true_ByteCode(Bytecode::Current_state state) {
   push_ByteCode(state);
 }

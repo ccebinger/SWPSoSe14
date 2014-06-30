@@ -53,12 +53,18 @@ struct IntegerIndexes {
 
 struct StringIndexes {
   uint16_t class_idx = 0;
-  uint16_t class_builder_idx = 0;
   uint16_t concat_idx = 0;
   uint16_t substring_2param_idx = 0;
   uint16_t substring_idx = 0;
   uint16_t length_idx = 0;
   uint16_t value_of_idx = 0;
+};
+
+struct StringBuilderIndexes{
+  uint16_t class_idx = 0;
+  uint16_t toString_idx = 0;
+  uint16_t append_idx = 0;
+  uint16_t init_idx = 0;
 };
 
 struct ArrayDequeIndexes {
@@ -142,6 +148,7 @@ class ConstantPool {
  public:
   IntegerIndexes int_idx;
   StringIndexes str_idx;
+  StringBuilderIndexes str_builder_idx;
   ArrayDequeIndexes arr_idx;
   ObjectIndexes obj_idx;
   ListIndexes list_idx;
