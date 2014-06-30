@@ -198,20 +198,6 @@ codegen::Bytecode* codegen::Bytecode::add_opcode_with_idx(codegen::MNEMONIC opco
   return this;
 }
 
-codegen::Bytecode* codegen::Bytecode::add_type_check(uint16_t class_idx) {
-  add_opcode_with_idx(codegen::MNEMONIC::INSTANCE_OF, class_idx);
-  std::vector<unsigned char> body;
-
-  uint16_t init_idx = get_method_idx("java/lang/IllegalArgumentException", "<init>", "()V");
-  add_opcode_with_idx(codegen::MNEMONIC::NEW, get_class_idx("java/lang/IllegalArgumentException"), body);
-  body.push_back(codegen::MNEMONIC::DUP);
-  add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, init_idx, body);
-  body.push_back(codegen::MNEMONIC::ATHROW);
-
-  add_conditional_with_instruction(codegen::MNEMONIC::IFNE, body);
-  return this;
-}
-
 codegen::Bytecode* codegen::Bytecode::add_static_field_method_call(uint16_t field_idx,
                                                                    uint16_t method_idx) {
   add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_idx);
@@ -225,14 +211,11 @@ codegen::Bytecode* codegen::Bytecode::add_integer_calculation(MNEMONIC calculati
 
   add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx);
   globalstack_pop();
-  //We may want to change the checkcast here. I needed it for it to work, but maybe we find another way
   add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx);
-  //BytecodeGenerator::add_instance_of(constantPool.addClassRef(constantPool.addString("java/lang/Integer")), constantPool, result);
   add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, intValue_idx);
   bytecode.push_back(codegen::MNEMONIC::ISTORE_1);
   globalstack_pop();
   add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx);
-  //BytecodeGenerator::add_instance_of(constantPool.addClassRef(constantPool.addString("java/lang/Integer")), constantPool, result);
   add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, intValue_idx);
   bytecode.push_back(codegen::MNEMONIC::ILOAD_1);
   bytecode.push_back(calculation);
