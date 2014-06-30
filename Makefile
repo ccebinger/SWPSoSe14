@@ -68,10 +68,10 @@ unittest_classfile_writer_test: constant_pool.o classfile_writer.o Graphs.o Byte
 	$(CC) constant_pool.o classfile_writer.o Graphs.o Bytecode_writer.o local_variable_stash.o Bytecode.o adjacency_list.o Lexer.o Parser.o backend.o Env.o classfile_writer_test.o -o unittest_classfile_writer_test
 
 compile: 
-	./fu-rail -i ./fu-rail -i projekt-compiler/test/movement/y_junction/fail/e_junctest.rail -o e_junctest.class
+	./fu-rail -i ./fu-rail -i projekt-compiler/test/movement/y_junction/junctest.rail -o junctest.class
 
 run: 
-	java e_junctest
+	java junctest
 
 clean:
 	rm *.o fu-rail rail unittest_constantpool unittest_classfile_writer_test
