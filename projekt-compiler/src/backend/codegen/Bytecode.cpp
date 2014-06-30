@@ -542,7 +542,7 @@ void codegen::input_ByteCode(Bytecode::Current_state state) {
    code->add_opcode(codegen::MNEMONIC::ILOAD_1);
    // bipush 48
    code->add_opcode(codegen::MNEMONIC::BIPUSH);
-   code->add_byte(48);
+   code->add_byte('0');
    // if_icmplt [not_digit]  // cond. jump to else
    code->add_opcode_with_idx(codegen::MNEMONIC::IF_ICMPLT, 19);
    // iload_1
