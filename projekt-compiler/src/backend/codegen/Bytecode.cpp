@@ -620,7 +620,9 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
 void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
 
-  code->globalstack_pop()
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC,
+                            code->get_constant_pool().arr_idx.field_idx)
+      ->globalstack_pop();
       ->add_conditional_with_else_branch(state.current_node->successor1,
                                          state.current_node->successor2);
   std::cout << "if_or_while_Bytecode: " << state.current_node->command.extractAstCommandString() << std::endl;
