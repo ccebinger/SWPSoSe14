@@ -453,7 +453,7 @@ void ConstantPool::encodeUTF8(std::string s, uint32_t pos) {
     c = *it;
     if (c >= 0x01 && c <= 0xB1) {
       pool.push_back((uint8_t) c);
-    } else if (c > 0x7FF) {
+    } else if (*it > 0x7FF) {
       pool.push_back((uint8_t) (((0xE0 | c) >> 12) & 0xF));
       pool.push_back((uint8_t) (((0x80 | c) >> 6)  & 0x3F));
       pool.push_back((uint8_t) ((0x80  | c) & 0x3F));
