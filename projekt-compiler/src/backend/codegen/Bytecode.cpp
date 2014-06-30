@@ -549,14 +549,14 @@ void codegen::input_ByteCode(Bytecode::Current_state state) {
    code->add_opcode(codegen::MNEMONIC::ILOAD_1);
    // bipush 57
    code->add_opcode(codegen::MNEMONIC::BIPUSH);
-   code->add_byte(57);
+   code->add_byte('9');
    // if_icmpgt [not_digit]  // cond. jump to else
    code->add_opcode_with_idx(codegen::MNEMONIC::IF_ICMPGT, 13);
    // iload_1
    code->add_opcode(codegen::MNEMONIC::ILOAD_1);
    // bipush 48              // push Integer.valueOf(result-48)
    code->add_opcode(codegen::MNEMONIC::BIPUSH);
-   code->add_byte(48);
+   code->add_byte('0');
    // isub
    code->add_opcode(codegen::MNEMONIC::ISUB);
    // invokestatic [Integer.valueOf()]
