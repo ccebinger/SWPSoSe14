@@ -470,9 +470,9 @@ void EditTableWidget::undo(UndoRedoElement *e)
     {
         TextSelection tmpClipboard(m_clipboard);
 
-        m_clipboard.m_text = cutPasteUndo->getPre();
-        m_clipboard.m_height = cutPasteUndo->getBottom() - cutPasteUndo->getTop();
-        m_clipboard.m_width = cutPasteUndo->getRight() - cutPasteUndo->getLeft();
+        int width = cutPasteUndo->getRight() - cutPasteUndo->getLeft();
+        int height = cutPasteUndo->getBottom() - cutPasteUndo->getTop();
+        m_clipboard = TextSelection(cutPasteUndo->getPre(), width, height);
 
         setPosition(cutPasteUndo->getTop(), cutPasteUndo->getLeft());
         paste(true);
@@ -502,9 +502,9 @@ void EditTableWidget::redo(UndoRedoElement *e)
     {
         TextSelection tmpClipboard(m_clipboard);
 
-        m_clipboard.m_text = cutPasteRedo->getPost();
-        m_clipboard.m_height = cutPasteRedo->getBottom() - cutPasteRedo->getTop();
-        m_clipboard.m_width = cutPasteRedo->getRight() - cutPasteRedo->getLeft();
+        int width = cutPasteRedo->getRight() - cutPasteRedo->getLeft();
+        int height = cutPasteRedo->getBottom() - cutPasteRedo->getTop();
+        m_clipboard = TextSelection(cutPasteRedo->getPost(), width, height);
         setPosition(cutPasteRedo->getTop(), cutPasteRedo->getLeft());
         paste(true);
 
@@ -552,9 +552,9 @@ void EditTableWidget::cut(bool isDelete)
 
     if(!isDelete)
     {
-        m_clipboard.m_text = pre;
-        m_clipboard.m_height = selection.bottomRow() - selection.topRow();
-        m_clipboard.m_width = selection.rightColumn() - selection.leftColumn();
+        int width = selection.rightColumn() - selection.leftColumn();
+        int height = selection.bottomRow() - selection.topRow();
+        m_clipboard = TextSelection(pre, width, height);
     }
 
     // generate undo/redo-element
@@ -591,9 +591,9 @@ void EditTableWidget::copy()
         }
     }
 
-    m_clipboard.m_text = pre;
-    m_clipboard.m_height = selection.bottomRow() - selection.topRow();
-    m_clipboard.m_width = selection.rightColumn() - selection.leftColumn();
+    int width = selection.rightColumn() - selection.leftColumn();
+    int height = selection.bottomRow() - selection.topRow();
+    m_clipboard = TextSelection(pre, width, height);
 }
 
 void EditTableWidget::paste()
@@ -604,8 +604,8 @@ void EditTableWidget::paste()
 void EditTableWidget::paste(bool suppressUndoRedoCreation)
 {
     // extend the table, if necessary
-    int maxRow = std::max(this->rowCount(), m_cursorRowPos + m_clipboard.m_height+1);
-    int maxCol = std::max(this->columnCount(), m_cursorColPos + m_clipboard.m_width+1);
+    int maxRow = std::max(this->rowCount(), m_cursorRowPos + m_clipboard.height()+1);
+    int maxCol = std::max(this->columnCount(), m_cursorColPos + m_clipboard.width()+1);
 
     this->setRowCount(maxRow);
     this->setColumnCount(maxCol);
@@ -614,11 +614,11 @@ void EditTableWidget::paste(bool suppressUndoRedoCreation)
     QLabel *l;
     QList<QChar> pre, post;
     int i = 0;
-    for(int row = m_cursorRowPos; row <= m_cursorRowPos + m_clipboard.m_height; row++)
+    for(int row = m_cursorRowPos; row <= m_cursorRowPos + m_clipboard.height(); row++)
     {
-        for(int col = m_cursorColPos; col <= m_cursorColPos + m_clipboard.m_width; col++)
+        for(int col = m_cursorColPos; col <= m_cursorColPos + m_clipboard.width(); col++)
         {
-            QChar c = m_clipboard.m_text.at(i++);
+            QChar c = m_clipboard.text().at(i++);
             w = this->cellWidget(row, col);
             if(w)
             {
@@ -642,13 +642,13 @@ void EditTableWidget::paste(bool suppressUndoRedoCreation)
             post << c;
         }
     }
-    setSelection(m_cursorRowPos, m_cursorColPos, m_clipboard.m_width, m_clipboard.m_height);
+    setSelection(m_cursorRowPos, m_cursorColPos, m_clipboard.width(), m_clipboard.height());
     recalculateMaximumValues();
 
     // generate undo/redo-element
     if(!suppressUndoRedoCreation && !this->signalsBlocked())
     {
-        UndoRedoCutPaste *undoRedoElement = new UndoRedoCutPaste(m_cursorRowPos, m_cursorColPos, m_cursorRowPos+m_clipboard.m_height, m_cursorColPos+m_clipboard.m_width, pre, post, "Paste");
+        UndoRedoCutPaste *undoRedoElement = new UndoRedoCutPaste(m_cursorRowPos, m_cursorColPos, m_cursorRowPos+m_clipboard.height(), m_cursorColPos+m_clipboard.width(), pre, post, "Paste");
         emit undoRedoElementCreated(undoRedoElement);
         emit textChanged();
     }
@@ -661,8 +661,8 @@ void EditTableWidget::gotoPostion(int row, int column)
 
 void EditTableWidget::setSelection(int row, int col, int width, int height)
 {
-    setPosition(row + height - 1, col + height - 1, true);
-    setPosition(row, col, false);
+    setPosition(row + height, col + width, false);
+    setPosition(row, col, true);
 }
 
 void EditTableWidget::updateTextStyle()
