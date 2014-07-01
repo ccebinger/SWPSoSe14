@@ -44,9 +44,9 @@ bool operator==(const NodeIdentifier &l,const NodeIdentifier &r){
 		return l.posRow==r.posRow && l.posCol==r.posCol && l.dir==r.dir;
 }
 
-Parser::Parser(std::shared_ptr<RailFunction> railFunction) {
-	this->board = railFunction;
-	abstractSyntaxGraph = nullptr;
+Parser::Parser(map<string,shared_ptr<RailFunction>> lexedFunctions) {
+	this->lexedFunctions = lexedFunctions;
+	currentAbstractSyntaxGraph = nullptr;
 }
 
 void Parser::setRowCol(int newRow, int newCol){
@@ -54,7 +54,33 @@ void Parser::setRowCol(int newRow, int newCol){
 	posCol = newCol;
 }
 
-shared_ptr<Adjacency_list> Parser::parseGraph() {
+Graphs Parser::parseGraphs(Graphs graphs) {
+	this->graphs = graphs;
+	//mark all already existing function names as used so they cant get overwritten when lambda function names are generated!
+	for (std::map<string, std::shared_ptr<RailFunction>>::iterator it = lexedFunctions.begin(); it != lexedFunctions.end(); ++it){
+		allCurrentlyUsedFunctionNames.insert(it->first);
+	}
+	for (std::map<string, std::shared_ptr<RailFunction>>::iterator it = lexedFunctions.begin(); it != lexedFunctions.end(); ++it)
+	{
+	  this->board = it->second;
+	  Parser::parseCompleteBoard(it->first);
+	}
+	return this->graphs;
+	//this->board = railFunction;
+}
+
+void Parser::parseLambdaFunction(string fname,int startPosRow, int startPosCol, Direction startDir){
+	currentAbstractSyntaxGraph = nullptr;
+	addNextNodeAsTruePathOfPreviousNode = true;
+	std::shared_ptr<Adjacency_list> graph = parseGraph(startPosRow,startPosCol,startDir);
+	if(graph == nullptr){
+		throw EnvException(FRONTEND_PARSER, "Anonymous Function undefined in " + Env::getSrcFile());
+	}
+	graphs.put(fname,graph);
+}
+
+void Parser::parseCompleteBoard(string fname) {
+	currentAbstractSyntaxGraph = nullptr;
 	addNextNodeAsTruePathOfPreviousNode = true;
 	int startPosCol=-1;
 	//find $, initiate pos
@@ -67,11 +93,14 @@ shared_ptr<Adjacency_list> Parser::parseGraph() {
 	if(startPosCol == -1) {
 		throw new EnvException(FRONTEND_PARSER, "$ not found");
 	}
-	return parseGraph(0,startPosCol,SE);
+	std::shared_ptr<Adjacency_list> graph = parseGraph(0,startPosCol,SE);
+	if(graph == nullptr){
+		throw EnvException(FRONTEND_PARSER, "Function undefined in " + Env::getSrcFile());
+	}
+	graphs.put(fname,graph);
 }
 
-shared_ptr<Adjacency_list> Parser::parseGraph(int startPosRow, int startPosCol, Direction startDir) {
-
+std::shared_ptr<Adjacency_list> Parser::parseGraph(int startPosRow, int startPosCol, Direction startDir) {
 	if(Env::verbose()) {
 		cout << "Begin parsing..." << endl;
 	}
@@ -98,7 +127,7 @@ shared_ptr<Adjacency_list> Parser::parseGraph(int startPosRow, int startPosCol, 
 	if(Env::verbose()) {
 		cout << "Finished parsing" << endl;
 	}
-	return abstractSyntaxGraph;
+	return currentAbstractSyntaxGraph;
 }
 
 void Parser::move() {
@@ -363,13 +392,53 @@ bool Parser::checkForValidCommandsInStraightDir(int straightRow, int straightCol
 			setRowCol(straightRow, straightCol);
 			parsingNotFinished = addToAbstractSyntaxGraph("~", Command::Type::LIST_BREAKUP, id);
 			break;
-
+		case '&': // anonymous function
+		{
+			setRowCol(straightRow, straightCol);
+			parseLambda(id);
+			break;
+		}
 		default:
 			didGoStraight = false;
 			break;
 	}
-
 	return didGoStraight;
+}
+
+void Parser::parseLambda(NodeIdentifier id){
+	string lambdaName = findUnusedFunctionName();
+	parsingNotFinished = addToAbstractSyntaxGraph(lambdaName, Command::Type::LAMBDA, id);
+	//save status before parsing lambda function, so it can be restored afterwards.
+	int prePosRow = posRow;
+	int prePosCol = posCol;
+	Direction preDir = dir;
+	bool preParsingNotFinished = parsingNotFinished;
+	std::shared_ptr<Adjacency_list> preASG = currentAbstractSyntaxGraph;
+	//parse lambda function
+	parseLambdaFunction(lambdaName,posRow,posCol,dir);
+	//reset status after parsing lambda function:
+	posRow = prePosRow;
+	posCol = prePosCol;
+	dir = preDir;
+	currentAbstractSyntaxGraph = preASG;
+	parsingNotFinished = preParsingNotFinished;
+	reverseDirection();
+}
+
+string Parser::findUnusedFunctionName(){
+	int count = 0;
+	string name;
+	while(true){
+		std::ostringstream s;
+		s << "&" << count;
+		name = s.str();
+		if(allCurrentlyUsedFunctionNames.find(name)==allCurrentlyUsedFunctionNames.end()){
+			allCurrentlyUsedFunctionNames.insert(name);
+			break;
+		}
+		count++;
+	}
+	return name;
 }
 
 
@@ -456,7 +525,7 @@ bool Parser::addToAbstractSyntaxGraph(string commandName, Command::Type type, No
 			cout << "\tReached Node that was already parsed once: " << commandName << endl;
 		}
 		node = allNodes.at(id);
-		abstractSyntaxGraph->addEdge(currentNode, node, addNextNodeAsTruePathOfPreviousNode);
+		currentAbstractSyntaxGraph->addEdge(currentNode, node, addNextNodeAsTruePathOfPreviousNode);
 		currentNode = node;
 		nodeWasNew = false;
 	} else{
@@ -467,15 +536,15 @@ bool Parser::addToAbstractSyntaxGraph(string commandName, Command::Type type, No
 		std::shared_ptr<Node> node(new Node());
 		node->command = {type,commandName};
 		//TODO:an Graph Schnittstelle anpassen
-		if(abstractSyntaxGraph == NULL) {
+		if(currentAbstractSyntaxGraph == NULL) {
 			//this is the first node that we meet, create a new one
 			node->id = 1;
 			lastUsedId = 1;
-			abstractSyntaxGraph.reset(new Adjacency_list(board->getName(), node));
+			currentAbstractSyntaxGraph.reset(new Adjacency_list(board->getName(), node));
 		} else {
 			node->id = ++lastUsedId;
-			abstractSyntaxGraph->addNode(node);
-			abstractSyntaxGraph->addEdge(currentNode, node, addNextNodeAsTruePathOfPreviousNode);
+			currentAbstractSyntaxGraph->addNode(node);
+			currentAbstractSyntaxGraph->addEdge(currentNode, node, addNextNodeAsTruePathOfPreviousNode);
 		}
 		allNodes[id] = node;
 		nodeWasNew = true;

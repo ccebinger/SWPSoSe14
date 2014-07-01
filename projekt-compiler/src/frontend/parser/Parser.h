@@ -14,6 +14,9 @@
 
 #include <common/Encoding.h>
 #include <frontend/adjacency_list.h>
+#include <frontend/Graphs.h>
+#include <common/Env.h>
+#include <frontend/lexer/Lexer.h>
 
 
 using namespace std;
@@ -255,13 +258,15 @@ class Parser {
 		int32_t posCol = 0;
 		Direction dir = SE;
 		shared_ptr<RailFunction> board;
+		map<string,shared_ptr<RailFunction>> lexedFunctions;
+		set<string> allCurrentlyUsedFunctionNames;
+		Graphs graphs;
 
 		map<NodeIdentifier,std::shared_ptr<Node>> allNodes;
-		std::shared_ptr<Adjacency_list> abstractSyntaxGraph;
+		std::shared_ptr<Adjacency_list> currentAbstractSyntaxGraph;
 		std::shared_ptr<Node> currentNode;
 		int lastUsedId = 0;
 		bool addNextNodeAsTruePathOfPreviousNode = true;
-
 
 
 		bool parsingNotFinished = true;
@@ -280,19 +285,30 @@ class Parser {
 		void stepStraight();
 		string readCharsUntil(uint32_t);
 		string readConstantStringUntil(uint32_t);
-		shared_ptr<Adjacency_list> parseGraph(int,int,Direction);
+		std::shared_ptr<Adjacency_list> parseGraph(int,int,Direction);
+		/**
+		* Parses a rail function and puts its contents (adjacency-list) into the graphs-data structure
+		* @ param fname the name of the rail function to be parsed.
+		* @returns An Adjacency_list object, which is basically a graph consisting of the rail-commands used in the function.
+		*/
+		void parseCompleteBoard(string fname);
+		string findUnusedFunctionName();
+		void parseLambdaFunction(string,int,int,Direction);
+		void parseLambda(NodeIdentifier id);
 	public:
 		/**
 		* Creates a Parser object.
 		* The object should only be used for parsing one Rail-Function at the Moment. For a subsequent function, a new Parser-object should be created
 		* @param railFunction a RailFunction object containing the rail function to be parsed.
+		* @param allCurrentlyUsedNames contains all function names that are currently being used
 		*/
-		Parser(shared_ptr<RailFunction> railFunction);
+		Parser(map<string,std::shared_ptr<RailFunction>> lexedFunctions);
+
 		/**
-		* Parses a rail function and returns its contents as a serializable graph.
-		* @returns An Adjacency_list object, which is basically a graph consisting of the rail-commands used in the function.
-		*/
-		shared_ptr<Adjacency_list> parseGraph();
+		 * Parses all Rail-Functions that were passed in the constructor and inserts their adjacency-lists into the graphs object.
+		 * @param graphs an empty Graphs object that will be filled after this function-call
+		 */
+		Graphs parseGraphs(Graphs graphs);
 };
 
 #endif
