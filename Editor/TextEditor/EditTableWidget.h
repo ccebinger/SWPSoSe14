@@ -36,8 +36,9 @@ private:
     void calculateCellFromPos(QPoint pos, int *row, int *column) const;
     void recalculateMaximumValues();
     void setPosition(int row, int col, bool extendSelection = false);
-    void setSign(QChar c, bool suppressUndoRedoCreation = false);
-    void removeSign(bool suppressUndoRedoCreation = false);
+    void setSign(int row, int col, QChar c, bool suppressUndoRedoCreation = false);
+    void removeSign(int row, int col, bool suppressUndoRedoCreation = false);
+    void cut(bool isDelete);
     void paste(bool suppressUndoRedoCreation);
 
     void applyStyleChanges(Stack *stack);
