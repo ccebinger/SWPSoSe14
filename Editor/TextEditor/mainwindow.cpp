@@ -792,6 +792,7 @@ void MainWindow::showApplicationPreferences()
     ApplicationPreferencesDialog dlg;
     dlg.exec();    
     ui->ui_sourceEditTableWidget->verticalHeader()->setVisible(ApplicationPreferences::showLineNumbers);
+    ui->ui_sourceEditTableWidget->updateTextStyle();
 }
 
 void MainWindow::readSettings()
@@ -831,6 +832,7 @@ void MainWindow::readSettings()
 
     ApplicationPreferences::recentFiles = settings.value("common/recentFiles", ApplicationDefaultValues::recentFiles).toStringList();
     ApplicationPreferences::showLineNumbers = settings.value("common/showLineNumbers", ApplicationDefaultValues::showLineNumbers).toBool();
+    ApplicationPreferences::showWhiteSpaces = settings.value("common/showWhiteSpaces", ApplicationDefaultValues::showWhiteSpaces).toBool();
 
     ApplicationPreferences::createASGFiles = settings.value("build/createASG", ApplicationDefaultValues::createASGFiles).toBool();
     ApplicationPreferences::createGraphVizFiles = settings.value("build/createGraphViz", ApplicationDefaultValues::createGraphVizFiles).toBool();
@@ -868,6 +870,7 @@ void MainWindow::writeSettings() const
 
     settings.setValue("common/recentFiles", shortenendRecent);
     settings.setValue("common/showLineNumbers", ApplicationPreferences::showLineNumbers);
+    settings.setValue("common/showWhiteSpaces", ApplicationPreferences::showWhiteSpaces);
 
     settings.setValue("build/createASG", ApplicationPreferences::createASGFiles);
     settings.setValue("build/createGraphViz", ApplicationPreferences::createGraphVizFiles);

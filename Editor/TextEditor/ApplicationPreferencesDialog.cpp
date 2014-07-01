@@ -45,6 +45,7 @@ void ApplicationPreferencesDialog::init()
     ui->ui_quietCompilerOutputCheckBox->setChecked(ApplicationPreferences::quietCompilerOutput);
 
     ui->ui_showLineNumbersCheckBox->setChecked(ApplicationPreferences::showLineNumbers);
+    ui->ui_showWhiteSpacesCheckBox->setChecked(ApplicationPreferences::showWhiteSpaces);
 
     QPixmap pixmap(20, 20);
     pixmap.fill(ApplicationPreferences::unconnectedRailsColor);
@@ -121,6 +122,7 @@ void ApplicationPreferencesDialog::okClick()
     ApplicationPreferences::quietCompilerOutput = ui->ui_quietCompilerOutputCheckBox->isChecked();
 
     ApplicationPreferences::showLineNumbers = ui->ui_showLineNumbersCheckBox->isChecked();
+    ApplicationPreferences::showWhiteSpaces = ui->ui_showWhiteSpacesCheckBox->isChecked();
     ApplicationPreferences::unconnectedRailsColor = m_unconnectedRailsColor;
     ApplicationPreferences::connectedRailsColor = m_connectedRailsColor;
     ApplicationPreferences::functionNamesColor = m_functionNamesColor;
@@ -143,6 +145,7 @@ void ApplicationPreferencesDialog::restoreDefaultsClick()
     else if(ui->ui_tabWidget->currentIndex() == ui->ui_tabWidget->indexOf(ui->ui_editorTab))
     {
         ApplicationPreferences::showLineNumbers = ApplicationDefaultValues::showLineNumbers;
+        ApplicationPreferences::showWhiteSpaces = ApplicationDefaultValues::showWhiteSpaces;
         ApplicationPreferences::unconnectedRailsColor = ApplicationDefaultValues::unconnectedRailsColor;
         ApplicationPreferences::connectedRailsColor = ApplicationDefaultValues::connectedRailsColor;
         ApplicationPreferences::functionNamesColor = ApplicationDefaultValues::functionNamesColor;

@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>556</width>
-    <height>365</height>
+    <height>375</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -116,7 +116,7 @@
        <string>Editor</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="1" column="0">
+       <item row="2" column="0">
         <widget class="QGroupBox" name="ui_syntaxHighlightingGroupBox">
          <property name="layoutDirection">
           <enum>Qt::LeftToRight</enum>
@@ -232,6 +232,13 @@
         <widget class="QCheckBox" name="ui_showLineNumbersCheckBox">
          <property name="text">
           <string>Show Line Numbers</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="ui_showWhiteSpacesCheckBox">
+         <property name="text">
+          <string>Show Whitespaces</string>
          </property>
         </widget>
        </item>

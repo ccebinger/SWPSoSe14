@@ -17,6 +17,7 @@ namespace ApplicationDefaultValues
 
     const QStringList recentFiles = QStringList();
     const bool showLineNumbers = false;
+    const bool showWhiteSpaces = false;
 }
 
 namespace ApplicationPreferences
@@ -36,4 +37,5 @@ namespace ApplicationPreferences
 
     QStringList recentFiles;
     bool showLineNumbers;
+    bool showWhiteSpaces;
 }

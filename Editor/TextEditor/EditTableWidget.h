@@ -5,6 +5,7 @@
 
 #include <QTableWidget>
 #include "UndoRedoElement.h"
+#include "TextSelection.h"
 
 class EditTableWidget : public QTableWidget
 {
@@ -26,6 +27,7 @@ public:
     void copy();
     void paste();
     void gotoPostion(int row, int column);
+    void updateTextStyle();
 
 private:
     void mousePressEvent(QMouseEvent *mouseEvent);
@@ -38,6 +40,7 @@ private:
     void setPosition(int row, int col, bool extendSelection = false);
     void setSign(int row, int col, QChar c, bool suppressUndoRedoCreation = false);
     void removeSign(int row, int col, bool suppressUndoRedoCreation = false);
+    QChar getSign(int row, int col) const;
     void cut(bool isDelete);
     void paste(bool suppressUndoRedoCreation);
 
@@ -50,11 +53,17 @@ private:
     int m_textMaxRow, m_textMaxCol;
     const int m_elementHeight, m_elementWidth;
     Graph_Interface m_graph;
-    QList<QChar> m_clipboard;
-    int m_clipboardWidth;
-    int m_clipboardHeight;
+    TextSelection m_clipboard;
+
+    bool m_isInHoverMode;
+    QList<QChar> m_hoverText;
+    int m_hoverRowOrigin;
+    int m_hoverColOrigin;
+    int m_hoverTextWidth;
+    int m_hoverTextHeight;
 
     void calculateDimensions();
+    void setSelection(int row, int col, int width, int height);
 };
 
 #endif // EDITTABLEWIDGET_H

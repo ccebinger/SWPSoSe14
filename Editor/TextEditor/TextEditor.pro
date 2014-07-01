@@ -21,7 +21,8 @@ SOURCES += main.cpp\
     ApplicationConsole.cpp \
     ApplicationPreferencesDialog.cpp \
     FileSelectLineEdit.cpp \
-    ApplicationPreferences.cpp
+    ApplicationPreferences.cpp \
+    TextSelection.cpp
 
 HEADERS  += mainwindow.h \
     EditTableWidget.h \
@@ -38,7 +39,8 @@ HEADERS  += mainwindow.h \
     ApplicationConsole.h \
     ApplicationPreferencesDialog.h \
     FileSelectLineEdit.h \
-    ApplicationPreferences.h
+    ApplicationPreferences.h \
+    TextSelection.h
 
 FORMS    += mainwindow.ui \
     ApplicationPreferencesDialog.ui
