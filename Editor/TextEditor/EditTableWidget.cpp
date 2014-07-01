@@ -16,6 +16,9 @@
 #include <QHeaderView>
 #include <QApplication>
 #include <QColor>
+#include <QPixmap>
+#include <QPainter>
+#include <QMatrix>
 
 #include <math.h>
 #include <assert.h>
@@ -29,6 +32,8 @@ EditTableWidget::EditTableWidget(QWidget *parent) :
     m_elementHeight(20),
     m_elementWidth(12)
 {
+    this->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    this->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     m_cursorRowPos = -1;
     m_cursorColPos = -1;
     m_selectionStartColPos = 0;

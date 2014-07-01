@@ -44,24 +44,32 @@ void ApplicationPreferencesDialog::init()
     ui->ui_generateGraphVizCheckBox->setChecked(ApplicationPreferences::createGraphVizFiles);
     ui->ui_quietCompilerOutputCheckBox->setChecked(ApplicationPreferences::quietCompilerOutput);
 
+    ui->ui_showLineNumbersCheckBox->setChecked(ApplicationPreferences::showLineNumbers);
+
     QPixmap pixmap(20, 20);
     pixmap.fill(ApplicationPreferences::unconnectedRailsColor);
     ui->ui_unconnectedRailsToolButton->setIcon(pixmap);
+    m_unconnectedRailsColor = ApplicationPreferences::unconnectedRailsColor;
 
     pixmap.fill(ApplicationPreferences::connectedRailsColor);
     ui->ui_connectedRailsToolButton->setIcon(pixmap);
+    m_connectedRailsColor = ApplicationPreferences::connectedRailsColor;
 
     pixmap.fill(ApplicationPreferences::functionNamesColor);
     ui->ui_functionNamesToolButton->setIcon(pixmap);
+    m_functionNamesColor = ApplicationPreferences::functionNamesColor;
 
     pixmap.fill(ApplicationPreferences::functionCallsColor);
     ui->ui_functionCallsToolButton->setIcon(pixmap);
+    m_functionCallsColor = ApplicationPreferences::functionCallsColor;
 
     pixmap.fill(ApplicationPreferences::stringsColor);
     ui->ui_stringsToolButton->setIcon(pixmap);
+    m_stringsColor = ApplicationPreferences::stringsColor;
 
     pixmap.fill(ApplicationPreferences::variablesColor);
     ui->ui_variablesToolButton->setIcon(pixmap);
+    m_variablesColor = ApplicationPreferences::variablesColor;
 }
 
 void ApplicationPreferencesDialog::colorToolButtonClicked()
@@ -111,6 +119,8 @@ void ApplicationPreferencesDialog::okClick()
     ApplicationPreferences::createASGFiles = ui->ui_generateASGCheckBox->isChecked();
     ApplicationPreferences::createGraphVizFiles = ui->ui_generateGraphVizCheckBox->isChecked();
     ApplicationPreferences::quietCompilerOutput = ui->ui_quietCompilerOutputCheckBox->isChecked();
+
+    ApplicationPreferences::showLineNumbers = ui->ui_showLineNumbersCheckBox->isChecked();
     ApplicationPreferences::unconnectedRailsColor = m_unconnectedRailsColor;
     ApplicationPreferences::connectedRailsColor = m_connectedRailsColor;
     ApplicationPreferences::functionNamesColor = m_functionNamesColor;
@@ -122,17 +132,24 @@ void ApplicationPreferencesDialog::okClick()
 
 void ApplicationPreferencesDialog::restoreDefaultsClick()
 {
-    ApplicationPreferences::interpreterLocation = ApplicationDefaultValues::interpreterLocation;
-    ApplicationPreferences::compilerLocation = ApplicationDefaultValues::compilerLocation;
-    ApplicationPreferences::createASGFiles = ApplicationDefaultValues::createASGFiles;
-    ApplicationPreferences::createGraphVizFiles = ApplicationDefaultValues::createGraphVizFiles;
-    ApplicationPreferences::quietCompilerOutput = ApplicationDefaultValues::quietCompilerOutput;
-    ApplicationPreferences::unconnectedRailsColor = ApplicationDefaultValues::unconnectedRailsColor;
-    ApplicationPreferences::connectedRailsColor = ApplicationDefaultValues::connectedRailsColor;
-    ApplicationPreferences::functionNamesColor = ApplicationDefaultValues::functionNamesColor;
-    ApplicationPreferences::functionCallsColor = ApplicationDefaultValues::functionCallsColor;
-    ApplicationPreferences::stringsColor = ApplicationDefaultValues::stringsColor;
-    ApplicationPreferences::variablesColor = ApplicationDefaultValues::variablesColor;
+    if(ui->ui_tabWidget->currentIndex() == ui->ui_tabWidget->indexOf(ui->ui_pathsTab))
+    {
+        ApplicationPreferences::interpreterLocation = ApplicationDefaultValues::interpreterLocation;
+        ApplicationPreferences::compilerLocation = ApplicationDefaultValues::compilerLocation;
+        ApplicationPreferences::createASGFiles = ApplicationDefaultValues::createASGFiles;
+        ApplicationPreferences::createGraphVizFiles = ApplicationDefaultValues::createGraphVizFiles;
+        ApplicationPreferences::quietCompilerOutput = ApplicationDefaultValues::quietCompilerOutput;
+    }
+    else if(ui->ui_tabWidget->currentIndex() == ui->ui_tabWidget->indexOf(ui->ui_editorTab))
+    {
+        ApplicationPreferences::showLineNumbers = ApplicationDefaultValues::showLineNumbers;
+        ApplicationPreferences::unconnectedRailsColor = ApplicationDefaultValues::unconnectedRailsColor;
+        ApplicationPreferences::connectedRailsColor = ApplicationDefaultValues::connectedRailsColor;
+        ApplicationPreferences::functionNamesColor = ApplicationDefaultValues::functionNamesColor;
+        ApplicationPreferences::functionCallsColor = ApplicationDefaultValues::functionCallsColor;
+        ApplicationPreferences::stringsColor = ApplicationDefaultValues::stringsColor;
+        ApplicationPreferences::variablesColor = ApplicationDefaultValues::variablesColor;
+    }
 
     init();
 }

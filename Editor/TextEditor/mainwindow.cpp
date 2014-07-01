@@ -35,6 +35,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->ui_inputPlainTextEdit->setFont(f);
     ui->ui_outputPlainTextEdit->setFont(f);
     ui->ui_compilerOutputPlainTextEdit->setFont(f);
+    ui->ui_consolePlainTextEdit->setFont(f);
+    ui->ui_issuesListWidget->setFont(f);
 
     setCurrentPath(QString());
     setModified(false);
@@ -114,6 +116,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->ui_preferencesAction, SIGNAL(triggered()), this, SLOT(showApplicationPreferences()));
 
     readSettings();
+    ui->ui_sourceEditTableWidget->verticalHeader()->setVisible(ApplicationPreferences::showLineNumbers);
     updateRecentFiles();
 }
 
@@ -690,7 +693,7 @@ void MainWindow::javaStarted()
 
 void MainWindow::javaFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    ui->ui_consolePlainTextEdit->appendPlainText("Java finished with exit code " + QString::number(exitCode) + "\n");
+    ui->ui_consolePlainTextEdit->appendPlainText("Java finished with exit code " + QString::number(exitCode) + "\n\n");
     ui->ui_consolePlainTextEdit->setReadOnly(true);
     disconnect(ui->ui_consolePlainTextEdit, SIGNAL(lineEntered(QString)), this, SLOT(consoleLineEntered(QString)));
 
@@ -787,7 +790,8 @@ void MainWindow::issueDoubleClicked(QListWidgetItem *item)
 void MainWindow::showApplicationPreferences()
 {
     ApplicationPreferencesDialog dlg;
-    dlg.exec();
+    dlg.exec();    
+    ui->ui_sourceEditTableWidget->verticalHeader()->setVisible(ApplicationPreferences::showLineNumbers);
 }
 
 void MainWindow::readSettings()
@@ -826,6 +830,7 @@ void MainWindow::readSettings()
     ApplicationPreferences::variablesColor = colorVariant.value<QColor>();
 
     ApplicationPreferences::recentFiles = settings.value("common/recentFiles", ApplicationDefaultValues::recentFiles).toStringList();
+    ApplicationPreferences::showLineNumbers = settings.value("common/showLineNumbers", ApplicationDefaultValues::showLineNumbers).toBool();
 
     ApplicationPreferences::createASGFiles = settings.value("build/createASG", ApplicationDefaultValues::createASGFiles).toBool();
     ApplicationPreferences::createGraphVizFiles = settings.value("build/createGraphViz", ApplicationDefaultValues::createGraphVizFiles).toBool();
@@ -862,6 +867,7 @@ void MainWindow::writeSettings() const
     settings.setValue("colors/variables", ApplicationPreferences::variablesColor);
 
     settings.setValue("common/recentFiles", shortenendRecent);
+    settings.setValue("common/showLineNumbers", ApplicationPreferences::showLineNumbers);
 
     settings.setValue("build/createASG", ApplicationPreferences::createASGFiles);
     settings.setValue("build/createGraphViz", ApplicationPreferences::createGraphVizFiles);
