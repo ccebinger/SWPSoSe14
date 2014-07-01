@@ -13,10 +13,6 @@
  * You should have received a copy of the GNU General Public License along with this
  * program; if not, see <http://www.gnu.org/licenses/>.
  *
- *
- * This class writes the specific class-file we want to create from a rail program.
- * For each function in an rail program (incl. main), we need to produce one class-file.
- *
  */
 
 #include <backend/classfile/classfile_writer.h>
