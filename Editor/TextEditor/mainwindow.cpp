@@ -10,10 +10,14 @@
 #include <qfont.h>
 #include <qprocess.h>
 #include <QDebug>
+#include <QSettings>
+#include <QColor>
 
 #include "UndoRedoStack.h"
 #include "UndoRedoElement.h"
 #include "UndoRedoTypeCharacter.h"
+#include "ApplicationPreferences.h"
+#include "ApplicationPreferencesDialog.h"
 
 #include <assert.h>
 
@@ -24,13 +28,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     ui->ui_insertModeGroupBox->hide();
-    ui->ui_writeDirectionGroupBox->hide();
+    ui->ui_verticalDirectionRadioButton->hide();
 
     QFont f("unexistent");
     f.setStyleHint(QFont::Monospace);
     ui->ui_inputPlainTextEdit->setFont(f);
     ui->ui_outputPlainTextEdit->setFont(f);
     ui->ui_compilerOutputPlainTextEdit->setFont(f);
+    ui->ui_consolePlainTextEdit->setFont(f);
+    ui->ui_issuesListWidget->setFont(f);
 
     setCurrentPath(QString());
     setModified(false);
@@ -44,6 +50,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->ui_windowMenu->addAction(ui->ui_compilerDockWidget->toggleViewAction());
     ui->ui_windowMenu->addAction(ui->ui_consoleDockWidget->toggleViewAction());
     ui->ui_windowMenu->addAction(ui->ui_issuesDockWidget->toggleViewAction());
+    ui->ui_windowMenu->addSeparator();
+    ui->ui_windowMenu->addAction(ui->ui_menuToolBar->toggleViewAction());
+    ui->ui_windowMenu->addAction(ui->ui_editToolBar->toggleViewAction());
+    ui->ui_windowMenu->addAction(ui->ui_compileToolBar->toggleViewAction());
 
     connect(ui->ui_sourceEditTableWidget, SIGNAL(undoRedoElementCreated(UndoRedoElement*)), this, SLOT(undoRedoElementCreated(UndoRedoElement*)));
 
@@ -102,9 +112,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_javaProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(javaFinished(int,QProcess::ExitStatus)));
     connect(m_javaProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(javaProcessError(QProcess::ProcessError)));
 
-    // default compiler path
-    //m_currentBuildPath = "/home/muellerz/SWP/Repository/SWPSoSe14/projekt-compiler/Debug/Compiler";
     connect(ui->ui_issuesListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(issueDoubleClicked(QListWidgetItem*)));
+    connect(ui->ui_preferencesAction, SIGNAL(triggered()), this, SLOT(showApplicationPreferences()));
+
+    readSettings();
+    ui->ui_sourceEditTableWidget->verticalHeader()->setVisible(ApplicationPreferences::showLineNumbers);
+    updateRecentFiles();
 }
 
 MainWindow::~MainWindow()
@@ -129,6 +142,8 @@ MainWindow::~MainWindow()
     source.remove();
     input.remove();
     output.remove();
+
+    writeSettings();
 }
 
 void MainWindow::createTempFiles()
@@ -314,20 +329,29 @@ void MainWindow::openFile()
         if(openDialog.exec() && !openDialog.selectedFiles().isEmpty())
         {
             QString filePath = openDialog.selectedFiles().first();
-            QFile file(filePath);
-            if(file.open(QIODevice::ReadOnly | QIODevice::Text))
-            {
-                setCurrentPath(filePath);
-                ui->ui_sourceEditTableWidget->clear();
-                ui->ui_inputPlainTextEdit->clear();
-                ui->ui_outputPlainTextEdit->clear();
-                ui->ui_sourceEditTableWidget->setPlainText(file.readAll());
-                m_undoRedoStack->clear();
-                setModified(false);
-            }
-            file.close();
+            openFile(filePath);
         }
     }
+}
+
+void MainWindow::openFile(QString const& filePath)
+{
+    QFile file(filePath);
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        setCurrentPath(filePath);
+        ui->ui_sourceEditTableWidget->clear();
+        ui->ui_inputPlainTextEdit->clear();
+        ui->ui_outputPlainTextEdit->clear();
+        ui->ui_sourceEditTableWidget->setPlainText(file.readAll());
+        m_undoRedoStack->clear();
+        setModified(false);
+
+        ApplicationPreferences::recentFiles.removeAll(filePath);
+        ApplicationPreferences::recentFiles.prepend(filePath);
+        updateRecentFiles();
+    }
+    file.close();
 }
 
 void MainWindow::newFile()
@@ -401,13 +425,13 @@ void MainWindow::setInterpreter()
 
     if(openDialog.exec() && !openDialog.selectedFiles().isEmpty())
     {
-        m_currentInterpreterPath = openDialog.selectedFiles().first();
+        ApplicationPreferences::interpreterLocation = openDialog.selectedFiles().first();
     }
 }
 
 void MainWindow::runInterpreter()
 {
-    if(m_currentInterpreterPath.isEmpty())
+    if(ApplicationPreferences::interpreterLocation.isEmpty())
     {
         QMessageBox::information(this, "No Interpreter set.", "You need to set an Interpreter first.");
         return;
@@ -464,7 +488,7 @@ void MainWindow::runInterpreter()
     parameter << "--input=" + QFileInfo(input).absoluteFilePath()
               << "--output=" + QFileInfo(output).absoluteFilePath()
               << QFileInfo(source).absoluteFilePath();
-    m_interpreterProcess->start(m_currentInterpreterPath, parameter);
+    m_interpreterProcess->start(ApplicationPreferences::interpreterLocation, parameter);
 }
 
 void MainWindow::interpreterStarted()
@@ -509,22 +533,22 @@ void MainWindow::interpreterErrorReady()
 void MainWindow::setBuild()
 {
     QFileDialog openDialog(this);
-    openDialog.setWindowTitle("Select Build");
+    openDialog.setWindowTitle("Select Compiler");
     openDialog.setFileMode(QFileDialog::ExistingFile);
 
     if(openDialog.exec() && !openDialog.selectedFiles().isEmpty())
     {
-        m_currentBuildPath = openDialog.selectedFiles().first();
+        ApplicationPreferences::compilerLocation = openDialog.selectedFiles().first();
     }
 }
 
-void MainWindow::runBuild()
+bool MainWindow::runBuild()
 {
     if(m_currentFilePath.isEmpty())
     {
         if(!saveFile())
         {
-            return;
+            return false;
         }
     }
     else
@@ -532,15 +556,15 @@ void MainWindow::runBuild()
         saveFile();
     }
 
-    if(m_currentBuildPath.isEmpty())
+    if(ApplicationPreferences::compilerLocation.isEmpty())
     {
         QMessageBox::information(this, "No Compiler set.", "You need to set a Compiler first.");
-        return;
+        return false;
     }
     if(m_buildProcess->state() == QProcess::Running)
     {
         QMessageBox::information(this, "Compiler is already running.", "The Compiler is already running.");
-        return;
+        return false;
     }
 
     QFileInfo baseFileInfo(m_currentFilePath);
@@ -555,11 +579,21 @@ void MainWindow::runBuild()
     // run the compiler
     QStringList parameter;
     parameter << "-i" << inputFile
-              << "-o" << classFile
-              << "-s" << astFile
-              << "-g" << graphFile;
-              //<< "-q"; // quiet
-    m_buildProcess->start(m_currentBuildPath, parameter);
+              << "-o" << classFile;
+    if(ApplicationPreferences::createASGFiles)
+    {
+        parameter << "-s" << astFile;
+    }
+    if(ApplicationPreferences::createGraphVizFiles)
+    {
+        parameter << "-g" << graphFile;
+    }
+    if(ApplicationPreferences::quietCompilerOutput)
+    {
+        parameter << "-q"; // quiet
+    }
+    m_buildProcess->start(ApplicationPreferences::compilerLocation, parameter);
+    return true;
 }
 
 
@@ -659,7 +693,7 @@ void MainWindow::javaStarted()
 
 void MainWindow::javaFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    ui->ui_consolePlainTextEdit->appendPlainText("Java finished with exit code " + QString::number(exitCode) + "\n");
+    ui->ui_consolePlainTextEdit->appendPlainText("Java finished with exit code " + QString::number(exitCode) + "\n\n");
     ui->ui_consolePlainTextEdit->setReadOnly(true);
     disconnect(ui->ui_consolePlainTextEdit, SIGNAL(lineEntered(QString)), this, SLOT(consoleLineEntered(QString)));
 
@@ -750,5 +784,137 @@ void MainWindow::issueDoubleClicked(QListWidgetItem *item)
         // hence we need to decrement the values by one
         ui->ui_sourceEditTableWidget->gotoPostion(std::max(0, row-1), std::max(0, col-1));
         ui->ui_sourceEditTableWidget->setFocus();
+    }
+}
+
+void MainWindow::showApplicationPreferences()
+{
+    ApplicationPreferencesDialog dlg;
+    dlg.exec();    
+    ui->ui_sourceEditTableWidget->verticalHeader()->setVisible(ApplicationPreferences::showLineNumbers);
+    ui->ui_sourceEditTableWidget->updateTextStyle();
+}
+
+void MainWindow::readSettings()
+{
+    QSettings settings(QSettings::UserScope, QApplication::organizationName(), QApplication::applicationName());
+
+    // There is no QVariant for QColor, therefore we need to do a workaround
+    QVariant colorVariant;
+    QVariant colorDefaultVariant;
+
+    ApplicationPreferences::interpreterLocation = settings.value("paths/interpreter", ApplicationDefaultValues::interpreterLocation).toString();
+    ApplicationPreferences::compilerLocation = settings.value("paths/compiler", ApplicationDefaultValues::compilerLocation).toString();
+
+    colorDefaultVariant = ApplicationDefaultValues::unconnectedRailsColor;
+    colorVariant = settings.value("colors/unconnectedRails", colorDefaultVariant);
+    ApplicationPreferences::unconnectedRailsColor = colorVariant.value<QColor>();
+
+    colorDefaultVariant = ApplicationDefaultValues::connectedRailsColor;
+    colorVariant = settings.value("colors/connectedRails", colorDefaultVariant);
+    ApplicationPreferences::connectedRailsColor = colorVariant.value<QColor>();
+
+    colorDefaultVariant = ApplicationDefaultValues::functionNamesColor;
+    colorVariant = settings.value("colors/functionNames", colorDefaultVariant);
+    ApplicationPreferences::functionNamesColor = colorVariant.value<QColor>();
+
+    colorDefaultVariant = ApplicationDefaultValues::functionCallsColor;
+    colorVariant = settings.value("colors/functionCalls", colorDefaultVariant);
+    ApplicationPreferences::functionCallsColor = colorVariant.value<QColor>();
+
+    colorDefaultVariant = ApplicationDefaultValues::stringsColor;
+    colorVariant = settings.value("colors/strings", colorDefaultVariant);
+    ApplicationPreferences::stringsColor = colorVariant.value<QColor>();
+
+    colorDefaultVariant = ApplicationDefaultValues::variablesColor;
+    colorVariant = settings.value("colors/variables", colorDefaultVariant);
+    ApplicationPreferences::variablesColor = colorVariant.value<QColor>();
+
+    ApplicationPreferences::recentFiles = settings.value("common/recentFiles", ApplicationDefaultValues::recentFiles).toStringList();
+    ApplicationPreferences::showLineNumbers = settings.value("common/showLineNumbers", ApplicationDefaultValues::showLineNumbers).toBool();
+    ApplicationPreferences::showWhiteSpaces = settings.value("common/showWhiteSpaces", ApplicationDefaultValues::showWhiteSpaces).toBool();
+
+    ApplicationPreferences::createASGFiles = settings.value("build/createASG", ApplicationDefaultValues::createASGFiles).toBool();
+    ApplicationPreferences::createGraphVizFiles = settings.value("build/createGraphViz", ApplicationDefaultValues::createGraphVizFiles).toBool();
+    ApplicationPreferences::quietCompilerOutput = settings.value("build/quietOutput", ApplicationDefaultValues::quietCompilerOutput).toBool();
+
+    this->restoreGeometry(settings.value("window/geometry", saveGeometry()).toByteArray());
+    this->restoreState(settings.value("window/state", saveState()).toByteArray());
+    this->move(settings.value("window/pos", pos()).toPoint());
+    this->resize(settings.value( "window/size", size()).toSize());
+    if(settings.value("window/maximized", isMaximized()).toBool())
+    {
+        this->showMaximized();
+    }
+}
+
+void MainWindow::writeSettings() const
+{
+    QSettings settings(QSettings::UserScope, QApplication::organizationName(), QApplication::applicationName());
+
+    QStringList shortenendRecent;
+    for(int i = 0; i < std::min(5, ApplicationPreferences::recentFiles.size()); i++)
+    {
+        shortenendRecent.append(ApplicationPreferences::recentFiles.at(i));
+    }
+
+    settings.setValue("paths/interpreter", ApplicationPreferences::interpreterLocation);
+    settings.setValue("paths/compiler", ApplicationPreferences::compilerLocation);
+
+    settings.setValue("colors/unconnectedRails", ApplicationPreferences::unconnectedRailsColor);
+    settings.setValue("colors/connectedRails", ApplicationPreferences::connectedRailsColor);
+    settings.setValue("colors/functionNames", ApplicationPreferences::functionNamesColor);
+    settings.setValue("colors/functionCalls", ApplicationPreferences::functionCallsColor);
+    settings.setValue("colors/strings", ApplicationPreferences::stringsColor);
+    settings.setValue("colors/variables", ApplicationPreferences::variablesColor);
+
+    settings.setValue("common/recentFiles", shortenendRecent);
+    settings.setValue("common/showLineNumbers", ApplicationPreferences::showLineNumbers);
+    settings.setValue("common/showWhiteSpaces", ApplicationPreferences::showWhiteSpaces);
+
+    settings.setValue("build/createASG", ApplicationPreferences::createASGFiles);
+    settings.setValue("build/createGraphViz", ApplicationPreferences::createGraphVizFiles);
+    settings.setValue("build/quietOutput", ApplicationPreferences::quietCompilerOutput);
+
+    settings.setValue("window/geometry", this->saveGeometry());
+    settings.setValue("window/state", this->saveState());
+    settings.setValue("window/maximized", this->isMaximized());
+    if(!this->isMaximized())
+    {
+        settings.setValue("window/pos", this->pos());
+        settings.setValue("window/size", this->size());
+    }
+}
+
+void MainWindow::updateRecentFiles()
+{
+    foreach(QAction *action, ui->ui_openRecentMenu->actions())
+    {
+        disconnect(action, SIGNAL(triggered()), this, SLOT(openRecent()));
+        delete action;
+    }
+    ui->ui_openRecentMenu->clear();
+    for(int i = 0; i < std::min(5, ApplicationPreferences::recentFiles.size()); i++)
+    {
+        QFileInfo info(ApplicationPreferences::recentFiles.at(i));
+        QAction *recentAction = new QAction(info.fileName(), ui->ui_openRecentMenu);
+        ui->ui_openRecentMenu->addAction(recentAction);
+        recentAction->setData(info.absoluteFilePath());
+        connect(recentAction, SIGNAL(triggered()), this, SLOT(openRecent()));
+    }
+}
+
+void MainWindow::openRecent()
+{
+    QAction *action = dynamic_cast< QAction * >(sender());
+    assert(action);
+    foreach(QAction *recentAction, ui->ui_openRecentMenu->actions())
+    {
+        if(recentAction == action)
+        {
+            QString filePath = recentAction->data().toString();
+            openFile(filePath);
+            return;
+        }
     }
 }

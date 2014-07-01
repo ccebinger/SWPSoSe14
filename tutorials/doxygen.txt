@@ -1,3 +1,8 @@
 sudo apt-get install doxygen graphviz
 cd /projekt-compiler/src/
 doxygen
+then open Eclipse :
+project -> prperties-> c/c++ General -> cheek Enable project specific settings 
+					choose from Documentaion tool "Doxygen"
+or "for the whole workspace" :
+windowes -> prferences -> c/c++ -> Rditor -> Documentaion tool comments -> Doxygen 

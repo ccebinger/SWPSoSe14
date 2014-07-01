@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ApplicationPreferencesDialog</class>
+ <widget class="QDialog" name="ApplicationPreferencesDialog">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>556</width>
+    <height>375</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Application Preferences</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="ui_buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QTabWidget" name="ui_tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="ui_pathsTab">
+      <attribute name="title">
+       <string>Paths</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QGroupBox" name="ui_interpreterGroupBox">
+         <property name="title">
+          <string>Interpreter</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLabel" name="ui_interpreterPathLabel">
+            <property name="text">
+             <string>Path</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="FileSelectLineEdit" name="ui_interpreterPathLineEdit"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="ui_compilerGroupBox">
+         <property name="title">
+          <string>Compiler</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="ui_compilerPathLabel">
+            <property name="text">
+             <string>Path</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="FileSelectLineEdit" name="ui_compilerPathLineEdit"/>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QCheckBox" name="ui_generateASGCheckBox">
+            <property name="text">
+             <string>Generate ASG (*.asg)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QCheckBox" name="ui_generateGraphVizCheckBox">
+            <property name="text">
+             <string>Generate GraphViz (*.dot)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QCheckBox" name="ui_quietCompilerOutputCheckBox">
+            <property name="text">
+             <string>Quiet Compiler Output (Warnings and Errors only)</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="ui_pathsVerticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="ui_editorTab">
+      <attribute name="title">
+       <string>Editor</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="2" column="0">
+        <widget class="QGroupBox" name="ui_syntaxHighlightingGroupBox">
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="title">
+          <string>Syntax Highlighting</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_2">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
+          <item row="0" column="0">
+           <widget class="QToolButton" name="ui_unconnectedRailsToolButton">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="ui_unconnectedRailsLabel">
+            <property name="text">
+             <string>Unconnected Elements</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QToolButton" name="ui_connectedRailsToolButton">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="ui_connectedRailsLabel">
+            <property name="text">
+             <string>Connected Rails</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QToolButton" name="ui_functionNamesToolButton">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLabel" name="ui_functionNamesLabel">
+            <property name="text">
+             <string>Function Names</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QToolButton" name="ui_functionCallsToolButton">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLabel" name="ui_functionCallsLabel">
+            <property name="text">
+             <string>Functions Calls</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QToolButton" name="ui_stringsToolButton">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLabel" name="ui_stringsLabel">
+            <property name="text">
+             <string>Strings</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QToolButton" name="ui_variablesToolButton">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QLabel" name="ui_variablesLabel">
+            <property name="text">
+             <string>Variables</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <spacer name="ui_coloringVerticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="ui_showLineNumbersCheckBox">
+         <property name="text">
+          <string>Show Line Numbers</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="ui_showWhiteSpacesCheckBox">
+         <property name="text">
+          <string>Show Whitespaces</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FileSelectLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">FileSelectLineEdit.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>ui_buttonBox</tabstop>
+  <tabstop>ui_tabWidget</tabstop>
+  <tabstop>ui_interpreterPathLineEdit</tabstop>
+  <tabstop>ui_compilerPathLineEdit</tabstop>
+  <tabstop>ui_generateASGCheckBox</tabstop>
+  <tabstop>ui_generateGraphVizCheckBox</tabstop>
+  <tabstop>ui_quietCompilerOutputCheckBox</tabstop>
+  <tabstop>ui_showLineNumbersCheckBox</tabstop>
+  <tabstop>ui_unconnectedRailsToolButton</tabstop>
+  <tabstop>ui_connectedRailsToolButton</tabstop>
+  <tabstop>ui_functionNamesToolButton</tabstop>
+  <tabstop>ui_functionCallsToolButton</tabstop>
+  <tabstop>ui_stringsToolButton</tabstop>
+  <tabstop>ui_variablesToolButton</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>ui_buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>ApplicationPreferencesDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>500</x>
+     <y>344</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>411</x>
+     <y>325</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
