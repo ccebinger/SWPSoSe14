@@ -83,7 +83,7 @@ class ClassfileWriter {
    */
   void WriteClassfile();
 
- private:
+ protected:
 
   /**
    * An instance of the graph given by the frontend.
@@ -158,35 +158,35 @@ class ClassfileWriter {
    *
    * @return void
    */
-  void WriteMagicNumber();
+  virtual void WriteMagicNumber();
 
   /**
    * Method to write the version number appropriate to @see version_
    *
    * @return void
    */
-  void WriteVersionNumber();
+  virtual void WriteVersionNumber();
 
   /**
    * Method to write the constant pool that was generated in @see constant_pool.cc
    *
    * @return void
    */
-  void WriteConstantPool();
+  virtual void WriteConstantPool();
 
   /**
    * Method to write the access flag of the classfile.
    *
    * @return void
    */
-  void WriteAccessFlags();
+  virtual void WriteAccessFlags();
 
   /**
    * Method to write the name of the classfile.
    *
    * @return void
    */
-  void WriteClassName();
+  virtual void WriteClassName();
 
   /**
    * Method to write the super class names. At the moment we just refer to
@@ -194,7 +194,7 @@ class ClassfileWriter {
    *
    * @return void
    */
-  void WriteSuperClassName();
+  virtual void WriteSuperClassName();
 
   /**
    * Method to write the used interfaces.
@@ -202,14 +202,14 @@ class ClassfileWriter {
    *
    * @return void
    */
-  void WriteInterfaces();
+  virtual void WriteInterfaces();
 
   /**
    * Method to write the fields in the classfile.
    *
    * @return void
    */
-  void WriteFields();
+  virtual void WriteFields();
 
   /**
    * Method to write methods in the classfile.
@@ -217,7 +217,7 @@ class ClassfileWriter {
    *
    * @return void
    */
-  void WriteMethods();
+  virtual void WriteMethods();
 
   /**
    * Method to write the <init> method in the classfile.
@@ -225,7 +225,7 @@ class ClassfileWriter {
    *
    * @return void
    */
-  void WriteInitMethod();
+  virtual void WriteInitMethod();
 
   /**
    * Method to write the <clinit> method in the classfile.
@@ -233,13 +233,13 @@ class ClassfileWriter {
    *
    * @return void
    */
-  void WriteClInitMethod();
+  virtual void WriteClInitMethod();
 
   /**
    * Method to write the attributes in the classfile, particularly the code attribute.
    *
    * @return void
    */
-  void WriteAttributes(const std::string &key);
+  virtual void WriteAttributes(const std::string &key);
 };
 #endif /* CLASSFILE_WRITER_H_ */

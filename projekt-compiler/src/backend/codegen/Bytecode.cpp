@@ -525,46 +525,37 @@ void codegen::input_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
 
-  // Push String/Integer depending on input.
-   // getstatic [System.in]  // System.in.read() -> result:int
+   // Push String/Integer depending on input.
+
+   // Read 1 byte of input.
    code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.system_idx.in_idx);
-   // invokevirtual [read()]
    code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.stream_idx.read_idx);
-   // istore_1               // if (result >= 48 && result <= 57) [result is digit]
+
+   // if !isdigit(input) then goto [push String] else [push Integer]
    code->add_opcode(codegen::MNEMONIC::ISTORE_1);
-   // iload_1
    code->add_opcode(codegen::MNEMONIC::ILOAD_1);
-   // bipush 48
    code->add_opcode(codegen::MNEMONIC::BIPUSH);
    code->add_byte('0');
-   // if_icmplt [not_digit]  // cond. jump to else
    code->add_opcode_with_idx(codegen::MNEMONIC::IF_ICMPLT, 19);
-   // iload_1
    code->add_opcode(codegen::MNEMONIC::ILOAD_1);
-   // bipush 57
    code->add_opcode(codegen::MNEMONIC::BIPUSH);
    code->add_byte('9');
-   // if_icmpgt [not_digit]  // cond. jump to else
    code->add_opcode_with_idx(codegen::MNEMONIC::IF_ICMPGT, 13);
-   // iload_1
+
+   // [push Integer]: push Integer.valueOf(input - 48)
    code->add_opcode(codegen::MNEMONIC::ILOAD_1);
-   // bipush 48              // push Integer.valueOf(result-48)
    code->add_opcode(codegen::MNEMONIC::BIPUSH);
    code->add_byte('0');
-   // isub
    code->add_opcode(codegen::MNEMONIC::ISUB);
-   // invokestatic [Integer.valueOf()]
    code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx);
-   // goto [end_if_else]
    code->add_opcode_with_idx(codegen::MNEMONIC::GOTO, 8);
-   // [[not_digit]]
-   // iload_1                // push String.valueOf((char) result)
+
+   // [push String]: push String.valueOf((char) input)
    code->add_opcode(codegen::MNEMONIC::ILOAD_1);
-   // i2c
    code->add_opcode(codegen::MNEMONIC::I2C);
-   // invokestatic [String.valueOf()]
    code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.str_idx.value_of_idx);
-   // [[end_if_else]]
+
+   // PUUSH
    code->globalstack_push();
 
    code->inc_local_count(2);
