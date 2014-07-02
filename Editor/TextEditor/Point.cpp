@@ -407,3 +407,69 @@ int Point::getColm(){
 char Point::getSign(){
     return sign;
 }
+int Point::get_Start_Direction(){
+    return this->iStart;
+}
+int Point::get_I_Direction(){
+    int direction = 0;
+    int directions = 0;
+    if(iStart & 128) directions++;
+    if(iStart & 64) directions++;
+    if(iStart & 32) directions++;
+    if(iStart & 16) directions++;
+    if(iStart & 8) directions++;
+    if(iStart & 4) directions++;
+    if(iStart & 2) directions++;
+    if(iStart & 1) directions++;
+    if(directions > 1) return 0;
+    switch (sign) {
+    case '$':
+        direction = 1;
+        break;
+    case '-':
+        direction = (16 + 8) & ~iStart;
+        break;
+    case '|':
+        direction = (64 + 2) & ~iStart;
+        break;
+    case '<':
+        if(iStart & 16)direction = 1;
+        else if(iStart & 32)direction = 16;
+        else if(iStart & 1)direction = 32;
+        break;
+    case '>':
+        if(iStart & 128)direction = 4;
+        else if(iStart & 8)direction = 128;
+        else if(iStart & 4)direction = 8;
+        break;
+    case '^':
+        if(iStart & 64)direction = 4;
+        else if(iStart & 1)direction = 64;
+        else if(iStart & 4)direction = 1;
+        break;
+    case 'v':
+        if(iStart & 128)direction = 2;
+        else if(iStart & 32)direction = 128;
+        else if(iStart & 2)direction = 32;
+        break;
+    case '\\':
+        if(iStart & (16+128+64))direction = 1;
+        else if(iStart & (2+1+8))direction = 128;
+        break;
+    case '/':
+        if(iStart & (16+4+2))direction = 32;
+        else if(iStart & (64+32+8))direction = 4;
+        break;
+    default:
+        if(iStart & 128)direction = 1;
+        else if(iStart & 64)direction = 2;
+        else if(iStart & 32)direction = 4;
+        else if(iStart & 16)direction = 8;
+        else if(iStart & 8)direction = 16;
+        else if(iStart & 4)direction = 32;
+        else if(iStart & 2)direction = 64;
+        else if(iStart & 1)direction = 128;
+        break;
+    }
+    return direction;
+}

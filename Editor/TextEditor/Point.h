@@ -23,6 +23,9 @@ public:
     int getRow( void );
     int getColm( void );
     char getSign( void );
+    int get_Start_Direction( void );
+    int get_Font( void );
+    int get_I_Direction( void );
 protected:
     void change_Connections ( bool A_R_Start,bool A_R_iString, bool A_R_iFunctions, bool A_R_iVariable, int direction, InternStack* change);
     void make_Node_Type ( void );
