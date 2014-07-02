@@ -6,3 +6,8 @@ project -> prperties-> c/c++ General -> cheek Enable project specific settings
 					choose from Documentaion tool "Doxygen"
 or "for the whole workspace" :
 windowes -> prferences -> c/c++ -> Rditor -> Documentaion tool comments -> Doxygen 
+
+you can also use doxywizard if you prefer GUI :
+sudo apt-get install doxywizard
+
+
