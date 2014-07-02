@@ -3,9 +3,10 @@
 //ACC_PUBLIC 00 01
 //ACC_INTERFACE 0200
 //ACC_ABSTRACT 0400
-const uint8_t Lambda_classfile_writer::interface_access_flags[] = {0x06, 0x01};
-const uint8_t Lambda_classfile_writer::method_access_flags[] = {0x04, 0x01};
+const unsigned char Lambda_classfile_writer::interface_access_flags[] = {'\x06', '\x01'};
+const unsigned char Lambda_classfile_writer::method_access_flags[] = {'\x04', '\x01'};
 const std::string Lambda_classfile_writer::lambda_class_name = "Lambda";
+const std::string Lambda_classfile_writer::lambda_file_name = Lambda_classfile_writer::lambda_class_name + ".class";
 const std::string Lambda_classfile_writer::method_name = "closure";
 const std::string Lambda_classfile_writer::method_descriptor = "()V";
 
@@ -25,7 +26,7 @@ Lambda_classfile_writer::~Lambda_classfile_writer()
 
 void Lambda_classfile_writer::WriteAccessFlags()
 {
-  write_array(interface_access_flags);
+  write_array(sizeof interface_access_flags / sizeof interface_access_flags[0], interface_access_flags);
 }
 
 void Lambda_classfile_writer::WriteAttributes(const std::string& key)
@@ -37,9 +38,13 @@ void Lambda_classfile_writer::WriteAttributes(const std::string& key)
 
 void Lambda_classfile_writer::WriteClassName()
 {
-   writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString(lambda_class_name)));
+   writer.writeU16(get_class_ref());
 }
 
+size_t Lambda_classfile_writer::get_class_ref()
+{
+  return constant_pool_->addClassRef(constant_pool_->addString(lambda_class_name));
+}
 void Lambda_classfile_writer::WriteClInitMethod()
 {
   writer.writeU16(0);
@@ -74,16 +79,18 @@ void Lambda_classfile_writer::WriteInitMethod()
 
 void Lambda_classfile_writer::WriteMethods()
 {
-  write_array(method_access_flags);
+  writer.writeU16(1);//method count
+  write_array(sizeof method_access_flags / sizeof method_access_flags[0] ,method_access_flags);
   writer.writeU16(constant_pool_->addString(method_name));
   writer.writeU16(constant_pool_->addString(method_descriptor));
+  writer.writeU16(0);//method attr count
+  writer.writeU16(0);//global attr count
 }
 
 
-void Lambda_classfile_writer::write_array(const uint8_t arr[])
+void Lambda_classfile_writer::write_array(size_t len, const unsigned char arr[])
 {
-  size_t len = sizeof(arr)/sizeof(arr[0]);
   for (size_t i = 0; i < len; i++)
-    writer.writeU8(arr[i]);
+    writer.writeU8((uint8_t) arr[i]);
 }
 
