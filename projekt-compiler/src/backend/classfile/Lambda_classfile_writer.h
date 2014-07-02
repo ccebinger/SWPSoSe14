@@ -42,9 +42,11 @@ public:
                     Graphs& graphs,
                     const std::map<std::string, codegen::Bytecode&> codeFunctions,
                     std::ostream* out);
-    virtual ~Lambda_classfile_writer();
-protected:
+  virtual ~Lambda_classfile_writer();
 
+  static const std::string lambda_class_name;
+protected:
+  static const uint8_t access_flags[];
   /**
    * Method to write the constant pool that was generated in @see constant_pool.cc
    *
