@@ -1,25 +1,41 @@
 package tests;
+
+
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.util.Vector;
-import utilClasses.DirectoryList;
+import java.util.Iterator;
+import utilClasses.ExecuteCompiler;
+import utilClasses.FileList;
 
 public class SartTest {
 
 	/**
 	 * @param args
+	 * @throws IOException
+	 * @throws InterruptedException
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException,
+			InterruptedException {
 
-		Path pathE = FileSystems.getDefault().getPath("src");
-		Path StartPath = pathE.toAbsolutePath().getParent().getParent().resolve("projekt-compiler").resolve("test");
-		DirectoryList lsf = new DirectoryList(StartPath);
+		Path pathE = FileSystems.getDefault().getPath("src").toAbsolutePath()
+				.getParent().getParent();
 
-		Vector<Path> FileList = lsf.getDirectoryList();
-		for (int j = 0; j < FileList.size(); j++) {
-			System.out.print(FileList.get(j).getFileName() + "\n");
-		}
+		Path TestDirectoryPath = pathE
+				.resolve("projekt-compiler/test/builtInCommand/conditional");
 		
-	}
 
+		FileList fileList = new FileList();
+
+		fileList.getFileList(TestDirectoryPath);
+
+		Iterator<Path> fileIterator = fileList.FileListVector.iterator();
+		while (fileIterator.hasNext()) {
+
+			Path nextFile = fileIterator.next();
+			ExecuteCompiler ec = new ExecuteCompiler(nextFile);
+			ec.compile();
+			
+		}
+	}
 }
