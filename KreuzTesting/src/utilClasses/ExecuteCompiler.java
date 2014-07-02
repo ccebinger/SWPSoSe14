@@ -29,7 +29,7 @@ public class ExecuteCompiler {
 		if (this.path.toString().toLowerCase().endsWith(".rail")) {
 		
 			System.out.print("Compile " + this.path.getFileName()+ "\n");
-			String param = new String(CompilerPath.toString() + " -d "
+			String param = new String(CompilerPath.toString() + " -i "
 					+ this.path.toString() + " -o "
 					+ this.path.toString().replaceFirst("[.][^.]+$", "")
 					+ ".class");
