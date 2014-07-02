@@ -5,33 +5,31 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
 
-public class ExecuteCompiler {
+public class ExecuteCppCompiler {
 	
-	private Path path;
-	private static final Path pathE = FileSystems.getDefault().getPath("src").toAbsolutePath()
-			.getParent().getParent();
-	private static final Path CompilerPath = pathE.resolve("projekt-compiler/Debug/Compiler");
+	private Path Filepath;
+	private Path CompilerPath;
 	
 	
-	public ExecuteCompiler(Path path){
+	public ExecuteCppCompiler(Path path, Path compilerPath){
 		
-		this.path = path;
+		this.Filepath = path;
+		this.CompilerPath  = compilerPath;
 		
 	}
 	
 	public  BufferedReader compile() throws IOException, InterruptedException{
 		BufferedReader br = null;
 		
-		if (this.path.toString().toLowerCase().endsWith(".rail")) {
+		if (this.Filepath.toString().toLowerCase().endsWith(".rail")) {
 		
-			System.out.print("Compile " + this.path.getFileName()+ "\n");
+			System.out.print("Compile " + this.Filepath.getFileName()+ "\n");
 			String param = new String(CompilerPath.toString() + " -i "
-					+ this.path.toString() + " -o "
-					+ this.path.toString().replaceFirst("[.][^.]+$", "")
+					+ this.Filepath.toString() + " -o "
+					+ this.Filepath.toString().replaceFirst("[.][^.]+$", "")
 					+ ".class");
 
 			
@@ -56,12 +54,12 @@ public class ExecuteCompiler {
 
 	public void serialize() throws IOException, InterruptedException{
 		
-		if (this.path.toString().toLowerCase().endsWith(".rail")) {
+		if (this.Filepath.toString().toLowerCase().endsWith(".rail")) {
 			
-			System.out.print("serialize " + this.path.getFileName()+ "\n");
+			System.out.print("serialize " + this.Filepath.getFileName()+ "\n");
 			String param = new String(CompilerPath.toString() + " -i "
-					+ this.path.toString() + " -s "
-					+ this.path.toString().replaceFirst("[.][^.]+$", "")
+					+ this.Filepath.toString() + " -s "
+					+ this.Filepath.toString().replaceFirst("[.][^.]+$", "")
 					+ ".csv");
 
 			
@@ -73,14 +71,14 @@ public class ExecuteCompiler {
 	}
 public void deserialize() throws IOException, InterruptedException{
 		
-	    File fl = new File(this.path.toString().replaceFirst("[.][^.]+$", "")+".csv");
+	    File fl = new File(this.Filepath.toString().replaceFirst("[.][^.]+$", "")+".csv");
 	    
 		
 		if (fl.exists()) {
 			System.out.print("deserialize " + fl.getName()+ "\n");
 			String param = new String(CompilerPath.toString() + " -d "
-					+ this.path.toString() + " -o "
-					+ this.path.toString().replaceFirst("[.][^.]+$", "")
+					+ this.Filepath.toString() + " -o "
+					+ this.Filepath.toString().replaceFirst("[.][^.]+$", "")
 					+ ".csv");
 
 			
