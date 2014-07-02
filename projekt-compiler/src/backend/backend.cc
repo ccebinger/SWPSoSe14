@@ -209,6 +209,10 @@ Backend::Status Backend::Generate(Graphs& graphs,
   for (std::map<std::string, codegen::Bytecode&>::iterator it = codeMap.begin(); it != codeMap.end(); it++) {
     delete &it->second;
   }
+
+  std::ofstream outFile(Lambda_classfile_writer::lambda_file_name, std::ofstream::binary);
+  Lambda_classfile_writer lwriter(ClassfileWriter::JAVA_7, new ConstantPool(), graphs, codeMap, &outFile);
+  lwriter.WriteClassfile();
   return Backend::Status::SUCCESS;
 }
 
