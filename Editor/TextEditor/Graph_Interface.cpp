@@ -131,7 +131,13 @@ int Graph_Interface::get_I_Pointer_Direction(Point* to_Direction){
     return 8;
 }
 int Graph_Interface::get_Point_Type(int colm, int row){
-    return getPoint(colm,row,NULL)->get_Node_Font();
+    InternStack *change = new InternStack();
+    Point *temp = *tmp = getPoint(colm,row,change);
+    do{
+        temp->make_Node_Changes(change);
+        check->add(temp);
+    }while((temp = change->pop()) != NULL);
+    return tmp->get_Node_Font();
 }
 
 void Graph_Interface::directionToDelta(int *deltaX, int *deltaY, ApplicationConstants::Direction direction) const {
@@ -167,4 +173,50 @@ void Graph_Interface::directionToDelta(int *deltaX, int *deltaY, ApplicationCons
         *deltaY = -1;
         break;
     }
+}
+Stack* Graph_Interface::insert_Row_at_Position(int row, int colm, char *signs, int length){
+    InternStack *change = new InternStack();
+    Stack *retStack = new Stack();
+    if(length == 0){
+        length = sizeof(*signs);
+    }
+    if(maxRow<row+length){
+        make_Graph_to(colm,row+length,change);
+    }
+    Point *temp = getPoint(colm,row,change);
+    for (int var = 0; var < length; ++var) {
+        temp->setSign(signs[var]);
+        temp->get_Node_in_Direction(2);
+    }
+    do{
+        temp->make_Node_Changes(change);
+        check->add(temp);
+    }while((temp = change->pop()) != NULL);
+    while((temp = check->get()) != NULL){
+        retStack->push(temp->getColm(),temp->getRow(),temp->getSign(),temp->get_Node_Font());
+    }
+    return retStack;
+}
+Stack* Graph_Interface::insert_Colm_at_Position(int row, int colm, char *signs, int length){
+    InternStack *change = new InternStack();
+    Stack *retStack = new Stack();
+    if(length == 0){
+        length = sizeof(*signs);
+    }
+    if(maxRow<row+length){
+        make_Graph_to(colm,row+length,change);
+    }
+    Point *temp = getPoint(colm,row,change);
+    for (int var = 0; var < length; ++var) {
+        temp->setSign(signs[var]);
+        temp->get_Node_in_Direction(8);
+    }
+    do{
+        temp->make_Node_Changes(change);
+        check->add(temp);
+    }while((temp = change->pop()) != NULL);
+    while((temp = check->get()) != NULL){
+        retStack->push(temp->getColm(),temp->getRow(),temp->getSign(),temp->get_Node_Font());
+    }
+    return retStack;
 }

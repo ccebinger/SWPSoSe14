@@ -69,43 +69,45 @@ int Point::get_Node_Font( void ){
     legal_Start |= iStart & (64+16+8+2);
     switch (type) {
     case Start:
+        font = ApplicationConstants::SignType::SYSTEM_FUNCTION;
+        break;
     case End:
-        if( legal_Start ) font = 0x00FF0000;
+        if( legal_Start ) font = ApplicationConstants::SignType::SYSTEM_FUNCTION;
+        break;
     case Lambda:
     case Reflector:
     case Function:
-        if( legal_Start && !(iString) && !(iFunctions) && !(iVariables) ) font = 0x00FF0000;
-        else if ( mask && iString && (iFunctions || iVariables || (legal_Start & ~ iString)) ) font = 0x0000FF01;
-        else if ( mask && iString && !iFunctions && !iVariables ) font = 0x0000FF00;
-        else if ( mask && !iString && (iFunctions || iVariables) ) font = 0x00FF0000;
-        else if (type == Start ) font = 0x00FF0000;
-        else font = 0xFF000000;
+        if( legal_Start ) font = ApplicationConstants::SignType::SYSTEM_FUNCTION;
+        if( iString ) font |= ApplicationConstants::SignType::STRING;
+        if( iVariables ) font |= ApplicationConstants::SignType::VARIABLE;
+        if( iFunctions ) font |= ApplicationConstants::SignType::FUNCTION_CALL;
+        if( !font ) font = ApplicationConstants::SignType::UNCONNECTED_OBJECT;
         break;
     case Rail_Junk:
     case Rail_Line:
     case Rail_Slash:
     case Rail_Corss:
         if( mask ) font = 0;
-        else font = 0xFF000000;
+        else font = ApplicationConstants::SignType::UNCONNECTED_OBJECT;
         break;
     case String_Symble:
-        if( mask ) font = 0x0000FF00;
-        else font = 0xFF000000;
+        if( mask ) font = ApplicationConstants::SignType::CONNECTED_RAIL;
+        else font = ApplicationConstants::SignType::UNCONNECTED_OBJECT;
         break;
     case Variable_Symbol:
-        if( mask ) font = 0x00FF0000;
-        else font = 0xFF000000;
+        if( mask ) font = ApplicationConstants::SignType::CONNECTED_RAIL;;
+        else font = ApplicationConstants::SignType::UNCONNECTED_OBJECT;
         break;
     case Funktion_Symble:
-        if( mask ) font = 0x00FF0000;
-        else font = 0xFF000000;
+        if( mask ) font = ApplicationConstants::SignType::CONNECTED_RAIL;;
+        else font = ApplicationConstants::SignType::UNCONNECTED_OBJECT;
         break;
     default:
-        if( mask && iString && (iFunctions || iVariables || (legal_Start & ~iString))) font = 0x0000FF01;
-        else if( mask && iString) font = 0x0000FF00;
-        else if( mask && iFunctions) font = 0x00FF0000;
-        else if( mask && iVariables) font = 0x00FF0000;
-        else font = 0xFF000000;
+        if( mask ) font = ApplicationConstants::SignType::CONNECTED_RAIL;
+        if( iString ) font |= ApplicationConstants::SignType::STRING;
+        if( iVariables ) font |= ApplicationConstants::SignType::VARIABLE;
+        if( iFunctions ) font |= ApplicationConstants::SignType::FUNCTION_CALL;
+        if( !font ) font = ApplicationConstants::SignType::UNCONNECTED_OBJECT;
         break;
     }
     return font;
