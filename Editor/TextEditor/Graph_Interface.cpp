@@ -10,7 +10,7 @@ Graph_Interface::Graph_Interface( void ){
     temp = new Point(1,1);
     tmp->set_Node_in_Directions(NULL,NULL,NULL,NULL,NULL,NULL,temp,NULL);
     root->set_Node_in_Directions(NULL,NULL,NULL,NULL,tmp,NULL,new Point(0,1),temp);
-    maxCalm = 0;
+    maxColm = 0;
     maxRow = 0;
     check = new DoubleCheck();
 }
@@ -20,6 +20,7 @@ Stack* Graph_Interface::setSign(int colm, int row, char sign){
     InternStack *change = new InternStack();
     Point* temp = getPoint(colm,row,change);
     temp->setSign(sign);
+    int direction = get_I_Pointer_Direction(temp);
     do{
         temp->make_Node_Changes(change);
         check->add(temp);
@@ -27,6 +28,7 @@ Stack* Graph_Interface::setSign(int colm, int row, char sign){
     while((temp = check->get()) != NULL){
         retStack->push(temp->getColm(),temp->getRow(),temp->getSign(),temp->get_Node_Font());
     }
+    //retStack->push(-1,-1,' ',direction);
     return retStack;
 }
 Stack* Graph_Interface::deleteSign(int colm, int row){
@@ -42,7 +44,7 @@ char Graph_Interface::getSign(int colm, int row)
     return '\0';
 }
 void Graph_Interface::clear(){
-    for (int x = maxCalm; x >= 0 ; x--) {
+    for (int x = maxColm; x >= 0 ; x--) {
         for (int y = maxRow; y >= 0; y--) {
             delete getPoint(x,y,NULL);
         }
@@ -52,14 +54,14 @@ void Graph_Interface::clear(){
     temp = new Point(1,1);
     tmp->set_Node_in_Directions(NULL,NULL,NULL,NULL,NULL,NULL,temp,NULL);
     root->set_Node_in_Directions(NULL,NULL,NULL,NULL,tmp,NULL,new Point(0,1),temp);
-    maxCalm = 0;
+    maxColm = 0;
     maxRow = 0;
 }
 void Graph_Interface::make_Graph_to(int colm, int row, InternStack *change){
     Point* temp;
     for (int x = 0; x <= colm; ++x) {
         for (int y = 0; y <= row; ++y) {
-            if(x > maxCalm || y>maxRow){
+            if(x > maxColm || y>maxRow){
                 temp = get_and_make_Point(x,y);
                 temp->set_Node_in_Directions((x-1 >=0 && y-1 >= 0)?get_and_make_Point(x-1,y-1):NULL,
                                              (y-1 >= 0)?get_and_make_Point(x,y-1):NULL,
@@ -72,11 +74,11 @@ void Graph_Interface::make_Graph_to(int colm, int row, InternStack *change){
                 change->push(temp);
             }
         }
-    } maxCalm = colm; maxRow = row;
+    } maxColm = colm; maxRow = row;
 
 }
 Point* Graph_Interface::getPoint(int colm, int row, InternStack *change){
-    if(maxCalm < colm || maxRow < row) make_Graph_to(colm,row,change);
+    if(maxColm < colm || maxRow < row) make_Graph_to(colm,row,change);
     int var = 0;
     Point* temp = root;
     for (; var < colm && var < row; var++) {
@@ -109,4 +111,16 @@ Point* Graph_Interface::get_and_make_Point(int colm, int row){
         temp1 = temp2;
     }
     return temp1;
+}
+
+int Graph_Interface::get_I_Pointer_Direction(Point* to_Direction){
+    int direction = to_Direction->get_I_Direction();
+    if(direction){
+        last_Direction = direction;
+        return direction;
+    }else{
+        if(last_Direction) return last_Direction;
+        else return 8;
+    }
+    return 8;
 }
