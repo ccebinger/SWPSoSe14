@@ -28,7 +28,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     ui->ui_insertModeGroupBox->hide();
-    ui->ui_verticalDirectionRadioButton->hide();
 
     QFont f("unexistent");
     f.setStyleHint(QFont::Monospace);
@@ -82,6 +81,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->ui_cutAction, SIGNAL(triggered()), this, SLOT(cut()));
     connect(ui->ui_copyAction, SIGNAL(triggered()), this, SLOT(copy()));
     connect(ui->ui_pasteAction, SIGNAL(triggered()), this, SLOT(paste()));
+    connect(ui->ui_startGrabAction, SIGNAL(triggered()), this, SLOT(startGrab()));
+    connect(ui->ui_finishGrabAction, SIGNAL(triggered()), this, SLOT(finishGrab()));
+    connect(ui->ui_cancelGrabAction, SIGNAL(triggered()), this, SLOT(cancelGrab()));
+    connect(ui->ui_sourceEditTableWidget, SIGNAL(grabModeChanged(bool)), this, SLOT(grabModeChanged(bool)));
 
     connect(ui->ui_setInterpreterAction, SIGNAL(triggered()), this, SLOT(setInterpreter()));
     connect(ui->ui_runInterpreterAction, SIGNAL(triggered()), this, SLOT(runInterpreter()));
@@ -675,7 +678,7 @@ void MainWindow::runJava()
     QFileInfo classFile(classFilePath);
     QString directory(classFile.absoluteDir().path());
     QString className(classFile.completeBaseName());
-    m_javaProcess->start("java", QStringList() << "-cp" << directory << className);
+    m_javaProcess->start("java", QStringList() << "-cp" << directory << className << "-XX:-UseSplitVerifier");
 }
 
 void MainWindow::javaStarted()
@@ -782,7 +785,7 @@ void MainWindow::issueDoubleClicked(QListWidgetItem *item)
         }
         // the output starts with (1/1), but internally we start with (0/0)
         // hence we need to decrement the values by one
-        ui->ui_sourceEditTableWidget->gotoPostion(std::max(0, row-1), std::max(0, col-1));
+        ui->ui_sourceEditTableWidget->goToPostion(std::max(0, row-1), std::max(0, col-1));
         ui->ui_sourceEditTableWidget->setFocus();
     }
 }
@@ -898,6 +901,11 @@ void MainWindow::updateRecentFiles()
     {
         QFileInfo info(ApplicationPreferences::recentFiles.at(i));
         QAction *recentAction = new QAction(info.fileName(), ui->ui_openRecentMenu);
+        if(i == 0)
+        {
+            recentAction->setShortcut(QKeySequence("CTRL+ALT+O"));
+            recentAction->setShortcutContext(Qt::ApplicationShortcut);
+        }
         ui->ui_openRecentMenu->addAction(recentAction);
         recentAction->setData(info.absoluteFilePath());
         connect(recentAction, SIGNAL(triggered()), this, SLOT(openRecent()));
@@ -917,4 +925,51 @@ void MainWindow::openRecent()
             return;
         }
     }
+}
+
+void MainWindow::startGrab()
+{
+    ui->ui_sourceEditTableWidget->startGrab();
+}
+
+void MainWindow::cancelGrab()
+{
+    ui->ui_sourceEditTableWidget->cancelGrab();
+}
+
+void MainWindow::finishGrab()
+{
+    ui->ui_sourceEditTableWidget->finishGrab();
+}
+
+void MainWindow::rotateGrab90()
+{
+
+}
+
+void MainWindow::rotateGrab180()
+{
+
+}
+
+void MainWindow::rotateGrab270()
+{
+
+}
+
+void MainWindow::mirrorGrabX()
+{
+
+}
+
+void MainWindow::mirrorGrabY()
+{
+
+}
+
+void MainWindow::grabModeChanged(bool inGrab)
+{
+    ui->ui_startGrabAction->setEnabled(!inGrab);
+    ui->ui_finishGrabAction->setEnabled(inGrab);
+    ui->ui_cancelGrabAction->setEnabled(inGrab);
 }

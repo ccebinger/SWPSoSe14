@@ -95,6 +95,16 @@ private slots:
     void consoleLineEntered(QString line);
 
     void issueDoubleClicked(QListWidgetItem *item);
+
+    void startGrab();
+    void cancelGrab();
+    void finishGrab();
+    void rotateGrab90();
+    void rotateGrab180();
+    void rotateGrab270();
+    void mirrorGrabX();
+    void mirrorGrabY();
+    void grabModeChanged(bool inGrab);
 };
 
 #endif // MAINWINDOW_H
