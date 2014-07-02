@@ -3,8 +3,11 @@
 //ACC_PUBLIC 00 01
 //ACC_INTERFACE 0200
 //ACC_ABSTRACT 0400
-const uint8_t Lambda_classfile_writer::access_flags[] = {0x06, 0x01};
+const uint8_t Lambda_classfile_writer::interface_access_flags[] = {0x06, 0x01};
+const uint8_t Lambda_classfile_writer::method_access_flags[] = {0x04, 0x01};
 const std::string Lambda_classfile_writer::lambda_class_name = "Lambda";
+const std::string Lambda_classfile_writer::method_name = "closure";
+const std::string Lambda_classfile_writer::method_descriptor = "()V";
 
 Lambda_classfile_writer::Lambda_classfile_writer(ClassfileVersion version, ConstantPool* constantPool,
                     Graphs& graphs,
@@ -22,15 +25,14 @@ Lambda_classfile_writer::~Lambda_classfile_writer()
 
 void Lambda_classfile_writer::WriteAccessFlags()
 {
-  size_t len = sizeof(access_flags)/sizeof(access_flags[0]);
-  for (size_t i = 0; i < len; i++)
-    writer.writeU8(access_flags[i]);
+  write_array(interface_access_flags);
 }
 
 void Lambda_classfile_writer::WriteAttributes(const std::string& key)
 {
   (void) key;
-
+  // attributes_count
+  writer.writeU16(0);
 }
 
 void Lambda_classfile_writer::WriteClassName()
@@ -49,8 +51,8 @@ void Lambda_classfile_writer::WriteConstantPool()
   constant_pool_->obj_idx.class_idx = constant_pool_->addString("java/lang/Object");
   size_t idx = constant_pool_->addString(lambda_class_name);
   constant_pool_->addString(lambda_class_name + ".java");
-  constant_pool_->addString("()V");
-  constant_pool_->addString("closure");
+  constant_pool_->addString(method_descriptor);
+  constant_pool_->addString(method_name);
   constant_pool_->addClassRef(idx); //Lambda class
   constant_pool_->addClassRef(constant_pool_->obj_idx.class_idx);
 
@@ -72,5 +74,16 @@ void Lambda_classfile_writer::WriteInitMethod()
 
 void Lambda_classfile_writer::WriteMethods()
 {
-
+  write_array(method_access_flags);
+  writer.writeU16(constant_pool_->addString(method_name));
+  writer.writeU16(constant_pool_->addString(method_descriptor));
 }
+
+
+void Lambda_classfile_writer::write_array(const uint8_t arr[])
+{
+  size_t len = sizeof(arr)/sizeof(arr[0]);
+  for (size_t i = 0; i < len; i++)
+    writer.writeU8(arr[i]);
+}
+
