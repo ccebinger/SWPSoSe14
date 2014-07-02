@@ -39,7 +39,7 @@ codegen::Bytecode::func_map= {
   {Command::Type::VAR_PUSH, &push_Variable}
 };
 
-codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), locals(4), local_count(1) {}
+codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), local_count(1), locals(4) {}
 
 codegen::Bytecode::~Bytecode() {}
 
@@ -155,49 +155,32 @@ codegen::Bytecode* codegen::Bytecode::add_index(uint16_t indexInPool,
 }
 
 codegen::Bytecode* codegen::Bytecode::add_conditional_with_instruction(unsigned char conditional_stmt,
-                                                                       unsigned char* conditional_body) {
-  int length = sizeof conditional_body / sizeof conditional_body[0];
-  int length_plus_branch = length + 2;
-  std::stringstream sstream;
-  sstream.fill('\x0');
-  sstream.width(4);
-  sstream << std::hex << length_plus_branch;
-  std::string branch = sstream.str();
-
+                                                                       std::vector<unsigned char> conditional_body) {
+  int length = conditional_body.size();
+  uint16_t length_plus_branch = length + 2;
   bytecode.push_back(conditional_stmt);
-  for (int i = 0; i < 4; i++)
-    bytecode.push_back(branch.at(i));
-  for (int i = 0; i < length; i++) {
-    bytecode.push_back(conditional_body[i]);
-  }
+  add_index(length_plus_branch);
+  bytecode.insert(bytecode.end(), conditional_body.begin(), conditional_body.end());
   return this;
 }
 
 codegen::Bytecode* codegen::Bytecode::add_conditional_with_else_branch(unsigned char conditional_stmt,
-                                                                       unsigned char* conditional_body,
-                                                                       unsigned char* else_body) {
-  int if_length = sizeof conditional_body / sizeof conditional_body[0];
-  std::vector<char> if_body;
-  if_body.insert(if_body.begin(), conditional_body,
-                 conditional_body + if_length);
+                                                                       std::vector<unsigned char> conditional_body,
+                                                                       std::vector<unsigned char> else_body) {
+  std::vector<unsigned char> if_body;
+  if_body.insert(if_body.begin(), conditional_body.begin(),
+                 conditional_body.end());
 
-  int else_length = sizeof else_body / sizeof else_body[0];
-  int branch_idx = else_length + 2; ///TODO: CHECK IF BRANCH IS CORRECT should be after else branch
-
-  std::stringstream sstream;
-  sstream.fill('\x0');
-  sstream.width(4);
-  sstream << std::hex << branch_idx;
-  std::string branch = sstream.str();
+  int else_length = else_body.size();
+  uint16_t branch_idx = else_length + 3; //+1 to jump over the last else stmt
   if_body.push_back(codegen::MNEMONIC::GOTO);
-  for (int i = 0; i < 4; i++)
-    if_body.push_back(branch.at(i));
-
+  add_index(branch_idx, if_body);
+  branch_idx = if_body.size() + 2 + else_length; //+ 2 for branch idx
 
   bytecode.push_back(conditional_stmt);
-  add_index((uint16_t) if_body.size()); /// TODO: CHECK IF BRANCH IS CORRECT should be after goto!!
+  add_index(branch_idx); /// TODO: CHECK IF BRANCH IS CORRECT should be after goto!!
   bytecode.insert(bytecode.end(), if_body.begin(), if_body.end());
-  bytecode.insert(bytecode.end(), else_body, else_body + else_length);
+  bytecode.insert(bytecode.end(), else_body.begin(), else_body.end());
   return this;
 }
 
@@ -215,20 +198,6 @@ codegen::Bytecode* codegen::Bytecode::add_opcode_with_idx(codegen::MNEMONIC opco
   return this;
 }
 
-codegen::Bytecode* codegen::Bytecode::add_type_check(uint16_t class_idx) {
-  add_opcode_with_idx(codegen::MNEMONIC::INSTANCE_OF, class_idx);
-  std::vector<unsigned char> body;
-
-  uint16_t init_idx = get_method_idx("java/lang/IllegalArgumentException", "<init>", "()V");
-  add_opcode_with_idx(codegen::MNEMONIC::NEW, get_class_idx("java/lang/IllegalArgumentException"), body);
-  body.push_back(codegen::MNEMONIC::DUP);
-  add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, init_idx, body);
-  body.push_back(codegen::MNEMONIC::ATHROW);
-
-  add_conditional_with_instruction(codegen::MNEMONIC::IFNE, &body[0]);
-  return this;
-}
-
 codegen::Bytecode* codegen::Bytecode::add_static_field_method_call(uint16_t field_idx,
                                                                    uint16_t method_idx) {
   add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_idx);
@@ -242,14 +211,11 @@ codegen::Bytecode* codegen::Bytecode::add_integer_calculation(MNEMONIC calculati
 
   add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx);
   globalstack_pop();
-  //We may want to change the checkcast here. I needed it for it to work, but maybe we find another way
   add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx);
-  //BytecodeGenerator::add_instance_of(constantPool.addClassRef(constantPool.addString("java/lang/Integer")), constantPool, result);
   add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, intValue_idx);
   bytecode.push_back(codegen::MNEMONIC::ISTORE_1);
   globalstack_pop();
   add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx);
-  //BytecodeGenerator::add_instance_of(constantPool.addClassRef(constantPool.addString("java/lang/Integer")), constantPool, result);
   add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, intValue_idx);
   bytecode.push_back(codegen::MNEMONIC::ILOAD_1);
   bytecode.push_back(calculation);
@@ -264,6 +230,35 @@ codegen::Bytecode* codegen::Bytecode::add_opcode(codegen::MNEMONIC opcode) {
   return this;
 }
 
+codegen::Bytecode* codegen::Bytecode::add_byte(uint8_t byte) {
+  bytecode.push_back(byte);
+  return this;
+}
+
+codegen::Bytecode* codegen::Bytecode::add_two_int_compare(codegen::MNEMONIC comparator){
+  uint16_t intValue_idx = pool.int_idx.int_value_idx;
+
+  std::vector<unsigned char> conditional_body;
+  std::vector<unsigned char> else_body;
+
+  globalstack_pop();
+  add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx);
+  add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, intValue_idx);
+  add_opcode(codegen::MNEMONIC::ISTORE_1);
+  globalstack_pop();
+  add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx);
+  add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, intValue_idx);
+  add_opcode(codegen::MNEMONIC::ISTORE_2);
+  add_opcode(codegen::MNEMONIC::ILOAD_1);
+  add_opcode(codegen::MNEMONIC::ILOAD_2);
+
+  conditional_body.push_back(codegen::MNEMONIC::ICONST_1);
+  else_body.push_back(codegen::MNEMONIC::ICONST_0);
+
+  add_conditional_with_else_branch(comparator, conditional_body, else_body);
+  return this;
+}
+
 //================================================================================
 //=================================GLOBAL STACK===================================
 //================================================================================
@@ -275,7 +270,11 @@ codegen::Bytecode* codegen::Bytecode::globalstack_pop() {
 }
 
 codegen::Bytecode* codegen::Bytecode::globalstack_push() {
-  return add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.arr_idx.push_idx);
+  add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx);
+  // argument needs to be on top of stack
+  add_opcode(codegen::MNEMONIC::SWAP);
+  add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.arr_idx.push_idx);
+  return this;
 }
 
 //================================================================================
@@ -284,23 +283,22 @@ codegen::Bytecode* codegen::Bytecode::globalstack_push() {
 
 void codegen::output_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
   // push system.out+
   // get <Field java/lang/System.out:Ljava/io/PrintStream;>
-  uint16_t field_system_idx = code->get_field_idx("java/lang/System", "out", "Ljava/io/PrintStream;");
-  uint16_t println_idx = code->get_method_idx("java/io/PrintStream", "println", "(Ljava/lang/String;)V");
 
-  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_system_idx)->globalstack_pop()
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, code->get_constant_pool().obj_idx.toString)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, println_idx)
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.system_idx.out_idx)
+      ->globalstack_pop()
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.stream_idx.print_idx)
       ->inc_local_count(1);
 }
 
 void codegen::push_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
-  uint16_t field_idx = pool.arr_idx.field_idx;
 
-  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_idx)
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
       ->add_opcode(codegen::MNEMONIC::LDC);
   std::string value = state.current_node->command.extractAstCommandString();
   try {
@@ -343,27 +341,24 @@ void codegen::cut_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
 
-  uint16_t field_stack_idx = pool.arr_idx.field_idx;
-  uint16_t toString_idx = pool.obj_idx.toString;
-
-  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_stack_idx)
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
       ->globalstack_pop()
       ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.int_idx.int_value_idx)
       ->add_opcode(codegen::MNEMONIC::ISTORE_1)
-      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_stack_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
       ->globalstack_pop()
       ->add_opcode(codegen::MNEMONIC::ASTORE_2)
-      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_stack_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
       ->add_opcode(codegen::MNEMONIC::ALOAD_2)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, toString_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
       ->add_opcode(codegen::MNEMONIC::ICONST_0)
       ->add_opcode(codegen::MNEMONIC::ILOAD_1)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.substring_2param_idx)
       ->globalstack_push()
-      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_stack_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
       ->add_opcode(codegen::MNEMONIC::ALOAD_2)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, toString_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
       ->add_opcode(codegen::MNEMONIC::ILOAD_1)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.substring_idx)
       ->globalstack_push()
@@ -374,28 +369,18 @@ void codegen::append_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
 
-  uint16_t field_stack_idx = pool.arr_idx.field_idx;
-  uint16_t toString_idx = pool.obj_idx.toString;
-  uint16_t builder_toString_idx = code->get_method_idx("java/lang/StringBuilder", "toString", "()Ljava/lang/String;");
-  uint16_t append_idx = code->get_method_idx("java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
-  uint16_t builder_init_idx = code->get_method_idx("java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V");
-  uint16_t valueOf_idx =  code->get_method_idx("java/lang/String", "valueOf", "(Ljava/lang/Object;)Ljava/lang/String;");
-
-  //TODO CHECK IF VALUE OF IS USELESS IN THIS METHOD
-
   code->globalstack_pop()
       ->add_opcode(codegen::MNEMONIC::ASTORE_1)
-      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, field_stack_idx)
-      ->add_opcode_with_idx(codegen::MNEMONIC::NEW, code->get_class_idx("java/lang/StringBuilder"))
+      ->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::NEW, pool.str_builder_idx.class_idx)
       ->add_opcode(codegen::MNEMONIC::DUP)
       ->globalstack_pop()
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, toString_idx)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, valueOf_idx)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, builder_init_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, pool.str_builder_idx.init_idx)
       ->add_opcode(codegen::MNEMONIC::ALOAD_1)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, toString_idx)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, append_idx)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, builder_toString_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_builder_idx.append_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
       ->globalstack_push()
       ->inc_local_count(2);
 }
@@ -424,15 +409,52 @@ void codegen::call_ByteCode(Bytecode::Current_state state) {
 
 // LIST OPERATIONS
 void codegen::null_ByteCode(Bytecode::Current_state state) {
-  (void) state.current_code;
+  codegen::Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
+
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::NEW, pool.list_idx.class_idx)
+      ->add_opcode(codegen::MNEMONIC::DUP)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, pool.list_idx.init_idx)
+      ->globalstack_push()
+      ->inc_local_count(1);
 }
 
 void codegen::list_push_ByteCode(Bytecode::Current_state state) {
-  (void) state.current_code;
+  codegen::Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
+
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
+      ->globalstack_pop()
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1) // pop VALUE
+      ->globalstack_pop()
+      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.list_idx.class_idx)
+      ->add_opcode(codegen::MNEMONIC::DUP)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1) // push value before list
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.add_idx)
+      ->add_opcode(codegen::MNEMONIC::POP)
+      ->globalstack_push()
+      ->inc_local_count(1);
 }
 
 void codegen::list_pop_ByteCode(Bytecode::Current_state state) {
-  (void) state.current_code;
+  codegen::Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
+
+
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
+      ->add_opcode(codegen::MNEMONIC::DUP)
+      ->globalstack_pop() //LIST
+      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.list_idx.class_idx)
+      ->add_opcode(codegen::MNEMONIC::DUP)
+      ->add_opcode(codegen::MNEMONIC::ICONST_0)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.remove_idx)
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1) //remove obj
+      ->globalstack_push()
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1) //get saved obj
+      ->globalstack_push()
+      ->inc_local_count(1);
+
 }
 
 //BOOLEAN ARITHMETIC
@@ -441,49 +463,28 @@ void codegen::false_ByteCode(Bytecode::Current_state state) {
 }
 
 void codegen::greater_ByteCode(Bytecode::Current_state state) {
-  //TODO after finished impl. ->refactoring 'cause of duplicate code @see equal
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
-  uint16_t intValue_idx = pool.int_idx.int_value_idx;
 
-  std::vector<unsigned char> conditional_body;
-  std::vector<unsigned char> else_body;
-
-  code->globalstack_pop()
-      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, intValue_idx)
-      ->add_opcode(codegen::MNEMONIC::ISTORE_1)
-      ->globalstack_pop()
-      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, intValue_idx)
-      ->add_opcode(codegen::MNEMONIC::ISTORE_2)
-      ->add_opcode(codegen::MNEMONIC::ILOAD_1)
-      ->add_opcode(codegen::MNEMONIC::ILOAD_2);
-//      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.int_idx.compare_idx);
-  conditional_body.push_back(codegen::MNEMONIC::ICONST_1);
-  else_body.push_back(codegen::MNEMONIC::ICONST_0);
-  code->add_conditional_with_else_branch(codegen::MNEMONIC::IF_ICMPLE, &conditional_body[0], &else_body[0])
+  code->add_two_int_compare(codegen::MNEMONIC::IF_ICMPGE)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
-      -> globalstack_push()
+      ->globalstack_push()
       ->inc_local_count(3);
-
-  ClassfileWriter::stackMapTableFlag = true;
 }
 
 void codegen::equal_ByteCode(Bytecode::Current_state state) {
-  //TODO after finished impl. ->refactoring 'cause of duplicate code @see greater
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
 
   code->globalstack_pop()
-      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx)
       ->add_opcode(codegen::MNEMONIC::ASTORE_1)
       ->globalstack_pop()
-      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx)
       ->add_opcode(codegen::MNEMONIC::ASTORE_2)
       ->add_opcode(codegen::MNEMONIC::ALOAD_1)
       ->add_opcode(codegen::MNEMONIC::ALOAD_2)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.int_idx.equals_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.equals)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
+      ->globalstack_push()
       ->inc_local_count(3);
 }
 
@@ -503,11 +504,61 @@ void codegen::boom_ByteCode(Bytecode::Current_state state) {
 }
 
 void codegen::eof_ByteCode(Bytecode::Current_state state){
-  (void) state.current_code;
+  Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
+
+  std::vector<unsigned char> conditional_body;
+  std::vector<unsigned char> else_body;
+
+  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.system_idx.in_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.stream_idx.available_idx);
+
+  conditional_body.push_back(codegen::MNEMONIC::ICONST_1);
+  else_body.push_back(codegen::MNEMONIC::ICONST_0);
+
+  code->add_conditional_with_else_branch(codegen::MNEMONIC::IFNE, conditional_body, else_body)
+      ->add_opcode_with_idx(MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
+      ->globalstack_push();
 }
 
 void codegen::input_ByteCode(Bytecode::Current_state state) {
-  (void) state.current_code;
+  Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
+
+   // Push String/Integer depending on input.
+
+   // Read 1 byte of input.
+   code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.system_idx.in_idx);
+   code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.stream_idx.read_idx);
+
+   // if !isdigit(input) then goto [push String] else [push Integer]
+   code->add_opcode(codegen::MNEMONIC::ISTORE_1);
+   code->add_opcode(codegen::MNEMONIC::ILOAD_1);
+   code->add_opcode(codegen::MNEMONIC::BIPUSH);
+   code->add_byte('0');
+   code->add_opcode_with_idx(codegen::MNEMONIC::IF_ICMPLT, 19);
+   code->add_opcode(codegen::MNEMONIC::ILOAD_1);
+   code->add_opcode(codegen::MNEMONIC::BIPUSH);
+   code->add_byte('9');
+   code->add_opcode_with_idx(codegen::MNEMONIC::IF_ICMPGT, 13);
+
+   // [push Integer]: push Integer.valueOf(input - 48)
+   code->add_opcode(codegen::MNEMONIC::ILOAD_1);
+   code->add_opcode(codegen::MNEMONIC::BIPUSH);
+   code->add_byte('0');
+   code->add_opcode(codegen::MNEMONIC::ISUB);
+   code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx);
+   code->add_opcode_with_idx(codegen::MNEMONIC::GOTO, 8);
+
+   // [push String]: push String.valueOf((char) input)
+   code->add_opcode(codegen::MNEMONIC::ILOAD_1);
+   code->add_opcode(codegen::MNEMONIC::I2C);
+   code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.str_idx.value_of_idx);
+
+   // PUUSH
+   code->globalstack_push();
+
+   code->inc_local_count(2);
 }
 
 void codegen::underflow_ByteCode(Bytecode::Current_state state) {

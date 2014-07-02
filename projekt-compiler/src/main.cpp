@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
 
 	try {
 		Env::parseParams(argc, argv);
-		Env::initIoDirectory();
+		//Env::initIoDirectory();		// produces io folders from the callers location - not intended
 		Env::showStatus();
 
 		Graphs graphs;
@@ -40,14 +40,8 @@ int main(int argc, char *argv[]) {
 
 			// Parser
 			Env::printCaption("Frontend - Parser");
-			for(auto it = lexer.functions.begin(); it < lexer.functions.end(); ++it) {
-				Parser p(*it);
-				shared_ptr<Adjacency_list> asg = p.parseGraph();
-				if(asg == NULL) {
-					throw EnvException(FRONTEND_PARSER, "No ASG to return");
-				}
-				graphs.put((*it)->getName(), asg);
-			}
+			Parser p(lexer.functions);
+			graphs = p.parseGraphs(graphs);
 			Env::showStatus();
 		}
 		else if(Env::hasSrcDeserialize()) {

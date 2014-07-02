@@ -11,9 +11,13 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
+    QApplication app(argc, argv);
+    app.setOrganizationName("Rail On C");
+    app.setOrganizationDomain("https://github.com/ccebinger/SWPSoSe14");
+    app.setApplicationName("Rail C++ Compiler");
 
-    return a.exec();
+    MainWindow mainWindow;
+    mainWindow.show();
+
+    return app.exec();
 }

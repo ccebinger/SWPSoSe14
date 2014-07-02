@@ -6,6 +6,7 @@
  */
 
 #include <frontend/lexer/Lexer.h>
+#include <set>
 
 Lexer::Lexer() {
 
@@ -19,7 +20,6 @@ Lexer::~Lexer() {
 
 
 void Lexer::lex(const std::string srcFile) {
-
 	// open source file
 	std::ifstream is;
 	is.open(srcFile);
@@ -54,8 +54,18 @@ void Lexer::lex(const std::string srcFile) {
 			// name exists && not empty
 			if(nameStart != std::string::npos && nameEnd != std::string::npos && nameStart+1 != nameEnd) {
 				functionName = line.substr(nameStart+1, nameEnd-nameStart-1);
-				act = new RailFunction(functionName, lineId);
-				functions.push_back(std::shared_ptr<RailFunction>(act));
+
+
+				if(functions.find(functionName) == functions.end()) {
+					// Store new function
+					act = new RailFunction(functionName, lineId);
+					functions[functionName] = std::shared_ptr<RailFunction>(act);
+				}
+				else {
+					// Function name already defined, skipping this one
+					Env::addWarning(FRONTEND_LEXER, "Function name '" + functionName + "' already defined, skipping this one", lineId, 1);
+					act = nullptr;
+				}
 			}
 			else {
 				/*
@@ -65,7 +75,7 @@ void Lexer::lex(const std::string srcFile) {
 				 * 		2. act = NULL; -> assume this is a new (misspelled) function -> ignore whole function
 				 */
 				act = nullptr;
-				Env::addWarning(FRONTEND_LEXER, "Found $ but no proper function name given (skipping...): " + line, lineId, 0);
+				Env::addWarning(FRONTEND_LEXER, "Found $ but no proper function name given (skipping...): " + line, lineId, 1);
 			}
 		}
 
@@ -92,8 +102,8 @@ void Lexer::lex(const std::string srcFile) {
 
 
 	if(Env::verbose()) {
-		for(auto it=functions.begin(); it<functions.end(); ++it) {
-			(*it)->dump();
+		for(auto item : functions) {
+			item.second->dump();
 		}
 	}
 

@@ -14,5 +14,15 @@
         <file>icons/Buttons/Stop.png</file>
         <file>icons/Buttons/Run.png</file>
         <file>icons/Buttons/Build.png</file>
+        <file>icons/Buttons/Copy.png</file>
+        <file>icons/Buttons/Cut.png</file>
+        <file>icons/Buttons/Paste.png</file>
+        <file>icons/Buttons/Redo.png</file>
+        <file>icons/Buttons/Undo.png</file>
+        <file>icons/Buttons/New File.png</file>
+        <file>icons/Buttons/Open File.png</file>
+        <file>icons/Buttons/Save File.png</file>
+        <file>icons/Buttons/Quit.png</file>
+        <file>icons/Buttons/Save As.png</file>
     </qresource>
 </RCC>

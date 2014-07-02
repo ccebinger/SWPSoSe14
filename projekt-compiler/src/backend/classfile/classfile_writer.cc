@@ -1,25 +1,17 @@
 /*[--**--]
-  Copyright (C) 2014  SWPSoSe14Cpp Group
-
-  This program is free software; you can redistribute it and/or modify it under the
-  terms of the GNU General Public License as published by the Free Software
-  Foundation; either version 3 of the License, or (at your option) any later
-  version.
-
-  This program is distributed in the hope that it will be useful, but WITHOUT ANY
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-  PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License along with this
-  program; if not, see <http://www.gnu.org/licenses/>.*/
-
-/*!
- * \mainpage classfile_writer.cc
- * \author Backend group & friends
- * \date SoSe 2014
+ * Copyright (C) 2014  SWPSoSe14Cpp Group
  *
- * This class writes the specific class-file we want to create from a rail program.
- * For each function in an rail program (incl. main), we need to produce one class-file.
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this
+ * program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -43,8 +35,6 @@ std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
   {ClassfileWriter::ClassfileVersion::JAVA_7,
         std::array<char, 4>{'\x00', '\x00', '\x00', '\x33'}}
 };
-
-bool ClassfileWriter::stackMapTableFlag = false;
 
 /*!
  * \brief Constructor for ClassfileWriter
@@ -281,11 +271,7 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
 
   codeCount = code.length();//code.size();
   // hint: adjust when implementing more than code attribute
-  if(ClassfileWriter::stackMapTableFlag){
-      attributeCount = codeCount + 12 + 15;
-  } else {
-      attributeCount = codeCount + 12;
-  }
+  attributeCount = codeCount + 12;
 
   /* Attribute code */
   // attributes_count
@@ -299,7 +285,7 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
   writer.writeU16(kMaxStack);
 
   // max_locals
-    writer.writeU16(code.get_local_count());
+  writer.writeU16(code.get_local_count());
 
   // code_length
   writer.writeU32(codeCount);
@@ -310,35 +296,6 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
   }
   // exception_table_length
   out_->write(kNotRequired, sizeof(kNotRequired)  / sizeof(kNotRequired[0]));
-
-  if(ClassfileWriter::stackMapTableFlag){
-    WriteStackMapTableAttribute();
-    ClassfileWriter::stackMapTableFlag = false;
-  } else {
-    // attributes_count
-    out_->write(kNotRequired, sizeof(kNotRequired)  / sizeof(kNotRequired[0]));
-  }
-}
-
-void ClassfileWriter::WriteStackMapTableAttribute(){
   // attributes_count
-  writer.writeU16(1);
-  // attribute_name_index
-  writer.writeU16(constant_pool_->addString("StackMapTable"));
-  // attribute_length
-  writer.writeU32(9);
-  // frame_count
-  writer.writeU16(2);
-  // attribute code
-  // frame_type (append)
-  writer.writeU8(253);
-  // offset_delta
-  writer.writeU16(15);
-  // locals (int, int)
-  writer.writeU8(1);
-  writer.writeU8(1);
-  // frame_type (same_locals_1_stack_item)
-  writer.writeU8(64);
-  // stack (int)
-  writer.writeU8(1);
+  out_->write(kNotRequired, sizeof(kNotRequired)  / sizeof(kNotRequired[0]));
 }
