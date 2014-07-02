@@ -24,5 +24,8 @@
         <file>icons/Buttons/Save File.png</file>
         <file>icons/Buttons/Quit.png</file>
         <file>icons/Buttons/Save As.png</file>
+        <file>icons/Buttons/Start Grab.png</file>
+        <file>icons/Buttons/Finish Grab.png</file>
+        <file>icons/Buttons/Cancel Grab.png</file>
     </qresource>
 </RCC>

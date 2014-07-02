@@ -12,7 +12,7 @@ Point::Point (int colm, int row ){
     this->row = row;
     this->colm = colm;
     this->type = Shadow;
-    sign = ' ';
+    sign = '\0';
     iStart = 0;iConnections = 0;iString = 0;iFunctions = 0;iVariables = 0;b_Cons_to_Nodes = 0;
 }
 

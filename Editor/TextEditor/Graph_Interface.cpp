@@ -5,7 +5,7 @@
 
 
 Graph_Interface::Graph_Interface( void ){
-    root = new Point(0,0,' ');
+    root = new Point(0,0,'\0');
     Point *tmp = new Point(1,0), *temp;
     temp = new Point(1,1);
     tmp->set_Node_in_Directions(NULL,NULL,NULL,NULL,NULL,NULL,temp,NULL);
@@ -30,7 +30,16 @@ Stack* Graph_Interface::setSign(int colm, int row, char sign){
     return retStack;
 }
 Stack* Graph_Interface::deleteSign(int colm, int row){
-    return setSign(colm,row,' ');
+    return setSign(colm,row,'\0');
+}
+char Graph_Interface::getSign(int colm, int row)
+{
+    Point *tmp = getPoint(colm, row, NULL);
+    if(tmp)
+    {
+        return tmp->getSign();
+    }
+    return '\0';
 }
 void Graph_Interface::clear(){
     for (int x = maxCalm; x >= 0 ; x--) {
@@ -38,7 +47,7 @@ void Graph_Interface::clear(){
             delete getPoint(x,y,NULL);
         }
     }
-    root = new Point(0,0,' ');
+    root = new Point(0,0,'\0');
     Point *tmp = new Point(1,0), *temp;
     temp = new Point(1,1);
     tmp->set_Node_in_Directions(NULL,NULL,NULL,NULL,NULL,NULL,temp,NULL);

@@ -14,6 +14,7 @@ signals:
     void cursorPositionChanged(int row, int col);
     void textChanged();
     void undoRedoElementCreated(UndoRedoElement *);
+    void grabModeChanged(bool inGrab);
 
 public:
     explicit EditTableWidget(QWidget *parent = 0);
@@ -26,8 +27,17 @@ public:
     void cut();
     void copy();
     void paste();
-    void gotoPostion(int row, int column);
+    void goToPostion(int row, int column);
     void updateTextStyle();
+
+    void startGrab();
+    void cancelGrab();
+    void finishGrab();
+    void rotateGrab90();
+    void rotateGrab180();
+    void rotateGrab270();
+    void mirrorGrabX();
+    void mirrorGrabY();
 
 private:
     void mousePressEvent(QMouseEvent *mouseEvent);
@@ -39,13 +49,20 @@ private:
     void recalculateMaximumValues();
     void setPosition(int row, int col, bool extendSelection = false);
     void setSign(int row, int col, QChar c, bool suppressUndoRedoCreation = false);
+    void setDisplaySign(int row, int col, QChar c);
     void removeSign(int row, int col, bool suppressUndoRedoCreation = false);
+    void removeDisplaySign(int row, int col);
     QChar getSign(int row, int col) const;
-    void cut(bool isDelete);
+    void cut(bool isDelete, bool suppressUndoRedoCreation);
     void paste(bool suppressUndoRedoCreation);
 
     void applyStyleChanges(Stack *stack);
     void setSignStyle(int row, int col, int byteMask);
+
+    void setForegroundText(int row, int col);
+    void restoreBackgroundText(int row, int col, int height, int width);
+    void calculateDimensions();
+    void setSelection(int row, int col, int height, int width);
 
 private:
     int m_cursorRowPos, m_cursorColPos;
@@ -55,15 +72,13 @@ private:
     Graph_Interface m_graph;
     TextSelection m_clipboard;
 
-    bool m_isInHoverMode;
-    QList<QChar> m_hoverText;
-    int m_hoverRowOrigin;
-    int m_hoverColOrigin;
-    int m_hoverTextWidth;
-    int m_hoverTextHeight;
+    bool m_isInGrabMode;
+    TextSelection m_currentGrabbedText;
+    TextSelection m_originalGrabbedText;
+    int m_originalGrabOriginRow;
+    int m_originalGrabOriginCol;
+    // current grab origin is current cursor position
 
-    void calculateDimensions();
-    void setSelection(int row, int col, int width, int height);
 };
 
 #endif // EDITTABLEWIDGET_H

@@ -12,6 +12,7 @@ public:
     Graph_Interface( void );
     Stack* setSign(int colm, int row, char sign);
     Stack* deleteSign(int colm, int row);
+    char getSign(int colm, int row);
     void clear(void);
 private:
     void make_Graph_to(int colm, int row, InternStack *change);
