@@ -258,6 +258,9 @@ Command Graphs::getCommand(std::string& cmd)
     cmd.erase(0,1);
     cmd.erase(cmd.length()-1, 1);
   }
+  else if(cmd[0]=='&'){
+	  c.type = Command::Type::LAMBDA;
+  }
   else
     c.type = Command::Type::OUTPUT;
 
