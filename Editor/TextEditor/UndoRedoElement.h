@@ -3,7 +3,8 @@
 
 #include <QString>
 
-class UndoRedoElement {
+class UndoRedoElement
+{
 protected:
     QString displayName;
 

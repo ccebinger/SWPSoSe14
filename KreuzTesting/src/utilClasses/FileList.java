@@ -1,7 +1,5 @@
 package utilClasses;
 
-
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.DirectoryIteratorException;
@@ -17,30 +15,24 @@ public class FileList implements Serializable {
 	 */
 
 	private static final long serialVersionUID = 2L;
-	private Path path;
 
-	public FileList(Path path) {
+	public Vector<Path> FileListVector = new Vector<Path>();
 
-		this.path = path;
+	public FileList() {
 
 	}
 
-	public void setPath(Path path) {
+	public void getFileList(Path path) {
 
-		this.path = path;
-	}
-
-	public Path getPath() {
-
-		return (this.path);
-	}
-
-	public Vector<Path> getFileList() {
-		Vector<Path> FileListVector = new Vector<Path>();
-
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(path,".rail")) {
+		try {
+			DirectoryStream<Path> stream = Files.newDirectoryStream(path);
 			for (Path entry : stream) {
-				FileListVector.add(entry.getFileName());
+				if (Files.isDirectory(entry)) {
+
+					getFileList(entry);
+				}
+						
+				this.FileListVector.add(entry.toAbsolutePath());
 			}
 
 		} catch (IOException | DirectoryIteratorException x) {
@@ -48,7 +40,5 @@ public class FileList implements Serializable {
 			System.err.println(x);
 
 		}
-		return FileListVector;
-		
-}
+	}
 }

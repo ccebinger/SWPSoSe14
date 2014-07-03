@@ -6,6 +6,22 @@
 #include <QFileInfo>
 #include <QFileInfoList>
 
+enum SignType
+{
+    UNCONNECTED_OBJECT  = 1 << 0,
+    CONNECTED_RAIL      = 1 << 1,
+    FUNCTION_NAME       = 1 << 2,
+    FUNCTION_CALL       = 1 << 3,
+    SYSTEM_FUNCTION     = 1 << 4,
+    STRING              = 1 << 5,
+    VARIABLE            = 1 << 6
+};
+
+enum CurserMode
+{
+    NORMAL  = 1 << 0,
+    SMART   = 1 << 1
+};
 
 namespace ApplicationDefaultValues
 {

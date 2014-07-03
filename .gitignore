@@ -15,7 +15,8 @@ local.properties
 .classpath
 .settings/
 .loadpath
-
+projekt-compiler/Debug/
+Debug/
 # External tool builders
 .externalToolBuilders/
 
