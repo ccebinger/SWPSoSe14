@@ -74,7 +74,7 @@ compile:
 	./fu-rail -i ./fu-rail -i projekt-compiler/test/movement/y_junction/junctest.rail -o junctest.class
 
 run: 
-	java junctest
+	java -XX:-UseSplitVerifier junctest
 
 clean:
 	rm *.o fu-rail rail unittest_constantpool unittest_classfile_writer_test
