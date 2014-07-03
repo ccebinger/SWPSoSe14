@@ -302,7 +302,11 @@ void codegen::push_ByteCode(Bytecode::Current_state state) {
       ->add_opcode(codegen::MNEMONIC::LDC);
   std::string value = state.current_node->command.extractAstCommandString();
   try {
-    int int_val = std::stoi(value);
+    std::size_t end_parse;
+    int int_val = std::stoi(value, &end_parse);
+    if (end_parse != value.size()) {
+      throw std::invalid_argument("Parsing int didn't reach end of string");
+    }
     code->add_index((uint8_t) pool.addInt(int_val))
         ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx);
   }
