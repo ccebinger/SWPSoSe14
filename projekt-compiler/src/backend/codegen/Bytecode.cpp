@@ -573,7 +573,18 @@ void codegen::underflow_ByteCode(Bytecode::Current_state state) {
 }
 
 void codegen::type_ByteCode(Bytecode::Current_state state) {
-  (void) state.current_code;
+  Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
+
+  code->globalstack_pop()
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.getClass)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
+      // LDC String java.lang.
+      // LDC String
+      //->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.replace)
+      ->globalstack_push();
 }
 
 //CONTROL STRUCTURE
