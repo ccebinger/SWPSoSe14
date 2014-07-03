@@ -84,22 +84,9 @@
             <item>
              <widget class="QRadioButton" name="ui_horizontalDirectionRadioButton">
               <property name="text">
-               <string>Horizontal</string>
+               <string>Normal</string>
               </property>
               <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="ui_verticalDirectionRadioButton">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Vertical</string>
-              </property>
-              <property name="checkable">
                <bool>true</bool>
               </property>
              </widget>
@@ -271,6 +258,15 @@
     <addaction name="ui_cutAction"/>
     <addaction name="ui_copyAction"/>
     <addaction name="ui_pasteAction"/>
+    <addaction name="separator"/>
+    <addaction name="ui_startGrabAction"/>
+    <addaction name="ui_finishGrabAction"/>
+    <addaction name="ui_cancelGrabAction"/>
+    <addaction name="ui_rotate90Action"/>
+    <addaction name="ui_rotate180Action"/>
+    <addaction name="ui_rotate270Action"/>
+    <addaction name="ui_flipHorizontalAction"/>
+    <addaction name="ui_flipVerticalAction"/>
    </widget>
    <widget class="QMenu" name="ui_compileMenu">
     <property name="title">
@@ -463,6 +459,10 @@
    <addaction name="ui_cutAction"/>
    <addaction name="ui_copyAction"/>
    <addaction name="ui_pasteAction"/>
+   <addaction name="separator"/>
+   <addaction name="ui_startGrabAction"/>
+   <addaction name="ui_finishGrabAction"/>
+   <addaction name="ui_cancelGrabAction"/>
   </widget>
   <action name="ui_newFileAction">
    <property name="icon">
@@ -543,6 +543,9 @@
    <property name="text">
     <string>Set Interpreter Location</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="ui_runInterpreterAction">
    <property name="text">
@@ -589,10 +592,16 @@
    <property name="text">
     <string>Stop Interpreter</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="ui_setBuildAction">
    <property name="text">
     <string>Set Compiler Location</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="ui_runBuildAction">
@@ -617,6 +626,9 @@
    <property name="text">
     <string>Cancel Build</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="ui_cutAction">
    <property name="icon">
@@ -628,6 +640,9 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+X</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="ui_copyAction">
@@ -641,6 +656,9 @@
    <property name="shortcut">
     <string>Ctrl+C</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="ui_pasteAction">
    <property name="icon">
@@ -652,6 +670,9 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+V</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="ui_buildAndRunJavaAction">
@@ -665,10 +686,19 @@
    <property name="shortcut">
     <string>Ctrl+R</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="ui_runJavaAction">
    <property name="text">
     <string>Run Without Build</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+R</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="ui_stopJavaAction">
@@ -679,15 +709,121 @@
    <property name="text">
     <string>Stop</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="ui_preferencesAction">
    <property name="text">
     <string>Preferences</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="actionTemp">
    <property name="text">
     <string>Temp</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="ui_startGrabAction">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/Start Grab.png</normaloff>:/icons/Buttons/Start Grab.png</iconset>
+   </property>
+   <property name="text">
+    <string>Start Grab</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="ui_finishGrabAction">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/Finish Grab.png</normaloff>:/icons/Buttons/Finish Grab.png</iconset>
+   </property>
+   <property name="text">
+    <string>Finish Grab</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="ui_cancelGrabAction">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/Cancel Grab.png</normaloff>:/icons/Buttons/Cancel Grab.png</iconset>
+   </property>
+   <property name="text">
+    <string>Cancel Grab</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="ui_rotate90Action">
+   <property name="text">
+    <string>Rotate 90°</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="ui_rotate180Action">
+   <property name="text">
+    <string>Rotate 180°</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="ui_rotate270Action">
+   <property name="text">
+    <string>Rotate 270°</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="ui_flipHorizontalAction">
+   <property name="text">
+    <string>Flip Horizontal</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="ui_flipVerticalAction">
+   <property name="text">
+    <string>Flip Vertical</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
    </property>
   </action>
  </widget>

@@ -5,7 +5,8 @@
 #include <qchar.h>
 #include <qstring.h>
 
-class UndoRedoCutPaste: public UndoRedoElement {
+class UndoRedoCutPaste: public UndoRedoElement
+{
 private:
     int topRow;
     int leftColumn;
@@ -25,7 +26,7 @@ public:
         this->pre = pre;
         this->post = post;
 
-        displayName = displayPrefix + " at (" + QString::number(topRow+1) + ", " + QString::number(leftColumn+1) + ") - (" + QString::number(bottomRow+1) + ", " + QString::number(rightColumn+1) + ")";
+        displayName = displayPrefix + " at (" + QString::number(topRow+1) + ", " + QString::number(leftColumn+1) + ", " + QString::number(bottomRow+1) + ", " + QString::number(rightColumn+1) + ")";
     }
 
     int getTop() const

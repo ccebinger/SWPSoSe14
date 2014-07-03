@@ -45,8 +45,12 @@ public:
   virtual ~Lambda_classfile_writer();
 
   static const std::string lambda_class_name;
+  static const std::string lambda_file_name;
+  static const std::string method_name;
+  static const std::string method_descriptor;
 protected:
-  static const uint8_t access_flags[];
+  static const unsigned char interface_access_flags[];
+  static const unsigned char method_access_flags[];
   /**
    * Method to write the constant pool that was generated in @see constant_pool.cc
    *
@@ -107,6 +111,9 @@ protected:
    * @return void
    */
   virtual void WriteAttributes(const std::string &key);
+private:
+  void write_array(size_t len, const unsigned char arr[]);
+  size_t get_class_ref();
 };
 
 #endif // CLASSFILE_H
