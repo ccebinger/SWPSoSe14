@@ -4,6 +4,7 @@
 
 *.pydevproject
 .project
+.cproject
 .metadata
 bin/
 tmp/
@@ -16,6 +17,9 @@ local.properties
 .settings/
 .loadpath
 projekt-compiler/Debug/
+projekt-compiler/.project
+projekt-compiler/.cproject
+
 Debug/
 # External tool builders
 .externalToolBuilders/
