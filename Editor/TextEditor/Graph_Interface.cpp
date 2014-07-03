@@ -13,6 +13,7 @@ Graph_Interface::Graph_Interface( void ){
     maxColm = 0;
     maxRow = 0;
     check = new DoubleCheck();
+    last_Direction = 0;
 }
 
 Stack* Graph_Interface::setSign(int colm, int row, char sign){
@@ -56,25 +57,26 @@ void Graph_Interface::clear(){
     root->set_Node_in_Directions(NULL,NULL,NULL,NULL,tmp,NULL,new Point(0,1),temp);
     maxColm = 0;
     maxRow = 0;
+    last_Direction = 0;
 }
 void Graph_Interface::make_Graph_to(int colm, int row, InternStack *change){
     Point* temp;
-    for (int x = 0; x <= colm; ++x) {
-        for (int y = 0; y <= row; ++y) {
-            if(x > maxColm || y>maxRow){
-                temp = get_and_make_Point(x,y);
-                temp->set_Node_in_Directions((x-1 >=0 && y-1 >= 0)?get_and_make_Point(x-1,y-1):NULL,
-                                             (y-1 >= 0)?get_and_make_Point(x,y-1):NULL,
-                                             (y-1 >= 0)?get_and_make_Point(x+1,y-1):NULL,
-                                             (x-1 >=0 )?get_and_make_Point(x-1,y):NULL,
-                                             get_and_make_Point(x+1,y),
-                                             (x-1 >=0)?get_and_make_Point(x-1,y+1):NULL,
-                                             get_and_make_Point(x,y+1),
-                                             get_and_make_Point(x+1,y+1));
+    for (int tmpCol = 0; tmpCol <= ((maxColm>colm)?maxColm:colm); ++tmpCol) {
+        for (int tmpRow = 0; tmpRow <= ((maxRow>row)?maxRow:row); ++tmpRow) {
+            if(tmpCol > maxColm || tmpRow > maxRow){
+                temp = get_and_make_Point(tmpCol,tmpRow);
+                temp->set_Node_in_Directions((tmpCol-1 >=0 && tmpRow-1 >= 0)?get_and_make_Point(tmpCol-1,tmpRow-1):NULL,
+                                             (tmpRow-1 >= 0)?get_and_make_Point(tmpCol,tmpRow-1):NULL,
+                                             (tmpRow-1 >= 0)?get_and_make_Point(tmpCol+1,tmpRow-1):NULL,
+                                             (tmpCol-1 >=0 )?get_and_make_Point(tmpCol-1,tmpRow):NULL,
+                                             get_and_make_Point(tmpCol+1,tmpRow),
+                                             (tmpCol-1 >=0)?get_and_make_Point(tmpCol-1,tmpRow+1):NULL,
+                                             get_and_make_Point(tmpCol,tmpRow+1),
+                                             get_and_make_Point(tmpCol+1,tmpRow+1));
                 change->push(temp);
             }
         }
-    } maxColm = colm; maxRow = row;
+    } maxColm = (maxColm>colm)?maxColm:colm; maxRow = (maxRow>row)?maxRow:row;
 
 }
 Point* Graph_Interface::getPoint(int colm, int row, InternStack *change){
@@ -123,4 +125,7 @@ int Graph_Interface::get_I_Pointer_Direction(Point* to_Direction){
         else return 8;
     }
     return 8;
+}
+int Graph_Interface::get_Point_Type(int colm, int row){
+    return getPoint(colm,row,NULL)->get_Node_Font();
 }
