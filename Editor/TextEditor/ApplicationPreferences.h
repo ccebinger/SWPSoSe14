@@ -41,6 +41,7 @@ namespace ApplicationDefaultValues
     extern const QStringList recentFiles;
     extern const bool showLineNumbers;
     extern const bool showWhiteSpaces;
+    extern CurserMode cursorMode;
 }
 
 namespace ApplicationPreferences
@@ -61,6 +62,8 @@ namespace ApplicationPreferences
     extern QStringList recentFiles;
     extern bool showLineNumbers;
     extern bool showWhiteSpaces;
+
+    extern CurserMode cursorMode;
 }
 
 #endif // APPLICATIONPREFERENCES_H

@@ -40,7 +40,8 @@ HEADERS  += mainwindow.h \
     ApplicationPreferencesDialog.h \
     FileSelectLineEdit.h \
     ApplicationPreferences.h \
-    TextSelection.h
+    TextSelection.h \
+    UndoRedoGrab.h
 
 FORMS    += mainwindow.ui \
     ApplicationPreferencesDialog.ui

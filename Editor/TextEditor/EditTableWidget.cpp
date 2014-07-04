@@ -197,7 +197,7 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
             {
                 return;
             }
-            cut(true, true);
+            cut(true, false);
         }
         else if(key != Qt::Key_Escape)
         {

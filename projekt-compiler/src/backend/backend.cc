@@ -107,6 +107,8 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t remove_str_idx = constantPool.addString("remove");
   uint16_t get_class_name_idx = constantPool.addString("getClass");
   uint16_t get_class_type_idx = constantPool.addString("()Ljava/lang/Class;");
+  uint16_t replace_name_idx = constantPool.addString("replace");
+  uint16_t replace_type_idx = constantPool.addString("(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;");
   uint16_t remove_type_idx = constantPool.addString("(I)Ljava/lang/Object;");
   //uint16_t add_type_idx = constantPool.addString("(Ljava/lang/Object)Z")  same like bool equals
 
@@ -148,6 +150,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t add_name_type_idx = constantPool.addNameAndType(add_str_idx, boolEquals_type_idx);
   uint16_t remove_name_type_idx = constantPool.addNameAndType(remove_str_idx, remove_type_idx);
   uint16_t get_class_name_type_idx = constantPool.addNameAndType(get_class_name_idx, get_class_type_idx);
+  uint16_t replace_name_type_idx = constantPool.addNameAndType(replace_name_idx, replace_type_idx);
 
   ///  Add method refs
   constantPool.obj_idx.getClass = constantPool.addMethRef(constantPool.obj_idx.class_idx , object_name_type_idx);
@@ -167,6 +170,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   constantPool.str_idx.substring_idx = constantPool.addMethRef(constantPool.str_idx.class_idx, substring_name_type_single_idx);
   constantPool.str_idx.length_idx = constantPool.addMethRef(constantPool.str_idx.class_idx, length_name_type_idx);
   constantPool.str_idx.length_idx = constantPool.addMethRef(constantPool.str_idx.class_idx, length_name_type_idx);
+  constantPool.str_idx.replace = constantPool.addMethRef(constantPool.str_idx.class_idx, replace_name_type_idx);
   constantPool.str_builder_idx.append_idx = constantPool.addMethRef(constantPool.str_builder_idx.class_idx, append_name_type_idx);
   constantPool.str_builder_idx.init_idx = constantPool.addMethRef(constantPool.str_builder_idx.class_idx, init_builder_name_type_idx);
   constantPool.arr_idx.init_idx = constantPool.addMethRef(constantPool.arr_idx.class_idx, object_name_type_idx);
