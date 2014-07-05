@@ -281,7 +281,6 @@ public class Env {
 			else {
 				System.out.println("Can't clear folder " + f.getAbsolutePath() + "...");
 			}
-			System.out.println();
 		}
 		if(!f.exists()) {
 			f.mkdirs();

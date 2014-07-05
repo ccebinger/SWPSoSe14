@@ -36,11 +36,19 @@ public class CrossTest {
 	public void dispatch(ArrayList<String> testPaths) throws IOException {
 		
 		
-		// Find all test files, parse .io files
+		// Find all test files
+		
+		System.out.print("looking up test files... ");
 		for(String s : testPaths) {
 			dispatchPath(s);
 		}
+		System.out.println("done");
 		
+		
+		
+		
+		
+		System.out.println();
 		
 		
 		long timeStart = System.currentTimeMillis();
@@ -133,12 +141,17 @@ public class CrossTest {
 			public FileVisitResult visitFile(Path arg0, BasicFileAttributes arg1) throws IOException {
 				
 				if(arg0.toString().endsWith(".rail")) {
-					TestFile tf = new TestFile(
-						crossTest,
-						basePath.relativize(arg0),
-						arg0
-					);
-					testFiles.add(tf);
+					try {
+						TestFile tf = new TestFile(
+							crossTest,
+							basePath.relativize(arg0),
+							arg0
+						);
+						testFiles.add(tf);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				
 				return FileVisitResult.CONTINUE;

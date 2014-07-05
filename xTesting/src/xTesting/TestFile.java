@@ -23,20 +23,18 @@ public class TestFile implements Comparable<TestFile> {
 	final LinkedList<TestCase> testcases = new LinkedList<>();
 	
 	
-	public TestFile(CrossTest ct, Path filename, Path file) {
+	public TestFile(CrossTest ct, Path filename, Path file) throws SQLException {
 		this.ct = ct;
 		this.file = file;
 		this.filename = filename;
+		
+		// Get Database ID
+		this.dbId = ct.stats.getTestfileId(filename.toString());
 	}
 	
 	
 	
 	public final void dispatch(int id, Mode mode) throws SQLException {
-		
-		// Get Database ID
-		dbId = ct.stats.getTestfileId(filename.toString());
-		
-		
 		
 		//--------------------------------------------------------------------------------
 		// parse .io
