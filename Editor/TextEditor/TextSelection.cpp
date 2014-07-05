@@ -46,20 +46,52 @@ int TextSelection::height() const
 
 TextSelection & TextSelection::rotate90()
 {
-    // TODO: implement
-    return *this;
+    QList<QChar> newText = this->text();
+    return *new TextSelection(newText, this->height(), this->width());
 }
 
 TextSelection & TextSelection::rotate180()
 {
-    // TODO: implement
-    return *this;
+    QList<QChar>* newText = new QList<QChar>();
+    for(int y=this->height()-1; y>=0; y--) {
+        for(int x=this->width()-1; x>=0; x--) {
+            QChar newChar = this->text().at(y*this->width()+x);
+            if(newChar=='>') {
+                newText->append(*new QChar('<'));
+            } else if(newChar=='<') {
+                newText->append(*new QChar('>'));
+            } else if(newChar=='v') {
+                newText->append(*new QChar('^'));
+            } else if(newChar=='^') {
+                newText->append(*new QChar('v'));
+            } else if(newChar==']') {
+                newText->append(*new QChar('['));
+            } else if(newChar==']') {
+                newText->append(*new QChar('['));
+            } else if(newChar=='[') {
+                newText->append(*new QChar(']'));
+            } else if(newChar==']') {
+                newText->append(*new QChar('['));
+            } else if(newChar=='(') {
+                newText->append(*new QChar(')'));
+            } else if(newChar==')') {
+                newText->append(*new QChar('('));
+            } else if(newChar=='{') {
+                newText->append(*new QChar('}'));
+            } else if(newChar=='}') {
+                newText->append(*new QChar('{'));
+            } else {
+                newText->append(newChar);
+            }
+        }
+    }
+    return *new TextSelection(*newText, this->width(), this->height());
 }
 
 TextSelection & TextSelection::rotate270()
 {
-    // TODO: implement
-    return *this;
+    QList<QChar> newText = this->text();
+    return *new TextSelection(newText, this->height(), this->width());
 }
 
 TextSelection & TextSelection::mirrorX()
