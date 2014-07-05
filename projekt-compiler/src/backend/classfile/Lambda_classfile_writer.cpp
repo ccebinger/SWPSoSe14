@@ -6,7 +6,6 @@
 const unsigned char Lambda_classfile_writer::interface_access_flags[] = {'\x06', '\x01'};
 const unsigned char Lambda_classfile_writer::method_access_flags[] = {'\x04', '\x01'};
 const std::string Lambda_classfile_writer::lambda_class_name = "Lambda";
-const std::string Lambda_classfile_writer::lambda_file_name = Lambda_classfile_writer::lambda_class_name + ".class";
 const std::string Lambda_classfile_writer::method_name = "closure";
 const std::string Lambda_classfile_writer::method_descriptor = "()V";
 
@@ -15,6 +14,7 @@ Lambda_classfile_writer::Lambda_classfile_writer(ClassfileVersion version, Const
                     const std::map<std::string, codegen::Bytecode&> codeFunctions,
                     std::ostream* out) : ClassfileWriter(version, constantPool, graphs, codeFunctions, out)
 {
+ lambda_file_name = Env::getDstClassfile() + Lambda_classfile_writer::lambda_class_name + ".class";
   //constant_pool_ = std::make_shared<ConstantPool*>(new ConstantPool());
 }
 
