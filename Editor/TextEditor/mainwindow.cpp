@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    readSettings();
 
     ui->ui_insertModeGroupBox->hide();
 
@@ -40,6 +41,8 @@ MainWindow::MainWindow(QWidget *parent) :
     setCurrentPath(QString());
     setModified(false);
     createTempFiles();
+    updateRecentFiles();
+    setCursorMode();
 
     m_interpreterProcess = new QProcess(this);
     m_buildProcess = new QProcess(this);
@@ -118,9 +121,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->ui_issuesListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(issueDoubleClicked(QListWidgetItem*)));
     connect(ui->ui_preferencesAction, SIGNAL(triggered()), this, SLOT(showApplicationPreferences()));
 
-    readSettings();
+    connect(ui->ui_smartDirectionRadioButton, SIGNAL(toggled(bool)), this, SLOT(cursorModeChanged(bool)));
+    connect(ui->ui_horizontalDirectionRadioButton, SIGNAL(toggled(bool)), this, SLOT(cursorModeChanged(bool)));
+
     ui->ui_sourceEditTableWidget->verticalHeader()->setVisible(ApplicationPreferences::showLineNumbers);
-    updateRecentFiles();
+    ui->ui_sourceEditTableWidget->setShowGrid(ApplicationPreferences::showEditorLines);
 }
 
 MainWindow::~MainWindow()
@@ -678,7 +683,7 @@ void MainWindow::runJava()
     QFileInfo classFile(classFilePath);
     QString directory(classFile.absoluteDir().path());
     QString className(classFile.completeBaseName());
-    m_javaProcess->start("java", QStringList() << "-cp" << directory << className << "-XX:-UseSplitVerifier");
+    m_javaProcess->start("java", QStringList() << "-XX:-UseSplitVerifier" << "-cp" << directory << className);
 }
 
 void MainWindow::javaStarted()
@@ -795,6 +800,7 @@ void MainWindow::showApplicationPreferences()
     ApplicationPreferencesDialog dlg;
     dlg.exec();    
     ui->ui_sourceEditTableWidget->verticalHeader()->setVisible(ApplicationPreferences::showLineNumbers);
+    ui->ui_sourceEditTableWidget->setShowGrid(ApplicationPreferences::showEditorLines);
     ui->ui_sourceEditTableWidget->updateTextStyle();
 }
 
@@ -817,6 +823,10 @@ void MainWindow::readSettings()
     colorVariant = settings.value("colors/connectedRails", colorDefaultVariant);
     ApplicationPreferences::connectedRailsColor = colorVariant.value<QColor>();
 
+    colorDefaultVariant = ApplicationDefaultValues::systemFunctionColor;
+    colorVariant = settings.value("colors/systemFunctions", colorDefaultVariant);
+    ApplicationPreferences::systemFunctionColor = colorVariant.value<QColor>();
+
     colorDefaultVariant = ApplicationDefaultValues::functionNamesColor;
     colorVariant = settings.value("colors/functionNames", colorDefaultVariant);
     ApplicationPreferences::functionNamesColor = colorVariant.value<QColor>();
@@ -834,8 +844,10 @@ void MainWindow::readSettings()
     ApplicationPreferences::variablesColor = colorVariant.value<QColor>();
 
     ApplicationPreferences::recentFiles = settings.value("common/recentFiles", ApplicationDefaultValues::recentFiles).toStringList();
-    ApplicationPreferences::showLineNumbers = settings.value("common/showLineNumbers", ApplicationDefaultValues::showLineNumbers).toBool();
-    ApplicationPreferences::showWhiteSpaces = settings.value("common/showWhiteSpaces", ApplicationDefaultValues::showWhiteSpaces).toBool();
+    ApplicationPreferences::showLineNumbers = settings.value("editor/showLineNumbers", ApplicationDefaultValues::showLineNumbers).toBool();
+    ApplicationPreferences::showWhiteSpaces = settings.value("editor/showWhiteSpaces", ApplicationDefaultValues::showWhiteSpaces).toBool();
+    ApplicationPreferences::showEditorLines = settings.value("editor/showEditorLines", ApplicationDefaultValues::showEditorLines).toBool();
+    ApplicationPreferences::cursorMode = (CursorMode)(settings.value("editor/cursorMode", ApplicationDefaultValues::cursorMode).toInt());
 
     ApplicationPreferences::createASGFiles = settings.value("build/createASG", ApplicationDefaultValues::createASGFiles).toBool();
     ApplicationPreferences::createGraphVizFiles = settings.value("build/createGraphViz", ApplicationDefaultValues::createGraphVizFiles).toBool();
@@ -866,14 +878,17 @@ void MainWindow::writeSettings() const
 
     settings.setValue("colors/unconnectedRails", ApplicationPreferences::unconnectedRailsColor);
     settings.setValue("colors/connectedRails", ApplicationPreferences::connectedRailsColor);
+    settings.setValue("colors/systemFunctions", ApplicationPreferences::systemFunctionColor);
     settings.setValue("colors/functionNames", ApplicationPreferences::functionNamesColor);
     settings.setValue("colors/functionCalls", ApplicationPreferences::functionCallsColor);
     settings.setValue("colors/strings", ApplicationPreferences::stringsColor);
     settings.setValue("colors/variables", ApplicationPreferences::variablesColor);
 
     settings.setValue("common/recentFiles", shortenendRecent);
-    settings.setValue("common/showLineNumbers", ApplicationPreferences::showLineNumbers);
-    settings.setValue("common/showWhiteSpaces", ApplicationPreferences::showWhiteSpaces);
+    settings.setValue("editor/showLineNumbers", ApplicationPreferences::showLineNumbers);
+    settings.setValue("editor/showWhiteSpaces", ApplicationPreferences::showWhiteSpaces);
+    settings.setValue("editor/showEditorLines", ApplicationPreferences::showEditorLines);
+    settings.setValue("editor/cursorMode", ApplicationPreferences::cursorMode);
 
     settings.setValue("build/createASG", ApplicationPreferences::createASGFiles);
     settings.setValue("build/createGraphViz", ApplicationPreferences::createGraphVizFiles);
@@ -972,4 +987,35 @@ void MainWindow::grabModeChanged(bool inGrab)
     ui->ui_startGrabAction->setEnabled(!inGrab);
     ui->ui_finishGrabAction->setEnabled(inGrab);
     ui->ui_cancelGrabAction->setEnabled(inGrab);
+}
+
+void MainWindow::setCursorMode()
+{
+    if(ApplicationPreferences::cursorMode == NORMAL)
+    {
+        ui->ui_horizontalDirectionRadioButton->setChecked(true);
+    }
+    else
+    {
+        ui->ui_smartDirectionRadioButton->setChecked(true);
+    }
+}
+
+void MainWindow::cursorModeChanged(bool state)
+{
+    if(!state)
+    {
+        return;
+    }
+
+    QRadioButton *button = dynamic_cast<QRadioButton *>(sender());
+    assert(button);
+    if(button == ui->ui_horizontalDirectionRadioButton)
+    {
+        ApplicationPreferences::cursorMode = NORMAL;
+    }
+    else
+    {
+        ApplicationPreferences::cursorMode = SMART;
+    }
 }

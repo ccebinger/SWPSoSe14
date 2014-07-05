@@ -36,6 +36,7 @@ private:
     void writeSettings() const;
     void updateRecentFiles();
     void openFile(QString const& filePath);
+    void setCursorMode();
 
     bool m_modified;
     QString m_currentFilePath;
@@ -105,6 +106,8 @@ private slots:
     void mirrorGrabX();
     void mirrorGrabY();
     void grabModeChanged(bool inGrab);
+
+    void cursorModeChanged(bool state);
 };
 
 #endif // MAINWINDOW_H

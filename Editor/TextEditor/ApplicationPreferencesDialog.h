@@ -24,6 +24,7 @@ private:
 
     QColor m_unconnectedRailsColor;
     QColor m_connectedRailsColor;
+    QColor m_systemFunctionColor;
     QColor m_functionNamesColor;
     QColor m_functionCallsColor;
     QColor m_stringsColor;
