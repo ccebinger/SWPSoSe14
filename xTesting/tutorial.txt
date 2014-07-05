@@ -1,0 +1,53 @@
+1. Java Eclipse Projekt erstellen in diesem Ordner
+
+
+2. in rail-interpreter die compile.sh ausführen
+
+
+Anmerkung: auf Leerzeichen wie "- d" achten -> 'auskommentiert' ;)
+
+2.1 In Eclipse ausführen
+	- run configurations -> arguments -> ausfüllen und anpassen
+	Anmerkung: "- d" läd nichts, weil leerzeichen ;)
+
+		--jail ../projekt-compiler/Debug/jail
+		-- haskell devNull
+		--interpreter ../rail-interpreter/rail
+		--tempDir tmp/
+		--no-colors
+		-- no-clean
+		--verbose
+		--tempDir tmp/
+		- d ../projekt-compiler/test/
+		- d ../projekt-compiler/test/builtInCommand/
+		-d ../projekt-compiler/test/builtInCommand/conditional/
+		- d ../projekt-compiler/test/multiCharCommand/constant/
+		- d ../swpHaskell/integration-tests/
+		- d ../swpHaskell/integration-tests/future/
+
+
+
+2.2 als jar
+	- projekt -> export -> runnable jar file -> package required libs ...
+	- run.sh anlegen mit parametern
+	- in etwa so....
+
+		#!/bin/sh
+		java -jar xTesting.jar \
+		--interpreter ../rail-interpreter/rail \
+		--jail ../projekt-compiler/Debug/jail \
+		-- haskell devNull \
+		--tempDir tmp/ \
+		-- no-colors \
+		-- no-clean \
+		--verbose \
+		--tempDir tmp/ \
+		- d ../projekt-compiler/test/ \
+		- d ../projekt-compiler/test/builtInCommand/ \
+		-d ../projekt-compiler/test/builtInCommand/conditional/ \
+		- d ../../swpHaskell/integration-tests/ \
+		- d ../../swpHaskell/integration-tests/future/ \
+
+	- ausführbar amchen
+	- ausführen
+

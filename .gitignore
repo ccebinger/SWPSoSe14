@@ -247,3 +247,8 @@ rail-interpreter/
 
 # Java exception logs
 abrt_checker_*.log
+
+# xTesting
+testresults.sqlite
+xTesting.jar
+xTesting/run.sh
