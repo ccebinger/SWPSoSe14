@@ -26,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    readSettings();
 
     ui->ui_insertModeGroupBox->hide();
 
@@ -41,8 +40,6 @@ MainWindow::MainWindow(QWidget *parent) :
     setCurrentPath(QString());
     setModified(false);
     createTempFiles();
-    updateRecentFiles();
-    setCursorMode();
 
     m_interpreterProcess = new QProcess(this);
     m_buildProcess = new QProcess(this);
@@ -120,6 +117,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->ui_issuesListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(issueDoubleClicked(QListWidgetItem*)));
     connect(ui->ui_preferencesAction, SIGNAL(triggered()), this, SLOT(showApplicationPreferences()));
+
+    readSettings();
+    updateRecentFiles();
+    setCursorMode();
 
     connect(ui->ui_smartDirectionRadioButton, SIGNAL(toggled(bool)), this, SLOT(cursorModeChanged(bool)));
     connect(ui->ui_horizontalDirectionRadioButton, SIGNAL(toggled(bool)), this, SLOT(cursorModeChanged(bool)));
@@ -322,6 +323,11 @@ bool MainWindow::save(QString filePath)
     setModified(false);
     setCurrentPath(filePath);
     m_undoRedoStack->setSaved();
+
+    ApplicationPreferences::recentFiles.removeAll(filePath);
+    ApplicationPreferences::recentFiles.prepend(filePath);
+    updateRecentFiles();
+
     return true;
 }
 
@@ -684,6 +690,7 @@ void MainWindow::runJava()
     QString directory(classFile.absoluteDir().path());
     QString className(classFile.completeBaseName());
     m_javaProcess->start("java", QStringList() << "-XX:-UseSplitVerifier" << "-cp" << directory << className);
+    //qDebug() << m_javaProcess->arguments();
 }
 
 void MainWindow::javaStarted()
