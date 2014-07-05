@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>556</width>
-    <height>375</height>
+    <width>436</width>
+    <height>325</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -116,118 +116,6 @@
        <string>Editor</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="2" column="0">
-        <widget class="QGroupBox" name="ui_syntaxHighlightingGroupBox">
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="title">
-          <string>Syntax Highlighting</string>
-         </property>
-         <layout class="QFormLayout" name="formLayout_2">
-          <property name="fieldGrowthPolicy">
-           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-          </property>
-          <item row="0" column="0">
-           <widget class="QToolButton" name="ui_unconnectedRailsToolButton">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLabel" name="ui_unconnectedRailsLabel">
-            <property name="text">
-             <string>Unconnected Elements</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QToolButton" name="ui_connectedRailsToolButton">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLabel" name="ui_connectedRailsLabel">
-            <property name="text">
-             <string>Connected Rails</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QToolButton" name="ui_functionNamesToolButton">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLabel" name="ui_functionNamesLabel">
-            <property name="text">
-             <string>Function Names</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QToolButton" name="ui_functionCallsToolButton">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="ui_functionCallsLabel">
-            <property name="text">
-             <string>Functions Calls</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QToolButton" name="ui_stringsToolButton">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QLabel" name="ui_stringsLabel">
-            <property name="text">
-             <string>Strings</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QToolButton" name="ui_variablesToolButton">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="1">
-           <widget class="QLabel" name="ui_variablesLabel">
-            <property name="text">
-             <string>Variables</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="0">
-           <spacer name="ui_coloringVerticalSpacer">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item row="0" column="0">
         <widget class="QCheckBox" name="ui_showLineNumbersCheckBox">
          <property name="text">
@@ -242,11 +130,151 @@
          </property>
         </widget>
        </item>
+       <item row="2" column="0">
+        <widget class="QCheckBox" name="ui_showEditorLinesCheckBox">
+         <property name="text">
+          <string>Show Grid Lines</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="ui_syntaxHighlightingTab">
+      <attribute name="title">
+       <string>Syntax Highlighting</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout_2">
+       <item row="0" column="0">
+        <widget class="QToolButton" name="ui_unconnectedRailsToolButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="ui_unconnectedRailsLabel">
+         <property name="text">
+          <string>Unconnected Elements</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QToolButton" name="ui_connectedRailsToolButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="ui_connectedRailsLabel">
+         <property name="text">
+          <string>Connected Rails</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QToolButton" name="ui_functionNamesToolButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="ui_functionNamesLabel">
+         <property name="text">
+          <string>Function Names</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QToolButton" name="ui_functionCallsToolButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLabel" name="ui_functionCallsLabel">
+         <property name="text">
+          <string>Functions Calls</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QToolButton" name="ui_systemFunctionToolButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLabel" name="ui_systemFunctionLabel">
+         <property name="text">
+          <string>System Functions</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QToolButton" name="ui_stringsToolButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QLabel" name="ui_stringsLabel">
+         <property name="text">
+          <string>Strings</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QToolButton" name="ui_variablesToolButton">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QLabel" name="ui_variablesLabel">
+         <property name="text">
+          <string>Variables</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <spacer name="ui_coloringVerticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>10</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
       </layout>
      </widget>
     </widget>
    </item>
   </layout>
+  <zorder>ui_tabWidget</zorder>
+  <zorder>ui_buttonBox</zorder>
  </widget>
  <customwidgets>
   <customwidget>
@@ -264,12 +292,6 @@
   <tabstop>ui_generateGraphVizCheckBox</tabstop>
   <tabstop>ui_quietCompilerOutputCheckBox</tabstop>
   <tabstop>ui_showLineNumbersCheckBox</tabstop>
-  <tabstop>ui_unconnectedRailsToolButton</tabstop>
-  <tabstop>ui_connectedRailsToolButton</tabstop>
-  <tabstop>ui_functionNamesToolButton</tabstop>
-  <tabstop>ui_functionCallsToolButton</tabstop>
-  <tabstop>ui_stringsToolButton</tabstop>
-  <tabstop>ui_variablesToolButton</tabstop>
  </tabstops>
  <resources/>
  <connections>

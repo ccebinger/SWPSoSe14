@@ -109,7 +109,10 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t get_class_type_idx = constantPool.addString("()Ljava/lang/Class;");
   uint16_t replace_name_idx = constantPool.addString("replace");
   uint16_t replace_type_idx = constantPool.addString("(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;");
+  uint16_t toLowerCase_name_idx = constantPool.addString("toLowerCase");
   uint16_t remove_type_idx = constantPool.addString("(I)Ljava/lang/Object;");
+  constantPool.addString("");
+  constantPool.addString("class java.lang.");
   //uint16_t add_type_idx = constantPool.addString("(Ljava/lang/Object)Z")  same like bool equals
 
   ///  Add classes
@@ -151,6 +154,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t remove_name_type_idx = constantPool.addNameAndType(remove_str_idx, remove_type_idx);
   uint16_t get_class_name_type_idx = constantPool.addNameAndType(get_class_name_idx, get_class_type_idx);
   uint16_t replace_name_type_idx = constantPool.addNameAndType(replace_name_idx, replace_type_idx);
+  uint16_t toLowerCase_name_type_idx = constantPool.addNameAndType(toLowerCase_name_idx, toString_type_idx);
 
   ///  Add method refs
   constantPool.obj_idx.getClass = constantPool.addMethRef(constantPool.obj_idx.class_idx , object_name_type_idx);
@@ -171,6 +175,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   constantPool.str_idx.length_idx = constantPool.addMethRef(constantPool.str_idx.class_idx, length_name_type_idx);
   constantPool.str_idx.length_idx = constantPool.addMethRef(constantPool.str_idx.class_idx, length_name_type_idx);
   constantPool.str_idx.replace = constantPool.addMethRef(constantPool.str_idx.class_idx, replace_name_type_idx);
+  constantPool.str_idx.toLowerCase = constantPool.addMethRef(constantPool.str_idx.class_idx, toLowerCase_name_type_idx);
   constantPool.str_builder_idx.append_idx = constantPool.addMethRef(constantPool.str_builder_idx.class_idx, append_name_type_idx);
   constantPool.str_builder_idx.init_idx = constantPool.addMethRef(constantPool.str_builder_idx.class_idx, init_builder_name_type_idx);
   constantPool.arr_idx.init_idx = constantPool.addMethRef(constantPool.arr_idx.class_idx, object_name_type_idx);
@@ -214,7 +219,13 @@ Backend::Status Backend::Generate(Graphs& graphs,
     delete &it->second;
   }
 
-  std::ofstream outFile(Lambda_classfile_writer::lambda_file_name, std::ofstream::binary);
+  std::string file = Env::getDstClassfile();
+
+  size_t pos = file.find_last_of("\\/") + 1;
+  file = file.substr(0, pos);
+  file.append(Lambda_classfile_writer::lambda_class_name);
+  file.append(".class");
+  std::ofstream outFile(file, std::ofstream::binary);
   Lambda_classfile_writer lwriter(ClassfileWriter::JAVA_7, new ConstantPool(), graphs, codeMap, &outFile);
   lwriter.WriteClassfile();
   return Backend::Status::SUCCESS;
