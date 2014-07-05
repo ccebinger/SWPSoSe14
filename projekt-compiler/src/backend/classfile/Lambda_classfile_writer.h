@@ -45,7 +45,7 @@ public:
   virtual ~Lambda_classfile_writer();
 
   static const std::string lambda_class_name;
-  static const std::string lambda_file_name;
+  std::string lambda_file_name;
   static const std::string method_name;
   static const std::string method_descriptor;
 protected:
