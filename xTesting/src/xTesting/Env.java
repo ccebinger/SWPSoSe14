@@ -137,6 +137,14 @@ public class Env {
 	
 	
 	
+	private static boolean useDb = true;
+	public static final boolean useDatabase() { return useDb; }
+	public static final void setDatabase(boolean useDb) { Env.useDb = useDb; }
+	
+	
+	
+	
+	
 	public static final Path getCsvPath(Mode mode, Path filename) {
 		String fname = filename.toString();
 		fname = fname.substring(0, fname.length()-4);

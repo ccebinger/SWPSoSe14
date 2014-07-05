@@ -27,7 +27,7 @@ public class CrossTest {
 	
 	public CrossTest() {
 		// Stats
-		stats = Stats.getFreshStats();
+		stats = Stats.factory();
 		
 	}
 	
