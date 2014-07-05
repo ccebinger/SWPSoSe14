@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
+
 import xTesting.Env.Mode;
 
 public class StatsDatabase extends Stats {
@@ -84,10 +86,18 @@ public class StatsDatabase extends Stats {
 	
 	
 	public long getTestfileId(String filepath) throws SQLException {
-		stmt.executeUpdate("INSERT IGNORE INTO testfile (path) VALUES('"+ filepath +"');");
 		result = stmt.executeQuery("SELECT idTestfile FROM testfile WHERE path='"+filepath+"';");
-		result.next();
-		return result.getLong(1);
+		if(result.next()) {
+			System.out.println("CACHED: " + result.getLong(1));
+			return result.getLong(1);
+		}
+		else {
+			stmt.executeUpdate("INSERT INTO testfile (path) VALUES ('"+ filepath +"');", Statement.RETURN_GENERATED_KEYS);
+			result = stmt.getGeneratedKeys();
+			result.next();
+			System.out.println("NEW: " + result.getLong(1));
+			return result.getLong(1);
+		}
 	}
 	
 	
