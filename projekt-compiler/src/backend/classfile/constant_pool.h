@@ -59,6 +59,7 @@ struct StringIndexes {
   uint16_t length_idx = 0;
   uint16_t value_of_idx = 0;
   uint16_t replace = 0;
+  uint16_t toLowerCase = 0;
 };
 
 struct StringBuilderIndexes{
