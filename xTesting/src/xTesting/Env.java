@@ -11,17 +11,21 @@ public class Env {
 	
 	
 	public enum Mode {
-		Interpreter			("Int",	"",		"",		""),
-		Cpp					("C++",	"",		"C++",	"JVM"),
-		Cpp_Cpp				("C++",	"Ast",	"C++",	"JVM"),
-		Cpp_Haskell			("C++",	"Ast",	"Hsk",	"LLVM"),
-		Haskell				("Hsk",	"",		"Hsk",	"LLVM"),
-		Haskell_Cpp			("Hsk",	"Ast",	"C",	"JVM"),
-		Haskell_Haskell		("Hsk",	"Ast",	"Hsk",	"LLVM"),
+		Interpreter			(1, "Int",	"",		"",		""),
+		Cpp					(2, "C++",	"",		"C++",	"JVM"),
+		Cpp_Cpp				(3, "C++",	"Ast",	"C++",	"JVM"),
+		Cpp_Haskell			(4, "C++",	"Ast",	"Hsk",	"LLVM"),
+		Haskell				(5, "Hsk",	"",		"Hsk",	"LLVM"),
+		Haskell_Cpp			(6, "Hsk",	"Ast",	"C",	"JVM"),
+		Haskell_Haskell		(7, "Hsk",	"Ast",	"Hsk",	"LLVM"),
 		;
 		
+		
+		public final int id;
 		public final String front, back, ast, target;
-		private Mode(String front, String ast, String back, String target) {
+		
+		private Mode(int id, String front, String ast, String back, String target) {
+			this.id = id;
 			this.front = front;
 			this.ast = ast;
 			this.back = back;
@@ -290,7 +294,5 @@ public class Env {
 			}
 		}
 	}
-	
-	
 	
 }

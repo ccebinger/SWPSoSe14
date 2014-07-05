@@ -20,9 +20,9 @@ public class Stats {
 	public static final Stats getFreshStats() {
 		try {
 			if(conn == null) {
-				Class.forName("org.sqlite.JDBC");
+				Class.forName("com.mysql.jdbc.Driver");
 				//FIXME wert in Env eintragen?
-				conn = DriverManager.getConnection("jdbc:sqlite:testresults.sqlite");
+				conn = DriverManager.getConnection("jdbc:mysql://85.116.219.166/xtStats?user=xtStats&password=CDAX3gayybZ8pseKHJSTwXe");
 				stmt = conn.createStatement();
 			}
 		} catch(Exception e) {
@@ -41,34 +41,44 @@ public class Stats {
 	private Stats() {
 		try {
 			// create tables if neeeded
-			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS run ("
-					+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-					+ "date DATETIME"
-				+ ")"
+			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS `run` ("
+					+ "`idRun` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,"
+					+ "`date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+					+ "PRIMARY KEY (`idRun`)"
+				+ ") COLLATE='utf8_unicode_ci' ENGINE=InnoDB;"
 			);
-			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS testfile ("
-					+ "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-					+ "path TEXT UNIQUE ON CONFLICT IGNORE"
-				+ ")"
+			
+			
+			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS `testfile` ("
+					+ "`idTestfile` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,"
+					+ "`path` VARCHAR(128) NOT NULL COLLATE 'utf8_unicode_ci',"
+					+ "PRIMARY KEY (`idTestfile`),"
+					+ "UNIQUE INDEX `path` (`path`)"
+				+ ") COLLATE='utf8_unicode_ci' ENGINE=InnoDB;"
 			);
-			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS result (" +
-					"id INTEGER PRIMARY KEY AUTOINCREMENT," +
-					"idRun INTEGER," +
-					"idTestfile INTEGER," +
-					"idTest INTEGER," +
-					"type INTEGER," +							// (cpp_cpp, ...)
-					"blame INTEGER," +						// BitSet: like blame: 0 = success, ...
-					"msg TEXT," +
-					"stdOut TEXT," + 
-					"stdErr TEXT," +
-					"durationMs LONG" +
-				")"
+			
+			
+			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS `result` ("
+					+ "`id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,"
+					+ "`idRun` INT(11) UNSIGNED NOT NULL,"
+					+ "`idTestfile` INT(11) UNSIGNED NOT NULL,"
+					+ "`testcaseId` INT(11) UNSIGNED NOT NULL,"
+					+ "`type` INT(11) UNSIGNED NOT NULL,"
+					+ "`blame` INT(11) UNSIGNED NOT NULL,"
+					+ "`msg` TEXT NOT NULL COLLATE 'utf8_unicode_ci',"
+					+ "`stdOut` TEXT NOT NULL COLLATE 'utf8_unicode_ci',"
+					+ "`stdErr` TEXT NOT NULL COLLATE 'utf8_unicode_ci',"
+					+ "`durationMs` TEXT NOT NULL COLLATE 'utf8_unicode_ci',"
+					+ "PRIMARY KEY (`id`),"
+					+ "INDEX `idRun_idTestfile` (`idRun`, `idTestfile`)"
+				+ ") COLLATE='utf8_unicode_ci' ENGINE=InnoDB;"
 			);
 			
 			// create TestRun
 			
-			stmt.executeUpdate("INSERT INTO run (date) VALUES(datetime('now', 'localtime'));");
+			stmt.executeUpdate("INSERT INTO run () VALUES ();", stmt.RETURN_GENERATED_KEYS);
 			result = stmt.getGeneratedKeys();
+			result.next();
 			runId = result.getLong(1);
 			
 		} catch (SQLException e) {
@@ -81,35 +91,23 @@ public class Stats {
 	
 	
 	public long getTestfileId(String filepath) throws SQLException {
-		stmt.executeUpdate("INSERT INTO testfile (path) VALUES('"+ filepath +"');");
-		result = stmt.executeQuery("SELECT id FROM testfile WHERE path='"+filepath+"';");
+		stmt.executeUpdate("INSERT IGNORE INTO testfile (path) VALUES('"+ filepath +"');");
+		result = stmt.executeQuery("SELECT idTestfile FROM testfile WHERE path='"+filepath+"';");
+		result.next();
 		return result.getLong(1);
 	}
 	
 	
 	
 	
-	public void writeTestResult(long testFileId, Mode mode, int blame, int testId, String msg, String stdOut, String stdErr, long durationMs) {
-		int type = 0;
-		switch (mode) {
-			case Cpp:				type = 1;	break;
-			case Cpp_Cpp:			type = 2;	break;
-			case Cpp_Haskell:		type = 3;	break;
-			case Haskell:			type = 4;	break;
-			case Haskell_Cpp:		type = 5;	break;
-			case Haskell_Haskell:	type = 6;	break;
-			case Interpreter:		type = 7;	break;
-			default: return;
-		}
-		
-		
+	public void writeTestResult(long testFileId, Mode mode, int blame, int testcaseId, String msg, String stdOut, String stdErr, long durationMs) {
 		try {
-			PreparedStatement s = conn.prepareStatement("INSERT INTO result (idRun, idTestfile, idTest, type, blame, msg, stdOut, stdErr, durationMs) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);");
+			PreparedStatement s = conn.prepareStatement("INSERT INTO result (idRun, idTestfile, testcaseId, type, blame, msg, stdOut, stdErr, durationMs) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);");
 			s.setLong	(1, this.runId);
 			s.setLong	(2, testFileId);
-			s.setInt	(3, type);
+			s.setInt	(3, mode.id);
 			s.setInt	(4, blame);
-			s.setInt	(5, testId);
+			s.setInt	(5, testcaseId);
 			s.setString	(6, msg);
 			s.setString	(7, stdOut);
 			s.setString	(8, stdErr);
