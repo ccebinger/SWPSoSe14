@@ -242,3 +242,8 @@ Editor/build-TextEditor-Desktop-Debug/*
 ## Rail Interpreter
 rail-interpreter/
 
+
+
+
+# Java exception logs
+abrt_checker_*.log

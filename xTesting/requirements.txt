@@ -1,0 +1,22 @@
+Automatische Tests:
+- C++ ohne AST
+- C++ -> C++
+- C++ -> Haskell
+- Haskell -> C++
+- Haskell -> Haskell
+- Haskell ohne AST
+- Interpreter
+
+Auswertung/Vergleich der Ergebnisse
+
+Visualisierung der Ergebnisse (mindestens farbige Console)
+
+Endlosschleifen vom Compiler und vom Rail-Programm
+
+Angabemöglichkeit für Binaries / Kompilate
+
+io-files müssen korrekt geparsed werden
+
+Alle .io Tests ausführen
+
+Voller Vergleich io-files
