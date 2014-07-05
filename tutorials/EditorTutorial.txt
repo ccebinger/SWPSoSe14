@@ -1,0 +1,18 @@
+## Build ##
+Install Qt4 or above. See Qt5Tutorial.txt for the Qt5 version.
+If you have the QtCreator installed, you can build the project by opening the file
+	Editor/TextEditor/TextEditor.pro
+and compiling it yourself.
+Otherwise start a terminal and go to the directory
+	Editor/TextEditor/
+
+To build call
+	qmake
+	make
+
+This should have created an executable "TextEditor".
+
+
+## Manual ##
+// TODO
+	

@@ -10,6 +10,7 @@ namespace ApplicationDefaultValues
 
     const QColor unconnectedRailsColor = QColor(255, 0, 0);
     const QColor connectedRailsColor = QColor(0, 0, 0);
+    const QColor systemFunctionColor = QColor(0, 255, 0);
     const QColor functionNamesColor = QColor(170, 170, 170);
     const QColor functionCallsColor = QColor(0, 255, 0);
     const QColor stringsColor = QColor(0, 0, 255);
@@ -18,6 +19,8 @@ namespace ApplicationDefaultValues
     const QStringList recentFiles = QStringList();
     const bool showLineNumbers = false;
     const bool showWhiteSpaces = false;
+    const bool showEditorLines = false;
+    const CursorMode cursorMode = NORMAL;
 }
 
 namespace ApplicationPreferences
@@ -30,6 +33,7 @@ namespace ApplicationPreferences
 
     QColor unconnectedRailsColor;
     QColor connectedRailsColor;
+    QColor systemFunctionColor;
     QColor functionNamesColor;
     QColor functionCallsColor;
     QColor stringsColor;
@@ -38,4 +42,6 @@ namespace ApplicationPreferences
     QStringList recentFiles;
     bool showLineNumbers;
     bool showWhiteSpaces;
+    bool showEditorLines;
+    CursorMode cursorMode;
 }

@@ -17,7 +17,7 @@ enum SignType
     VARIABLE            = 1 << 6
 };
 
-enum CurserMode
+enum CursorMode
 {
     NORMAL  = 1 << 0,
     SMART   = 1 << 1
@@ -33,6 +33,7 @@ namespace ApplicationDefaultValues
 
     extern const QColor unconnectedRailsColor;
     extern const QColor connectedRailsColor;
+    extern const QColor systemFunctionColor;
     extern const QColor functionNamesColor;
     extern const QColor functionCallsColor;
     extern const QColor stringsColor;
@@ -41,7 +42,8 @@ namespace ApplicationDefaultValues
     extern const QStringList recentFiles;
     extern const bool showLineNumbers;
     extern const bool showWhiteSpaces;
-    extern CurserMode cursorMode;
+    extern const bool showEditorLines;
+    extern const CursorMode cursorMode;
 }
 
 namespace ApplicationPreferences
@@ -54,6 +56,7 @@ namespace ApplicationPreferences
 
     extern QColor unconnectedRailsColor;
     extern QColor connectedRailsColor;
+    extern QColor systemFunctionColor;
     extern QColor functionNamesColor;
     extern QColor functionCallsColor;
     extern QColor stringsColor;
@@ -62,8 +65,8 @@ namespace ApplicationPreferences
     extern QStringList recentFiles;
     extern bool showLineNumbers;
     extern bool showWhiteSpaces;
-
-    extern CurserMode cursorMode;
+    extern bool showEditorLines;
+    extern CursorMode cursorMode;
 }
 
 #endif // APPLICATIONPREFERENCES_H
