@@ -31,7 +31,7 @@ public class Main {
 		System.out.println("  --no-colors     " + !Env.useColors());
 		System.out.println("  --no-clean      " + !Env.doClean());
 		System.out.println("  --no-db         " + !Env.useDatabase());
-		System.out.println("  --err-only      " + !Env.isErrorsOnly());
+		System.out.println("  --err-only      " + Env.isErrorsOnly());
 		System.out.println("  --verbose       " + Env.isVerbose());
 		System.out.println("  -d");
 		for(String s : testPaths) {
