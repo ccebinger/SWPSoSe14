@@ -64,7 +64,7 @@ public class TestFile implements Comparable<TestFile> {
 			runTest(id, Mode.Haskell_Haskell);
 		}
 		if(Env.hasInterpreter()) {
-//			runTest(id, Mode.Interpreter);
+			runTest(id, Mode.Interpreter);
 		}
 		
 	}
@@ -247,6 +247,19 @@ public class TestFile implements Comparable<TestFile> {
 		}
 		
 		
+		
+		// reduce size if needed
+		String eResOut = "";
+		String eResErr = "";
+		if(execResult != null) {
+			eResOut = execResult.stdOut.length() > 1024 ? execResult.stdOut.substring(0, 1024) : execResult.stdOut;
+			eResErr = execResult.stdErr.length() > 1024 ? execResult.stdErr.substring(0, 1024) : execResult.stdErr;
+		}
+		
+		
+		
+		
+		
 		// Write to database
 		ct.stats.writeTestResult(
 			this.dbId,
@@ -254,8 +267,8 @@ public class TestFile implements Comparable<TestFile> {
 			blame,
 			ioTestId,
 			msg,
-			execResult != null ? execResult.stdOut : "",
-			execResult != null ? execResult.stdErr : "",
+			eResOut,
+			eResErr,
 			durationMs
 		);
 		
