@@ -12,7 +12,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
-import xTesting.Env.Mode;
 import xTesting.stats.Stats;
 
 
@@ -66,22 +65,7 @@ public class CrossTest {
 				System.out.print(String.format("%"+paddingTestNo+"s/%"+paddingTestNo+"s", id, testFiles.size()));
 				System.out.println(" ] " + tf.filename);
 				
-				
-				if(Env.hasCpp()) {
-					tf.dispatch(id, Mode.Cpp);
-					tf.dispatch(id, Mode.Cpp_Cpp);
-					if(Env.hasHaskell()) {
-						tf.dispatch(id, Mode.Cpp_Haskell);
-						tf.dispatch(id, Mode.Haskell_Cpp);
-					}
-				}
-				if(Env.hasHaskell()) {
-					tf.dispatch(id, Mode.Haskell);
-					tf.dispatch(id, Mode.Haskell_Haskell);
-				}
-				if(Env.hasInterpreter()) {
-//					tf.dispatch(id, Mode.Interpreter);
-				}
+				tf.dispatch(id);
 			
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block

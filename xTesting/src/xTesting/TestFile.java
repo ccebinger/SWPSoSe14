@@ -20,7 +20,7 @@ public class TestFile implements Comparable<TestFile> {
 	final Path file;
 	
 	private boolean expectCompiling;
-	final LinkedList<TestCase> testcases = new LinkedList<>();
+	private LinkedList<TestCase> testcases = new LinkedList<>();
 	
 	
 	public TestFile(CrossTest ct, Path filename, Path file) throws SQLException {
@@ -30,15 +30,15 @@ public class TestFile implements Comparable<TestFile> {
 		
 		// Get Database ID
 		this.dbId = ct.stats.getTestfileId(filename.toString());
+		
 	}
 	
 	
 	
-	public final void dispatch(int id, Mode mode) throws SQLException {
+	public final void dispatch(int id) throws SQLException {
 		
-		//--------------------------------------------------------------------------------
+		
 		// parse .io
-		//--------------------------------------------------------------------------------
 		String fname = file.getFileName().toString();
 		IoParser ioParser = new IoParser(file.resolveSibling(
 				fname.substring(0, fname.length()-4) + "io"
@@ -49,6 +49,29 @@ public class TestFile implements Comparable<TestFile> {
 		
 		
 		
+		
+		// Run tests
+		if(Env.hasCpp()) {
+			runTest(id, Mode.Cpp);
+			runTest(id, Mode.Cpp_Cpp);
+			if(Env.hasHaskell()) {
+				runTest(id, Mode.Cpp_Haskell);
+				runTest(id, Mode.Haskell_Cpp);
+			}
+		}
+		if(Env.hasHaskell()) {
+			runTest(id, Mode.Haskell);
+			runTest(id, Mode.Haskell_Haskell);
+		}
+		if(Env.hasInterpreter()) {
+//			runTest(id, Mode.Interpreter);
+		}
+		
+	}
+	
+	
+	
+	private final void runTest(int id, Mode mode) {
 		// Measure time
 		long timeStart;
 		
@@ -63,10 +86,6 @@ public class TestFile implements Comparable<TestFile> {
 		
 		// skip Interpreter
 		if(mode != Mode.Interpreter) {
-			
-//			Path csv = Env.getCsvPath(mode, filename);
-//			Path target = Env.getTargetPath(mode, filename);
-			
 			
 			// Compile
 			int blameCompile = 0;
@@ -120,11 +139,11 @@ public class TestFile implements Comparable<TestFile> {
 						resBack.success,
 						(
 							"--- front.out -----------------------\n" + resFront.stdOut +
-							"--- back.out ------------------------\n" + resBack.stdOut
+							"\n--- back.out ------------------------\n" + resBack.stdOut
 						),
 						(
 							"--- front.err -----------------------\n" + resFront.stdErr +
-							"--- back.err ------------------------\n" + resBack.stdErr
+							"\n--- back.err ------------------------\n" + resBack.stdErr
 						),
 						false
 					);
@@ -165,6 +184,7 @@ public class TestFile implements Comparable<TestFile> {
 		else {
 			cmdTarget = Env.getTargetCmd(mode, file.toAbsolutePath());
 		}
+		
 		
 		
 		
@@ -209,13 +229,23 @@ public class TestFile implements Comparable<TestFile> {
 			}
 			
 		}
-		
-		
 	}
+	
+	
 	
 	
 	//FIXME status ersetzen mit blame == 0 test
 	private final void log(int id, int blame, Mode mode, int ioTestId, ExecResult execResult, String msg, long durationMs) {
+		
+		
+		
+		
+		
+		// Errors only
+		if(Env.isErrorsOnly() && blame == 0) {
+			return;
+		}
+		
 		
 		// Write to database
 		ct.stats.writeTestResult(
@@ -230,8 +260,8 @@ public class TestFile implements Comparable<TestFile> {
 		);
 		
 		
+		
 		// Console output
-//		System.out.print("\t[ ");
 		System.out.print("\t");
 		if(blame == Env.BLAME_NONE) {
 			System.out.print(colorize(Color.Green, " ok "));
@@ -239,19 +269,7 @@ public class TestFile implements Comparable<TestFile> {
 		else {
 			System.out.print(colorize(Color.Red,   "fail"));
 		}
-//		System.out.print(" ]");
 		System.out.print(" ");
-		
-		
-		
-		
-		
-//		System.out.print("[ ");
-//		int paddingTestFiles = String.valueOf(ct.testFiles.size()).length();
-//		System.out.print(String.format("%"+paddingTestFiles+"s/%"+paddingTestFiles+"s", id, ct.testFiles.size()));
-//		System.out.print(" ]");
-		
-		
 		
 		
 		System.out.print("[ ");

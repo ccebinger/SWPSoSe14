@@ -17,6 +17,7 @@ Anmerkung: auf Leerzeichen wie "- d" achten -> 'auskommentiert' ;)
 		--no-colors
 		-- no-clean
 		--no-db
+		-- err-only
 		--verbose
 		--tempDir tmp/
 		- d ../projekt-compiler/test/
@@ -42,6 +43,7 @@ Anmerkung: auf Leerzeichen wie "- d" achten -> 'auskommentiert' ;)
 		-- no-colors \
 		-- no-clean \
 		--no-db \
+		-- err-only \
 		--verbose \
 		--tempDir tmp/ \
 		- d ../projekt-compiler/test/ \
