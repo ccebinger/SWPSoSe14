@@ -17,6 +17,7 @@ public class Main {
 			if(args[i].equals("--no-colors")) { Env.setColors(false); }
 			if(args[i].equals("--no-clean")) { Env.setClean(false); }
 			if(args[i].equals("--no-db")) { Env.setDatabase(false); }
+			if(args[i].equals("--err-only")) { Env.setErrorsOnly(true); }
 			if(args[i].equals("--verbose")) { Env.setVerbose(true); }
 			if(args[i].equals("-d") && i+1 < args.length) { ++i; testPaths.add(args[i]); }
 		}
@@ -30,6 +31,7 @@ public class Main {
 		System.out.println("  --no-colors     " + !Env.useColors());
 		System.out.println("  --no-clean      " + !Env.doClean());
 		System.out.println("  --no-db         " + !Env.useDatabase());
+		System.out.println("  --err-only      " + !Env.isErrorsOnly());
 		System.out.println("  --verbose       " + Env.isVerbose());
 		System.out.println("  -d");
 		for(String s : testPaths) {
@@ -48,6 +50,7 @@ public class Main {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 	}
 
 }

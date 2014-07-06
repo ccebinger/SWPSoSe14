@@ -12,7 +12,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
-import xTesting.Env.Mode;
 import xTesting.stats.Stats;
 
 
@@ -36,11 +35,19 @@ public class CrossTest {
 	public void dispatch(ArrayList<String> testPaths) throws IOException {
 		
 		
-		// Find all test files, parse .io files
+		// Find all test files
+		
+		System.out.print("looking up test files... ");
 		for(String s : testPaths) {
 			dispatchPath(s);
 		}
+		System.out.println("done");
 		
+		
+		
+		
+		
+		System.out.println();
 		
 		
 		long timeStart = System.currentTimeMillis();
@@ -58,22 +65,7 @@ public class CrossTest {
 				System.out.print(String.format("%"+paddingTestNo+"s/%"+paddingTestNo+"s", id, testFiles.size()));
 				System.out.println(" ] " + tf.filename);
 				
-				
-				if(Env.hasCpp()) {
-					tf.dispatch(id, Mode.Cpp);
-					tf.dispatch(id, Mode.Cpp_Cpp);
-					if(Env.hasHaskell()) {
-						tf.dispatch(id, Mode.Cpp_Haskell);
-						tf.dispatch(id, Mode.Haskell_Cpp);
-					}
-				}
-				if(Env.hasHaskell()) {
-					tf.dispatch(id, Mode.Haskell);
-					tf.dispatch(id, Mode.Haskell_Haskell);
-				}
-				if(Env.hasInterpreter()) {
-//					tf.dispatch(id, Mode.Interpreter);
-				}
+				tf.dispatch(id);
 			
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -133,12 +125,17 @@ public class CrossTest {
 			public FileVisitResult visitFile(Path arg0, BasicFileAttributes arg1) throws IOException {
 				
 				if(arg0.toString().endsWith(".rail")) {
-					TestFile tf = new TestFile(
-						crossTest,
-						basePath.relativize(arg0),
-						arg0
-					);
-					testFiles.add(tf);
+					try {
+						TestFile tf = new TestFile(
+							crossTest,
+							basePath.relativize(arg0),
+							arg0
+						);
+						testFiles.add(tf);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				
 				return FileVisitResult.CONTINUE;

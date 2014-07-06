@@ -12,11 +12,11 @@ public class Env {
 	
 	public enum Mode {
 		Interpreter			(1, "Int",	"",		"",		""),
-		Cpp					(2, "C++",	"",		"C++",	"JVM"),
-		Cpp_Cpp				(3, "C++",	"Ast",	"C++",	"JVM"),
+		Cpp					(2, "C++",	"",		"C++",	"JBC"),
+		Cpp_Cpp				(3, "C++",	"Ast",	"C++",	"JBC"),
 		Cpp_Haskell			(4, "C++",	"Ast",	"Hsk",	"LLVM"),
 		Haskell				(5, "Hsk",	"",		"Hsk",	"LLVM"),
-		Haskell_Cpp			(6, "Hsk",	"Ast",	"C",	"JVM"),
+		Haskell_Cpp			(6, "Hsk",	"Ast",	"C",	"JBC"),
 		Haskell_Haskell		(7, "Hsk",	"Ast",	"Hsk",	"LLVM"),
 		;
 		
@@ -140,6 +140,12 @@ public class Env {
 	private static boolean useDb = true;
 	public static final boolean useDatabase() { return useDb; }
 	public static final void setDatabase(boolean useDb) { Env.useDb = useDb; }
+	
+	
+	
+	private static boolean errorsOnly = false;
+	public static final boolean isErrorsOnly() { return errorsOnly; }
+	public static final void setErrorsOnly(boolean errorsOnly) { Env.errorsOnly = errorsOnly; }
 	
 	
 	
@@ -276,12 +282,11 @@ public class Env {
 		if(Env.doClean()) {
 			if(f.getAbsolutePath().indexOf("xTesting") >=0) {
 				clearDir(f);
-				System.out.println("Cleaning folder " + f.getAbsolutePath() + "...");
+				System.out.println("cleaning tmp folder " + f.getAbsolutePath() + "...");
 			}
 			else {
-				System.out.println("Can't clear folder " + f.getAbsolutePath() + "...");
+				System.out.println("cannot clean up tmp folder " + f.getAbsolutePath() + "...");
 			}
-			System.out.println();
 		}
 		if(!f.exists()) {
 			f.mkdirs();

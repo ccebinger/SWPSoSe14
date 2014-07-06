@@ -16,16 +16,15 @@ public class StatsDatabase extends Stats {
 	private static ResultSet result = null;
 	private static Statement stmt = null;
 	
-	
 	StatsDatabase() {
 		try {
 			if(conn == null) {
 				Class.forName("com.mysql.jdbc.Driver");
 				//FIXME wert in Env eintragen?
-				conn = DriverManager.getConnection("jdbc:mysql://85.116.219.166/xtStats?user=xtStats&password=CDAX3gayybZ8pseKHJSTwXe");
+//				conn = DriverManager.getConnection("jdbc:mysql://85.116.219.166/xtStats?user=xtStats&password=CDAX3gayybZ8pseKHJSTwXe");
+				conn = DriverManager.getConnection("jdbc:mysql://localhost/xtStats?user=xtStats&password=123");
 				stmt = conn.createStatement();
 			}
-			
 			
 			
 			
@@ -82,15 +81,18 @@ public class StatsDatabase extends Stats {
 	
 	
 	
-	
 	public long getTestfileId(String filepath) throws SQLException {
-		stmt.executeUpdate("INSERT IGNORE INTO testfile (path) VALUES('"+ filepath +"');");
 		result = stmt.executeQuery("SELECT idTestfile FROM testfile WHERE path='"+filepath+"';");
-		result.next();
-		return result.getLong(1);
+		if(result.next()) {
+			return result.getLong(1);
+		}
+		else {
+			stmt.executeUpdate("INSERT INTO testfile (path) VALUES ('"+ filepath +"');", Statement.RETURN_GENERATED_KEYS);
+			result = stmt.getGeneratedKeys();
+			result.next();
+			return result.getLong(1);
+		}
 	}
-	
-	
 	
 	
 	public void writeTestResult(long testFileId, Mode mode, int blame, int testcaseId, String msg, String stdOut, String stdErr, long durationMs) {
@@ -106,11 +108,6 @@ public class StatsDatabase extends Stats {
 			s.setString	(8, stdErr);
 			s.setLong	(9, durationMs);
 			s.executeUpdate();
-			
-			//FIXME stdIn raus, dafür noch test-id rein. Compile = 0
-			//stmt.executeUpdate("INSERT INTO result (idRun, idTestfile, type, blame, testId, msg, stdOut, stdErr) VALUES ("+ this.runId +", "+testFileId+", "+type+", "+blame+", "+testId+", '"+msg+"','"+stdOut+"', '"+stdErr+"');");
-			
-			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
