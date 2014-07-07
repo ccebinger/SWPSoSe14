@@ -75,7 +75,6 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Node_ptr current_node) {
     }
     current_node = current_node->successor1;
   }
-  bytecode.push_back(codegen::MNEMONIC::RETURN);
   return this;
 }
 
@@ -701,13 +700,17 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
 void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
 
-  Bytecode *successor1 = code->build(state.current_node->successor1);
-  Bytecode *successor2 = code->build(state.current_node->successor2);
+  Bytecode successor1(state.current_code->get_constant_pool());
+  successor1.build(state.current_node->successor1);
+  Bytecode successor2(state.current_code->get_constant_pool());
+  successor2.build(state.current_node->successor2);
+  // Bytecode *successor1 = code->build(state.current_node->successor1);
+  // Bytecode *successor2 = code->build(state.current_node->successor2);
 
   code->globalstack_pop()
-      ->add_conditional_with_else_branch(codegen::MNEMONIC::IFEQ,
-                                         successor1->get_bytecode(),
-                                         successor2->get_bytecode());
+      ->add_conditional_with_else_branch(codegen::MNEMONIC::IFNE,
+                                         successor1.get_bytecode(),
+                                         successor2.get_bytecode());
 
   // std::cout << "if_or_while_Bytecode: " << state.current_node->command.extractAstCommandString() << std::endl;
   // std::cout << "successor1: " << state.current_node->successor1->command.extractAstCommandString() << std::endl;
