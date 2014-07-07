@@ -142,29 +142,7 @@ TextSelection & TextSelection::rotate270()
     return *new TextSelection(*newText, this->height(), this->width());
 }
 
-TextSelection & TextSelection::mirrorX()
-{
-    QList<QChar>* newText = new QList<QChar>();
-    for(int y=this->height()-1; y>=0; y--) {
-        for(int x=0; x<this->width(); x++) {
-            QChar newChar = this->text().at(y*this->width()+x);
-            if(newChar=='/') {
-                newText->append(*new QChar('\\'));
-            } else if(newChar=='\\') {
-                newText->append(*new QChar('/'));
-            } else if(newChar=='^') {
-                newText->append(*new QChar('v'));
-            } else if(newChar=='v') {
-                newText->append(*new QChar('^'));
-            } else {
-                newText->append(newChar);
-            }
-        }
-    }
-    return *new TextSelection(*newText, this->width(), this->height());
-}
-
-TextSelection & TextSelection::mirrorY()
+TextSelection & TextSelection::mirrorHorizontal()
 {
     QList<QChar>* newText = new QList<QChar>();
     for(int y=0; y<this->height(); y++) {
@@ -194,6 +172,28 @@ TextSelection & TextSelection::mirrorY()
                 newText->append(*new QChar('}'));
             } else if(newChar=='}') {
                 newText->append(*new QChar('{'));
+            } else {
+                newText->append(newChar);
+            }
+        }
+    }
+    return *new TextSelection(*newText, this->width(), this->height());
+}
+
+TextSelection & TextSelection::mirrorVertical()
+{
+    QList<QChar>* newText = new QList<QChar>();
+    for(int y=this->height()-1; y>=0; y--) {
+        for(int x=0; x<this->width(); x++) {
+            QChar newChar = this->text().at(y*this->width()+x);
+            if(newChar=='/') {
+                newText->append(*new QChar('\\'));
+            } else if(newChar=='\\') {
+                newText->append(*new QChar('/'));
+            } else if(newChar=='^') {
+                newText->append(*new QChar('v'));
+            } else if(newChar=='v') {
+                newText->append(*new QChar('^'));
             } else {
                 newText->append(newChar);
             }
