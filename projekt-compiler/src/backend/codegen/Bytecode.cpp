@@ -79,21 +79,6 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Node_ptr current_node) {
   return this;
 }
 
-// codegen::Bytecode* codegen::Bytecode::build2(Graphs::Node_ptr current_node) {
-//   while (current_node && current_node->command.type != Command::Type::FINISH) {
-//     func_ptr f = func_map.at(current_node->command.type);
-//     if (f) {
-//       Current_state state;
-//       state.current_code = this;
-//       state.current_node = current_node;
-//       f(state);
-//     }
-//     current_node = current_node->successor2;
-//   }
-//   bytecode.push_back(codegen::MNEMONIC::RETURN);
-//   return this;
-// }
-
 //================================================================================
 //==================================GETTER========================================
 //================================================================================
