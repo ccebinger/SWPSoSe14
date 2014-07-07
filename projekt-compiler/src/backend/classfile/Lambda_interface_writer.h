@@ -22,11 +22,12 @@
  * one.
  *
  */
-#ifndef CLASSFILE_H
-#define CLASSFILE_H
+#ifndef LAMBDA_INTERFACE_WRITER_h_
+#define LAMBDA_INTERFACE_WRITER_h_
 #include <backend/classfile/classfile_writer.h>
 
-class Lambda_interface_writer : public ClassfileWriter
+class Lambda_interface_writer :
+   public ClassfileWriter
 {
 public:
     /**
@@ -124,4 +125,4 @@ private:
   size_t get_class_ref();
 };
 
-#endif // CLASSFILE_H
+#endif //  LAMBDA_INTERFACE_WRITER_h_

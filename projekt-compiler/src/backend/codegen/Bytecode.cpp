@@ -25,7 +25,7 @@ codegen::Bytecode::func_map= {
   //Command::Type::REFLECTOR
   //Command::Type::START
   //Command::Type::FINISH
-  //Command::Type::LAMBDA
+  {Command::Type::LAMBDA, &lambda_Bytecode},
   {Command::Type::BOOM, &boom_ByteCode},
   {Command::Type::EOF_CHECK, &eof_ByteCode},
   {Command::Type::INPUT, &input_ByteCode},
@@ -47,20 +47,30 @@ codegen::Bytecode::~Bytecode() {}
 codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
   Graphs::Node_ptr current_node(graph->start());
   while (current_node && current_node->command.type != Command::Type::FINISH) {
-    if (current_node->command.type == Command::Type::LAMBDA)
-      add_lambda_call(graph);
-    else {
-      func_ptr f = func_map.at(current_node->command.type);
-      if (f) {
-        Current_state state;
-        state.current_code = this;
-        state.current_node = current_node;
-        f(state);
-      }
+    func_ptr f = func_map.at(current_node->command.type);
+    if (f) {
+      Current_state state;
+      state.current_code = this;
+      state.current_node = current_node;
+      f(state);
     }
     current_node = current_node->successor1;
   }
   bytecode.push_back(codegen::MNEMONIC::RETURN);
+  return this;
+}
+
+codegen::Bytecode* codegen::Bytecode::build(Graphs::Node_ptr current_node) {
+  while (current_node && current_node->command.type != Command::Type::FINISH) {
+    func_ptr f = func_map.at(current_node->command.type);
+    if (f) {
+      Current_state state;
+      state.current_code = this;
+      state.current_node = current_node;
+      f(state);
+    }
+    current_node = current_node->successor1;
+  }
   return this;
 }
 
@@ -88,6 +98,10 @@ LocalVariableStash& codegen::Bytecode::get_locals() {
   return locals;
 }
 
+
+uint16_t codegen::Bytecode::get_lambda_closure_idx() {
+  return lambda_closure_idx;
+}
 //================================================================================
 //==================================SETTER========================================
 //================================================================================
@@ -138,7 +152,6 @@ uint16_t codegen::Bytecode::get_stack_field_idx() {
   return get_field_idx(Env::getDstClassName(), "stack",
                        "Ljava/util/ArrayDeque;");
 }
-
 //================================================================================
 //==================================CODE ADD======================================
 //================================================================================
@@ -281,15 +294,31 @@ codegen::Bytecode* codegen::Bytecode::add_ldc_string(const std::string& constant
   return this;
 }
 
-codegen::Bytecode* codegen::Bytecode::add_lambda_call(Graphs::Graph_ptr graph) {
+codegen::Bytecode* codegen::Bytecode::add_lambda_declaration(Graphs::Node_ptr current_node) {
   //add Lambda anonymous class to pool
-  //class file creation in backend?
-  //new anonymous class
-  //dup
-  //invokespecial <init>
-  //invokeinterface Lambda.closure 1 (1 stands for the object which will be used for the call, more than 1 are the arguments which are popped from the stack)
-  //
+  //$anonymous class
+  std::stringstream ss;
+  ss << Env::getDstClassName() << "$" << current_node->command.arg;
+  std::string anonymous_class_name = ss.str();
+  size_t anonym_str_idx = pool.addString(anonymous_class_name);
+  size_t anonym_class_idx = pool.addClassRef(anonym_str_idx);
 
+  //$anonymous class <init> method
+  size_t init_str_idx = pool.addString("<init>");
+  size_t void_descriptor = pool.addString("()V");
+  size_t anonym_init_idx = pool.addMethRef(anonym_class_idx, pool.addNameAndType(init_str_idx, void_descriptor));
+
+  //$anonymous class closure method
+  size_t closure_str_idx = pool.addString("closure");
+  size_t lambda_str_idx = pool.addString("Lambda");
+  size_t lambda_cls_idx = pool.addClassRef(lambda_str_idx);
+  lambda_closure_idx = pool.addInterfaceMethodRef(lambda_cls_idx, pool.addNameAndType(closure_str_idx, void_descriptor));
+  //CODE
+  add_opcode_with_idx(codegen::MNEMONIC::NEW, anonym_class_idx);
+  add_opcode(codegen::MNEMONIC::DUP);
+  add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, anonym_init_idx);
+  globalstack_push();
+  return this;
 }
 //================================================================================
 //=================================GLOBAL STACK===================================
@@ -438,10 +467,24 @@ void codegen::size_ByteCode(Bytecode::Current_state state) {
 //CALL
 void codegen::call_ByteCode(Bytecode::Current_state state) {
 	Bytecode* code = state.current_code;
-	// ConstantPool& pool = code->get_constant_pool(); // comment out when pool is needed
+	ConstantPool& pool = code->get_constant_pool();
 	std::string value = state.current_node->command.extractAstCommandString();
 
-	code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, code->get_method_idx("Main", value, "()V"));
+  if (value.empty()) {
+    uint16_t idx = code->get_lambda_closure_idx();
+
+    if (!idx)
+      idx = pool.addInterfaceMethodRef(code->get_class_idx("Lambda"),
+                                 code->get_name_type_idx("closure", "()V"));
+
+    code->globalstack_pop()
+        ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_INTERFACE, idx)
+        ->add_byte(1) // 1 stands for the object which will be used for the call, more than 1 are the arguments which are popped from the stack
+        ->add_byte(0); // 0 is the sign for the end of arguments
+
+  } else {
+    code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, code->get_method_idx("Main", value, "()V"));
+  }
 }
 
 // LIST OPERATIONS
@@ -637,7 +680,6 @@ void codegen::underflow_ByteCode(Bytecode::Current_state state) {
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.arr_idx.size)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
       ->globalstack_push();
-
 }
 
 void codegen::type_ByteCode(Bytecode::Current_state state) {
@@ -656,12 +698,27 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.replace)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.toLowerCase)
       ->globalstack_push();
-
 }
 
 //CONTROL STRUCTURE
 void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
-  (void) state.current_code;
+  Bytecode* code = state.current_code;
+
+  Bytecode successor1(state.current_code->get_constant_pool());
+  successor1.build(state.current_node->successor1);
+  Bytecode successor2(state.current_code->get_constant_pool());
+  successor2.build(state.current_node->successor2);
+  // Bytecode *successor1 = code->build(state.current_node->successor1);
+  // Bytecode *successor2 = code->build(state.current_node->successor2);
+
+  code->globalstack_pop()
+      ->add_conditional_with_else_branch(codegen::MNEMONIC::IFNE,
+                                         successor1.get_bytecode(),
+                                         successor2.get_bytecode());
+
+  // std::cout << "if_or_while_Bytecode: " << state.current_node->command.extractAstCommandString() << std::endl;
+  // std::cout << "successor1: " << state.current_node->successor1->command.extractAstCommandString() << std::endl;
+  // std::cout << "successor2: " << state.current_node->successor2->command.extractAstCommandString() << std::endl;
 }
 
 //VARIABLES
@@ -681,4 +738,10 @@ void codegen::push_Variable(Bytecode::Current_state state) {
   code->globalstack_pop()
       ->add_opcode(codegen::ASTORE)
       ->add_index(var_index);
+}
+
+//LAMBDA
+
+void codegen::lambda_Bytecode(Bytecode::Current_state state) {
+  state.current_code->add_lambda_declaration(state.current_node);
 }
