@@ -207,7 +207,8 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
                 return;
             }
             setSign(m_cursorRowPos, m_cursorColPos, keyEvent->text().at(0));
-            setPosition(m_cursorRowPos, m_cursorColPos + 1);
+            // next position is calculated by the internal graph
+            // hence we don't set the next position here
         }
         else if(key == Qt::Key_Escape && m_isInGrabMode)
         {
@@ -310,6 +311,15 @@ void EditTableWidget::setSign(int row, int col, QChar c, bool suppressUndoRedoCr
     m_textMaxCol = std::max(m_textMaxCol, col);
 
     Stack *stack = m_graph.setSign(col, row, c.toLatin1());
+    // The first element is the next position of the cursor
+    // the direction is coded in the color value
+    Stack *tmp = stack->pop();
+    int deltaX = 0, deltaY = 0;
+    ApplicationConstants::Direction direction = static_cast<ApplicationConstants::Direction>(tmp->getColor());
+    //qDebug() << "direction:" << direction;
+    m_graph.directionToDelta(&deltaX, &deltaY, direction);
+    setPosition(m_cursorRowPos + deltaY, m_cursorColPos + deltaX);
+    delete tmp;
     applyStyleChanges(stack);
     if(stack != NULL)
     {

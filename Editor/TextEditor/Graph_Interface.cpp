@@ -1,6 +1,7 @@
 #include "Graph_Interface.h"
 #include "InterStack.h"
 #include "Stack.h"
+#include "ApplicationPreferences.h"
 
 
 
@@ -29,7 +30,7 @@ Stack* Graph_Interface::setSign(int colm, int row, char sign){
     while((temp = check->get()) != NULL){
         retStack->push(temp->getColm(),temp->getRow(),temp->getSign(),temp->get_Node_Font());
     }
-    //retStack->push(-1,-1,' ',direction);
+    retStack->push(-1,-1,' ',direction);
     return retStack;
 }
 Stack* Graph_Interface::deleteSign(int colm, int row){
@@ -117,15 +118,53 @@ Point* Graph_Interface::get_and_make_Point(int colm, int row){
 
 int Graph_Interface::get_I_Pointer_Direction(Point* to_Direction){
     int direction = to_Direction->get_I_Direction();
-    if(direction){
-        last_Direction = direction;
-        return direction;
-    }else{
-        if(last_Direction) return last_Direction;
-        else return 8;
+    if(ApplicationPreferences::cursorMode == ApplicationConstants::SMART)
+    {
+        if(direction){
+            last_Direction = direction;
+            return direction;
+        }else{
+            if(last_Direction) return last_Direction;
+            else return 8;
+        }
     }
     return 8;
 }
 int Graph_Interface::get_Point_Type(int colm, int row){
     return getPoint(colm,row,NULL)->get_Node_Font();
+}
+
+void Graph_Interface::directionToDelta(int *deltaX, int *deltaY, ApplicationConstants::Direction direction) const {
+    *deltaX = *deltaY = 0;
+    switch(direction)
+    {
+    case ApplicationConstants::SE:
+        *deltaX = 1;
+        *deltaY = 1;
+        break;
+    case ApplicationConstants::S:
+        *deltaY = 1;
+        break;
+    case ApplicationConstants::SW:
+        *deltaX = -1;
+        *deltaY = 1;
+        break;
+    case ApplicationConstants::E:
+        *deltaX = 1;
+        break;
+    case ApplicationConstants::W:
+        *deltaX = -1;
+        break;
+    case ApplicationConstants::NE:
+        *deltaX = 1;
+        *deltaY = -1;
+        break;
+    case ApplicationConstants::N:
+        *deltaY = -1;
+        break;
+    case ApplicationConstants::NW:
+        *deltaX = -1;
+        *deltaY = -1;
+        break;
+    }
 }

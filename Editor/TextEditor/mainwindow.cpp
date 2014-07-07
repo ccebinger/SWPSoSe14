@@ -860,7 +860,7 @@ void MainWindow::readSettings()
     ApplicationPreferences::showLineNumbers = settings.value("editor/showLineNumbers", ApplicationDefaultValues::showLineNumbers).toBool();
     ApplicationPreferences::showWhiteSpaces = settings.value("editor/showWhiteSpaces", ApplicationDefaultValues::showWhiteSpaces).toBool();
     ApplicationPreferences::showEditorLines = settings.value("editor/showEditorLines", ApplicationDefaultValues::showEditorLines).toBool();
-    ApplicationPreferences::cursorMode = (CursorMode)(settings.value("editor/cursorMode", ApplicationDefaultValues::cursorMode).toInt());
+    ApplicationPreferences::cursorMode = (ApplicationConstants::CursorMode)(settings.value("editor/cursorMode", ApplicationDefaultValues::cursorMode).toInt());
 
     ApplicationPreferences::createASGFiles = settings.value("build/createASG", ApplicationDefaultValues::createASGFiles).toBool();
     ApplicationPreferences::createGraphVizFiles = settings.value("build/createGraphViz", ApplicationDefaultValues::createGraphVizFiles).toBool();
@@ -1018,7 +1018,7 @@ void MainWindow::grabModeChanged(bool inGrab)
 
 void MainWindow::setCursorMode()
 {
-    if(ApplicationPreferences::cursorMode == NORMAL)
+    if(ApplicationPreferences::cursorMode == ApplicationConstants::NORMAL)
     {
         ui->ui_horizontalDirectionRadioButton->setChecked(true);
     }
@@ -1039,10 +1039,10 @@ void MainWindow::cursorModeChanged(bool state)
     assert(button);
     if(button == ui->ui_horizontalDirectionRadioButton)
     {
-        ApplicationPreferences::cursorMode = NORMAL;
+        ApplicationPreferences::cursorMode = ApplicationConstants::NORMAL;
     }
     else
     {
-        ApplicationPreferences::cursorMode = SMART;
+        ApplicationPreferences::cursorMode = ApplicationConstants::SMART;
     }
 }
