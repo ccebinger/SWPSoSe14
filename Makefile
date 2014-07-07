@@ -73,8 +73,20 @@ unittest_classfile_writer_test: constant_pool.o Lambda_interface_writer.o classf
 compile: 
 	./fu-rail -i ./fu-rail -i projekt-compiler/test/movement/y_junction/junctest.rail -g io/junctest.dot -s io/junctest.csv -o junctest.class
 
+compile2: 
+	./fu-rail -i ./fu-rail -i projekt-compiler/test/builtInCommand/conditional/true.rail -g io/true.dot -s io/true.csv -o true.class
+
+compile3: 
+	./fu-rail -i ./fu-rail -i projekt-compiler/test/builtInCommand/conditional/false.rail -g io/false.dot -s io/false.csv -o false.class
+
 run: 
 	java -XX:-UseSplitVerifier junctest
+
+run2: 
+	java -XX:-UseSplitVerifier true
+
+run3: 
+	java -XX:-UseSplitVerifier false
 
 clean:
 	rm *.o fu-rail rail unittest_constantpool unittest_classfile_writer_test

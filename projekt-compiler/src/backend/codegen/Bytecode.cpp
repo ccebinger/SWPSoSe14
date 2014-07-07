@@ -705,7 +705,7 @@ void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
   Bytecode *successor2 = code->build(state.current_node->successor2);
 
   code->globalstack_pop()
-      ->add_conditional_with_else_branch(codegen::MNEMONIC::IFNE,
+      ->add_conditional_with_else_branch(codegen::MNEMONIC::IFEQ,
                                          successor1->get_bytecode(),
                                          successor2->get_bytecode());
 
