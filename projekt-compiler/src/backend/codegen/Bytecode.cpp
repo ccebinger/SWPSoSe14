@@ -25,7 +25,7 @@ codegen::Bytecode::func_map= {
   //Command::Type::REFLECTOR
   //Command::Type::START
   //Command::Type::FINISH
-  //Command::Type::LAMBDA
+  {Command::Type::LAMBDA, &lambda_Bytecode},
   {Command::Type::BOOM, &boom_ByteCode},
   {Command::Type::EOF_CHECK, &eof_ByteCode},
   {Command::Type::INPUT, &input_ByteCode},
@@ -47,16 +47,12 @@ codegen::Bytecode::~Bytecode() {}
 codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
   Graphs::Node_ptr current_node(graph->start());
   while (current_node && current_node->command.type != Command::Type::FINISH) {
-    if (current_node->command.type == Command::Type::LAMBDA)
-      add_lambda_call(graph, current_node);
-    else {
-      func_ptr f = func_map.at(current_node->command.type);
-      if (f) {
-        Current_state state;
-        state.current_code = this;
-        state.current_node = current_node;
-        f(state);
-      }
+    func_ptr f = func_map.at(current_node->command.type);
+    if (f) {
+      Current_state state;
+      state.current_code = this;
+      state.current_node = current_node;
+      f(state);
     }
     current_node = current_node->successor1;
   }
@@ -298,7 +294,7 @@ codegen::Bytecode* codegen::Bytecode::add_ldc_string(const std::string& constant
   return this;
 }
 
-codegen::Bytecode* codegen::Bytecode::add_lambda_call(Graphs::Graph_ptr graph, Graphs::Node_ptr current_node) {
+codegen::Bytecode* codegen::Bytecode::add_lambda_declaration(Graphs::Node_ptr current_node) {
   //add Lambda anonymous class to pool
   //$anonymous class
   std::stringstream ss;
@@ -317,7 +313,6 @@ codegen::Bytecode* codegen::Bytecode::add_lambda_call(Graphs::Graph_ptr graph, G
   size_t lambda_str_idx = pool.addString("Lambda");
   size_t lambda_cls_idx = pool.addClassRef(lambda_str_idx);
   lambda_closure_idx = pool.addInterfaceMethodRef(lambda_cls_idx, pool.addNameAndType(closure_str_idx, void_descriptor));
-  //interface method!!!
   //CODE
   add_opcode_with_idx(codegen::MNEMONIC::NEW, anonym_class_idx);
   add_opcode(codegen::MNEMONIC::DUP);
@@ -734,4 +729,10 @@ void codegen::push_Variable(Bytecode::Current_state state) {
   code->globalstack_pop()
       ->add_opcode(codegen::ASTORE)
       ->add_index(var_index);
+}
+
+//LAMBDA
+
+void codegen::lambda_Bytecode(Bytecode::Current_state state) {
+  state.current_code->add_lambda_declaration(state.current_node);
 }
