@@ -708,13 +708,15 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
 //CONTROL STRUCTURE
 void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
-
+  ConstantPool& pool = code->get_constant_pool();
   Bytecode successor1(state.current_code->get_constant_pool());
   successor1.build(state.current_node->successor1);
   Bytecode successor2(state.current_code->get_constant_pool());
   state.current_node = successor2.build(state.current_node->successor2);
 
   code->globalstack_pop()
+      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.int_idx.int_value_idx)
       ->add_conditional_with_else_branch(codegen::MNEMONIC::IFNE,
                                          successor1.get_bytecode(),
                                          successor2.get_bytecode());
