@@ -48,9 +48,8 @@ public class TestFile implements Comparable<TestFile> {
 		
 		
 		
-		
-		
 		// Run tests
+		//FIXME alle wieder rein
 		if(Env.hasCpp()) {
 			runTest(id, Mode.Cpp);
 			runTest(id, Mode.Cpp_Cpp);

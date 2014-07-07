@@ -25,7 +25,7 @@ codegen::Bytecode::func_map= {
   //Command::Type::REFLECTOR
   //Command::Type::START
   //Command::Type::FINISH
-  //Command::Type::LAMBDA
+  {Command::Type::LAMBDA, &lambda_Bytecode},
   {Command::Type::BOOM, &boom_ByteCode},
   {Command::Type::EOF_CHECK, &eof_ByteCode},
   {Command::Type::INPUT, &input_ByteCode},
@@ -47,16 +47,12 @@ codegen::Bytecode::~Bytecode() {}
 codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
   Graphs::Node_ptr current_node(graph->start());
   while (current_node && current_node->command.type != Command::Type::FINISH) {
-    if (current_node->command.type == Command::Type::LAMBDA)
-      add_lambda_call(graph, current_node);
-    else {
-      func_ptr f = func_map.at(current_node->command.type);
-      if (f) {
-        Current_state state;
-        state.current_code = this;
-        state.current_node = current_node;
-        f(state);
-      }
+    func_ptr f = func_map.at(current_node->command.type);
+    if (f) {
+      Current_state state;
+      state.current_code = this;
+      state.current_node = current_node;
+      f(state);
     }
     current_node = current_node->successor1;
   }
@@ -75,7 +71,6 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Node_ptr current_node) {
     }
     current_node = current_node->successor1;
   }
-  bytecode.push_back(codegen::MNEMONIC::RETURN);
   return this;
 }
 
@@ -207,7 +202,7 @@ codegen::Bytecode* codegen::Bytecode::add_conditional_with_else_branch(unsigned 
   uint16_t branch_idx = else_length + 3; //+1 to jump over the last else stmt
   if_body.push_back(codegen::MNEMONIC::GOTO);
   add_index(branch_idx, if_body);
-  branch_idx = if_body.size() + 2 + else_length; //+ 2 for branch idx
+  branch_idx = if_body.size() + 3 ; //+ 3 jump over goto + branch idx
 
   bytecode.push_back(conditional_stmt);
   add_index(branch_idx); /// TODO: CHECK IF BRANCH IS CORRECT should be after goto!!
@@ -299,7 +294,7 @@ codegen::Bytecode* codegen::Bytecode::add_ldc_string(const std::string& constant
   return this;
 }
 
-codegen::Bytecode* codegen::Bytecode::add_lambda_call(Graphs::Graph_ptr graph, Graphs::Node_ptr current_node) {
+codegen::Bytecode* codegen::Bytecode::add_lambda_declaration(Graphs::Node_ptr current_node) {
   //add Lambda anonymous class to pool
   //$anonymous class
   std::stringstream ss;
@@ -318,7 +313,6 @@ codegen::Bytecode* codegen::Bytecode::add_lambda_call(Graphs::Graph_ptr graph, G
   size_t lambda_str_idx = pool.addString("Lambda");
   size_t lambda_cls_idx = pool.addClassRef(lambda_str_idx);
   lambda_closure_idx = pool.addInterfaceMethodRef(lambda_cls_idx, pool.addNameAndType(closure_str_idx, void_descriptor));
-  //interface method!!!
   //CODE
   add_opcode_with_idx(codegen::MNEMONIC::NEW, anonym_class_idx);
   add_opcode(codegen::MNEMONIC::DUP);
@@ -365,8 +359,9 @@ void codegen::push_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
 
-  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
-      ->add_opcode(codegen::MNEMONIC::LDC);
+  //->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
+  code->add_opcode(codegen::MNEMONIC::LDC);
+
   std::string value = state.current_node->command.extractAstCommandString();
   try {
     std::size_t end_parse;
@@ -512,9 +507,15 @@ void codegen::list_push_ByteCode(Bytecode::Current_state state) {
   std::vector<unsigned char> conditional_body;
 
   // fill conditional branch
+  conditional_body.push_back(MNEMONIC::POP);
   code->add_opcode_with_idx(codegen::MNEMONIC::NEW, pool.list_idx.class_idx, conditional_body);
   conditional_body.push_back(codegen::MNEMONIC::DUP);
   code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, pool.list_idx.init_idx, conditional_body);
+  // use variable 1 as first element of the list
+  conditional_body.push_back(MNEMONIC::DUP);
+  conditional_body.push_back(ALOAD_1);
+  code->add_opcode_with_idx(MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.add_idx, conditional_body);
+  conditional_body.push_back(MNEMONIC::POP); // discard add() return value
   conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
 
   code->globalstack_pop()
@@ -522,6 +523,7 @@ void codegen::list_push_ByteCode(Bytecode::Current_state state) {
       ->globalstack_pop()
       ->add_opcode(codegen::MNEMONIC::ASTORE_2)
       ->add_opcode(codegen::MNEMONIC::ALOAD_1)
+      ->add_opcode(MNEMONIC::DUP)
       ->add_opcode_with_idx(codegen::MNEMONIC::INSTANCE_OF, pool.list_idx.class_idx)
       ->add_conditional_with_instruction(codegen::MNEMONIC::IFNE, conditional_body)
       ->add_opcode(codegen::MNEMONIC::ALOAD_1)
@@ -529,7 +531,8 @@ void codegen::list_push_ByteCode(Bytecode::Current_state state) {
       ->add_opcode(codegen::MNEMONIC::DUP)
       ->add_opcode(codegen::MNEMONIC::ALOAD_2)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.add_idx)
-      ->add_opcode(codegen::MNEMONIC::POP)
+      ->add_opcode(MNEMONIC::POP) // discard add() return value
+      //->add_opcode(codegen::MNEMONIC::POP)
       ->globalstack_push()
 
 //  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
@@ -700,18 +703,18 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
 //CONTROL STRUCTURE
 void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
-
-  Bytecode *successor1 = code->build(state.current_node->successor1);
-  Bytecode *successor2 = code->build(state.current_node->successor2);
+  ConstantPool& pool = code->get_constant_pool();
+  Bytecode successor1(state.current_code->get_constant_pool());
+  successor1.build(state.current_node->successor1);
+  Bytecode successor2(state.current_code->get_constant_pool());
+  successor2.build(state.current_node->successor2);
 
   code->globalstack_pop()
-      ->add_conditional_with_else_branch(codegen::MNEMONIC::IFEQ,
-                                         successor1->get_bytecode(),
-                                         successor2->get_bytecode());
-
-  // std::cout << "if_or_while_Bytecode: " << state.current_node->command.extractAstCommandString() << std::endl;
-  // std::cout << "successor1: " << state.current_node->successor1->command.extractAstCommandString() << std::endl;
-  // std::cout << "successor2: " << state.current_node->successor2->command.extractAstCommandString() << std::endl;
+      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.int_idx.int_value_idx)
+      ->add_conditional_with_else_branch(codegen::MNEMONIC::IFNE,
+                                         successor1.get_bytecode(),
+                                         successor2.get_bytecode());
 }
 
 //VARIABLES
@@ -731,4 +734,10 @@ void codegen::push_Variable(Bytecode::Current_state state) {
   code->globalstack_pop()
       ->add_opcode(codegen::ASTORE)
       ->add_index(var_index);
+}
+
+//LAMBDA
+
+void codegen::lambda_Bytecode(Bytecode::Current_state state) {
+  state.current_code->add_lambda_declaration(state.current_node);
 }
