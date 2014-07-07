@@ -75,6 +75,9 @@ class Backend {
    * Nur statische Methoden.
    */
   Backend();
+
+  static void add_entries_to_constantpool(ConstantPool& constantPool);
+  static void add_functions_to_constantpool(ConstantPool& constantPool, std::vector<std::string>& keyset);
 };
 
 #endif  // PROJEKT_COMPILER_SRC_BACKEND_BACKEND_H_
