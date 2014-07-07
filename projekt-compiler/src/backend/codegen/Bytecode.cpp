@@ -445,17 +445,40 @@ void codegen::list_push_ByteCode(Bytecode::Current_state state) {
   codegen::Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
 
-  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
+  std::vector<unsigned char> conditional_body;
+
+  // fill conditional branch
+  code->add_opcode_with_idx(codegen::MNEMONIC::NEW, pool.list_idx.class_idx, conditional_body);
+  conditional_body.push_back(codegen::MNEMONIC::DUP);
+  code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, pool.list_idx.init_idx, conditional_body);
+  conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
+
+  code->globalstack_pop()
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1)
       ->globalstack_pop()
-      ->add_opcode(codegen::MNEMONIC::ASTORE_1) // pop VALUE
-      ->globalstack_pop()
+      ->add_opcode(codegen::MNEMONIC::ASTORE_2)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INSTANCE_OF, pool.list_idx.class_idx)
+      ->add_conditional_with_instruction(codegen::MNEMONIC::IFNE, conditional_body)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
       ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.list_idx.class_idx)
       ->add_opcode(codegen::MNEMONIC::DUP)
-      ->add_opcode(codegen::MNEMONIC::ALOAD_1) // push value before list
+      ->add_opcode(codegen::MNEMONIC::ALOAD_2)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.add_idx)
       ->add_opcode(codegen::MNEMONIC::POP)
       ->globalstack_push()
-      ->inc_local_count(1);
+
+//  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
+//      ->globalstack_pop()
+//      ->add_opcode(codegen::MNEMONIC::ASTORE_1) // pop VALUE
+//      ->globalstack_pop()
+//      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.list_idx.class_idx)
+//      ->add_opcode(codegen::MNEMONIC::DUP)
+//      ->add_opcode(codegen::MNEMONIC::ALOAD_1) // push value before list
+//      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.add_idx)
+//      ->add_opcode(codegen::MNEMONIC::POP)
+//      ->globalstack_push()
+      ->inc_local_count(3);
 }
 
 void codegen::list_pop_ByteCode(Bytecode::Current_state state) {
