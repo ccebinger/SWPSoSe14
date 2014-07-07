@@ -16,7 +16,7 @@ public class Env {
 		Cpp_Cpp				(3, "C++",	"Ast",	"C++",	"JBC"),
 		Cpp_Haskell			(4, "C++",	"Ast",	"Hsk",	"LLVM"),
 		Haskell				(5, "Hsk",	"",		"Hsk",	"LLVM"),
-		Haskell_Cpp			(6, "Hsk",	"Ast",	"C",	"JBC"),
+		Haskell_Cpp			(6, "Hsk",	"Ast",	"C++",	"JBC"),
 		Haskell_Haskell		(7, "Hsk",	"Ast",	"Hsk",	"LLVM"),
 		;
 		
@@ -136,11 +136,9 @@ public class Env {
 	public static final void setVerbose(boolean verbose) { Env.verbose = verbose; }
 	
 	
-	
 	private static boolean useDb = true;
 	public static final boolean useDatabase() { return useDb; }
 	public static final void setDatabase(boolean useDb) { Env.useDb = useDb; }
-	
 	
 	
 	private static boolean errorsOnly = false;
@@ -156,13 +154,14 @@ public class Env {
 		fname = fname.substring(0, fname.length()-4);
 		switch(mode) {
 			case Cpp:				fname += "cpp";		break;
-			case Cpp_Cpp:			fname += "cpp_cpp";	break;
-			case Cpp_Haskell:		fname += "cpp_hs";	break;
-			case Haskell_Cpp:		fname += "hs_cpp";	break;
-			case Haskell_Haskell:	fname += "hs_hs";	break;
+			case Cpp_Cpp:			fname += "cppCpp";	break;
+			case Cpp_Haskell:		fname += "cppHs";	break;
+			case Haskell:			fname += "hs";		break;
+			case Haskell_Cpp:		fname += "hsCpp";	break;
+			case Haskell_Haskell:	fname += "hsHs";	break;
 			case Interpreter:
 			default:
-				throw new RuntimeException("Config.getCsvName() Unknown");
+				throw new RuntimeException("Env.getCsvName() Unknown");
 				//break;
 		}
 		fname += ".csv";
@@ -175,25 +174,16 @@ public class Env {
 		String fname = filename.toString();
 		fname = fname.substring(0, fname.length()-5) + "_";
 		switch(mode) {
-			case Cpp:
-				fname += "cpp.class";
-				break;
-			case Cpp_Cpp:
-				fname += "cppCpp.class";
-				break;
-			case Cpp_Haskell:
-				throw new RuntimeException("Config.getTargetName() Haskell nyi");
-				//break;
-			case Haskell_Cpp:
-				throw new RuntimeException("Config.getTargetName() Haskell nyi");
-				//break;
-			case Haskell_Haskell:
-				throw new RuntimeException("Config.getTargetName() Haskell nyi");
-				//break;
+			case Cpp:				fname += "cpp.class";		break;
+			case Cpp_Cpp:			fname += "cppCpp.class";	break;
+			case Cpp_Haskell:		fname += "cppHs";			break;
+			case Haskell:			fname += "hs";				break;
+			case Haskell_Cpp:		fname += "hsCpp";			break;
+			case Haskell_Haskell:	fname += "hsHs";			break;
 			case Interpreter:
-				throw new RuntimeException("Config.getTargetName() Interpreter has no csv file");
+				throw new RuntimeException("Env.getTargetName() Interpreter has no target file");
 			default:
-				throw new RuntimeException("Config.getTargetName() Unknown mode");
+				throw new RuntimeException("Env.getTargetName() Unknown mode");
 		}
 		return tempDir.resolve(fname);
 	}
@@ -207,15 +197,15 @@ public class Env {
 			case Cpp_Cpp:
 			case Cpp_Haskell:
 				return binaryCpp + " -q" + " -i "+ absFilePath.toAbsolutePath() + " -s " + getCsvPath(mode, filename);
+			case Haskell:
+				return binaryHaskell.resolve("run-compiler.sh") + " " + absFilePath.toAbsolutePath() + " " + getTargetPath(mode, filename);
 			case Haskell_Cpp:
 			case Haskell_Haskell:
-				//FIXME Haskell
-				throw new RuntimeException("Config.getFrontendCmd() Haskell nyi");
-				//break;
+				return binaryHaskell.resolve("run-frontend.sh") + " " + absFilePath.toAbsolutePath() + " " + getCsvPath(mode, filename);
 			case Interpreter:
-				throw new RuntimeException("Config.getFrontendCmd() Interpreter != Compiler. Don't call me!");
+				throw new RuntimeException("Env.getFrontendCmd() Interpreter != Compiler. Don't call me!");
 			default:
-				throw new RuntimeException("Config.getFrontendCmd() Unknown");
+				throw new RuntimeException("Env.getFrontendCmd() Unknown");
 				//break;
 		}
 	}
@@ -225,19 +215,20 @@ public class Env {
 	public static final String getBackendCmd(Mode mode, Path filename) {
 		switch (mode) {
 			case Cpp:
-				throw new RuntimeException("Config.getBackendCmd() Cpp Backend not present for non-AST mode");
+				throw new RuntimeException("Env.getBackendCmd() Cpp Backend not present for non-AST mode");
 			case Cpp_Cpp:
 			case Haskell_Cpp:
 				return binaryCpp + " -q" + " -d "+ getCsvPath(mode, filename) + " -o " + getTargetPath(mode, filename);
+			case Haskell:
+				throw new RuntimeException("Env.getBackendCmd() Haskell Backend not present for non-AST mode");
 			case Cpp_Haskell:
 			case Haskell_Haskell:
 				//FIXME Haskell
-				throw new RuntimeException("Config.getBackendCmd() Haskell nyi");
-				//break;
+				return binaryHaskell.resolve("run-backend.sh") + " " + getCsvPath(mode, filename) + " " + getTargetPath(mode, filename);
 			case Interpreter:
-				throw new RuntimeException("Config.getBackendCmd() Interpreter != Compiler. Don't call me!");
+				throw new RuntimeException("Env.getBackendCmd() Interpreter != Compiler. Don't call me!");
 			default:
-				throw new RuntimeException("Config.getBackendCmd() Unknown");
+				throw new RuntimeException("Env.getBackendCmd() Unknown");
 				//break;
 		}
 	}
@@ -245,9 +236,6 @@ public class Env {
 	
 	
 	public static final String getTargetCmd(Mode mode, Path filename) {
-		
-		// java -cp tmp/ emptyFuncName_cppCpp
-		
 		switch(mode) {
 			case Cpp:
 			case Cpp_Cpp:
@@ -256,16 +244,16 @@ public class Env {
 				String classPath = targetName.substring(0, targetName.lastIndexOf("/")+1);
 				targetName = targetName.substring(classPath.length(), targetName.length()-6);
 				return "java -XX:-UseSplitVerifier -cp " + classPath + " " + targetName;
+			case Haskell:
 			case Cpp_Haskell:
 			case Haskell_Haskell:
-				throw new RuntimeException("Config.getTargetCmd() Haskell nyi");
-				//break;
+				return getTargetPath(mode, filename).toString();
 			case Interpreter:
 				return binaryInterpreter + " " + filename;
-				//throw new RuntimeException("Config.getTargetCmd() Interpreter nyi");
+				//throw new RuntimeException("Env.getTargetCmd() Interpreter nyi");
 				//break;
 			default:
-				throw new RuntimeException("Config.getTargetCmd() Unknown mode");
+				throw new RuntimeException("Env.getTargetCmd() Unknown mode");
 				//break;
 		}
 	}
