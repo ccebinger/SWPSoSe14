@@ -184,12 +184,27 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
             if(m_cursorColPos > 0)
             {
                 setPosition(m_cursorRowPos, m_cursorColPos - 1);
-                removeSign(m_cursorRowPos, m_cursorColPos);
+
+                Stack *stack = removeSign(m_cursorRowPos, m_cursorColPos);
+                if(stack != NULL)
+                {
+                    Stack *tmp = stack->pop();
+                    delete tmp;
+                    applyStyleChanges(stack);
+                    delete stack;
+                }
             }
             else if(m_cursorRowPos > 0)
             {
                 setPosition(m_cursorRowPos - 1, this->columnCount());
-                removeSign(m_cursorRowPos, m_cursorColPos);
+                Stack *stack = removeSign(m_cursorRowPos, m_cursorColPos);
+                if(stack != NULL)
+                {
+                    Stack *tmp = stack->pop();
+                    delete tmp;
+                    applyStyleChanges(stack);
+                    delete stack;
+                }
             }
         }
         else if(key == Qt::Key_Delete)
@@ -206,9 +221,15 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
             {
                 return;
             }
-            setSign(m_cursorRowPos, m_cursorColPos, keyEvent->text().at(0));
-            // next position is calculated by the internal graph
-            // hence we don't set the next position here
+            Stack *stack = setSign(m_cursorRowPos, m_cursorColPos, keyEvent->text().at(0));
+            if(stack != NULL)
+            {
+                Stack *tmp = stack->pop();
+                moveCursorFromGraph(tmp);
+                delete tmp;
+                applyStyleChanges(stack);
+                delete stack;
+            }
         }
         else if(key == Qt::Key_Escape && m_isInGrabMode)
         {
@@ -289,12 +310,11 @@ void EditTableWidget::setPosition(int row, int col, bool extendSelection)
     emit cursorPositionChanged(row, col);
 }
 
-void EditTableWidget::setSign(int row, int col, QChar c, bool suppressUndoRedoCreation)
+Stack * EditTableWidget::setSign(int row, int col, QChar c, bool suppressUndoRedoCreation)
 {
     if(c == QChar())
     {
-        removeSign(row, col, suppressUndoRedoCreation);
-        return;
+        return removeSign(row, col, suppressUndoRedoCreation);
     }
 
     QChar pre = getSign(row, col);
@@ -311,24 +331,11 @@ void EditTableWidget::setSign(int row, int col, QChar c, bool suppressUndoRedoCr
     m_textMaxCol = std::max(m_textMaxCol, col);
 
     Stack *stack = m_graph.setSign(col, row, c.toLatin1());
-    // The first element is the next position of the cursor
-    // the direction is coded in the color value
-    Stack *tmp = stack->pop();
-    int deltaX = 0, deltaY = 0;
-    ApplicationConstants::Direction direction = static_cast<ApplicationConstants::Direction>(tmp->getColor());
-    //qDebug() << "direction:" << direction;
-    m_graph.directionToDelta(&deltaX, &deltaY, direction);
-    setPosition(m_cursorRowPos + deltaY, m_cursorColPos + deltaX);
-    delete tmp;
-    applyStyleChanges(stack);
-    if(stack != NULL)
-    {
-        delete stack;
-    }
     if(!suppressUndoRedoCreation)
     {
         emit textChanged();
     }
+    return stack;
 }
 
 void EditTableWidget::setDisplaySign(int row, int col, QChar c)
@@ -366,7 +373,7 @@ void EditTableWidget::setDisplaySign(int row, int col, QChar c)
     }
 }
 
-void EditTableWidget::removeSign(int row, int col, bool suppressUndoRedoCreation)
+Stack * EditTableWidget::removeSign(int row, int col, bool suppressUndoRedoCreation)
 {
     QWidget *w = this->cellWidget(row, col);
     if(w != NULL)
@@ -389,17 +396,14 @@ void EditTableWidget::removeSign(int row, int col, bool suppressUndoRedoCreation
             findContentMaxValues();
         }
         Stack *stack = m_graph.deleteSign(col, row);
-        applyStyleChanges(stack);
-        if(stack != NULL)
-        {
-            delete stack;
-        }
 
         if(!suppressUndoRedoCreation)
         {
             emit textChanged();
         }
+        return stack;
     }
+    return NULL;
 }
 
 void EditTableWidget::removeDisplaySign(int row, int col)
@@ -424,6 +428,18 @@ QChar EditTableWidget::getSign(int row, int col) const
     {
         return QChar();
     }
+}
+
+void EditTableWidget::moveCursorFromGraph(Stack *stack)
+{
+    assert(stack);
+    // The first element is the next position of the cursor
+    // the direction is coded in the color value
+    int deltaX = 0, deltaY = 0;
+    ApplicationConstants::Direction direction = static_cast<ApplicationConstants::Direction>(stack->getColor());
+    //qDebug() << "direction:" << direction;
+    m_graph.directionToDelta(&deltaX, &deltaY, direction);
+    setPosition(m_cursorRowPos + deltaY, m_cursorColPos + deltaX);
 }
 
 void EditTableWidget::applyStyleChanges(Stack *stack)
@@ -516,7 +532,14 @@ void EditTableWidget::setPlainText(QString text)
         }
         else
         {
-            setSign(m_cursorRowPos, m_cursorColPos, c);
+            Stack *stack = setSign(m_cursorRowPos, m_cursorColPos, c);
+            if(stack != NULL)
+            {
+                Stack *tmp = stack->pop();
+                delete tmp;
+                applyStyleChanges(stack);
+                delete stack;
+            }
             setPosition(m_cursorRowPos, m_cursorColPos + 1);
         }
     }
