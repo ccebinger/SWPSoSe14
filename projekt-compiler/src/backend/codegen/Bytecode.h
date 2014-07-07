@@ -9,6 +9,7 @@
 #include <frontend/Graphs.h>
 #include <common/Env.h>
 
+
 /**
  * The codegen namespace contains everything to generate Java Bytecode.
  *
@@ -429,7 +430,7 @@ namespace codegen {
      */
       Bytecode* add_ldc_string(const std::string& constant);
 
-      Bytecode* add_lambda_call(Graphs::Graph_ptr graph);
+      Bytecode* add_lambda_call(Graphs::Graph_ptr graph, Graphs::Node_ptr current_node);
     //GLOBAL STACK
      /**
       * Adds bytecode which pops a value from the static ArrayDeque field.

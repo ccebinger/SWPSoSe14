@@ -48,7 +48,7 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
   Graphs::Node_ptr current_node(graph->start());
   while (current_node && current_node->command.type != Command::Type::FINISH) {
     if (current_node->command.type == Command::Type::LAMBDA)
-      add_lambda_call(graph);
+      add_lambda_call(graph, current_node);
     else {
       func_ptr f = func_map.at(current_node->command.type);
       if (f) {
@@ -281,14 +281,32 @@ codegen::Bytecode* codegen::Bytecode::add_ldc_string(const std::string& constant
   return this;
 }
 
-codegen::Bytecode* codegen::Bytecode::add_lambda_call(Graphs::Graph_ptr graph) {
+codegen::Bytecode* codegen::Bytecode::add_lambda_call(Graphs::Graph_ptr graph, Graphs::Node_ptr current_node) {
   //add Lambda anonymous class to pool
-  //class file creation in backend?
-  //new anonymous class
-  //dup
-  //invokespecial <init>
+  //$anonymous class
+  std::stringstream ss;
+  ss << Env::getDstClassName() << "$" << current_node->command.arg;
+  std::string anonymous_class_name = ss.str();
+  size_t anonym_str_idx = pool.addString(anonymous_class_name);
+  size_t anonym_class_idx = pool.addClassRef(anonym_str_idx);
+
+  //$anonymous class <init> method
+  size_t init_str_idx = pool.addString("<init>");
+  size_t void_descriptor = pool.addString("()V");
+  size_t anonym_init_idx = pool.addMethRef(anonym_class_idx, pool.addNameAndType(init_str_idx, void_descriptor));
+
+  //$anonymous class closure method
+  size_t closure_str_idx = pool.addString("closure");
+  size_t lambda_str_idx = pool.addString("Lambda");
+  size_t lambda_cls_idx = pool.addClassRef(lambda_str_idx);
+  pool.addNameAndType(closure_str_idx, void_descriptor);
+  //interface method!!!
+  //CODE
+  add_opcode_with_idx(codegen::MNEMONIC::NEW, anonym_class_idx);
+  add_opcode(codegen::MNEMONIC::DUP);
+  add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, anonym_init_idx);
+  //add interface call method (closure call)
   //invokeinterface Lambda.closure 1 (1 stands for the object which will be used for the call, more than 1 are the arguments which are popped from the stack)
-  //
 
 }
 //================================================================================
