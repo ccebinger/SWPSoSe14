@@ -166,7 +166,6 @@ class Bytecode {
    */
   Bytecode* build(Graphs::Graph_ptr graph);
   Bytecode* build(Graphs::Node_ptr current_node);
-  //Bytecode* build2(Graphs::Node_ptr current_node);
 
   //GETTER
   /**
@@ -429,6 +428,8 @@ class Bytecode {
    * @param  constant        the constant you want to load
    * @return                 the pointer of the current Bytecode class object       */
   Bytecode* add_ldc_string(const std::string& constant);
+
+  Bytecode* add_lambda_call(Graphs::Graph_ptr graph, Graphs::Node_ptr current_node);
 
   //GLOBAL STACK
   /**

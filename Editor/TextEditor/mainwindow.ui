@@ -265,8 +265,8 @@
     <addaction name="ui_rotate90Action"/>
     <addaction name="ui_rotate180Action"/>
     <addaction name="ui_rotate270Action"/>
-    <addaction name="ui_flipHorizontalAction"/>
-    <addaction name="ui_flipVerticalAction"/>
+    <addaction name="ui_mirrorHorizontalAction"/>
+    <addaction name="ui_mirrorVerticalAction"/>
    </widget>
    <widget class="QMenu" name="ui_compileMenu">
     <property name="title">
@@ -423,7 +423,7 @@
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>false</bool>
+    <bool>true</bool>
    </attribute>
    <addaction name="ui_newFileAction"/>
    <addaction name="ui_openFileAction"/>
@@ -463,6 +463,11 @@
    <addaction name="ui_startGrabAction"/>
    <addaction name="ui_finishGrabAction"/>
    <addaction name="ui_cancelGrabAction"/>
+   <addaction name="ui_rotate90Action"/>
+   <addaction name="ui_rotate180Action"/>
+   <addaction name="ui_rotate270Action"/>
+   <addaction name="ui_mirrorHorizontalAction"/>
+   <addaction name="ui_mirrorVerticalAction"/>
   </widget>
   <action name="ui_newFileAction">
    <property name="icon">
@@ -772,6 +777,9 @@
    </property>
   </action>
   <action name="ui_rotate90Action">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Rotate 90°</string>
    </property>
@@ -779,7 +787,7 @@
     <enum>Qt::ApplicationShortcut</enum>
    </property>
    <property name="visible">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
   </action>
   <action name="ui_rotate180Action">
@@ -790,7 +798,7 @@
     <enum>Qt::ApplicationShortcut</enum>
    </property>
    <property name="visible">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
   </action>
   <action name="ui_rotate270Action">
@@ -801,29 +809,29 @@
     <enum>Qt::ApplicationShortcut</enum>
    </property>
    <property name="visible">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
   </action>
-  <action name="ui_flipHorizontalAction">
+  <action name="ui_mirrorHorizontalAction">
    <property name="text">
-    <string>Flip Horizontal</string>
+    <string>Mirror Horizontal</string>
    </property>
    <property name="shortcutContext">
     <enum>Qt::ApplicationShortcut</enum>
    </property>
    <property name="visible">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
   </action>
-  <action name="ui_flipVerticalAction">
+  <action name="ui_mirrorVerticalAction">
    <property name="text">
-    <string>Flip Vertical</string>
+    <string>Mirror Vertical</string>
    </property>
    <property name="shortcutContext">
     <enum>Qt::ApplicationShortcut</enum>
    </property>
    <property name="visible">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
   </action>
  </widget>
