@@ -699,17 +699,11 @@ void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
   successor1.build(state.current_node->successor1);
   Bytecode successor2(state.current_code->get_constant_pool());
   successor2.build(state.current_node->successor2);
-  // Bytecode *successor1 = code->build(state.current_node->successor1);
-  // Bytecode *successor2 = code->build(state.current_node->successor2);
 
   code->globalstack_pop()
       ->add_conditional_with_else_branch(codegen::MNEMONIC::IFNE,
                                          successor1.get_bytecode(),
                                          successor2.get_bytecode());
-
-  // std::cout << "if_or_while_Bytecode: " << state.current_node->command.extractAstCommandString() << std::endl;
-  // std::cout << "successor1: " << state.current_node->successor1->command.extractAstCommandString() << std::endl;
-  // std::cout << "successor2: " << state.current_node->successor2->command.extractAstCommandString() << std::endl;
 }
 
 //VARIABLES
