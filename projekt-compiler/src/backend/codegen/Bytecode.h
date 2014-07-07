@@ -425,9 +425,11 @@ namespace codegen {
      * Do not misunderstand with loading/push a constant in rail.
      *
      * @param  constant        the constant you want to load
-     * @return                 the pointer of the current Bytecode class object       */
-     Bytecode* add_ldc_string(const std::string& constant);
+     * @return                 the pointer of the current Bytecode class object
+     */
+      Bytecode* add_ldc_string(const std::string& constant);
 
+      Bytecode* add_lambda_call(Graphs::Graph_ptr graph);
     //GLOBAL STACK
      /**
       * Adds bytecode which pops a value from the static ArrayDeque field.

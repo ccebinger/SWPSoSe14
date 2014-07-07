@@ -47,12 +47,16 @@ codegen::Bytecode::~Bytecode() {}
 codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
   Graphs::Node_ptr current_node(graph->start());
   while (current_node && current_node->command.type != Command::Type::FINISH) {
-    func_ptr f = func_map.at(current_node->command.type);
-    if (f) {
-      Current_state state;
-      state.current_code = this;
-      state.current_node = current_node;
-      f(state);
+    if (current_node->command.type == Command::Type::LAMBDA)
+      add_lambda_call(graph);
+    else {
+      func_ptr f = func_map.at(current_node->command.type);
+      if (f) {
+        Current_state state;
+        state.current_code = this;
+        state.current_node = current_node;
+        f(state);
+      }
     }
     current_node = current_node->successor1;
   }
@@ -275,6 +279,17 @@ codegen::Bytecode* codegen::Bytecode::add_ldc_string(const std::string& constant
   uint16_t const_idx = pool.addConstString(string_idx);
   bytecode.push_back((uint8_t) const_idx);
   return this;
+}
+
+codegen::Bytecode* codegen::Bytecode::add_lambda_call(Graphs::Graph_ptr graph) {
+  //add Lambda anonymous class to pool
+  //class file creation in backend?
+  //new anonymous class
+  //dup
+  //invokespecial <init>
+  //invokeinterface Lambda.closure 1 (1 stands for the object which will be used for the call, more than 1 are the arguments which are popped from the stack)
+  //
+
 }
 //================================================================================
 //=================================GLOBAL STACK===================================
