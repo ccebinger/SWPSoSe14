@@ -16,63 +16,64 @@
  */
 namespace codegen {
 
-/**
- * The enum represents the MNEMONIC Java opcodes.
- * Each enum member has his own hex representation.
- * See for more information http://en.wikipedia.org/wiki/Java_bytecode_instruction_listings.
- *
- */
-enum MNEMONIC {
-  I2C = '\x92',
-  ILOAD_0 = '\x1a',
-  ILOAD_1 = '\x1b',
-  ILOAD_2 = '\x1c',
-  ILOAD_3 = '\x1d',
-  ICONST_0 = '\x03',
-  ICONST_1 = '\x04',
-  ISTORE_0 = '\x3b',
-  ISTORE_1 = '\x3c',
-  ISTORE_2 = '\x3d',
-  ISTORE_3 = '\x3e',
-  IF_ACMPNE = '\xa6',
-  IF_ICMPGT = '\xa3',
-  IF_ICMPLE = '\xa4',
-  IF_ICMPLT = '\xa1',
-  IF_ICMPNE = '\xa0',
-  IF_ICMPGE = '\xa2',
-  ALOAD = '\x19',
-  ALOAD_0 = '\x2a',
-  ALOAD_1 = '\x2b',
-  ALOAD_2 = '\x2c',
-  ALOAD_3 = '\x2d',
-  ASTORE = '\x3a',
-  ASTORE_0 = '\x4b',
-  ASTORE_1 = '\x4c',
-  ASTORE_2 = '\x4d',
-  ASTORE_3 = '\x4e',
-  BIPUSH = '\x10',
-  NEW = '\xbb',
-  INVOKE_VIRTUAL = '\xb6',
-  INVOKE_STATIC = '\xb8',
-  INVOKE_SPECIAL = '\xb7',
-  GET_STATIC = '\xb2',
-  GOTO = '\xa7',
-  RETURN = '\xb1',
-  SWAP = '\x5f',
-  LDC = '\x12',
-  DUP = '\x59',
-  IADD = '\x60',
-  ISUB = '\x64',
-  IMULT = '\x68',
-  IDIV = '\x6c',
-  IREM = '\x70',
-  INSTANCE_OF = '\xc1',
-  CHECKCAST = '\xc0',
-  ATHROW = '\xbf',
-  IFEQ = '\x99',
-  IFNE = '\x9a',
-  POP = '\x57'
-};
+  /**
+  * The enum represents the MNEMONIC Java opcodes.
+  * Each enum member has his own hex representation.
+  * See for more information http://en.wikipedia.org/wiki/Java_bytecode_instruction_listings.
+  *
+  */
+  enum MNEMONIC {
+    I2C = '\x92',
+    ILOAD_0 = '\x1a',
+    ILOAD_1 = '\x1b',
+    ILOAD_2 = '\x1c',
+    ILOAD_3 = '\x1d',
+    ICONST_0 = '\x03',
+    ICONST_1 = '\x04',
+    ISTORE_0 = '\x3b',
+    ISTORE_1 = '\x3c',
+    ISTORE_2 = '\x3d',
+    ISTORE_3 = '\x3e',
+    IF_ACMPNE = '\xa6',
+    IF_ICMPGT = '\xa3',
+    IF_ICMPLE = '\xa4',
+    IF_ICMPLT = '\xa1',
+    IF_ICMPNE = '\xa0',
+    IF_ICMPGE = '\xa2',
+    ALOAD = '\x19',
+    ALOAD_0 = '\x2a',
+    ALOAD_1 = '\x2b',
+    ALOAD_2 = '\x2c',
+    ALOAD_3 = '\x2d',
+    ASTORE = '\x3a',
+    ASTORE_0 = '\x4b',
+    ASTORE_1 = '\x4c',
+    ASTORE_2 = '\x4d',
+    ASTORE_3 = '\x4e',
+    BIPUSH = '\x10',
+    NEW = '\xbb',
+    INVOKE_VIRTUAL = '\xb6',
+    INVOKE_STATIC = '\xb8',
+    INVOKE_SPECIAL = '\xb7',
+    INVOKE_INTERFACE = '\xb9',
+    GET_STATIC = '\xb2',
+    GOTO = '\xa7',
+    RETURN = '\xb1',
+    SWAP = '\x5f',
+    LDC = '\x12',
+    DUP = '\x59',
+    IADD = '\x60',
+    ISUB = '\x64',
+    IMULT = '\x68',
+    IDIV = '\x6c',
+    IREM = '\x70',
+    INSTANCE_OF = '\xc1',
+    CHECKCAST = '\xc0',
+    ATHROW = '\xbf',
+    IFEQ = '\x99',
+    IFNE = '\x9a',
+    POP = '\x57'
+  };
 
 
 /**
@@ -197,6 +198,13 @@ class Bytecode {
    * @return         the LocalVariableStash class object
    */
   LocalVariableStash& get_locals();
+
+
+  /**
+  * Returns the index of the Lambda closure interface method in the constant pool.
+  * @return          the closure method index
+  */
+  uint16_t get_lambda_closure_idx();
   //SETTER
   /**
    * Increments the current local variable count with the given value.
@@ -430,7 +438,6 @@ class Bytecode {
   Bytecode* add_ldc_string(const std::string& constant);
 
   Bytecode* add_lambda_call(Graphs::Graph_ptr graph, Graphs::Node_ptr current_node);
-
   //GLOBAL STACK
   /**
    * Adds bytecode which pops a value from the static ArrayDeque field.
@@ -473,6 +480,12 @@ class Bytecode {
    * Functor map which maps the command types to each corresponding function.
    */
   static CODE_FUNC_MAPPING func_map;
+
+ /**
+  * The index of the lambda closure interface method in the constant pool.
+  * If the idx is 0 then no lambda object was declared before or the declaration was in another method.
+  */
+  uint16_t lambda_closure_idx = 0;
 };
 
 /**
