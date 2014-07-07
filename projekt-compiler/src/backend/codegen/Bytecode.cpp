@@ -60,6 +60,36 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
   return this;
 }
 
+codegen::Bytecode* codegen::Bytecode::build(Graphs::Node_ptr current_node) {
+  while (current_node && current_node->command.type != Command::Type::FINISH) {
+    func_ptr f = func_map.at(current_node->command.type);
+    if (f) {
+      Current_state state;
+      state.current_code = this;
+      state.current_node = current_node;
+      f(state);
+    }
+    current_node = current_node->successor1;
+  }
+  bytecode.push_back(codegen::MNEMONIC::RETURN);
+  return this;
+}
+
+// codegen::Bytecode* codegen::Bytecode::build2(Graphs::Node_ptr current_node) {
+//   while (current_node && current_node->command.type != Command::Type::FINISH) {
+//     func_ptr f = func_map.at(current_node->command.type);
+//     if (f) {
+//       Current_state state;
+//       state.current_code = this;
+//       state.current_node = current_node;
+//       f(state);
+//     }
+//     current_node = current_node->successor2;
+//   }
+//   bytecode.push_back(codegen::MNEMONIC::RETURN);
+//   return this;
+// }
+
 //================================================================================
 //==================================GETTER========================================
 //================================================================================
@@ -613,7 +643,6 @@ void codegen::underflow_ByteCode(Bytecode::Current_state state) {
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.arr_idx.size)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
       ->globalstack_push();
-
 }
 
 void codegen::type_ByteCode(Bytecode::Current_state state) {
@@ -632,19 +661,20 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.replace)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.toLowerCase)
       ->globalstack_push();
-
 }
 
 //CONTROL STRUCTURE
 void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
 
-  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC,
-                            code->get_constant_pool().arr_idx.field_idx)
-      ->globalstack_pop();
-  // ->add_conditional_with_else_branch(codegen::MNEMONIC::IFNE,
-  //                                    state.current_node->successor1,
-  //                                    state.current_node->successor2);
+  Bytecode *successor1 = code->build(state.current_node->successor1);
+  Bytecode *successor2 = code->build(state.current_node->successor2);
+
+  code->globalstack_pop()
+      ->add_conditional_with_else_branch(codegen::MNEMONIC::IFNE,
+                                         successor1->get_bytecode(),
+                                         successor2->get_bytecode());
+
   std::cout << "if_or_while_Bytecode: " << state.current_node->command.extractAstCommandString() << std::endl;
   std::cout << "successor1: " << state.current_node->successor1->command.extractAstCommandString() << std::endl;
   std::cout << "successor2: " << state.current_node->successor2->command.extractAstCommandString() << std::endl;
