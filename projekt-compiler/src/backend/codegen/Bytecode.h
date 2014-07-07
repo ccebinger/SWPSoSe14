@@ -198,6 +198,12 @@ namespace codegen {
       * @return         the LocalVariableStash class object
       */
       LocalVariableStash& get_locals();
+
+      /**
+      * Returns the index of the Lambda closure interface method in the constant pool.
+      * @return          the closure method index
+      */
+      uint16_t get_lambda_closure_idx();
     //SETTER
       /**
       * Increments the current local variable count with the given value.
@@ -210,6 +216,7 @@ namespace codegen {
       * @param count        the value which will be used to replace the current local variable count
       */
       void set_local_count(int count);
+
     //INDECIES
      /**
       * Checks the constant pool for the given class name and returns the idx on the constantpool if the
@@ -474,6 +481,12 @@ namespace codegen {
       * Functor map which maps the command types to each corresponding function.
       */
       static CODE_FUNC_MAPPING func_map;
+
+      /**
+       * The index of the Lambda closure interface method in the constant pool.
+       * If the idx is 0 the idx was not set and so no Lambda was declared in the code.
+       */
+      uint16_t lambda_closure_idx = 0;
   };
 
   /**

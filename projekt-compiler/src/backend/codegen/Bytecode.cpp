@@ -88,6 +88,10 @@ LocalVariableStash& codegen::Bytecode::get_locals() {
   return locals;
 }
 
+
+uint16_t codegen::Bytecode::get_lambda_closure_idx() {
+  return lambda_closure_idx;
+}
 //================================================================================
 //==================================SETTER========================================
 //================================================================================
@@ -138,7 +142,6 @@ uint16_t codegen::Bytecode::get_stack_field_idx() {
   return get_field_idx(Env::getDstClassName(), "stack",
                        "Ljava/util/ArrayDeque;");
 }
-
 //================================================================================
 //==================================CODE ADD======================================
 //================================================================================
@@ -299,15 +302,13 @@ codegen::Bytecode* codegen::Bytecode::add_lambda_call(Graphs::Graph_ptr graph, G
   size_t closure_str_idx = pool.addString("closure");
   size_t lambda_str_idx = pool.addString("Lambda");
   size_t lambda_cls_idx = pool.addClassRef(lambda_str_idx);
-  size_t lambda_closure_idx = pool.addInterfaceMethodRef(lambda_cls_idx, pool.addNameAndType(closure_str_idx, void_descriptor));
+  lambda_closure_idx = pool.addInterfaceMethodRef(lambda_cls_idx, pool.addNameAndType(closure_str_idx, void_descriptor));
   //interface method!!!
   //CODE
   add_opcode_with_idx(codegen::MNEMONIC::NEW, anonym_class_idx);
   add_opcode(codegen::MNEMONIC::DUP);
   add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, anonym_init_idx);
-  add_opcode_with_idx(codegen::MNEMONIC::INVOKE_INTERFACE, lambda_closure_idx);
-  add_byte(1); // 1 stands for the object which will be used for the call, more than 1 are the arguments which are popped from the stack
-  add_byte(0); // 0 is the sign for the end of arguments
+  globalstack_push();
   return this;
 }
 //================================================================================
@@ -459,7 +460,19 @@ void codegen::call_ByteCode(Bytecode::Current_state state) {
 	// ConstantPool& pool = code->get_constant_pool(); // comment out when pool is needed
 	std::string value = state.current_node->command.extractAstCommandString();
 
-	code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, code->get_method_idx("Main", value, "()V"));
+  if (value.empty()) {
+    uint16_t idx = code->get_lambda_closure_idx();
+    if (idx) {
+      code->globalstack_pop()
+          ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_INTERFACE, idx)
+          ->add_byte(1) // 1 stands for the object which will be used for the call, more than 1 are the arguments which are popped from the stack
+          ->add_byte(0); // 0 is the sign for the end of arguments
+    } else
+      throw EnvException(Source::BACKEND, "Invoke a lambda closure, but no lambda was declared!");
+
+  } else {
+    code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, code->get_method_idx("Main", value, "()V"));
+  }
 }
 
 // LIST OPERATIONS

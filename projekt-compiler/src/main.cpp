@@ -72,6 +72,13 @@ int main(int argc, char *argv[]) {
 		}
 		Env::showStatus();
 
+    std::vector<std::string> keys = graphs.keyset();
+
+    Graphs::Graph_ptr ptr = graphs.find("main");
+    std::cout << ptr->nodeCount();
+    for (int i = 0; i < ptr->nodeCount(); i++) {
+      std::cout << ptr->find(i)->id << std::endl;
+    }
 
 
 
