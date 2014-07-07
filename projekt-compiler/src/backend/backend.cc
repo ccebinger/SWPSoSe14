@@ -110,9 +110,19 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t replace_name_idx = constantPool.addString("replace");
   uint16_t replace_type_idx = constantPool.addString("(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;");
   uint16_t toLowerCase_name_idx = constantPool.addString("toLowerCase");
+  uint16_t isEmpty_str_idx = constantPool.addString("isEmpty");
+  uint16_t bool_type_idx = constantPool.addString("()Z");
   uint16_t remove_type_idx = constantPool.addString("(I)Ljava/lang/Object;");
   constantPool.addString("");
   constantPool.addString("class java.lang.");
+  constantPool.addString("integer");
+  constantPool.addString("string");
+  constantPool.addString("list");
+  constantPool.addString("nil");
+  constantPool.addString("lambda");
+  constantPool.addString("class java.util.ArrayList");
+  constantPool.addString("class java.lang.Integer");
+  constantPool.addString("class java.lang.String");
   //uint16_t add_type_idx = constantPool.addString("(Ljava/lang/Object)Z")  same like bool equals
 
   ///  Add classes
@@ -155,6 +165,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t get_class_name_type_idx = constantPool.addNameAndType(get_class_name_idx, get_class_type_idx);
   uint16_t replace_name_type_idx = constantPool.addNameAndType(replace_name_idx, replace_type_idx);
   uint16_t toLowerCase_name_type_idx = constantPool.addNameAndType(toLowerCase_name_idx, toString_type_idx);
+  uint16_t isEmpty_name_type_idx = constantPool.addNameAndType(isEmpty_str_idx, bool_type_idx);
 
   ///  Add method refs
   constantPool.obj_idx.getClass = constantPool.addMethRef(constantPool.obj_idx.class_idx , object_name_type_idx);
@@ -186,6 +197,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   constantPool.list_idx.add_idx = constantPool.addMethRef(constantPool.list_idx.class_idx, add_name_type_idx);
   constantPool.list_idx.remove_idx = constantPool.addMethRef(constantPool.list_idx.class_idx, remove_name_type_idx);
   constantPool.list_idx.init_idx = constantPool.addMethRef(constantPool.list_idx.class_idx, object_name_type_idx);
+  constantPool.list_idx.isEmpty_idx = constantPool.addMethRef(constantPool.list_idx.class_idx, isEmpty_name_type_idx);
   ///  Add field refs
   constantPool.system_idx.out_idx = constantPool.addFieldRef(constantPool.system_idx.class_idx, system_name_type_idx);
   constantPool.system_idx.in_idx = constantPool.addFieldRef(constantPool.system_idx.class_idx, system_in_name_type_idx);
