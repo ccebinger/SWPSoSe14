@@ -168,6 +168,7 @@ class ConstantPool {
   size_t addClassRef(uint16_t name_idx);
   size_t addFieldRef(uint16_t class_idx, uint16_t name_type_idx);
   size_t addMethRef(uint16_t class_idx, uint16_t name_type_idx);
+  size_t addInterfaceMethodRef(uint16_t class_idx, uint16_t name_type_idx);
 
   std::vector<uint8_t> getByteArray();
   bool check(const Item& i) const;   //!< check if item in list

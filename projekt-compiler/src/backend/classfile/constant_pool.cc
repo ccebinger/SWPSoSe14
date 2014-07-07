@@ -72,13 +72,13 @@ bool Item::operator==(const Item& i)const {
       return i.intVal == intVal;
     }
     case FIELD:
+    case IMETHOD:
     case METHOD:
       return class_idx == i.class_idx && name_type_idx == i.name_type_idx;
     case CLASS:
       return name_idx == i.name_idx;
     case NAME_AND_TYPE:
       return i.descriptor_idx == descriptor_idx && method_idx == i.method_idx;
-      // case IMETHOD:
     default:
       return i.strVal1 == strVal1;
   }
@@ -313,6 +313,29 @@ size_t ConstantPool::addMethRef(uint16_t class_idx, uint16_t name_type_idx) {
   }
   return index;
 }
+
+
+////////////////////////////////////////////////////////////////////////
+/// method to put a string into the pool
+/// \param class_idx value to add to pool
+/// \param name_type_idx value to add to pool
+/// \return index of the string in pool
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::addInterfaceMethodRef(uint16_t class_idx, uint16_t name_type_idx) {
+  Item i;
+  size_t index = 0;
+  i.set(IMETHOD, class_idx, name_type_idx);
+  if (!check(i)) {
+    putByte(IMETHOD);
+    putShort(class_idx);
+    putShort(name_type_idx);
+    index = put(&i);
+  } else {
+    index = get(i).index;
+  }
+  return index;
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 /// method to count numbers of items with specified type
