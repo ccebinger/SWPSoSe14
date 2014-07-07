@@ -20,7 +20,7 @@ namespace ApplicationDefaultValues
     const bool showLineNumbers = false;
     const bool showWhiteSpaces = false;
     const bool showEditorLines = false;
-    const CursorMode cursorMode = NORMAL;
+    const ApplicationConstants::CursorMode cursorMode = ApplicationConstants::NORMAL;
 }
 
 namespace ApplicationPreferences
@@ -43,5 +43,5 @@ namespace ApplicationPreferences
     bool showLineNumbers;
     bool showWhiteSpaces;
     bool showEditorLines;
-    CursorMode cursorMode;
+    ApplicationConstants::CursorMode cursorMode;
 }
