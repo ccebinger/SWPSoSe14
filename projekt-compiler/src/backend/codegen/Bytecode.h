@@ -9,6 +9,7 @@
 #include <frontend/Graphs.h>
 #include <common/Env.h>
 
+
 /**
  * The codegen namespace contains everything to generate Java Bytecode.
  *
@@ -425,9 +426,11 @@ namespace codegen {
      * Do not misunderstand with loading/push a constant in rail.
      *
      * @param  constant        the constant you want to load
-     * @return                 the pointer of the current Bytecode class object       */
-     Bytecode* add_ldc_string(const std::string& constant);
+     * @return                 the pointer of the current Bytecode class object
+     */
+      Bytecode* add_ldc_string(const std::string& constant);
 
+      Bytecode* add_lambda_call(Graphs::Graph_ptr graph, Graphs::Node_ptr current_node);
     //GLOBAL STACK
      /**
       * Adds bytecode which pops a value from the static ArrayDeque field.
