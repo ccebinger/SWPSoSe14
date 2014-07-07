@@ -80,10 +80,10 @@ Backend::Status Backend::Generate(Graphs& graphs,
 
   size_t pos = file.find_last_of("\\/") + 1;
   file = file.substr(0, pos);
-  file.append(Lambda_classfile_writer::lambda_class_name);
+  file.append(Lambda_interface_writer::lambda_class_name);
   file.append(".class");
   std::ofstream outFile(file, std::ofstream::binary);
-  Lambda_classfile_writer lwriter(ClassfileWriter::JAVA_7, new ConstantPool(), graphs, codeMap, &outFile);
+  Lambda_interface_writer lwriter(ClassfileWriter::JAVA_7, new ConstantPool(), graphs, codeMap, &outFile);
   lwriter.WriteClassfile();
   return Backend::Status::SUCCESS;
 }

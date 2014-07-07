@@ -26,11 +26,11 @@
 #define CLASSFILE_H
 #include <backend/classfile/classfile_writer.h>
 
-class Lambda_classfile_writer : public ClassfileWriter
+class Lambda_interface_writer : public ClassfileWriter
 {
 public:
     /**
-   * The constructor of the Lambda_classfile_writer.
+   * The constructor of the Lambda_interface_writer.
    *
    * @param version             The Java version.
    * @param constant pool       The current constant pool of the classfile.
@@ -38,11 +38,11 @@ public:
    * @param codeFunctions       The mapping of the function and appropriate bytecode.
    * @param out                 The stream we write on.
    */
-  Lambda_classfile_writer(ClassfileVersion version, ConstantPool* constantPool,
+  Lambda_interface_writer(ClassfileVersion version, ConstantPool* constantPool,
                     Graphs& graphs,
                     const std::map<std::string, codegen::Bytecode&> codeFunctions,
                     std::ostream* out);
-  virtual ~Lambda_classfile_writer();
+  virtual ~Lambda_interface_writer();
 
   static const std::string lambda_class_name;
   std::string lambda_file_name;
