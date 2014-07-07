@@ -163,6 +163,7 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
     keyEvent->accept();
     int key = keyEvent->key();
 
+
     if(!keyEvent->text().isEmpty())
     {
         if(key == Qt::Key_Enter || key == Qt::Key_Return)
@@ -836,27 +837,57 @@ void EditTableWidget::finishGrab()
 
 void EditTableWidget::rotateGrab90()
 {
-    // TODO: implement
+    if(!m_isInGrabMode)
+    {
+        return;
+    }
+    restoreBackgroundText(m_cursorRowPos, m_cursorColPos, m_currentGrabbedText.height(), m_currentGrabbedText.width());
+    m_currentGrabbedText.rotate90();
+    setForegroundText(m_cursorRowPos, m_cursorColPos);
 }
 
 void EditTableWidget::rotateGrab180()
 {
-    // TODO: implement
+    if(!m_isInGrabMode)
+    {
+        return;
+    }
+    restoreBackgroundText(m_cursorRowPos, m_cursorColPos, m_currentGrabbedText.height(), m_currentGrabbedText.width());
+    m_currentGrabbedText.rotate180();
+    setForegroundText(m_cursorRowPos, m_cursorColPos);
 }
 
 void EditTableWidget::rotateGrab270()
 {
-    // TODO: implement
+    if(!m_isInGrabMode)
+    {
+        return;
+    }
+    restoreBackgroundText(m_cursorRowPos, m_cursorColPos, m_currentGrabbedText.height(), m_currentGrabbedText.width());
+    m_currentGrabbedText.rotate270();
+    setForegroundText(m_cursorRowPos, m_cursorColPos);
 }
 
-void EditTableWidget::mirrorGrabX()
+void EditTableWidget::mirrorGrabHorizontal()
 {
-    // TODO: implement
+    if(!m_isInGrabMode)
+    {
+        return;
+    }
+    restoreBackgroundText(m_cursorRowPos, m_cursorColPos, m_currentGrabbedText.height(), m_currentGrabbedText.width());
+    m_currentGrabbedText.mirrorVertical();
+    setForegroundText(m_cursorRowPos, m_cursorColPos);
 }
 
-void EditTableWidget::mirrorGrabY()
+void EditTableWidget::mirrorGrabVertical()
 {
-    // TODO: implement
+    if(!m_isInGrabMode)
+    {
+        return;
+    }
+    restoreBackgroundText(m_cursorRowPos, m_cursorColPos, m_currentGrabbedText.height(), m_currentGrabbedText.width());
+    m_currentGrabbedText.mirrorHorizontal();
+    setForegroundText(m_cursorRowPos, m_cursorColPos);
 }
 
 void EditTableWidget::setForegroundText(int row, int col)

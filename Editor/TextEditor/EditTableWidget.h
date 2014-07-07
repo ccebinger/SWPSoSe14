@@ -36,8 +36,8 @@ public:
     void rotateGrab90();
     void rotateGrab180();
     void rotateGrab270();
-    void mirrorGrabX();
-    void mirrorGrabY();
+    void mirrorGrabHorizontal();
+    void mirrorGrabVertical();
 
 private:
     void mousePressEvent(QMouseEvent *mouseEvent);

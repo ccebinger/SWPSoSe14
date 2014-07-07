@@ -84,6 +84,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->ui_startGrabAction, SIGNAL(triggered()), this, SLOT(startGrab()));
     connect(ui->ui_finishGrabAction, SIGNAL(triggered()), this, SLOT(finishGrab()));
     connect(ui->ui_cancelGrabAction, SIGNAL(triggered()), this, SLOT(cancelGrab()));
+    connect(ui->ui_rotate90Action, SIGNAL(triggered()), this, SLOT(modifyGrab()));
+    connect(ui->ui_rotate180Action, SIGNAL(triggered()), this, SLOT(modifyGrab()));
+    connect(ui->ui_rotate270Action, SIGNAL(triggered()), this, SLOT(modifyGrab()));
+    connect(ui->ui_mirrorHorizontalAction, SIGNAL(triggered()), this, SLOT(modifyGrab()));
+    connect(ui->ui_mirrorVerticalAction, SIGNAL(triggered()), this, SLOT(modifyGrab()));
+
     connect(ui->ui_sourceEditTableWidget, SIGNAL(grabModeChanged(bool)), this, SLOT(grabModeChanged(bool)));
 
     connect(ui->ui_setInterpreterAction, SIGNAL(triggered()), this, SLOT(setInterpreter()));
@@ -964,29 +970,43 @@ void MainWindow::finishGrab()
     ui->ui_sourceEditTableWidget->finishGrab();
 }
 
-void MainWindow::rotateGrab90()
+void MainWindow::modifyGrab()
 {
+    // HACK: Maybe have get-Function in SourceEditTableWidget instead
+    bool isInGrab = !ui->ui_startGrabAction->isEnabled();
+    if(!isInGrab)
+    {
+        ui->ui_sourceEditTableWidget->startGrab();
+    }
 
-}
+    QAction *action = dynamic_cast<QAction *>(sender());
+    assert(action);
 
-void MainWindow::rotateGrab180()
-{
+    if(action == ui->ui_rotate90Action)
+    {
+        ui->ui_sourceEditTableWidget->rotateGrab90();
+    }
+    else if(action == ui->ui_rotate180Action)
+    {
+        ui->ui_sourceEditTableWidget->rotateGrab180();
+    }
+    else if(action == ui->ui_rotate270Action)
+    {
+        ui->ui_sourceEditTableWidget->rotateGrab270();
+    }
+    else if(action == ui->ui_mirrorHorizontalAction)
+    {
+        ui->ui_sourceEditTableWidget->mirrorGrabHorizontal();
+    }
+    else if(action == ui->ui_mirrorVerticalAction)
+    {
+        ui->ui_sourceEditTableWidget->mirrorGrabVertical();
+    }
 
-}
-
-void MainWindow::rotateGrab270()
-{
-
-}
-
-void MainWindow::mirrorGrabX()
-{
-
-}
-
-void MainWindow::mirrorGrabY()
-{
-
+    if(!isInGrab)
+    {
+        ui->ui_sourceEditTableWidget->finishGrab();
+    }
 }
 
 void MainWindow::grabModeChanged(bool inGrab)

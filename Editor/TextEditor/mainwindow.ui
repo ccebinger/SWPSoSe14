@@ -265,8 +265,8 @@
     <addaction name="ui_rotate90Action"/>
     <addaction name="ui_rotate180Action"/>
     <addaction name="ui_rotate270Action"/>
-    <addaction name="ui_flipHorizontalAction"/>
-    <addaction name="ui_flipVerticalAction"/>
+    <addaction name="ui_mirrorHorizontalAction"/>
+    <addaction name="ui_mirrorVerticalAction"/>
    </widget>
    <widget class="QMenu" name="ui_compileMenu">
     <property name="title">
@@ -804,9 +804,9 @@
     <bool>false</bool>
    </property>
   </action>
-  <action name="ui_flipHorizontalAction">
+  <action name="ui_mirrorHorizontalAction">
    <property name="text">
-    <string>Flip Horizontal</string>
+    <string>Mirror Horizontal</string>
    </property>
    <property name="shortcutContext">
     <enum>Qt::ApplicationShortcut</enum>
@@ -815,9 +815,9 @@
     <bool>false</bool>
    </property>
   </action>
-  <action name="ui_flipVerticalAction">
+  <action name="ui_mirrorVerticalAction">
    <property name="text">
-    <string>Flip Vertical</string>
+    <string>Mirror Vertical</string>
    </property>
    <property name="shortcutContext">
     <enum>Qt::ApplicationShortcut</enum>
