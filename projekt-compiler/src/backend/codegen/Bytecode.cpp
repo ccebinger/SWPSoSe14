@@ -64,6 +64,36 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
   return this;
 }
 
+codegen::Bytecode* codegen::Bytecode::build(Graphs::Node_ptr current_node) {
+  while (current_node && current_node->command.type != Command::Type::FINISH) {
+    func_ptr f = func_map.at(current_node->command.type);
+    if (f) {
+      Current_state state;
+      state.current_code = this;
+      state.current_node = current_node;
+      f(state);
+    }
+    current_node = current_node->successor1;
+  }
+  bytecode.push_back(codegen::MNEMONIC::RETURN);
+  return this;
+}
+
+// codegen::Bytecode* codegen::Bytecode::build2(Graphs::Node_ptr current_node) {
+//   while (current_node && current_node->command.type != Command::Type::FINISH) {
+//     func_ptr f = func_map.at(current_node->command.type);
+//     if (f) {
+//       Current_state state;
+//       state.current_code = this;
+//       state.current_node = current_node;
+//       f(state);
+//     }
+//     current_node = current_node->successor2;
+//   }
+//   bytecode.push_back(codegen::MNEMONIC::RETURN);
+//   return this;
+// }
+
 //================================================================================
 //==================================GETTER========================================
 //================================================================================
@@ -457,18 +487,20 @@ void codegen::size_ByteCode(Bytecode::Current_state state) {
 //CALL
 void codegen::call_ByteCode(Bytecode::Current_state state) {
 	Bytecode* code = state.current_code;
-	// ConstantPool& pool = code->get_constant_pool(); // comment out when pool is needed
+	ConstantPool& pool = code->get_constant_pool();
 	std::string value = state.current_node->command.extractAstCommandString();
 
   if (value.empty()) {
     uint16_t idx = code->get_lambda_closure_idx();
-    if (idx) {
-      code->globalstack_pop()
-          ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_INTERFACE, idx)
-          ->add_byte(1) // 1 stands for the object which will be used for the call, more than 1 are the arguments which are popped from the stack
-          ->add_byte(0); // 0 is the sign for the end of arguments
-    } else
-      throw EnvException(Source::BACKEND, "Invoke a lambda closure, but no lambda was declared!");
+
+    if (!idx)
+      idx = pool.addInterfaceMethodRef(code->get_class_idx("Lambda"),
+                                 code->get_name_type_idx("closure", "()V"));
+
+    code->globalstack_pop()
+        ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_INTERFACE, idx)
+        ->add_byte(1) // 1 stands for the object which will be used for the call, more than 1 are the arguments which are popped from the stack
+        ->add_byte(0); // 0 is the sign for the end of arguments
 
   } else {
     code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, code->get_method_idx("Main", value, "()V"));
@@ -660,7 +692,6 @@ void codegen::underflow_ByteCode(Bytecode::Current_state state) {
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.arr_idx.size)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
       ->globalstack_push();
-
 }
 
 void codegen::type_ByteCode(Bytecode::Current_state state) {
@@ -679,12 +710,23 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.replace)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.toLowerCase)
       ->globalstack_push();
-
 }
 
 //CONTROL STRUCTURE
 void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
-  (void) state.current_code;
+  Bytecode* code = state.current_code;
+
+  Bytecode *successor1 = code->build(state.current_node->successor1);
+  Bytecode *successor2 = code->build(state.current_node->successor2);
+
+  code->globalstack_pop()
+      ->add_conditional_with_else_branch(codegen::MNEMONIC::IFNE,
+                                         successor1->get_bytecode(),
+                                         successor2->get_bytecode());
+
+  // std::cout << "if_or_while_Bytecode: " << state.current_node->command.extractAstCommandString() << std::endl;
+  // std::cout << "successor1: " << state.current_node->successor1->command.extractAstCommandString() << std::endl;
+  // std::cout << "successor2: " << state.current_node->successor2->command.extractAstCommandString() << std::endl;
 }
 
 //VARIABLES
