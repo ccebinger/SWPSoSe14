@@ -90,6 +90,7 @@ struct ListIndexes {
   uint16_t add_idx = 0;
   uint16_t remove_idx = 0;
   uint16_t init_idx = 0;
+  uint16_t isEmpty_idx = 0;
 };
 
 struct SystemIndexes {

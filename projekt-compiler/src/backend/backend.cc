@@ -56,6 +56,59 @@ Backend::Status Backend::Generate(Graphs& graphs,
   Graphs::Graph_ptr mainFunction = graphs.find(entryFunctionName);
   ConstantPool constantPool;
 
+  add_entries_to_constantpool(constantPool);
+  std::vector<std::string> keyset = graphs.keyset();
+  add_functions_to_constantpool(constantPool, keyset);
+
+  //Create code for each function
+   std::map<std::string, codegen::Bytecode&> codeMap;
+   for (std::vector<std::string>::iterator it = keyset.begin(); it != keyset.end(); it++) {
+      codegen::Bytecode* code = new codegen::Bytecode(constantPool);
+ 		  code->build(graphs.find(*it));
+ 		  codeMap.insert(std::pair<std::string, codegen::Bytecode&>(*it, *code));
+   }
+
+
+  ClassfileWriter writer(ClassfileWriter::JAVA_7, &constantPool, graphs, codeMap, codeOut);
+  writer.WriteClassfile();
+
+  for (std::map<std::string, codegen::Bytecode&>::iterator it = codeMap.begin(); it != codeMap.end(); it++) {
+    delete &it->second;
+  }
+
+  std::string file = Env::getDstClassfile();
+
+  size_t pos = file.find_last_of("\\/") + 1;
+  file = file.substr(0, pos);
+  file.append(Lambda_interface_writer::lambda_class_name);
+  file.append(".class");
+  std::ofstream outFile(file, std::ofstream::binary);
+  Lambda_interface_writer lwriter(ClassfileWriter::JAVA_7, new ConstantPool(), graphs, codeMap, &outFile);
+  lwriter.WriteClassfile();
+  return Backend::Status::SUCCESS;
+}
+
+/*!
+ * \brief Generates status message
+ * \param status Status of backend function
+ *
+ * \returns nothing (TODO)
+ */
+std::string Backend::ErrorMessage(Backend::Status status) {
+  switch (status) {
+    case Backend::Status::SUCCESS:
+      return "";
+      break;
+      // TODO handle other cases
+    default:
+      return "";
+  }
+}
+
+void Backend::add_entries_to_constantpool(ConstantPool& constantPool)
+{
+
+
   /// Add strings
   uint16_t obj_cls_idx = constantPool.addString("java/lang/Object");
   uint16_t system_idx = constantPool.addString("java/lang/System");
@@ -110,9 +163,19 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t replace_name_idx = constantPool.addString("replace");
   uint16_t replace_type_idx = constantPool.addString("(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;");
   uint16_t toLowerCase_name_idx = constantPool.addString("toLowerCase");
+  uint16_t isEmpty_str_idx = constantPool.addString("isEmpty");
+  uint16_t bool_type_idx = constantPool.addString("()Z");
   uint16_t remove_type_idx = constantPool.addString("(I)Ljava/lang/Object;");
   constantPool.addString("");
   constantPool.addString("class java.lang.");
+  constantPool.addString("integer");
+  constantPool.addString("string");
+  constantPool.addString("list");
+  constantPool.addString("nil");
+  constantPool.addString("lambda");
+  constantPool.addString("class java.util.ArrayList");
+  constantPool.addString("class java.lang.Integer");
+  constantPool.addString("class java.lang.String");
   //uint16_t add_type_idx = constantPool.addString("(Ljava/lang/Object)Z")  same like bool equals
 
   ///  Add classes
@@ -155,6 +218,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t get_class_name_type_idx = constantPool.addNameAndType(get_class_name_idx, get_class_type_idx);
   uint16_t replace_name_type_idx = constantPool.addNameAndType(replace_name_idx, replace_type_idx);
   uint16_t toLowerCase_name_type_idx = constantPool.addNameAndType(toLowerCase_name_idx, toString_type_idx);
+  uint16_t isEmpty_name_type_idx = constantPool.addNameAndType(isEmpty_str_idx, bool_type_idx);
 
   ///  Add method refs
   constantPool.obj_idx.getClass = constantPool.addMethRef(constantPool.obj_idx.class_idx , object_name_type_idx);
@@ -186,6 +250,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
   constantPool.list_idx.add_idx = constantPool.addMethRef(constantPool.list_idx.class_idx, add_name_type_idx);
   constantPool.list_idx.remove_idx = constantPool.addMethRef(constantPool.list_idx.class_idx, remove_name_type_idx);
   constantPool.list_idx.init_idx = constantPool.addMethRef(constantPool.list_idx.class_idx, object_name_type_idx);
+  constantPool.list_idx.isEmpty_idx = constantPool.addMethRef(constantPool.list_idx.class_idx, isEmpty_name_type_idx);
   ///  Add field refs
   constantPool.system_idx.out_idx = constantPool.addFieldRef(constantPool.system_idx.class_idx, system_name_type_idx);
   constantPool.system_idx.in_idx = constantPool.addFieldRef(constantPool.system_idx.class_idx, system_in_name_type_idx);
@@ -197,53 +262,12 @@ Backend::Status Backend::Generate(Graphs& graphs,
   uint16_t stack_field_name_type_idx = constantPool.addNameAndType(stack_field_name_idx, stack_field_type_idx);
   constantPool.arr_idx.field_idx = constantPool.addFieldRef(main_class_idx, stack_field_name_type_idx);
 
+}
 
+void Backend::add_functions_to_constantpool(ConstantPool& constantPool, std::vector<std::string>& keyset)
+{
   ///  Add Rail-Functionnames as Strings
-   std::vector<std::string> keyset = graphs.keyset();
    for (auto it = keyset.begin(); it != keyset.end(); it++) {
      constantPool.addString(*it);
    }
-  //Create code for each function
-   std::map<std::string, codegen::Bytecode&> codeMap;
-   for (std::vector<std::string>::iterator it = keyset.begin(); it != keyset.end(); it++) {
-      codegen::Bytecode* code = new codegen::Bytecode(constantPool);
- 		  code->build(graphs.find(*it));
- 		  codeMap.insert(std::pair<std::string, codegen::Bytecode&>(*it, *code));
-   }
-
-
-  ClassfileWriter writer(ClassfileWriter::JAVA_7, &constantPool, graphs, codeMap, codeOut);
-  writer.WriteClassfile();
-
-  for (std::map<std::string, codegen::Bytecode&>::iterator it = codeMap.begin(); it != codeMap.end(); it++) {
-    delete &it->second;
-  }
-
-  std::string file = Env::getDstClassfile();
-
-  size_t pos = file.find_last_of("\\/") + 1;
-  file = file.substr(0, pos);
-  file.append(Lambda_classfile_writer::lambda_class_name);
-  file.append(".class");
-  std::ofstream outFile(file, std::ofstream::binary);
-  Lambda_classfile_writer lwriter(ClassfileWriter::JAVA_7, new ConstantPool(), graphs, codeMap, &outFile);
-  lwriter.WriteClassfile();
-  return Backend::Status::SUCCESS;
-}
-
-/*!
- * \brief Generates status message
- * \param status Status of backend function
- *
- * \returns nothing (TODO)
- */
-std::string Backend::ErrorMessage(Backend::Status status) {
-  switch (status) {
-    case Backend::Status::SUCCESS:
-      return "";
-      break;
-      // TODO handle other cases
-    default:
-      return "";
-  }
 }
