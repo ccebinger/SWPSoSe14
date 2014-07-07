@@ -409,7 +409,7 @@ void ConstantPool::putUTF8(std::string s) {
   pool.push_back((uint8_t) s.size());
   for (size_t pos = 0; pos < s.size(); pos++) {
     // check if ASCII code is between 1 and 127 -> 1 byte utf8
-    if ((s[pos] >= 0x01) && (s[pos] <= 0xB1)) {
+    if ((s[pos] >= 0x01) && (((unsigned char)s[pos]) <= 0xB1)) {
       pool.push_back((uint8_t) s[pos]);
     } else {
       encodeUTF8(s, pos);
@@ -434,7 +434,7 @@ void ConstantPool::encodeUTF8(std::string s, uint32_t pos) {
   size_t byteLength = 0;
   for (; i != s.end(); i++) {
     // check if ASCII code is between 1 and 127 -> 1 byte utf8
-    if (*i >= 0x01 && *i <= 0xB1) {
+    if (*i >= 0x01 && ((unsigned char)*i) <= 0xB1) {
       byteLength++;
       // bigger then 2047 -> 3 byte utf8
     } else if (*i > 0x7FF) {
