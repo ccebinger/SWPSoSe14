@@ -125,7 +125,6 @@ uint16_t codegen::Bytecode::get_field_idx(const std::string& class_name,
                           get_name_type_idx(member_name, descriptor));
 }
 
-
 uint16_t  codegen::Bytecode::get_stack_method_idx(const std::string& method,
                                                   const std::string& descriptor) {
   return get_method_idx("java/util/ArrayDeque", method, descriptor);
@@ -161,6 +160,17 @@ codegen::Bytecode* codegen::Bytecode::add_conditional_with_instruction(unsigned 
   bytecode.push_back(conditional_stmt);
   add_index(length_plus_branch);
   bytecode.insert(bytecode.end(), conditional_body.begin(), conditional_body.end());
+  return this;
+}
+
+codegen::Bytecode* codegen::Bytecode::add_conditional_with_instruction(unsigned char conditional_stmt,
+                                                                       std::vector<unsigned char> conditional_body,
+                                                                       std::vector<unsigned char>& code) {
+  int length = conditional_body.size();
+  uint16_t length_plus_branch = length + 2;
+  code.push_back(conditional_stmt);
+  add_index(length_plus_branch, code);
+  code.insert(code.end(), conditional_body.begin(), conditional_body.end());
   return this;
 }
 
@@ -259,6 +269,13 @@ codegen::Bytecode* codegen::Bytecode::add_two_int_compare(codegen::MNEMONIC comp
   return this;
 }
 
+codegen::Bytecode* codegen::Bytecode::add_ldc_string(const std::string& constant){
+  bytecode.push_back(codegen::MNEMONIC::LDC);
+  uint16_t string_idx = pool.addString(constant);
+  uint16_t const_idx = pool.addConstString(string_idx);
+  bytecode.push_back((uint8_t) const_idx);
+  return this;
+}
 //================================================================================
 //=================================GLOBAL STACK===================================
 //================================================================================
@@ -428,17 +445,40 @@ void codegen::list_push_ByteCode(Bytecode::Current_state state) {
   codegen::Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
 
-  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
+  std::vector<unsigned char> conditional_body;
+
+  // fill conditional branch
+  code->add_opcode_with_idx(codegen::MNEMONIC::NEW, pool.list_idx.class_idx, conditional_body);
+  conditional_body.push_back(codegen::MNEMONIC::DUP);
+  code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, pool.list_idx.init_idx, conditional_body);
+  conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
+
+  code->globalstack_pop()
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1)
       ->globalstack_pop()
-      ->add_opcode(codegen::MNEMONIC::ASTORE_1) // pop VALUE
-      ->globalstack_pop()
+      ->add_opcode(codegen::MNEMONIC::ASTORE_2)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INSTANCE_OF, pool.list_idx.class_idx)
+      ->add_conditional_with_instruction(codegen::MNEMONIC::IFNE, conditional_body)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
       ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.list_idx.class_idx)
       ->add_opcode(codegen::MNEMONIC::DUP)
-      ->add_opcode(codegen::MNEMONIC::ALOAD_1) // push value before list
+      ->add_opcode(codegen::MNEMONIC::ALOAD_2)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.add_idx)
       ->add_opcode(codegen::MNEMONIC::POP)
       ->globalstack_push()
-      ->inc_local_count(1);
+
+//  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
+//      ->globalstack_pop()
+//      ->add_opcode(codegen::MNEMONIC::ASTORE_1) // pop VALUE
+//      ->globalstack_pop()
+//      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.list_idx.class_idx)
+//      ->add_opcode(codegen::MNEMONIC::DUP)
+//      ->add_opcode(codegen::MNEMONIC::ALOAD_1) // push value before list
+//      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.add_idx)
+//      ->add_opcode(codegen::MNEMONIC::POP)
+//      ->globalstack_push()
+      ->inc_local_count(3);
 }
 
 void codegen::list_pop_ByteCode(Bytecode::Current_state state) {
@@ -577,31 +617,22 @@ void codegen::underflow_ByteCode(Bytecode::Current_state state) {
 }
 
 void codegen::type_ByteCode(Bytecode::Current_state state) {
-Bytecode* code = state.current_code;
+  Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
-  uint16_t string_idx;
-  uint16_t const_idx;
 
   code->globalstack_pop()
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.getClass)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
       ->add_opcode(codegen::MNEMONIC::ASTORE_1)
       ->add_opcode(codegen::MNEMONIC::ALOAD_1)
-      ->add_opcode(codegen::MNEMONIC::LDC);
-
-  // load string we want to replace
-  string_idx = pool.addString("class java.lang.");
-  const_idx = pool.addConstString(string_idx);
-  code->add_index((uint8_t) const_idx);
-
-  // load replacement string
-  string_idx = pool.addString("");
-  const_idx = pool.addConstString(string_idx);
-  code->add_opcode(codegen::MNEMONIC::LDC)
-      ->add_index((uint8_t) const_idx)
+      // load string we want to replace
+      ->add_ldc_string("class java.lang.")
+      // load replacement string
+      ->add_ldc_string("")
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.replace)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.toLowerCase)
       ->globalstack_push();
+
 }
 
 //CONTROL STRUCTURE
