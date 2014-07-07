@@ -62,6 +62,11 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
 
 codegen::Bytecode* codegen::Bytecode::build(Graphs::Node_ptr current_node) {
   while (current_node && current_node->command.type != Command::Type::FINISH) {
+    if(current_node->command.type==Command::Type::EASTJUNC ||
+       current_node->command.type==Command::Type::WESTJUNC ||
+       current_node->command.type==Command::Type::NORTHJUNC||
+       current_node->command.type==Command::Type::SOUTHJUNC)
+      brek;
     func_ptr f = func_map.at(current_node->command.type);
     if (f) {
       Current_state state;
@@ -707,7 +712,7 @@ void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
   Bytecode successor1(state.current_code->get_constant_pool());
   successor1.build(state.current_node->successor1);
   Bytecode successor2(state.current_code->get_constant_pool());
-  successor2.build(state.current_node->successor2);
+  state.current_node = successor2.build(state.current_node->successor2);
 
   code->globalstack_pop()
       ->add_conditional_with_else_branch(codegen::MNEMONIC::IFNE,
