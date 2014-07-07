@@ -202,7 +202,7 @@ codegen::Bytecode* codegen::Bytecode::add_conditional_with_else_branch(unsigned 
   uint16_t branch_idx = else_length + 3; //+1 to jump over the last else stmt
   if_body.push_back(codegen::MNEMONIC::GOTO);
   add_index(branch_idx, if_body);
-  branch_idx = if_body.size() + 2 + else_length; //+ 2 for branch idx
+  branch_idx = if_body.size() + 3 ; //+ 3 jump over goto + branch idx
 
   bytecode.push_back(conditional_stmt);
   add_index(branch_idx); /// TODO: CHECK IF BRANCH IS CORRECT should be after goto!!
