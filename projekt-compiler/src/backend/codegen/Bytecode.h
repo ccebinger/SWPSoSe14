@@ -56,6 +56,7 @@ namespace codegen {
     INVOKE_VIRTUAL = '\xb6',
     INVOKE_STATIC = '\xb8',
     INVOKE_SPECIAL = '\xb7',
+    INVOKE_INTERFACE = '\xb9',
     GET_STATIC = '\xb2',
     GOTO = '\xa7',
     RETURN = '\xb1',

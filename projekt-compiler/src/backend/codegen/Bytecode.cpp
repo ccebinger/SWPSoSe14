@@ -299,15 +299,16 @@ codegen::Bytecode* codegen::Bytecode::add_lambda_call(Graphs::Graph_ptr graph, G
   size_t closure_str_idx = pool.addString("closure");
   size_t lambda_str_idx = pool.addString("Lambda");
   size_t lambda_cls_idx = pool.addClassRef(lambda_str_idx);
-  pool.addNameAndType(closure_str_idx, void_descriptor);
+  size_t lambda_closure_idx = pool.addInterfaceMethodRef(lambda_cls_idx, pool.addNameAndType(closure_str_idx, void_descriptor));
   //interface method!!!
   //CODE
   add_opcode_with_idx(codegen::MNEMONIC::NEW, anonym_class_idx);
   add_opcode(codegen::MNEMONIC::DUP);
   add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, anonym_init_idx);
-  //add interface call method (closure call)
-  //invokeinterface Lambda.closure 1 (1 stands for the object which will be used for the call, more than 1 are the arguments which are popped from the stack)
-
+  add_opcode_with_idx(codegen::MNEMONIC::INVOKE_INTERFACE, lambda_closure_idx);
+  add_byte(1); // 1 stands for the object which will be used for the call, more than 1 are the arguments which are popped from the stack
+  add_byte(0); // 0 is the sign for the end of arguments
+  return this;
 }
 //================================================================================
 //=================================GLOBAL STACK===================================
