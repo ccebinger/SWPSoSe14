@@ -46,7 +46,8 @@ private:
     void inputMethodEvent(QInputMethodEvent *event);
 
     void calculateCellFromPos(QPoint pos, int *row, int *column) const;
-    void recalculateMaximumValues();
+    void findContentMaxValues();
+
     void setPosition(int row, int col, bool extendSelection = false);
     void setSign(int row, int col, QChar c, bool suppressUndoRedoCreation = false);
     void setDisplaySign(int row, int col, QChar c);

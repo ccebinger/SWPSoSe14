@@ -79,7 +79,7 @@ void EditTableWidget::calculateCellFromPos(QPoint pos, int *row, int *column) co
     *column = std::max(0, cellCol);
 }
 
-void EditTableWidget::recalculateMaximumValues()
+void EditTableWidget::findContentMaxValues()
 {
     // find the max column
     bool newMaxFound = false;
@@ -376,7 +376,7 @@ void EditTableWidget::removeSign(int row, int col, bool suppressUndoRedoCreation
 
         if((col == m_textMaxCol) || (row == m_textMaxRow))
         {
-            recalculateMaximumValues();
+            findContentMaxValues();
         }
         Stack *stack = m_graph.deleteSign(col, row);
         applyStyleChanges(stack);
@@ -634,8 +634,8 @@ void EditTableWidget::cut(bool isDelete, bool suppressUndoRedoCreation)
 
     if(!isDelete)
     {
-        int width = selection.rightColumn() - selection.leftColumn();
-        int height = selection.bottomRow() - selection.topRow();
+        int width = selection.rightColumn() - selection.leftColumn() + 1;
+        int height = selection.bottomRow() - selection.topRow() + 1;
         m_clipboard = TextSelection(pre, width, height);
     }
 
@@ -648,7 +648,7 @@ void EditTableWidget::cut(bool isDelete, bool suppressUndoRedoCreation)
         emit textChanged();
     }
     // shouldn't be necessary, because removeSign() already calls it
-    recalculateMaximumValues();
+    findContentMaxValues();
 }
 
 void EditTableWidget::copy()
@@ -663,8 +663,8 @@ void EditTableWidget::copy()
         }
     }
 
-    int width = selection.rightColumn() - selection.leftColumn();
-    int height = selection.bottomRow() - selection.topRow();
+    int width = selection.rightColumn() - selection.leftColumn() + 1;
+    int height = selection.bottomRow() - selection.topRow() + 1;
     m_clipboard = TextSelection(pre, width, height);
 }
 
@@ -676,17 +676,17 @@ void EditTableWidget::paste()
 void EditTableWidget::paste(bool suppressUndoRedoCreation)
 {
     // extend the table, if necessary
-    int maxRow = std::max(this->rowCount(), m_cursorRowPos + m_clipboard.height()+1);
-    int maxCol = std::max(this->columnCount(), m_cursorColPos + m_clipboard.width()+1);
+    int maxRow = std::max(this->rowCount(), m_cursorRowPos + m_clipboard.height());
+    int maxCol = std::max(this->columnCount(), m_cursorColPos + m_clipboard.width());
 
     this->setRowCount(maxRow);
     this->setColumnCount(maxCol);
 
     QList<QChar> pre, post;
     int i = 0;
-    for(int row = m_cursorRowPos; row <= m_cursorRowPos + m_clipboard.height(); row++)
+    for(int row = m_cursorRowPos; row < m_cursorRowPos + m_clipboard.height(); row++)
     {
-        for(int col = m_cursorColPos; col <= m_cursorColPos + m_clipboard.width(); col++)
+        for(int col = m_cursorColPos; col < m_cursorColPos + m_clipboard.width(); col++)
         {
             QChar c = m_clipboard.text().at(i++);
 
@@ -703,7 +703,7 @@ void EditTableWidget::paste(bool suppressUndoRedoCreation)
         }
     }
     setSelection(m_cursorRowPos, m_cursorColPos, m_clipboard.height(), m_clipboard.width());
-    recalculateMaximumValues();
+    findContentMaxValues();
 
     // generate undo/redo-element
     if(!suppressUndoRedoCreation && !this->signalsBlocked())
@@ -721,7 +721,7 @@ void EditTableWidget::goToPostion(int row, int column)
 
 void EditTableWidget::setSelection(int row, int col, int height, int width)
 {
-    setPosition(row + height, col + width, false);
+    setPosition(row + height - 1, col + width - 1, false);
     setPosition(row, col, true);
 }
 
@@ -809,8 +809,8 @@ void EditTableWidget::finishGrab()
             postSrcList << QChar();
         }
     }
-    int width = selection.rightColumn() - selection.leftColumn();
-    int height = selection.bottomRow() - selection.topRow();
+    int width = selection.rightColumn() - selection.leftColumn() + 1;
+    int height = selection.bottomRow() - selection.topRow() + 1;
 
     TextSelection preSrcText(m_originalGrabbedText);
     TextSelection preDstText(preDstList, width, height);
@@ -875,7 +875,7 @@ void EditTableWidget::mirrorGrabHorizontal()
         return;
     }
     restoreBackgroundText(m_cursorRowPos, m_cursorColPos, m_currentGrabbedText.height(), m_currentGrabbedText.width());
-    m_currentGrabbedText.mirrorVertical();
+    m_currentGrabbedText.mirrorHorizontal();
     setForegroundText(m_cursorRowPos, m_cursorColPos);
 }
 
@@ -886,16 +886,17 @@ void EditTableWidget::mirrorGrabVertical()
         return;
     }
     restoreBackgroundText(m_cursorRowPos, m_cursorColPos, m_currentGrabbedText.height(), m_currentGrabbedText.width());
-    m_currentGrabbedText.mirrorHorizontal();
+    m_currentGrabbedText.mirrorVertical();
     setForegroundText(m_cursorRowPos, m_cursorColPos);
 }
 
 void EditTableWidget::setForegroundText(int row, int col)
 {
+    setSelection(row, col, m_currentGrabbedText.height(), m_currentGrabbedText.width());
     int i = 0;
-    for(int tmpRow = row; tmpRow <= row + m_currentGrabbedText.height(); tmpRow++)
+    for(int tmpRow = row; tmpRow < row + m_currentGrabbedText.height(); tmpRow++)
     {
-        for(int tmpCol = col; tmpCol <= col + m_currentGrabbedText.width(); tmpCol++)
+        for(int tmpCol = col; tmpCol < col + m_currentGrabbedText.width(); tmpCol++)
         {
             QChar c = m_currentGrabbedText.text().at(i++);
             setDisplaySign(tmpRow, tmpCol, c);
@@ -907,9 +908,9 @@ void EditTableWidget::setForegroundText(int row, int col)
 
 void EditTableWidget::restoreBackgroundText(int row, int col, int height, int width)
 {
-    for(int tmpRow = row; tmpRow <= row + height; tmpRow++)
+    for(int tmpRow = row; tmpRow < row + height; tmpRow++)
     {
-        for(int tmpCol = col; tmpCol <= col + width; tmpCol++)
+        for(int tmpCol = col; tmpCol < col + width; tmpCol++)
         {
             QChar c;
             if(tmpRow <= m_textMaxRow && tmpCol <= m_textMaxCol)
