@@ -519,9 +519,9 @@ void codegen::list_push_ByteCode(Bytecode::Current_state state) {
   conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
 
   code->globalstack_pop()
-      ->add_opcode(codegen::MNEMONIC::ASTORE_1)
-      ->globalstack_pop()
       ->add_opcode(codegen::MNEMONIC::ASTORE_2)
+      ->globalstack_pop()
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1)
       ->add_opcode(codegen::MNEMONIC::ALOAD_1)
       ->add_opcode(MNEMONIC::DUP)
       ->add_opcode_with_idx(codegen::MNEMONIC::INSTANCE_OF, pool.list_idx.class_idx)
