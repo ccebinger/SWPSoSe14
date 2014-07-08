@@ -22,10 +22,9 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include <string>
 
 #include <frontend/Graphs.h>
-#include <backend/classfile/classfile_writer.h>
 #include <backend/classfile/constant_pool.h>
 #include <backend/codegen/Bytecode.h>
-#include <backend/classfile/Lambda_interface_writer.h>
+#include <backend/classfile/Lambda_classfile_writer.h>
 
 /**
  * Die Klasse stellt statische Methoden für das Übersetzen des Graphen in
@@ -76,6 +75,9 @@ class Backend {
    */
   Backend();
 
+static void write_lambda_classes(Graphs& graphs);
+static void write_lambda_interface(Graphs& graphs);
+static void write_lambda_anonymous_classes(Graphs& graphs);
   static void add_entries_to_constantpool(ConstantPool& constantPool);
   static void add_functions_to_constantpool(ConstantPool& constantPool, std::vector<std::string>& keyset);
 };

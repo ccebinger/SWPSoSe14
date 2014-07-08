@@ -76,15 +76,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
     delete &it->second;
   }
 
-  std::string file = Env::getDstClassfile();
-
-  size_t pos = file.find_last_of("\\/") + 1;
-  file = file.substr(0, pos);
-  file.append(Lambda_interface_writer::lambda_class_name);
-  file.append(".class");
-  std::ofstream outFile(file, std::ofstream::binary);
-  Lambda_interface_writer lwriter(ClassfileWriter::JAVA_7, new ConstantPool(), graphs, codeMap, &outFile);
-  lwriter.WriteClassfile();
+  write_lambda_classes(graphs);
   return Backend::Status::SUCCESS;
 }
 
@@ -270,4 +262,56 @@ void Backend::add_functions_to_constantpool(ConstantPool& constantPool, std::vec
    for (auto it = keyset.begin(); it != keyset.end(); it++) {
      constantPool.addString(*it);
    }
+}
+
+void Backend::write_lambda_classes(Graphs& graphs)
+{
+  write_lambda_interface(graphs);
+  write_lambda_anonymous_classes(graphs);
+}
+
+
+void Backend::write_lambda_interface(Graphs& graphs)
+{
+  std::map<std::string, codegen::Bytecode&> codeMap;
+  std::string file = Env::getDstClassfile();
+  size_t pos = file.find_last_of("\\/") + 1;
+  file = file.substr(0, pos);
+  file.append(Lambda_interface_writer::lambda_class_name);
+  file.append(".class");
+  std::ofstream outFile(file, std::ofstream::binary);
+  Lambda_interface_writer lwriter(ClassfileWriter::JAVA_7, new ConstantPool(), graphs, codeMap, &outFile);
+  lwriter.WriteClassfile();
+}
+
+void Backend::write_lambda_anonymous_classes(Graphs& graphs)
+{
+  //TODO
+  std::vector<std::string> keyset = graphs.keyset();
+  std::stringstream ss;
+  std::string file = Env::getDstClassfile();
+  size_t pos = file.find_last_of("\\/") + 1;
+  file = file.substr(0, pos);
+  ss << file << Env::getDstClassName();
+
+  //Create code for each function
+   std::map<std::string, codegen::Bytecode&> codeMap;
+   for (std::vector<std::string>::iterator it = keyset.begin(); it != keyset.end(); it++)
+   {
+      if ((*it)[0] == '&')
+      {
+        std::string name = (*it);
+        name = name.replace(0, 1, "$");
+        ConstantPool pool;
+        ss << name << ".class";
+        std::ofstream outFile(ss.str(), std::ofstream::binary);
+        codegen::Bytecode* code = new codegen::Bytecode(pool);
+        code->build(graphs.find(*it));
+        codeMap.insert(std::pair<std::string, codegen::Bytecode&>("Closure", *code));
+        Lambda_classfile_writer clwriter(ClassfileWriter::JAVA_7, &pool, graphs, codeMap, &outFile);
+        clwriter.WriteClassfile();
+      }
+
+   }
+
 }

@@ -23,6 +23,8 @@ class LocalVariableStash
 
     uint8_t getIndexForVar(std::string variable);
 
+    uint8_t reserved_var_count();
+
   protected:
 
   private:
