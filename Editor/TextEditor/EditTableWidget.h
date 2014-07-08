@@ -49,12 +49,11 @@ private:
     void findContentMaxValues();
 
     void setPosition(int row, int col, bool extendSelection = false);
-    Stack * setSign(int row, int col, QChar c, bool suppressUndoRedoCreation = false);
+    void setSign(int row, int col, QChar c, bool suppressUndoRedoCreation = false);
     void setDisplaySign(int row, int col, QChar c);
-    Stack * removeSign(int row, int col, bool suppressUndoRedoCreation = false);
+    void removeSign(int row, int col, bool suppressUndoRedoCreation = false);
     void removeDisplaySign(int row, int col);
     QChar getSign(int row, int col) const;
-    void moveCursorFromGraph(Stack *stack);
     void cut(bool isDelete, bool suppressUndoRedoCreation);
     void paste(bool suppressUndoRedoCreation);
 
