@@ -30,6 +30,10 @@ uint8_t LocalVariableStash::current_var_count() {
   return current_var_count_;
 }
 
+uint8_t LocalVariableStash::reserved_var_count() {
+  return start_var_index_ + 1;
+}
+
 /**
   * The central method of this class. Used to retrieve the index of a named
   * variable in the bytecode method's variable table.

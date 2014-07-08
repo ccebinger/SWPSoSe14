@@ -39,7 +39,7 @@ codegen::Bytecode::func_map= {
   {Command::Type::VAR_PUSH, &push_Variable}
 };
 
-codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), local_count(1), locals(4) {}
+codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), /*local_count(4),*/ locals(4) {}
 
 codegen::Bytecode::~Bytecode() {}
 
@@ -83,7 +83,7 @@ size_t codegen::Bytecode::length() {
 }
 
 int codegen::Bytecode::get_local_count() {
-  return local_count + locals.current_var_count();
+  return /*local_count*/ locals.reserved_var_count() + locals.current_var_count();
 }
 
 ConstantPool& codegen::Bytecode::get_constant_pool() {
@@ -105,15 +105,18 @@ uint16_t codegen::Bytecode::get_lambda_closure_idx() {
 //================================================================================
 //==================================SETTER========================================
 //================================================================================
+/*
 void codegen::Bytecode::inc_local_count(int inc)
 {
   local_count += inc;
 }
-
+*/
+/*
 void codegen::Bytecode::set_local_count(int count)
 {
   local_count = count;
 }
+*/
 
 //================================================================================
 //==================================INDICIES======================================
@@ -248,7 +251,7 @@ codegen::Bytecode* codegen::Bytecode::add_integer_calculation(MNEMONIC calculati
   bytecode.push_back(calculation);
   add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx);
   globalstack_push();
-  inc_local_count(2);
+  //inc_local_count(2);
   return this;
 }
 
@@ -351,8 +354,8 @@ void codegen::output_ByteCode(Bytecode::Current_state state) {
   code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.system_idx.out_idx)
       ->globalstack_pop()
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.stream_idx.print_idx)
-      ->inc_local_count(1);
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.stream_idx.print_idx);
+      //->inc_local_count(1);
 }
 
 void codegen::push_ByteCode(Bytecode::Current_state state) {
@@ -427,8 +430,8 @@ void codegen::cut_ByteCode(Bytecode::Current_state state) {
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
       ->add_opcode(codegen::MNEMONIC::ILOAD_1)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.substring_idx)
-      ->globalstack_push()
-      ->inc_local_count(2);
+      ->globalstack_push();
+      //->inc_local_count(2);
 }
 
 void codegen::append_ByteCode(Bytecode::Current_state state) {
@@ -447,8 +450,8 @@ void codegen::append_ByteCode(Bytecode::Current_state state) {
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_builder_idx.append_idx)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
-      ->globalstack_push()
-      ->inc_local_count(2);
+      ->globalstack_push();
+      //->inc_local_count(2);
 }
 
 void codegen::size_ByteCode(Bytecode::Current_state state) {
@@ -496,8 +499,8 @@ void codegen::null_ByteCode(Bytecode::Current_state state) {
       ->add_opcode_with_idx(codegen::MNEMONIC::NEW, pool.list_idx.class_idx)
       ->add_opcode(codegen::MNEMONIC::DUP)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, pool.list_idx.init_idx)
-      ->globalstack_push()
-      ->inc_local_count(1);
+      ->globalstack_push();
+      //->inc_local_count(1);
 }
 
 void codegen::list_push_ByteCode(Bytecode::Current_state state) {
@@ -533,7 +536,7 @@ void codegen::list_push_ByteCode(Bytecode::Current_state state) {
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.add_idx)
       ->add_opcode(MNEMONIC::POP) // discard add() return value
       //->add_opcode(codegen::MNEMONIC::POP)
-      ->globalstack_push()
+      ->globalstack_push();
 
 //  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
 //      ->globalstack_pop()
@@ -545,7 +548,7 @@ void codegen::list_push_ByteCode(Bytecode::Current_state state) {
 //      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.add_idx)
 //      ->add_opcode(codegen::MNEMONIC::POP)
 //      ->globalstack_push()
-      ->inc_local_count(3);
+      //->inc_local_count(3);
 }
 
 void codegen::list_pop_ByteCode(Bytecode::Current_state state) {
@@ -563,8 +566,8 @@ void codegen::list_pop_ByteCode(Bytecode::Current_state state) {
       ->add_opcode(codegen::MNEMONIC::ASTORE_1) //remove obj
       ->globalstack_push()
       ->add_opcode(codegen::MNEMONIC::ALOAD_1) //get saved obj
-      ->globalstack_push()
-      ->inc_local_count(1);
+      ->globalstack_push();
+      //->inc_local_count(1);
 
 }
 
@@ -579,8 +582,8 @@ void codegen::greater_ByteCode(Bytecode::Current_state state) {
 
   code->add_two_int_compare(codegen::MNEMONIC::IF_ICMPGE)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
-      ->globalstack_push()
-      ->inc_local_count(3);
+      ->globalstack_push();
+      //->inc_local_count(3);
 }
 
 void codegen::equal_ByteCode(Bytecode::Current_state state) {
@@ -595,8 +598,8 @@ void codegen::equal_ByteCode(Bytecode::Current_state state) {
       ->add_opcode(codegen::MNEMONIC::ALOAD_2)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.equals)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
-      ->globalstack_push()
-      ->inc_local_count(3);
+      ->globalstack_push();
+      //->inc_local_count(3);
 }
 
 void codegen::true_ByteCode(Bytecode::Current_state state) {
@@ -669,7 +672,7 @@ void codegen::input_ByteCode(Bytecode::Current_state state) {
    // PUUSH
    code->globalstack_push();
 
-   code->inc_local_count(2);
+   //code->inc_local_count(2);
 }
 
 void codegen::underflow_ByteCode(Bytecode::Current_state state) {

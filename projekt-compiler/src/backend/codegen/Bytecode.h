@@ -206,17 +206,19 @@ class Bytecode {
   */
   uint16_t get_lambda_closure_idx();
   //SETTER
-  /**
+  /*
+   *
    * Increments the current local variable count with the given value.
    * @param inc        the value which will be used to increment the local variable count
-   */
+   *
   void inc_local_count(int inc);
 
-  /**
+   *
    * Replaces the current local variable count with the given value.
    * @param count        the value which will be used to replace the current local variable count
-   */
+   *
   void set_local_count(int count);
+  */
   //INDECIES
   /**
    * Checks the constant pool for the given class name and returns the idx on the constantpool if the
@@ -477,10 +479,11 @@ class Bytecode {
    */
   ConstantPool& pool;
 
-  /**
+  /*
    * The local variable count.
-   */
+   *
   int local_count;
+  */
 
   /**
    * The LocalVariableStash class object which contains the mapping of the local variables.
