@@ -53,7 +53,6 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
       state.current_code = this;
       state.current_node = current_node;
       f(state);
-      std::cout << "Main build: " << state.current_node->command.extractAstCommandString() << std::endl;
     }
     // end Program after junction, because junction resolve recursivly and after
     // both successor's path are build there is nothing to do
