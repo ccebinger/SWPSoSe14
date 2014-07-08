@@ -93,4 +93,4 @@ run3:
 	java -XX:-UseSplitVerifier false
 
 clean:
-	rm *.o fu-rail rail unittest_constantpool unittest_classfile_writer_test
+	rm *.o jail++ rail unittest_constantpool unittest_classfile_writer_test
