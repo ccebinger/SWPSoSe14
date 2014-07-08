@@ -53,6 +53,15 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
       state.current_code = this;
       state.current_node = current_node;
       f(state);
+      std::cout << "Main build: " << state.current_node->command.extractAstCommandString() << std::endl;
+    }
+    // end Program after junction, because junction resolve recursivly and after
+    // both successor's path are build there is nothing to do
+    if((current_node->command.type == Command::Type::EASTJUNC) ||
+       (current_node->command.type == Command::Type::WESTJUNC) ||
+       (current_node->command.type == Command::Type::NORTHJUNC) ||
+       (current_node->command.type == Command::Type::SOUTHJUNC)){
+      break;
     }
     current_node = current_node->successor1;
   }
@@ -68,7 +77,6 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Node_ptr current_node) {
       state.current_code = this;
       state.current_node = current_node;
       f(state);
-      std::cout << "build: " << state.current_node->command.extractAstCommandString() << std::endl;
     }
     current_node = current_node->successor1;
   }
@@ -708,12 +716,12 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
 void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
+  // store node because traversing successor1 end with last
+  // node of successor1
   Graphs::Node_ptr store_node = state.current_node->successor2;
 
-  std::cout << "successor1:\n";
   Bytecode successor1(state.current_code->get_constant_pool());
   successor1.build(state.current_node->successor1);
-  std::cout << "successor2:\n";
   Bytecode successor2(state.current_code->get_constant_pool());
   successor2.build(store_node);
 
