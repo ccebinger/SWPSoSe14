@@ -62,17 +62,13 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
 
 codegen::Bytecode* codegen::Bytecode::build(Graphs::Node_ptr current_node) {
   while (current_node && current_node->command.type != Command::Type::FINISH) {
-    if(current_node->command.type==Command::Type::EASTJUNC ||
-       current_node->command.type==Command::Type::WESTJUNC ||
-       current_node->command.type==Command::Type::NORTHJUNC||
-       current_node->command.type==Command::Type::SOUTHJUNC)
-      brek;
     func_ptr f = func_map.at(current_node->command.type);
     if (f) {
       Current_state state;
       state.current_code = this;
       state.current_node = current_node;
       f(state);
+      std::cout << "build: " << state.current_node->command.extractAstCommandString() << std::endl;
     }
     current_node = current_node->successor1;
   }
@@ -709,15 +705,21 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
 void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
+  Graphs::Node_ptr store_node = state.current_node->successor2;
+
+  std::cout << "successor1:\n";
   Bytecode successor1(state.current_code->get_constant_pool());
   successor1.build(state.current_node->successor1);
+  std::cout << "successor2:\n";
   Bytecode successor2(state.current_code->get_constant_pool());
-  state.current_node = successor2.build(state.current_node->successor2);
+  successor2.build(store_node);
 
   code->globalstack_pop()
-      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.int_idx.int_value_idx)
-      ->add_conditional_with_else_branch(codegen::MNEMONIC::IFNE,
+      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST,
+                            pool.int_idx.class_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL,
+                            pool.int_idx.int_value_idx)
+      ->add_conditional_with_else_branch(codegen::MNEMONIC::IFEQ,
                                          successor1.get_bytecode(),
                                          successor2.get_bytecode());
 }
