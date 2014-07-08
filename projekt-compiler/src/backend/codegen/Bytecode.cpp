@@ -301,7 +301,7 @@ codegen::Bytecode* codegen::Bytecode::add_lambda_declaration(Graphs::Node_ptr cu
   //add Lambda anonymous class to pool
   //$anonymous class
   std::stringstream ss;
-  ss << Env::getDstClassName() << "$" << current_node->command.arg;
+  ss << Env::getDstClassName() << current_node->command.arg.replace(0,1, "$"); //replace & with $
   std::string anonymous_class_name = ss.str();
   size_t anonym_str_idx = pool.addString(anonymous_class_name);
   size_t anonym_class_idx = pool.addClassRef(anonym_str_idx);
