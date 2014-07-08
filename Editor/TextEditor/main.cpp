@@ -39,9 +39,9 @@ int main(int argc, char *argv[])
     //end of testing the text selection
 
     QApplication app(argc, argv);
-    app.setOrganizationName("Rail On C");
+    app.setOrganizationName("Jail Constructions Ltd.");
     app.setOrganizationDomain("https://github.com/ccebinger/SWPSoSe14");
-    app.setApplicationName("Rail C++ Compiler");
+    app.setApplicationName("Jail++");
 
     MainWindow mainWindow;
     mainWindow.show();

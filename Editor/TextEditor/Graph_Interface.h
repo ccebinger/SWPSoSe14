@@ -2,6 +2,7 @@
 #define GRAPH_INTERFACE_H
 
 #include "Point.h"
+#include "ApplicationPreferences.h"
 
 class Graph_Interface{
 private:
@@ -15,6 +16,7 @@ public:
     char getSign(int colm, int row);
     void clear(void);
     int get_Point_Type(int colm, int row);
+    void directionToDelta(int *deltaX, int *deltaY, ApplicationConstants::Direction direction) const;
 private:
     void make_Graph_to(int colm, int row, InternStack *change);
     Point* getPoint(int colm, int row,InternStack *change);

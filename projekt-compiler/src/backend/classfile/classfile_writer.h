@@ -33,7 +33,7 @@
 #include <vector>
 #include <frontend/Graphs.h>
 #include <backend/codegen/Bytecode.h>
-#include "constant_pool.h"
+#include <backend/classfile/constant_pool.h>
 
 /**
  * This class is the result of the compiling pipeline.

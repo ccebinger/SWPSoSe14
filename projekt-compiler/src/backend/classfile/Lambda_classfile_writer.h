@@ -22,13 +22,16 @@
  * one.
  *
  */
-#ifndef CLASSFILE_H
-#define CLASSFILE_H
-#include <backend/classfile/classfile_writer.h>
 
-class Lambda_classfile_writer : public ClassfileWriter
+#ifndef LAMBDA_CLASSFILE_WRITER_H_
+#define LAMBDA_CLASSFILE_WRITER_H_
+#include <backend/classfile/Lambda_interface_writer.h>
+
+class Lambda_classfile_writer : public Lambda_interface_writer
 {
+
 public:
+
     /**
    * The constructor of the Lambda_classfile_writer.
    *
@@ -43,14 +46,9 @@ public:
                     const std::map<std::string, codegen::Bytecode&> codeFunctions,
                     std::ostream* out);
   virtual ~Lambda_classfile_writer();
-
-  static const std::string lambda_class_name;
-  std::string lambda_file_name;
-  static const std::string method_name;
-  static const std::string method_descriptor;
 protected:
-  static const unsigned char interface_access_flags[];
-  static const unsigned char method_access_flags[];
+
+
   /**
    * Method to write the constant pool that was generated in @see constant_pool.cc
    *
@@ -65,21 +63,28 @@ protected:
    */
   virtual void WriteAccessFlags();
 
-  /**
+  /**  WriteMagicNumber();
+  WriteVersionNumber();
+  WriteConstantPool();
+  WriteAccessFlags();
+  WriteClassName();
+  WriteSuperClassName();
+  WriteInterfaces();
+  WriteFields();
+  WriteMethods();
    * Method to write the name of the classfile.
    *
    * @return void
    */
   virtual void WriteClassName();
 
-
-
   /**
-   * Method to write the fields in the classfile.
+   * Method to write the used interfaces.
+   * Because Rail does not uses interfaces we don't use them either
    *
    * @return void
    */
-  virtual void WriteFields();
+  virtual void WriteInterfaces();
 
   /**
    * Method to write methods in the classfile.
@@ -98,22 +103,10 @@ protected:
   virtual void WriteInitMethod();
 
   /**
-   * Method to write the <clinit> method in the classfile.
-   * For us it is always the same bytecode
-   *
-   * @return void
-   */
-  virtual void WriteClInitMethod();
-
-  /**
    * Method to write the attributes in the classfile, particularly the code attribute.
    *
    * @return void
    */
   virtual void WriteAttributes(const std::string &key);
-private:
-  void write_array(size_t len, const unsigned char arr[]);
-  size_t get_class_ref();
 };
-
-#endif // CLASSFILE_H
+#endif /* LAMBDA_CLASSFILE_WRITER */

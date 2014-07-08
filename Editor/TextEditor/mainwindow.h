@@ -98,13 +98,9 @@ private slots:
     void issueDoubleClicked(QListWidgetItem *item);
 
     void startGrab();
+    void modifyGrab();
     void cancelGrab();
     void finishGrab();
-    void rotateGrab90();
-    void rotateGrab180();
-    void rotateGrab270();
-    void mirrorGrabX();
-    void mirrorGrabY();
     void grabModeChanged(bool inGrab);
 
     void cursorModeChanged(bool state);

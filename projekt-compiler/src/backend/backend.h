@@ -25,7 +25,7 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include <backend/classfile/classfile_writer.h>
 #include <backend/classfile/constant_pool.h>
 #include <backend/codegen/Bytecode.h>
-#include <backend/classfile/Lambda_classfile_writer.h>
+#include <backend/classfile/Lambda_interface_writer.h>
 
 /**
  * Die Klasse stellt statische Methoden für das Übersetzen des Graphen in
@@ -75,6 +75,9 @@ class Backend {
    * Nur statische Methoden.
    */
   Backend();
+
+  static void add_entries_to_constantpool(ConstantPool& constantPool);
+  static void add_functions_to_constantpool(ConstantPool& constantPool, std::vector<std::string>& keyset);
 };
 
 #endif  // PROJEKT_COMPILER_SRC_BACKEND_BACKEND_H_

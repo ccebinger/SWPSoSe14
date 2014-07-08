@@ -26,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    readSettings();
 
     ui->ui_insertModeGroupBox->hide();
 
@@ -41,8 +40,6 @@ MainWindow::MainWindow(QWidget *parent) :
     setCurrentPath(QString());
     setModified(false);
     createTempFiles();
-    updateRecentFiles();
-    setCursorMode();
 
     m_interpreterProcess = new QProcess(this);
     m_buildProcess = new QProcess(this);
@@ -87,6 +84,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->ui_startGrabAction, SIGNAL(triggered()), this, SLOT(startGrab()));
     connect(ui->ui_finishGrabAction, SIGNAL(triggered()), this, SLOT(finishGrab()));
     connect(ui->ui_cancelGrabAction, SIGNAL(triggered()), this, SLOT(cancelGrab()));
+    connect(ui->ui_rotate90Action, SIGNAL(triggered()), this, SLOT(modifyGrab()));
+    connect(ui->ui_rotate180Action, SIGNAL(triggered()), this, SLOT(modifyGrab()));
+    connect(ui->ui_rotate270Action, SIGNAL(triggered()), this, SLOT(modifyGrab()));
+    connect(ui->ui_mirrorHorizontalAction, SIGNAL(triggered()), this, SLOT(modifyGrab()));
+    connect(ui->ui_mirrorVerticalAction, SIGNAL(triggered()), this, SLOT(modifyGrab()));
+
     connect(ui->ui_sourceEditTableWidget, SIGNAL(grabModeChanged(bool)), this, SLOT(grabModeChanged(bool)));
 
     connect(ui->ui_setInterpreterAction, SIGNAL(triggered()), this, SLOT(setInterpreter()));
@@ -120,6 +123,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->ui_issuesListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(issueDoubleClicked(QListWidgetItem*)));
     connect(ui->ui_preferencesAction, SIGNAL(triggered()), this, SLOT(showApplicationPreferences()));
+
+    readSettings();
+    updateRecentFiles();
+    setCursorMode();
 
     connect(ui->ui_smartDirectionRadioButton, SIGNAL(toggled(bool)), this, SLOT(cursorModeChanged(bool)));
     connect(ui->ui_horizontalDirectionRadioButton, SIGNAL(toggled(bool)), this, SLOT(cursorModeChanged(bool)));
@@ -322,6 +329,11 @@ bool MainWindow::save(QString filePath)
     setModified(false);
     setCurrentPath(filePath);
     m_undoRedoStack->setSaved();
+
+    ApplicationPreferences::recentFiles.removeAll(filePath);
+    ApplicationPreferences::recentFiles.prepend(filePath);
+    updateRecentFiles();
+
     return true;
 }
 
@@ -684,6 +696,7 @@ void MainWindow::runJava()
     QString directory(classFile.absoluteDir().path());
     QString className(classFile.completeBaseName());
     m_javaProcess->start("java", QStringList() << "-XX:-UseSplitVerifier" << "-cp" << directory << className);
+    //qDebug() << m_javaProcess->arguments();
 }
 
 void MainWindow::javaStarted()
@@ -847,7 +860,7 @@ void MainWindow::readSettings()
     ApplicationPreferences::showLineNumbers = settings.value("editor/showLineNumbers", ApplicationDefaultValues::showLineNumbers).toBool();
     ApplicationPreferences::showWhiteSpaces = settings.value("editor/showWhiteSpaces", ApplicationDefaultValues::showWhiteSpaces).toBool();
     ApplicationPreferences::showEditorLines = settings.value("editor/showEditorLines", ApplicationDefaultValues::showEditorLines).toBool();
-    ApplicationPreferences::cursorMode = (CursorMode)(settings.value("editor/cursorMode", ApplicationDefaultValues::cursorMode).toInt());
+    ApplicationPreferences::cursorMode = (ApplicationConstants::CursorMode)(settings.value("editor/cursorMode", ApplicationDefaultValues::cursorMode).toInt());
 
     ApplicationPreferences::createASGFiles = settings.value("build/createASG", ApplicationDefaultValues::createASGFiles).toBool();
     ApplicationPreferences::createGraphVizFiles = settings.value("build/createGraphViz", ApplicationDefaultValues::createGraphVizFiles).toBool();
@@ -957,29 +970,43 @@ void MainWindow::finishGrab()
     ui->ui_sourceEditTableWidget->finishGrab();
 }
 
-void MainWindow::rotateGrab90()
+void MainWindow::modifyGrab()
 {
+    // HACK: Maybe have get-Function in SourceEditTableWidget instead
+    bool isInGrab = !ui->ui_startGrabAction->isEnabled();
+    if(!isInGrab)
+    {
+        ui->ui_sourceEditTableWidget->startGrab();
+    }
 
-}
+    QAction *action = dynamic_cast<QAction *>(sender());
+    assert(action);
 
-void MainWindow::rotateGrab180()
-{
+    if(action == ui->ui_rotate90Action)
+    {
+        ui->ui_sourceEditTableWidget->rotateGrab90();
+    }
+    else if(action == ui->ui_rotate180Action)
+    {
+        ui->ui_sourceEditTableWidget->rotateGrab180();
+    }
+    else if(action == ui->ui_rotate270Action)
+    {
+        ui->ui_sourceEditTableWidget->rotateGrab270();
+    }
+    else if(action == ui->ui_mirrorHorizontalAction)
+    {
+        ui->ui_sourceEditTableWidget->mirrorGrabHorizontal();
+    }
+    else if(action == ui->ui_mirrorVerticalAction)
+    {
+        ui->ui_sourceEditTableWidget->mirrorGrabVertical();
+    }
 
-}
-
-void MainWindow::rotateGrab270()
-{
-
-}
-
-void MainWindow::mirrorGrabX()
-{
-
-}
-
-void MainWindow::mirrorGrabY()
-{
-
+    if(!isInGrab)
+    {
+        ui->ui_sourceEditTableWidget->finishGrab();
+    }
 }
 
 void MainWindow::grabModeChanged(bool inGrab)
@@ -991,7 +1018,7 @@ void MainWindow::grabModeChanged(bool inGrab)
 
 void MainWindow::setCursorMode()
 {
-    if(ApplicationPreferences::cursorMode == NORMAL)
+    if(ApplicationPreferences::cursorMode == ApplicationConstants::NORMAL)
     {
         ui->ui_horizontalDirectionRadioButton->setChecked(true);
     }
@@ -1012,10 +1039,10 @@ void MainWindow::cursorModeChanged(bool state)
     assert(button);
     if(button == ui->ui_horizontalDirectionRadioButton)
     {
-        ApplicationPreferences::cursorMode = NORMAL;
+        ApplicationPreferences::cursorMode = ApplicationConstants::NORMAL;
     }
     else
     {
-        ApplicationPreferences::cursorMode = SMART;
+        ApplicationPreferences::cursorMode = ApplicationConstants::SMART;
     }
 }
