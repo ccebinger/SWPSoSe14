@@ -6,7 +6,7 @@ CC=g++
 CFLAGS=-c -g -Wall -Wextra -Wtype-limits -pedantic -std=c++0x -Iprojekt-compiler/src
 LDFLAGS=-lrt
 
-all: rail fu-rail tests compile run
+all: rail fu-rail tests compile compile2 compile3 run run2 run3
 
 tests: unittest_constantpool unittest_classfile_writer_test
 
