@@ -249,6 +249,5 @@ rail-interpreter/
 abrt_checker_*.log
 
 # xTesting
-testresults.sqlite
-xTesting.jar
 xTesting/run.sh
+xTesting/*.ll
