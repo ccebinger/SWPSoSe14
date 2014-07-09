@@ -63,17 +63,19 @@ Backend::Status Backend::Generate(Graphs& graphs,
   //Create code for each function
    std::map<std::string, codegen::Bytecode&> codeMap;
    for (std::vector<std::string>::iterator it = keyset.begin(); it != keyset.end(); it++) {
-      codegen::Bytecode* code = new codegen::Bytecode(constantPool);
- 		  code->build(graphs.find(*it));
- 		  codeMap.insert(std::pair<std::string, codegen::Bytecode&>(*it, *code));
+      if ((*it)[0] != '&') { //create only code for not lambda functions
+        codegen::Bytecode* code = new codegen::Bytecode(constantPool);
+        code->build(graphs.find(*it));
+        codeMap.insert(std::pair<std::string, codegen::Bytecode&>(*it, *code));
+      }
    }
 
 
 
-  write_lambda_classes(graphs, constantPool); // before main class is writen to add other stuff to constant pool
+  uint16_t lambda_count = write_lambda_classes(graphs, constantPool); // before main class is writen to add other stuff to constant pool
 
 
-  ClassfileWriter writer(ClassfileWriter::JAVA_7, &constantPool, graphs, codeMap, codeOut);
+  ClassfileWriter writer(ClassfileWriter::JAVA_7, &constantPool, graphs, codeMap, codeOut, lambda_count);
   writer.WriteClassfile();
 
   for (std::map<std::string, codegen::Bytecode&>::iterator it = codeMap.begin(); it != codeMap.end(); it++) {
@@ -266,10 +268,10 @@ void Backend::add_functions_to_constantpool(ConstantPool& constantPool, std::vec
    }
 }
 
-void Backend::write_lambda_classes(Graphs& graphs, ConstantPool& pool)
+uint16_t Backend::write_lambda_classes(Graphs& graphs, ConstantPool& pool)
 {
   write_lambda_interface(graphs);
-  write_lambda_anonymous_classes(graphs, pool);
+  return write_lambda_anonymous_classes(graphs, pool);
 }
 
 
@@ -288,7 +290,7 @@ void Backend::write_lambda_interface(Graphs& graphs)
   lwriter.WriteClassfile();
 }
 
-void Backend::write_lambda_anonymous_classes(Graphs& graphs, ConstantPool& pool)
+uint16_t Backend::write_lambda_anonymous_classes(Graphs& graphs, ConstantPool& pool)
 {
 
   std::vector<std::string> keyset = graphs.keyset();
@@ -299,7 +301,7 @@ void Backend::write_lambda_anonymous_classes(Graphs& graphs, ConstantPool& pool)
   ss << file << Env::getDstClassName();
 
 
-
+  uint16_t lambda_count = 0;
   std::map<std::string, codegen::Bytecode&> codeMap;
   for (std::vector<std::string>::iterator it = keyset.begin(); it != keyset.end(); it++)
   {
@@ -321,10 +323,10 @@ void Backend::write_lambda_anonymous_classes(Graphs& graphs, ConstantPool& pool)
       Lambda_classfile_writer clwriter(cls_name, ClassfileWriter::JAVA_7, &pool, graphs, codeMap, &outFile);
       clwriter.WriteClassfile();
       delete code;
+      lambda_count++;
     }
-
   }
-
+  return lambda_count;
 }
 
 void Backend::write_lambda_default_constantpool(ConstantPool& constant_pool, const std::string& lambda_class_name)

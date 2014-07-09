@@ -56,7 +56,21 @@ ClassfileWriter::ClassfileWriter(ClassfileVersion version,
                                                       writer(out),
                                                       out_(out),
                                                       version_(version),
-                                                      code_functions_(codeFunctions) {
+                                                      code_functions_(codeFunctions),
+                                                      inner_classes_count(0) {
+  constant_pool_ = std::make_shared<ConstantPool>(*constantPool);
+}
+
+
+ClassfileWriter::ClassfileWriter(ClassfileVersion version, ConstantPool* constantPool,
+                Graphs& graphs,
+                const std::map<std::string, codegen::Bytecode&> codeFunctions,
+                std::ostream* out, uint16_t inner_classes) : graphs_(graphs),
+                                                      writer(out),
+                                                      out_(out),
+                                                      version_(version),
+                                                      code_functions_(codeFunctions),
+                                                      inner_classes_count(inner_classes) {
   constant_pool_ = std::make_shared<ConstantPool>(*constantPool);
 }
 
@@ -166,45 +180,54 @@ void ClassfileWriter::WriteFields() {
 void ClassfileWriter::WriteMethods() {
   std::vector<std::string> keys = this->graphs_.keyset();
   // plus 1 for the init method and +1 for stack init method
-  size_t size = keys.size();
+  size_t size = keys.size() - inner_classes_count;
   writer.writeU16(size+2);
   WriteInitMethod();
   WriteClInitMethod();
 
   for (std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
-    if (keys[i].compare("main") != 0) {
+    if (keys[i][0] != '&') {
+      if (keys[i].compare("main") != 0) {
 
-      out_->write(kPublicStaticAccessFlag,
-    	                    (sizeof(kPublicStaticAccessFlag)/sizeof(kPublicStaticAccessFlag[0])));
-      writer.writeU16(constant_pool_->addString(keys[i]));
-      writer.writeU16(constant_pool_->addString("()V"));
+        out_->write(kPublicStaticAccessFlag,
+                            (sizeof(kPublicStaticAccessFlag)/sizeof(kPublicStaticAccessFlag[0])));
+        writer.writeU16(constant_pool_->addString(keys[i]));
+        writer.writeU16(constant_pool_->addString("()V"));
 
-    } else {
+      } else {
 
-      out_->write(kPublicStaticAccessFlag,
-                    (sizeof(kPublicStaticAccessFlag)/sizeof(kPublicStaticAccessFlag[0])));
-      writer.writeU16(constant_pool_->addString(keys[i]));
-      writer.writeU16(constant_pool_->addString("([Ljava/lang/String;)V"));
+        out_->write(kPublicStaticAccessFlag,
+                      (sizeof(kPublicStaticAccessFlag)/sizeof(kPublicStaticAccessFlag[0])));
+        writer.writeU16(constant_pool_->addString(keys[i]));
+        writer.writeU16(constant_pool_->addString("([Ljava/lang/String;)V"));
+      }
+
+      WriteAttributes(keys[i]);
+
     }
-
-    WriteAttributes(keys[i]);
   }
   // file attributes_count
   //  out_->write(kNotRequired, sizeof kNotRequired);
+  if (inner_classes_count > 0)
+  {
+    writer.writeU16(1);//attr count
+    //INNER CLASSES
+    writer.writeU16(constant_pool_->addString(inner_classes_attr)); //innerclass
+    writer.writeU32(2 + (inner_classes_count * 8)); //0000 000a attr length
+    writer.writeU16(inner_classes_count); //0001 nr of classes
+    for (uint16_t i = 0; i < inner_classes_count; i++)
+    {
+      std::stringstream ss;
+      ss << Env::getDstClassName() << "$" << (i+1);
+      writer.writeU16(get_class_ref(ss.str()));
+      writer.writeU16(0); //0000 outer class info idx
+      writer.writeU16(0); //inner name idx
+      writer.write_array(2, inner_class_flag);
+    }
+  }
+  else
+    writer.writeU16(0);
 
-  writer.writeU16(1);//attr count
-  //INNER CLASSES
-  writer.writeU16(constant_pool_->addString(inner_classes_attr)); //innerclass
-  writer.writeU32(10); //0000 000a attr length
-  writer.writeU16(1); //0001 nr of classes
-  writer.writeU16(get_class_ref("Main$1"));
-  writer.writeU16(0); //0000 outer class info idx
-  writer.writeU16(0); //inner name idx
-  writer.write_array(2, inner_class_flag);
-
-  // std::vector<char> func = code_functions_.at("main");
-  // out_.write((char*)func.data(),
-  //          func.size());
 }
 /*!
  * \brief Writes the <init> in class-file
