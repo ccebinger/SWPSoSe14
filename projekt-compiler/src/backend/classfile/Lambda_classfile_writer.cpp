@@ -18,7 +18,7 @@
 
 
 const unsigned char Lambda_classfile_writer::anonymous_class_access_flags[] = {'\x00', '\x30'};
-const unsigned char Lambda_classfile_writer::inner_class_flag[] = {'\x00', '\x08'};
+
 
 Lambda_classfile_writer::Lambda_classfile_writer(std::string& class_name, ClassfileVersion version,
                                  ConstantPool* constantPool,
@@ -36,9 +36,11 @@ Lambda_classfile_writer::~Lambda_classfile_writer() {
 void Lambda_classfile_writer::WriteConstantPool() {
   uint16_t idx = constant_pool_->addString(Lambda_interface_writer::lambda_class_name);
   constant_pool_->addClassRef(idx);
-  constant_pool_->addString("InnerClasses");
-  constant_pool_->addString("EnclosingMethod"); //optional
+  constant_pool_->addString(enclosing_attr); //optional
 
+  uint16_t main_idx = constant_pool_->addString("main");
+  uint16_t main_descr_idx = constant_pool_->addString("([Ljava/lang/String;)V");
+  constant_pool_->addNameAndType(main_idx, main_descr_idx); //ref in which method the lambda was created
 
   size_t size = constant_pool_->size() + 1;
   writer.writeU16(size);
@@ -46,7 +48,7 @@ void Lambda_classfile_writer::WriteConstantPool() {
 }
 
 void Lambda_classfile_writer::WriteAccessFlags() {
-  write_array(2, anonymous_class_access_flags);
+  writer.write_array(2, anonymous_class_access_flags);
 }
 
 void Lambda_classfile_writer::WriteClassName() {
@@ -101,22 +103,22 @@ void Lambda_classfile_writer::WriteMethods() {
 
   writer.writeU16(2);
   //ENCLOSING METHOD
-  writer.writeU16(22);//0016 Enclosing Method
+  writer.writeU16(constant_pool_->addString(enclosing_attr));//Enclosing Method
   writer.writeU32(4);//Attr len
   std::string class_ = Env::getDstClassName();
-  writer.writeU16(get_class_ref(class_));
+  writer.writeU16(ClassfileWriter::get_class_ref(class_));
   //TODO SHOULD BE CHECKED FOR THE RIGHT METHOD!!!!!!!!
   uint16_t main_idx = constant_pool_->addString("main");
   uint16_t main_descr_idx = constant_pool_->addString("([Ljava/lang/String;)V");
   writer.writeU16(constant_pool_->addNameAndType(main_idx, main_descr_idx)); //ref in which method the lambda was created
   //INNER CLASSES
-  writer.writeU16(15); //000f identifier
+  writer.writeU16(constant_pool_->addString(inner_classes_attr)); //innerclass
   writer.writeU32(10); //0000 000a attr length
   writer.writeU16(1); //0001 nr of classes
-  writer.writeU16(get_class_ref(class_name));
+  writer.writeU16(ClassfileWriter::get_class_ref(class_name));
   writer.writeU16(0); //0000 outer class info idx
   writer.writeU16(0); //inner name idx
-  write_array(2, inner_class_flag);
+  writer.write_array(2, inner_class_flag);
 }
 
 void Lambda_classfile_writer::WriteInitMethod() {

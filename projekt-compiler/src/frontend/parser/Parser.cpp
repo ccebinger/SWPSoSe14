@@ -427,7 +427,7 @@ void Parser::parseLambda(NodeIdentifier id){
 }
 
 string Parser::findUnusedFunctionName(){
-	int count = 0;
+	int count = 1;
 	string name;
 	while(true){
 		std::ostringstream s;

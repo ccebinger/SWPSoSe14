@@ -49,7 +49,6 @@ public:
 protected:
   std::string class_name;
   static const unsigned char anonymous_class_access_flags[];
-  static const unsigned char inner_class_flag[];
 
   /**
    * Method to write the constant pool that was generated in @see constant_pool.cc

@@ -82,8 +82,11 @@ class ClassfileWriter {
    * @return void
    */
   void WriteClassfile();
-
+  static const std::string inner_classes_attr;
+  static const std::string enclosing_attr;
  protected:
+  static const unsigned char inner_class_flag[];
+  static const unsigned char kPublicSuperAccessFlag[];
 
   /**
    * An instance of the graph given by the frontend.
@@ -241,5 +244,7 @@ class ClassfileWriter {
    * @return void
    */
   virtual void WriteAttributes(const std::string &key);
+
+  size_t get_class_ref(const std::string& _class);
 };
 #endif /* CLASSFILE_WRITER_H_ */

@@ -107,7 +107,6 @@ protected:
    */
   virtual void WriteAttributes(const std::string &key);
 
-  void write_array(size_t len, const unsigned char arr[]);
   size_t get_class_ref();
   size_t get_class_ref(const std::string& _class);
 };

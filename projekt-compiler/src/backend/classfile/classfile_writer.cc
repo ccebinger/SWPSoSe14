@@ -27,6 +27,7 @@ const char ClassfileWriter::kMagicNumber[] { '\xCA', '\xFE','\xBA', '\xBE' };
 const char ClassfileWriter::kNotRequired[] { '\x00', '\x00' };
 const char ClassfileWriter::kPublicAccessFlag[] { '\x00', '\x01'};
 const char ClassfileWriter::kPublicStaticAccessFlag[] {'\x00', '\x09'};
+const unsigned char ClassfileWriter::kPublicSuperAccessFlag[] {'\x00', '\x21'};
 
 const uint16_t ClassfileWriter::kMaxStack = 20;
 
@@ -35,6 +36,10 @@ std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
   {ClassfileWriter::ClassfileVersion::JAVA_7,
         std::array<char, 4>{'\x00', '\x00', '\x00', '\x33'}}
 };
+
+const unsigned char ClassfileWriter::inner_class_flag[] = {'\x00', '\x08'};
+const std::string ClassfileWriter::enclosing_attr = "EnclosingMethod";
+const std::string ClassfileWriter::inner_classes_attr = "InnerClasses";
 
 /*!
  * \brief Constructor for ClassfileWriter
@@ -107,8 +112,7 @@ void ClassfileWriter::WriteConstantPool() {
  * \brief Write the access flag (e.g. 0x00000001 for public)
  */
 void ClassfileWriter::WriteAccessFlags() {
-  out_->write(kPublicAccessFlag,
-              (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
+  writer.write_array(2, kPublicSuperAccessFlag);
 }
 
 /*!
@@ -186,7 +190,17 @@ void ClassfileWriter::WriteMethods() {
     WriteAttributes(keys[i]);
   }
   // file attributes_count
-    out_->write(kNotRequired, sizeof kNotRequired);
+  //  out_->write(kNotRequired, sizeof kNotRequired);
+
+  writer.writeU16(1);//attr count
+  //INNER CLASSES
+  writer.writeU16(constant_pool_->addString(inner_classes_attr)); //innerclass
+  writer.writeU32(10); //0000 000a attr length
+  writer.writeU16(1); //0001 nr of classes
+  writer.writeU16(get_class_ref("Main$1"));
+  writer.writeU16(0); //0000 outer class info idx
+  writer.writeU16(0); //inner name idx
+  writer.write_array(2, inner_class_flag);
 
   // std::vector<char> func = code_functions_.at("main");
   // out_.write((char*)func.data(),
@@ -298,4 +312,12 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
   out_->write(kNotRequired, sizeof(kNotRequired)  / sizeof(kNotRequired[0]));
   // attributes_count
   out_->write(kNotRequired, sizeof(kNotRequired)  / sizeof(kNotRequired[0]));
+}
+
+
+
+
+size_t ClassfileWriter::get_class_ref(const std::string& _class)
+{
+  return constant_pool_->addClassRef(constant_pool_->addString(_class));
 }
