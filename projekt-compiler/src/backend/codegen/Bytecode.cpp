@@ -502,7 +502,7 @@ void codegen::call_ByteCode(Bytecode::Current_state state) {
         ->add_byte(0); // 0 is the sign for the end of arguments
 
   } else {
-    code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, code->get_method_idx("Main", value, "()V"));
+    code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, code->get_method_idx(Env::getDstClassName(), value, "()V"));
   }
 }
 
