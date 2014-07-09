@@ -169,7 +169,6 @@ void Parser::move() {
 		//check for other symbols that are allowed
 		bool didGoStraight = checkForValidCommandsInStraightDir(straightRow, straightCol);
 		if(didGoStraight) {
-			moveCount=0;
 			return;
 		}
 	}
