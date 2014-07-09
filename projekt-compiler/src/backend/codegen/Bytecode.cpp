@@ -305,6 +305,14 @@ codegen::Bytecode* codegen::Bytecode::add_ldc_string(const std::string& constant
   return this;
 }
 
+codegen::Bytecode* codegen::Bytecode::add_ldc_string(const std::string& constant, std::vector<unsigned char>& code){
+  code.push_back(codegen::MNEMONIC::LDC);
+  uint16_t string_idx = pool.addString(constant);
+  uint16_t const_idx = pool.addConstString(string_idx);
+  code.push_back((uint8_t) const_idx);
+  return this;
+}
+
 codegen::Bytecode* codegen::Bytecode::add_lambda_declaration(Graphs::Node_ptr current_node) {
   //add Lambda anonymous class to pool
   //$anonymous class
