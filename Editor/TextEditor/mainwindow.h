@@ -85,13 +85,11 @@ private slots:
     void buildFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void buildOutputReady();
     void buildErrorReady();
-    void buildProcessError(QProcess::ProcessError error);
 
     void javaStarted();
     void javaFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void javaOutputReady();
     void javaErrorReady();
-    void javaProcessError(QProcess::ProcessError error);
 
     void consoleLineEntered(QString line);
 

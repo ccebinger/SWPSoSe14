@@ -217,6 +217,9 @@ Graphs::Node_ptr Graphs::unmarshall_line(Graphs::Graph_ptr adj, std::string& lin
   }
 
   n->successor1 = findNode(adj, cell);
+  if(n->successor1->id == 0 && n->command.type != Command::FINISH){
+	  throw EnvException(ASG_DESERIALIZE, "Invalid ASG node has no successor");
+  }
   if (std::getline(lineStream, cell, delimiter))
   {
     n->successor2 = findNode(adj, cell);

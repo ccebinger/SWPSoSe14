@@ -53,7 +53,7 @@ private:
     void setDisplaySign(int row, int col, QChar c);
     void removeSign(int row, int col, bool suppressUndoRedoCreation = false);
     void removeDisplaySign(int row, int col);
-    QChar getSign(int row, int col) const;
+    QChar getDisplaySign(int row, int col) const;
     void cut(bool isDelete, bool suppressUndoRedoCreation);
     void paste(bool suppressUndoRedoCreation);
 

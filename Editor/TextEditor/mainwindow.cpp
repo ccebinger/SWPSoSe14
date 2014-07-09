@@ -113,13 +113,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_buildProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(buildOutputReady()));
     connect(m_buildProcess, SIGNAL(readyReadStandardError()), this, SLOT(buildErrorReady()));
     connect(m_buildProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(buildFinished(int,QProcess::ExitStatus)));
-    connect(m_buildProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(buildProcessError(QProcess::ProcessError)));
 
     connect(m_javaProcess, SIGNAL(started()), this, SLOT(javaStarted()));
     connect(m_javaProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(javaOutputReady()));
     connect(m_javaProcess, SIGNAL(readyReadStandardError()), this, SLOT(javaErrorReady()));
     connect(m_javaProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(javaFinished(int,QProcess::ExitStatus)));
-    connect(m_javaProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(javaProcessError(QProcess::ProcessError)));
 
     connect(ui->ui_issuesListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(issueDoubleClicked(QListWidgetItem*)));
     connect(ui->ui_preferencesAction, SIGNAL(triggered()), this, SLOT(showApplicationPreferences()));
@@ -148,7 +146,7 @@ MainWindow::~MainWindow()
 
     delete m_undoRedoStack;
 
-    QString prefixBase = "temp";
+    QString prefixBase = ".temp";
     QString prefix = prefixBase + QString::number(m_tempFilesIndex);
     QFile source(prefix + "_source.rail");
     QFile input(prefix +"_input.txt");
@@ -163,7 +161,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::createTempFiles()
 {
-    QString prefixBase = "temp";
+    QString prefixBase = ".temp";
     for(int i = 0;; i++)
     {
         QString prefix = prefixBase + QString::number(i);
@@ -462,7 +460,7 @@ void MainWindow::runInterpreter()
         return;
     }
 
-    QString prefixBase = "temp";
+    QString prefixBase = ".temp";
     QString prefix = prefixBase + QString::number(m_tempFilesIndex);
     QFile source(prefix + "_source.rail");
     QFile input(prefix +"_input.txt");
@@ -523,7 +521,7 @@ void MainWindow::interpreterFinished(int exitCode, QProcess::ExitStatus exitStat
     ui->ui_runInterpreterAction->setEnabled(true);
 
     // print the results
-    QString prefixBase = "temp";
+    QString prefixBase = ".temp";
     QString prefix = prefixBase + QString::number(m_tempFilesIndex);
     QFile output(prefix + "_output.txt");
     QString line;
@@ -656,12 +654,6 @@ void MainWindow::buildErrorReady()
     }
 }
 
-void MainWindow::buildProcessError(QProcess::ProcessError error)
-{
-    //QMessageBox::warning(this, "Compiler error.", "Compiler process error: " + QString::number(error));
-}
-
-
 // ------------------------------------------------------------------------------------------------- Java Process
 
 void MainWindow::runJava()
@@ -736,13 +728,6 @@ void MainWindow::javaErrorReady()
     QString stdError = m_javaProcess->readAllStandardError();
     ui->ui_consolePlainTextEdit->appendHtml("<font color=red>" + stdError + "</font><br>");
 }
-
-void MainWindow::javaProcessError(QProcess::ProcessError error)
-{
-    qDebug() << "java error: " << error;
-    QMessageBox::warning(this, "Java error.", "Java process error: " + QString::number(error));
-}
-
 
 // -------------------------------------------------------------------------------------- others again^^
 void MainWindow::consoleLineEntered(QString line)
