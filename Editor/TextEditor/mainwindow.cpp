@@ -113,13 +113,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_buildProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(buildOutputReady()));
     connect(m_buildProcess, SIGNAL(readyReadStandardError()), this, SLOT(buildErrorReady()));
     connect(m_buildProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(buildFinished(int,QProcess::ExitStatus)));
-    connect(m_buildProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(buildProcessError(QProcess::ProcessError)));
 
     connect(m_javaProcess, SIGNAL(started()), this, SLOT(javaStarted()));
     connect(m_javaProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(javaOutputReady()));
     connect(m_javaProcess, SIGNAL(readyReadStandardError()), this, SLOT(javaErrorReady()));
     connect(m_javaProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(javaFinished(int,QProcess::ExitStatus)));
-    connect(m_javaProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(javaProcessError(QProcess::ProcessError)));
 
     connect(ui->ui_issuesListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(issueDoubleClicked(QListWidgetItem*)));
     connect(ui->ui_preferencesAction, SIGNAL(triggered()), this, SLOT(showApplicationPreferences()));

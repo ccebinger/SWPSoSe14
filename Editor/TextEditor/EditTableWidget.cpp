@@ -174,7 +174,7 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
                 return;
             }
             if((ApplicationPreferences::cursorMode == ApplicationConstants::SMART)
-                    && (getSign(m_cursorRowPos, 0) == '$'))
+                    && (getDisplaySign(m_cursorRowPos, 0) == '$'))
             {
                 setPosition(m_cursorRowPos + 1, 1);
             }
@@ -304,8 +304,7 @@ void EditTableWidget::setSign(int row, int col, QChar c, bool suppressUndoRedoCr
         removeSign(row, col, suppressUndoRedoCreation);
         return;
     }
-
-    QChar pre = getSign(row, col);
+    QChar pre = getDisplaySign(row, col);
     setDisplaySign(row, col, c);
 
     // generate undo/redo-element
@@ -341,11 +340,20 @@ void EditTableWidget::setSign(int row, int col, QChar c, bool suppressUndoRedoCr
 
 void EditTableWidget::setDisplaySign(int row, int col, QChar c)
 {
-    if(c == QChar() || c == '\0')
+    if(c == QChar())// || c == '\0')
     {
         removeDisplaySign(row, col);
         return;
     }
+    if(row >= this->rowCount())
+    {
+        this->setRowCount(row+1);
+    }
+    if(col >= this->columnCount())
+    {
+        this->setColumnCount(col+1);
+    }
+
     QChar symbol = c;
     if(c == ' ' && ApplicationPreferences::showWhiteSpaces)
     {
@@ -354,7 +362,6 @@ void EditTableWidget::setDisplaySign(int row, int col, QChar c)
 
     QWidget *w = this->cellWidget(row, col);
     QLabel *l;
-    QChar pre;
     if(w == NULL)
     {
         QFont f("unexistent");
@@ -369,7 +376,6 @@ void EditTableWidget::setDisplaySign(int row, int col, QChar c)
     {
         l = dynamic_cast<QLabel *>(w);
         assert(l);
-        pre = l->text().at(0);
         l->setText(symbol);
     }
 }
@@ -382,11 +388,7 @@ void EditTableWidget::removeSign(int row, int col, bool suppressUndoRedoCreation
         // generate undo/redo-element
         if(!suppressUndoRedoCreation && !this->signalsBlocked())
         {
-            QChar pre = getSign(row, col);
-            if(pre == visibleWhiteSpace)
-            {
-                pre = ' ';
-            }
+            QChar pre = getDisplaySign(row, col);
             UndoRedoTypeCharacter *undoRedoElement = new UndoRedoTypeCharacter(row, col, pre, QChar());
             emit undoRedoElementCreated(undoRedoElement);
         }
@@ -419,14 +421,19 @@ void EditTableWidget::removeDisplaySign(int row, int col)
     }
 }
 
-QChar EditTableWidget::getSign(int row, int col) const
+QChar EditTableWidget::getDisplaySign(int row, int col) const
 {
     QWidget *w = this->cellWidget(row, col);
     if(w != NULL)
     {
         QLabel *l = dynamic_cast<QLabel *>(w);
         assert(l);
-        return l->text().at(0);
+        QChar c = l->text().at(0);
+        if(c == visibleWhiteSpace)
+        {
+            c = ' ';
+        }
+        return c;
     }
     else
     {
@@ -482,8 +489,8 @@ QString EditTableWidget::toPlainText() const
     {
         for(int col = 0; col < this->columnCount(); col++)
         {
-            QChar sign = getSign(row, col);
-            if(sign == QChar() || sign == visibleWhiteSpace)
+            QChar sign = getDisplaySign(row, col);
+            if(sign == QChar())
             {
                 text.append(' ');
             }
@@ -641,7 +648,8 @@ void EditTableWidget::cut(bool isDelete, bool suppressUndoRedoCreation)
     {
         for(int col = selection.leftColumn(); col <= selection.rightColumn(); col++)
         {
-            preCharList << getSign(row, col);
+            QChar c = getDisplaySign(row, col);
+            preCharList << c;
             removeSign(row, col, true);
             postCharList << QChar();
         }
@@ -676,7 +684,8 @@ void EditTableWidget::copy()
     {
         for(int col = selection.leftColumn(); col <= selection.rightColumn(); col++)
         {
-            pre << getSign(row, col);
+            QChar c = getDisplaySign(row, col);
+            pre << c;
         }
     }
 
@@ -709,7 +718,7 @@ void EditTableWidget::paste(bool suppressUndoRedoCreation)
         {
             QChar c = m_clipboard.text().at(i++);
 
-            preCharList << getSign(row, col);
+            preCharList << getDisplaySign(row, col);
             if(c == QChar())
             {
                 removeSign(row, col, true);
@@ -753,7 +762,7 @@ void EditTableWidget::updateTextStyle()
     {
         for(int col = 0; col < this->columnCount(); col++)
         {
-            QChar c = getSign(row, col);
+            QChar c = getDisplaySign(row, col);
             if(c == ' ' || c == visibleWhiteSpace)
             {
                 setSign(row, col, whiteSpace, true);
