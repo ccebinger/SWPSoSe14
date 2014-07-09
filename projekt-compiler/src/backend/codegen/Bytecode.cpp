@@ -184,7 +184,7 @@ codegen::Bytecode* codegen::Bytecode::add_index(uint16_t indexInPool,
 codegen::Bytecode* codegen::Bytecode::add_conditional_with_instruction(unsigned char conditional_stmt,
                                                                        std::vector<unsigned char> conditional_body) {
   int length = conditional_body.size();
-  uint16_t length_plus_branch = length + 2;
+  uint16_t length_plus_branch = length + 3;
   bytecode.push_back(conditional_stmt);
   add_index(length_plus_branch);
   bytecode.insert(bytecode.end(), conditional_body.begin(), conditional_body.end());
