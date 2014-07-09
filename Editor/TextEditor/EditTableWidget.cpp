@@ -325,7 +325,7 @@ void EditTableWidget::setSign(int row, int col, QChar c, bool suppressUndoRedoCr
     ApplicationConstants::Direction direction = static_cast<ApplicationConstants::Direction>(tmp->getColor());
     //qDebug() << "direction:" << direction;
     m_graph.directionToDelta(&deltaX, &deltaY, direction);
-    setPosition(m_cursorRowPos + deltaY, m_cursorColPos + deltaX);
+    setPosition(std::max(0, m_cursorRowPos + deltaY), std::max(0, m_cursorColPos + deltaX));
     delete tmp;
     applyStyleChanges(stack);
     if(stack != NULL)
