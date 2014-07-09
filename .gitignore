@@ -17,6 +17,7 @@ local.properties
 .settings/
 .loadpath
 projekt-compiler/Debug/
+projekt-compiler/io
 projekt-compiler/.project
 projekt-compiler/.cproject
 
@@ -251,3 +252,6 @@ abrt_checker_*.log
 # xTesting
 xTesting/run.sh
 xTesting/*.ll
+
+
+
