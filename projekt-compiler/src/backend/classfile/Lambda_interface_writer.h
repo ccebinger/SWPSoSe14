@@ -52,12 +52,6 @@ public:
 protected:
   static const unsigned char interface_access_flags[];
   static const unsigned char method_access_flags[];
-  /**
-   * Method to write the constant pool that was generated in @see constant_pool.cc
-   *
-   * @return void
-   */
-  virtual void WriteConstantPool();
 
   /**
    * Method to write the access flag of the classfile.

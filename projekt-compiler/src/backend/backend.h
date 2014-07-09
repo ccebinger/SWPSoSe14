@@ -75,11 +75,12 @@ class Backend {
    */
   Backend();
 
-  static void write_lambda_classes(Graphs& graphs);
+  static void write_lambda_classes(Graphs& graphs, ConstantPool& constantPool);
   static void write_lambda_interface(Graphs& graphs);
-  static void write_lambda_anonymous_classes(Graphs& graphs);
+  static void write_lambda_anonymous_classes(Graphs& graphs, ConstantPool& constantPool);
   static void add_entries_to_constantpool(ConstantPool& constantPool);
   static void add_functions_to_constantpool(ConstantPool& constantPool, std::vector<std::string>& keyset);
+  static void write_lambda_default_constantpool(ConstantPool& constant_pool, const std::string& lambda_class_name);
 };
 
 #endif  // PROJEKT_COMPILER_SRC_BACKEND_BACKEND_H_

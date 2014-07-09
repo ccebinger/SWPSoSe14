@@ -50,23 +50,6 @@ void Lambda_interface_writer::WriteClInitMethod()
   writer.writeU16(0);
 }
 
-void Lambda_interface_writer::WriteConstantPool()
-{
-  //STRINGS
-  constant_pool_->obj_idx.class_idx = constant_pool_->addString("java/lang/Object");
-  size_t idx = constant_pool_->addString(lambda_class_name);
-  constant_pool_->addString(lambda_class_name + ".java");
-  constant_pool_->addString(method_descriptor);
-  constant_pool_->addString(method_name);
-  constant_pool_->addClassRef(idx); //Lambda class
-  constant_pool_->addClassRef(constant_pool_->obj_idx.class_idx);
-
-
-  size_t size = constant_pool_->size() + 1;
-  writer.writeU16(size);
-  writer.writeVector(constant_pool_->getByteArray());
-}
-
 void Lambda_interface_writer::WriteFields()
 {
   writer.writeU16(0);
