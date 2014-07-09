@@ -26,7 +26,7 @@ Lambda_interface_writer::~Lambda_interface_writer()
 
 void Lambda_interface_writer::WriteAccessFlags()
 {
-  write_array(sizeof interface_access_flags / sizeof interface_access_flags[0], interface_access_flags);
+  writer.write_array(sizeof interface_access_flags / sizeof interface_access_flags[0], interface_access_flags);
 }
 
 void Lambda_interface_writer::WriteAttributes(const std::string& key)
@@ -43,14 +43,9 @@ void Lambda_interface_writer::WriteClassName()
 
 size_t Lambda_interface_writer::get_class_ref()
 {
-  return get_class_ref(lambda_class_name);
+  return ClassfileWriter::get_class_ref(lambda_class_name);
 }
 
-
-size_t Lambda_interface_writer::get_class_ref(const std::string& _class)
-{
-  return constant_pool_->addClassRef(constant_pool_->addString(_class));
-}
 
 void Lambda_interface_writer::WriteClInitMethod()
 {
@@ -70,17 +65,10 @@ void Lambda_interface_writer::WriteInitMethod()
 void Lambda_interface_writer::WriteMethods()
 {
   writer.writeU16(1);//method count
-  write_array(sizeof method_access_flags / sizeof method_access_flags[0] ,method_access_flags);
+  writer.write_array(sizeof method_access_flags / sizeof method_access_flags[0] ,method_access_flags);
   writer.writeU16(constant_pool_->addString(method_name));
   writer.writeU16(constant_pool_->addString(method_descriptor));
   writer.writeU16(0);//method attr count
   writer.writeU16(0);//global attr count
-}
-
-
-void Lambda_interface_writer::write_array(size_t len, const unsigned char arr[])
-{
-  for (size_t i = 0; i < len; i++)
-    writer.writeU8((uint8_t) arr[i]);
 }
 
