@@ -195,7 +195,7 @@ codegen::Bytecode* codegen::Bytecode::add_conditional_with_instruction(unsigned 
                                                                        std::vector<unsigned char> conditional_body,
                                                                        std::vector<unsigned char>& code) {
   int length = conditional_body.size();
-  uint16_t length_plus_branch = length + 2;
+  uint16_t length_plus_branch = length + 3;
   code.push_back(conditional_stmt);
   add_index(length_plus_branch, code);
   code.insert(code.end(), conditional_body.begin(), conditional_body.end());
@@ -706,10 +706,25 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
   ConstantPool& pool = code->get_constant_pool();
 
   std::vector<unsigned char> first_conditional_body;
+  std::vector<unsigned char> second_conditional_body;
+  std::vector<unsigned char> third_conditional_body;
+
   code->add_ldc_string("string", first_conditional_body);
   first_conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
 
+  code->add_ldc_string("nil", third_conditional_body);
+  third_conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
+
+  second_conditional_body.push_back(codegen::MNEMONIC::ALOAD_2);
+  code->add_ldc_string("list", second_conditional_body);
+  second_conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
+  code->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.list_idx.class_idx, second_conditional_body)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.isEmpty_idx, second_conditional_body)
+      ->add_conditional_with_instruction(codegen::MNEMONIC::IFEQ, third_conditional_body, second_conditional_body);
+
   code->globalstack_pop()
+      ->add_opcode(codegen::MNEMONIC::ASTORE_2)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_2)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.getClass)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
       ->add_opcode(codegen::MNEMONIC::ASTORE_1)
@@ -725,6 +740,10 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
       ->add_ldc_string("integer")
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.equals)
       ->add_conditional_with_instruction(codegen::MNEMONIC::IFEQ, first_conditional_body)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
+      ->add_ldc_string("class java.util.arraylist")
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.equals)
+      ->add_conditional_with_instruction(codegen::MNEMONIC::IFEQ, second_conditional_body)
       ->add_opcode(codegen::MNEMONIC::ALOAD_1)
       ->globalstack_push();
 }

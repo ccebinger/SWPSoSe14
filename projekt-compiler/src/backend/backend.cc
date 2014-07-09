@@ -170,6 +170,7 @@ void Backend::add_entries_to_constantpool(ConstantPool& constantPool)
   constantPool.addString("nil");
   constantPool.addString("lambda");
   constantPool.addString("class java.util.ArrayList");
+  constantPool.addString("class java.util.array");
   constantPool.addString("class java.lang.Integer");
   constantPool.addString("class java.lang.String");
   //uint16_t add_type_idx = constantPool.addString("(Ljava/lang/Object)Z")  same like bool equals
