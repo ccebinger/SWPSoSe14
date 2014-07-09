@@ -41,13 +41,15 @@ public:
    * @param codeFunctions       The mapping of the function and appropriate bytecode.
    * @param out                 The stream we write on.
    */
-  Lambda_classfile_writer(ClassfileVersion version, ConstantPool* constantPool,
+  Lambda_classfile_writer(std::string& class_name, ClassfileVersion version, ConstantPool* constantPool,
                     Graphs& graphs,
                     const std::map<std::string, codegen::Bytecode&> codeFunctions,
                     std::ostream* out);
   virtual ~Lambda_classfile_writer();
 protected:
-
+  std::string class_name;
+  static const unsigned char anonymous_class_access_flags[];
+  static const unsigned char inner_class_flag[];
 
   /**
    * Method to write the constant pool that was generated in @see constant_pool.cc
@@ -63,15 +65,7 @@ protected:
    */
   virtual void WriteAccessFlags();
 
-  /**  WriteMagicNumber();
-  WriteVersionNumber();
-  WriteConstantPool();
-  WriteAccessFlags();
-  WriteClassName();
-  WriteSuperClassName();
-  WriteInterfaces();
-  WriteFields();
-  WriteMethods();
+  /**
    * Method to write the name of the classfile.
    *
    * @return void
@@ -85,6 +79,13 @@ protected:
    * @return void
    */
   virtual void WriteInterfaces();
+
+  /**
+   * Method to write the fields in the classfile.
+   *
+   * @return void
+   */
+  virtual void WriteFields();
 
   /**
    * Method to write methods in the classfile.
@@ -101,6 +102,14 @@ protected:
    * @return void
    */
   virtual void WriteInitMethod();
+
+  /**
+   * Method to write the <clinit> method in the classfile.
+   * For us it is always the same bytecode
+   *
+   * @return void
+   */
+  virtual void WriteClInitMethod();
 
   /**
    * Method to write the attributes in the classfile, particularly the code attribute.

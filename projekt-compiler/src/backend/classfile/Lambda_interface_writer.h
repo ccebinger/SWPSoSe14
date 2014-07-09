@@ -86,14 +86,6 @@ protected:
 
   /**
    * Method to write the <init> method in the classfile.  WriteMagicNumber();
-  WriteVersionNumber();
-  WriteConstantPool();
-  WriteAccessFlags();
-  WriteClassName();
-  WriteSuperClassName();
-  WriteInterfaces();
-  WriteFields();
-  WriteMethods();
    * For us it is always the same bytecode.
    *
    * @return void
@@ -114,9 +106,10 @@ protected:
    * @return void
    */
   virtual void WriteAttributes(const std::string &key);
-private:
+
   void write_array(size_t len, const unsigned char arr[]);
   size_t get_class_ref();
+  size_t get_class_ref(const std::string& _class);
 };
 
 #endif //  LAMBDA_INTERFACE_WRITER_h_

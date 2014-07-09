@@ -16,11 +16,15 @@
  */
  #include <backend/classfile/Lambda_classfile_writer.h>
 
-Lambda_classfile_writer::Lambda_classfile_writer(ClassfileVersion version,
+
+const unsigned char Lambda_classfile_writer::anonymous_class_access_flags[] = {'\x00', '\x30'};
+const unsigned char Lambda_classfile_writer::inner_class_flag[] = {'\x00', '\x08'};
+
+Lambda_classfile_writer::Lambda_classfile_writer(std::string& class_name, ClassfileVersion version,
                                  ConstantPool* constantPool,
                                  Graphs& graphs,
                                  const std::map<std::string, codegen::Bytecode&> codeFunctions,
-                                 std::ostream* out) : Lambda_interface_writer(version, constantPool, graphs, codeFunctions, out) {
+                                 std::ostream* out) : Lambda_interface_writer(version, constantPool, graphs, codeFunctions, out),  class_name(class_name)  {
 
 }
 
@@ -42,32 +46,39 @@ void Lambda_classfile_writer::WriteConstantPool() {
 }
 
 void Lambda_classfile_writer::WriteAccessFlags() {
-  //TODO
-  //flags: ACC_FINAL, ACC_SUPER
-  ClassfileWriter::WriteAccessFlags();
+  write_array(2, anonymous_class_access_flags);
 }
 
 void Lambda_classfile_writer::WriteClassName() {
-  writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString(Env::getDstClassName())));
+  writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString(class_name)));
 }
 
 
 void Lambda_classfile_writer::WriteInterfaces() {
   //LAMBDA INTERFACE!!
+  writer.writeU16(1); //interface count 1
+  writer.writeU16(get_class_ref()); //lambda class idx
 }
 
 
+void Lambda_classfile_writer::WriteFields()
+{
+    ClassfileWriter::WriteFields();
+}
+
 void Lambda_classfile_writer::WriteMethods() {
-  std::vector<std::string> keys = this->graphs_.keyset();
-  size_t size = keys.size();
-  writer.writeU16(size+2);
+  writer.writeU16(3); //closure + <init> + <cinit>
   WriteInitMethod();
   WriteClInitMethod();
-
   //===============================================================
-
-  //TODO
   //CLOSURE METHOD
+  writer.writeU16(1); //public
+  writer.writeU16(constant_pool_->addString(Lambda_interface_writer::method_name)); //closure name idx
+  writer.writeU16(constant_pool_->addString(Lambda_interface_writer::method_descriptor));//()V idx
+
+  //TODO CODE ATTRIBUTE
+  WriteAttributes(Lambda_interface_writer::method_name);
+
   /*public void closure();
       flags: ACC_PUBLIC
       Code:
@@ -86,21 +97,36 @@ void Lambda_classfile_writer::WriteMethods() {
          00 01 00 13 00 00 */
   //===============================================================
 
-
   // file attributes_count
-//    out_->write(ClassfileWriter::kNotRequired, sizeof (ClassfileWriter::kNotRequired));
-  writer.writeU8(0);
+
+  writer.writeU16(2);
+  //ENCLOSING METHOD
+  writer.writeU16(22);//0016 Enclosing Method
+  writer.writeU32(4);//Attr len
+  std::string class_ = Env::getDstClassName();
+  writer.writeU16(get_class_ref(class_));
+  //TODO SHOULD BE CHECKED FOR THE RIGHT METHOD!!!!!!!!
+  uint16_t main_idx = constant_pool_->addString("main");
+  uint16_t main_descr_idx = constant_pool_->addString("([Ljava/lang/String;)V");
+  writer.writeU16(constant_pool_->addNameAndType(main_idx, main_descr_idx)); //ref in which method the lambda was created
+  //INNER CLASSES
+  writer.writeU16(15); //000f identifier
+  writer.writeU32(10); //0000 000a attr length
+  writer.writeU16(1); //0001 nr of classes
+  writer.writeU16(get_class_ref(class_name));
+  writer.writeU16(0); //0000 outer class info idx
+  writer.writeU16(0); //inner name idx
+  write_array(2, inner_class_flag);
 }
 
 void Lambda_classfile_writer::WriteInitMethod() {
   ClassfileWriter::WriteInitMethod();
 }
 
+void Lambda_classfile_writer::WriteClInitMethod() {
+  ClassfileWriter::WriteClInitMethod();
+}
+
 void Lambda_classfile_writer::WriteAttributes(const std::string &key) {
-  //TODO
-  /*  EnclosingMethod: #23.#24                // LambdaBytecode.main
-  InnerClasses:
-       static #5; //class LambdaBytecode$1
-       */
   ClassfileWriter::WriteAttributes(key);
 }

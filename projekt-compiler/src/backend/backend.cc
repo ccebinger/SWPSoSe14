@@ -309,8 +309,8 @@ void Backend::write_lambda_anonymous_classes(Graphs& graphs, ConstantPool& pool)
         std::ofstream outFile(ss.str(), std::ofstream::binary);
         codegen::Bytecode* code = new codegen::Bytecode(pool);
         code->build(graphs.find(*it));
-        codeMap.insert(std::pair<std::string, codegen::Bytecode&>("Closure", *code));
-        Lambda_classfile_writer clwriter(ClassfileWriter::JAVA_7, &pool, graphs, codeMap, &outFile);
+        codeMap.insert(std::pair<std::string, codegen::Bytecode&>(Lambda_interface_writer::method_name, *code));
+        Lambda_classfile_writer clwriter(name, ClassfileWriter::JAVA_7, &pool, graphs, codeMap, &outFile);
         clwriter.WriteClassfile();
         delete code;
       }

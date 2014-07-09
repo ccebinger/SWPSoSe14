@@ -43,8 +43,15 @@ void Lambda_interface_writer::WriteClassName()
 
 size_t Lambda_interface_writer::get_class_ref()
 {
-  return constant_pool_->addClassRef(constant_pool_->addString(lambda_class_name));
+  return get_class_ref(lambda_class_name);
 }
+
+
+size_t Lambda_interface_writer::get_class_ref(const std::string& _class)
+{
+  return constant_pool_->addClassRef(constant_pool_->addString(_class));
+}
+
 void Lambda_interface_writer::WriteClInitMethod()
 {
   writer.writeU16(0);
