@@ -30,7 +30,10 @@ Lambda_classfile_writer::~Lambda_classfile_writer() {
 
 
 void Lambda_classfile_writer::WriteConstantPool() {
-
+  uint16_t idx = constant_pool_->addString(Lambda_interface_writer::lambda_class_name);
+  constant_pool_->addClassRef(idx);
+  constant_pool_->addString("InnerClasses");
+  constant_pool_->addString("EnclosingMethod"); //optional
 
 
   size_t size = constant_pool_->size() + 1;
