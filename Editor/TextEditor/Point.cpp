@@ -424,7 +424,7 @@ int Point::get_I_Direction(){
     if(directions > 1) return 0;
     switch (sign) {
     case '$':
-        direction = 1;
+        direction = 8;
         break;
     case '-':
         if(iStart & (128+16+4))direction = 8;

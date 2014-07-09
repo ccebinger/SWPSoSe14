@@ -173,7 +173,15 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
                 finishGrab();
                 return;
             }
-            setPosition(m_cursorRowPos + 1, 0);
+            if((ApplicationPreferences::cursorMode == ApplicationConstants::SMART)
+                    && (getSign(m_cursorRowPos, 0) == '$'))
+            {
+                setPosition(m_cursorRowPos + 1, 1);
+            }
+            else
+            {
+                setPosition(m_cursorRowPos + 1, 0);
+            }
         }
         else if(key == Qt::Key_Backspace)
         {
