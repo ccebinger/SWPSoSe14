@@ -51,3 +51,18 @@ void Bytecode_writer::writeU32(uint32_t value) {
 void Bytecode_writer::writeVector(std::vector<unsigned char> values) {
   filestream.write(reinterpret_cast<char*> (&values[0]) , values.size());
 }
+
+
+
+void Bytecode_writer::write_array(size_t len, const unsigned char arr[])
+{
+  for (size_t i = 0; i < len; i++)
+    writeU8((uint8_t) arr[i]);
+}
+
+
+void Bytecode_writer::write_array(size_t len, const char arr[])
+{
+  for (size_t i = 0; i < len; i++)
+    writeU8((uint8_t) arr[i]);
+}
