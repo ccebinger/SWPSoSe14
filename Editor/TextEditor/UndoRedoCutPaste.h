@@ -4,29 +4,30 @@
 #include <qlist.h>
 #include <qchar.h>
 #include <qstring.h>
+#include "TextSelection.h"
 
 class UndoRedoCutPaste: public UndoRedoElement
 {
 private:
+    TextSelection pre, post;
     int topRow;
     int leftColumn;
-    int bottomRow;
-    int rightColumn;
-    QList<QChar> pre;
-    QList<QChar> post;
 
 public:
 
-    UndoRedoCutPaste(int topRow, int leftColumn, int bottomRow, int rightColumn, QList<QChar> pre, QList<QChar> post, QString displayPrefix)
+    UndoRedoCutPaste(int topRow, int leftColumn, TextSelection pre, TextSelection post, QString displayPrefix)
     {
         this->topRow = topRow;
         this->leftColumn = leftColumn;
-        this->bottomRow = bottomRow;
-        this->rightColumn = rightColumn;
         this->pre = pre;
         this->post = post;
 
-        displayName = displayPrefix + " at (" + QString::number(topRow+1) + ", " + QString::number(leftColumn+1) + ", " + QString::number(bottomRow+1) + ", " + QString::number(rightColumn+1) + ")";
+        QString topRowString = QString::number(topRow + 1);
+        QString leftColumnString = QString::number(leftColumn + 1);
+        QString bottomRowString = QString::number(topRow + pre.height());
+        QString rightColumnString = QString::number(leftColumn + pre.width());
+
+        displayName = displayPrefix + " at (" + topRowString + ", " + leftColumnString + ", " + bottomRowString + ", " + rightColumnString + ")";
     }
 
     int getTop() const
@@ -39,22 +40,12 @@ public:
         return leftColumn;
     }
 
-    int getBottom() const
-    {
-        return bottomRow;
-    }
-
-    int getRight() const
-    {
-        return rightColumn;
-    }
-
-    QList<QChar> getPre() const
+    TextSelection getPre() const
     {
         return pre;
     }
 
-    QList<QChar> getPost() const
+    TextSelection getPost() const
     {
         return post;
     }
