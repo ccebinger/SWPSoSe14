@@ -441,6 +441,16 @@ class Bytecode {
   Bytecode* add_ldc_string(const std::string& constant);
 
   /**
+   * Adds bytecode into a char vector to load a given constant within a method.
+   * Do not misunderstand with loading/push a constant in rail.
+   *
+   * @param  constant        the constant you want to load
+   * @param  code            the vector which should get the bytecode
+   * @return                 the pointer of the current Bytecode class object
+   */
+  Bytecode* add_ldc_string(const std::string& constant, std::vector<unsigned char>& code);
+
+  /**
   * Adds bytecode for the lambda declaration, means creates an Object
   * which implements the Lambda interface.
   * The Classname is given via the Node.arg. The object will be pushed into the ArrayDeque (globalstack).
