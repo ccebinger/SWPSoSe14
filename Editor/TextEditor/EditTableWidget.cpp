@@ -164,7 +164,7 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
     int key = keyEvent->key();
 
 
-    if(!keyEvent->text().isEmpty())
+    if(!keyEvent->text().isEmpty() || key == Qt::Key_Dead_Circumflex)
     {
         if(key == Qt::Key_Enter || key == Qt::Key_Return)
         {
@@ -214,7 +214,14 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
             {
                 return;
             }
-            setSign(m_cursorRowPos, m_cursorColPos, keyEvent->text().at(0));
+            if(key == Qt::Key_Dead_Circumflex)
+            {
+                setSign(m_cursorRowPos, m_cursorColPos, '^');
+            }
+            else
+            {
+                setSign(m_cursorRowPos, m_cursorColPos, keyEvent->text().at(0));
+            }
             // next position is calculated by the internal graph
             // hence we don't set the next position here
         }
@@ -254,15 +261,6 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
             setForegroundText(m_cursorRowPos, m_cursorColPos);
         }
     }
-}
-
-void EditTableWidget::inputMethodEvent(QInputMethodEvent *event)
-{
-    if(event->commitString() == "^" )
-    {
-        keyPressEvent(new QKeyEvent(QEvent::KeyPress, Qt::Key_Dead_Circumflex, Qt::NoModifier, "^"));
-    }
-    event->accept();
 }
 
 void EditTableWidget::setPosition(int row, int col, bool extendSelection)

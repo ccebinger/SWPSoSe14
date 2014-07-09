@@ -43,7 +43,6 @@ private:
     void mousePressEvent(QMouseEvent *mouseEvent);
     void mouseMoveEvent(QMouseEvent *mouseEvent);
     void keyPressEvent(QKeyEvent *keyEvent);
-    void inputMethodEvent(QInputMethodEvent *event);
 
     void calculateCellFromPos(QPoint pos, int *row, int *column) const;
     void findContentMaxValues();
