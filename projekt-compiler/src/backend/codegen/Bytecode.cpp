@@ -705,6 +705,10 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
 
+  std::vector<unsigned char> first_conditional_body;
+  code->add_ldc_string("string", first_conditional_body);
+  first_conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
+
   code->globalstack_pop()
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.getClass)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
@@ -716,6 +720,12 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
       ->add_ldc_string("")
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.replace)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.toLowerCase)
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
+      ->add_ldc_string("integer")
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.equals)
+      ->add_conditional_with_instruction(codegen::MNEMONIC::IFEQ, first_conditional_body)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
       ->globalstack_push();
 }
 
