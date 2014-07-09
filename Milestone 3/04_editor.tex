@@ -1,0 +1,76 @@
+\begin{frame}{Rail-Editor: Übersicht}
+
+	Übersicht:
+	\begin{itemize}
+		\item Softwaretechnik
+		\item Technische Aspekte
+		\item Live-Demo
+	\end{itemize}
+
+\end{frame}
+
+\pagebreak
+
+\begin{frame}{Rail-Editor: Softwaretechnik}
+	\begin{itemize}
+		\item kleines Team $\rightarrow$ Kommunikation per Email
+		\item direkte Reaktionen auf Emails (an alle geschickt)
+		\item zuerst zwei, nach dem ersten Milestone drei Mitglieder
+		\begin{itemize}
+			\item bessere Arbeitsverteilung
+		\end{itemize}
+		\item Teilnahme an Daily Scrums (montags und mittwochs)
+		\item zusätzliche Team-Meetings außer donnerstags
+		\begin{itemize}
+			\item produktives Arbeiten durch Pair-Programming
+		\end{itemize}
+		\item gute Kommunikation innerhalb des Teams
+		\item anfangs spärliche Kommunikation mit anderen Teams
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Rail-Editor: Technische Aspekte I}
+	\begin{itemize}
+		\item \textit{QT} für Programmierung der grafischen Benutzeroberfläche
+		\item Signal- und Slottechnik
+		\item Eventverarbeitung für Maus- und Tastendrücke
+		\item Basisklassen abgeleitet und Funktionalitäten erweitert
+		\item Graphstruktur für Syntax-Highlighting
+		\begin{itemize}
+			\item internes Backend
+		\end{itemize}
+		\item Smart-Cursor und Grab-Modus
+		\begin{itemize}
+			\item für intuitives Schreiben von Quellcode
+			\item siehe Live-Demo
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Rail-Editor: Technische Aspekte II}
+	\begin{itemize}
+		\item Main-Window als \textit{Brain}
+		\begin{itemize}
+			\item Weiterleitung an Child-Widgets
+		\end{itemize}
+		\item Undo-Redo-Funktionalität
+		\begin{itemize}
+			\item abstrakte Klasse
+			\item wird durch konkrete Aktionen implementiert
+		\end{itemize}
+		\item Compiler-Einbindung
+		\begin{itemize}
+			\item Funktionen: Build, Run, Stop
+			\item auch der Rail-Interpreter kann verwendet werden
+		\end{itemize}
+		\item \textit{Preferences} (Editor-Einstellungen)
+		\begin{itemize}
+			\item persistent gespeichert
+		\end{itemize}
+	\end{itemize}
+	
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.7\textwidth]{editor-uebersicht}
+	\end{figure}
+\end{frame}
