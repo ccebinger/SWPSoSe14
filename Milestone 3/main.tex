@@ -16,14 +16,16 @@
 % to show usage of some features specific to the FU Berlin template.
 
 % remove this line and the "ucs" option to the documentclass when your editor is not utf8-capable
-\usepackage[utf8x]{inputenc}    % to make utf-8 input possible
-\usepackage[english]{babel}     % hyphenation etc., alternatively use 'german' as parameter
+\usepackage[utf8x]{inputenc} % to make utf-8 input possible
+\usepackage[english]{babel} % hyphenation etc., alternatively use 'german' as parameter
 
-\include{fu-beamer-template}  % THIS is the line that includes the FU template!
+\include{fu-beamer-template} % THIS is the line that includes the FU template!
 
 \usepackage{arev,t1enc} % looks nicer than the standard sans-serif font
 % if you experience problems, comment out the line above and change
 % the documentclass option "9pt" to "10pt"
+
+\usepackage{graphicx}
 
 % image to be shown on the title page (without file extension, should be pdf or png)
 \titleimage{fu_500}
@@ -46,7 +48,7 @@
 {Conference on Fabulous Presentations, 2003}
 % - Either use conference name or its abbreviation.
 % - Not really informative to the audience, more for people (including
-%   yourself) who are reading the slides online
+% yourself) who are reading the slides online
 
 \subject{Theoretical Computer Science}
 % This is only inserted into the PDF information catalog. Can be left
@@ -76,13 +78,15 @@
   % You might wish to add the option [pausesections]
 \end{frame}
 
+\include{04_editor}
+
 \section{Motivation}
 
 \subsection{The Basic Problem That We Studied}
 
 \begin{frame}{Make Titles Informative. Use Uppercase Letters. Long Titles are Split Automatically.}{Subtitles are optional.}
   % - A title should summarize the slide in an understandable fashion
-  %   for anyone how does not follow everything on the slide itself.
+  % for anyone how does not follow everything on the slide itself.
   \begin{itemize}
   \item
     Use \texttt{itemize} a lot.
@@ -100,7 +104,7 @@
     \item
       First item.
       \pause
-    \item    
+    \item
       Second item.
     \end{itemize}
   \item
@@ -127,7 +131,7 @@
 
 \begin{frame}[fragile]{An old algorithm}
 % NB. listings is quite powerful, but not well suited to be used with beamer
-%  consider using semiverbatim or the like, see below
+% consider using semiverbatim or the like, see below
 \begin{lstlisting}[language=C]
 int main (void)
 {
@@ -151,12 +155,12 @@ int main (void)
 \uncover<1->{\alert<0>{\{}}
 \uncover<1->{\alert<1>{ \alert<4>{std::}vector<bool> is_prime (100, true);}}
 \uncover<1->{\alert<1>{ for (int i = 2; i < 100; i++)}}
-\uncover<2->{\alert<2>{    if (is_prime[i])}}
-\uncover<2->{\alert<0>{      \{}}
-\uncover<3->{\alert<3>{        \alert<4>{std::}cout << i << " ";}}
-\uncover<3->{\alert<3>{        for (int j = i; j < 100;}}
-\uncover<3->{\alert<3>{             is_prime [j] = false, j+=i);}}
-\uncover<2->{\alert<0>{      \}}}
+\uncover<2->{\alert<2>{ if (is_prime[i])}}
+\uncover<2->{\alert<0>{ \{}}
+\uncover<3->{\alert<3>{ \alert<4>{std::}cout << i << " ";}}
+\uncover<3->{\alert<3>{ for (int j = i; j < 100;}}
+\uncover<3->{\alert<3>{ is_prime [j] = false, j+=i);}}
+\uncover<2->{\alert<0>{ \}}}
 \uncover<1->{\alert<0>{ return 0;}}
 \uncover<1->{\alert<0>{\}}}
 \end{semiverbatim}
@@ -187,7 +191,7 @@ int main (void)
  \item<2-> Let $q$ be the product of the first $p$ numbers.
  \item<3-> Then $q + 1$ is not divisible by any of them.
  \item<1-> Thus $q + 1$ is also prime and greater than $p$.\qedhere
- \end{enumerate} 
+ \end{enumerate}
  \end{proof}
  \uncover<4->{The proof used \textit{reductio ad absurdum}.}
 \end{frame}
@@ -239,7 +243,7 @@ int main (void)
 
 
 
-% All of the following is optional and typically not needed. 
+% All of the following is optional and typically not needed.
 \appendix
 \section<presentation>*{\appendixname}
 \subsection<presentation>*{For Further Reading}
@@ -259,7 +263,7 @@ int main (void)
  
     
   \beamertemplatearticlebibitems
-  % Followed by interesting articles. Keep the list short. 
+  % Followed by interesting articles. Keep the list short.
 
   \bibitem{Someone2000}
     S.~Someone.

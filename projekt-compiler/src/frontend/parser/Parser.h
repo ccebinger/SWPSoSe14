@@ -265,7 +265,6 @@ class Parser {
 		map<NodeIdentifier,std::shared_ptr<Node>> allNodes;
 		std::shared_ptr<Adjacency_list> currentAbstractSyntaxGraph;
 		std::shared_ptr<Node> currentNode;
-		int lastUsedId = 0;
 		bool addNextNodeAsTruePathOfPreviousNode = true;
 
 
@@ -280,7 +279,6 @@ class Parser {
 		void parseVariable(string data,NodeIdentifier);
 		bool parseJunctions(list<Direction>,int,int,string,Command::Type,NodeIdentifier);
 		bool checkForValidCommandsInStraightDir(int,int);
-		int getNextUnusedId();
 		void setRowCol(int,int);
 		void stepStraight();
 		string readCharsUntil(uint32_t);
