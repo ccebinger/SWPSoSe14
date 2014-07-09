@@ -223,7 +223,6 @@ public class Env {
 				throw new RuntimeException("Env.getBackendCmd() Haskell Backend not present for non-AST mode");
 			case Cpp_Haskell:
 			case Haskell_Haskell:
-				//FIXME Haskell
 				return binaryHaskell.resolve("run-backend.sh") + " " + getCsvPath(mode, filename) + " " + getTargetPath(mode, filename);
 			case Interpreter:
 				throw new RuntimeException("Env.getBackendCmd() Interpreter != Compiler. Don't call me!");

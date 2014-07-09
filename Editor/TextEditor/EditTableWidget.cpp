@@ -173,7 +173,15 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
                 finishGrab();
                 return;
             }
-            setPosition(m_cursorRowPos + 1, 0);
+            if((ApplicationPreferences::cursorMode == ApplicationConstants::SMART)
+                    && (getSign(m_cursorRowPos, 0) == '$'))
+            {
+                setPosition(m_cursorRowPos + 1, 1);
+            }
+            else
+            {
+                setPosition(m_cursorRowPos + 1, 0);
+            }
         }
         else if(key == Qt::Key_Backspace)
         {
@@ -505,6 +513,8 @@ void EditTableWidget::setPlainText(QString text)
 {
     this->blockSignals(true);
     clear();
+    ApplicationConstants::CursorMode tmpCursorMode = ApplicationPreferences::cursorMode;
+    ApplicationPreferences::cursorMode = ApplicationConstants::NORMAL;
     for(int i = 0; i < text.size(); i++)
     {
         QChar c = text.at(i);
@@ -517,13 +527,13 @@ void EditTableWidget::setPlainText(QString text)
         else
         {
             setSign(m_cursorRowPos, m_cursorColPos, c);
-            setPosition(m_cursorRowPos, m_cursorColPos + 1);
         }
     }
     this->blockSignals(false);
-    this->setPosition(0, 0);
     // Somehow the very first letter is cleared, hence we set it here again manually
     setSign(0, 0, text.at(0));
+    this->setPosition(0, 0);
+    ApplicationPreferences::cursorMode = tmpCursorMode;
 }
 
 void EditTableWidget::undo(UndoRedoElement *e)

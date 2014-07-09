@@ -82,6 +82,8 @@ public class StatsDatabase extends Stats {
 	
 	
 	public long getTestfileId(String filepath) throws SQLException {
+		
+		
 		result = stmt.executeQuery("SELECT idTestfile FROM testfile WHERE path='"+filepath+"';");
 		if(result.next()) {
 			return result.getLong(1);

@@ -1,57 +1,37 @@
 1. Java Eclipse Projekt erstellen in diesem Ordner
 
 
-2. in rail-interpreter die compile.sh ausführen
+2. Rail-Interpreter kompilieren
+	- Im Ordner die compile.sh ausführen
 
 
-Anmerkung: auf Leerzeichen wie "- d" achten -> 'auskommentiert' ;)
-
-2.1 In Eclipse ausführen
-	- run configurations -> arguments -> ausfüllen und anpassen
-	Anmerkung: "- d" läd nichts, weil leerzeichen ;)
-
-		--jail ../projekt-compiler/Debug/jail
-		-- haskell devNull
-		--interpreter ../rail-interpreter/rail
-		--tempDir tmp/
-		--no-colors
-		-- no-clean
-		--no-db
-		-- err-only
-		--verbose
-		--tempDir tmp/
-		- d ../projekt-compiler/test/
-		- d ../projekt-compiler/test/builtInCommand/
-		-d ../projekt-compiler/test/builtInCommand/conditional/
-		- d ../projekt-compiler/test/multiCharCommand/constant/
-		- d ../swpHaskell/integration-tests/
-		- d ../swpHaskell/integration-tests/future/
+3. Haskell zum Laufen kriegen (unter archlinux np, alle anderen müssten basteln oder verzichten)
+	- cabal-install installieren
+	- ins haskell git
 
 
-
-2.2 als jar
-	- projekt -> export -> runnable jar file -> package required libs ...
-	- run.sh anlegen mit parametern
+4. xTesting ausführen
+	- run.sh anlegen + ausführbar machen
 	- in etwa so....
 
 		#!/bin/sh
 		java -jar xTesting.jar \
-		--interpreter ../rail-interpreter/rail \
-		--jail ../projekt-compiler/Debug/jail \
-		-- haskell devNull \
-		--tempDir tmp/ \
-		-- no-colors \
-		-- no-clean \
-		--no-db \
-		-- err-only \
-		--verbose \
-		--tempDir tmp/ \
-		- d ../projekt-compiler/test/ \
+		--interpreter ../rail-interpreter/rail \		<-- Binary vom rail-interpreter
+		--jail ../projekt-compiler/Debug/jail \			<-- Binary von uns
+		-- haskell devNull \					<-- Ordner vom Haskell-Repo
+		--tempDir tmp/ \					<-- so lassen
+		-- no-colors \						<-- je nach konsole
+		-- no-clean \						<-- so lassen
+		--no-db \						<-- db aufsetzen oder drin lassen
+		-- err-only \						<-- geschmack
+		--verbose \						<-- geschmack
+		- d ../projekt-compiler/test/ \				<-- Ordner mit Testfiles (subdirs inklusive)
 		- d ../projekt-compiler/test/builtInCommand/ \
 		-d ../projekt-compiler/test/builtInCommand/conditional/ \
 		- d ../../swpHaskell/integration-tests/ \
 		- d ../../swpHaskell/integration-tests/future/ \
 
-	- ausführbar amchen
+	- ausführbar machen
 	- ausführen
+	- Anmerkung: auf Leerzeichen wie "- d" achten -> 'auskommentiert'
 

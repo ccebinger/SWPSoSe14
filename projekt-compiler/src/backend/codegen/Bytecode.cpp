@@ -54,6 +54,14 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
       state.current_node = current_node;
       f(state);
     }
+    // end Program after junction, because junction resolve recursivly and after
+    // both successor's path are build there is nothing to do
+    if((current_node->command.type == Command::Type::EASTJUNC) ||
+       (current_node->command.type == Command::Type::WESTJUNC) ||
+       (current_node->command.type == Command::Type::NORTHJUNC) ||
+       (current_node->command.type == Command::Type::SOUTHJUNC)){
+      break;
+    }
     current_node = current_node->successor1;
   }
   bytecode.push_back(codegen::MNEMONIC::RETURN);
@@ -707,15 +715,21 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
 void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
+  // store node because traversing successor1 end with last
+  // node of successor1
+  Graphs::Node_ptr store_node = state.current_node->successor2;
+
   Bytecode successor1(state.current_code->get_constant_pool());
   successor1.build(state.current_node->successor1);
   Bytecode successor2(state.current_code->get_constant_pool());
-  successor2.build(state.current_node->successor2);
+  successor2.build(store_node);
 
   code->globalstack_pop()
-      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.int_idx.class_idx)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.int_idx.int_value_idx)
-      ->add_conditional_with_else_branch(codegen::MNEMONIC::IFNE,
+      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST,
+                            pool.int_idx.class_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL,
+                            pool.int_idx.int_value_idx)
+      ->add_conditional_with_else_branch(codegen::MNEMONIC::IFEQ,
                                          successor1.get_bytecode(),
                                          successor2.get_bytecode());
 }

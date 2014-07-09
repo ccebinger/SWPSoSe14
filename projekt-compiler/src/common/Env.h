@@ -420,10 +420,21 @@ public:
 	 */
 	static inline void printCaption(const std::string head, bool forcePrint=false) {
 		if(Env::verbose() || forcePrint) {
-			std::cout << std::endl << "### " << head << " ";
-			for (size_t i = head.length(); i < 80; ++i) {
-				std::cout << "#";
+			std::cout << std::endl;
+			std::cout << std::endl << "$ '" << head << "' (--)";
+			std::cout << std::endl << " \\";
+//			std::cout << std::endl << "  ---[ " << head << " ]";
+//			for (size_t i = head.length(); i < 80; ++i) {
+//				std::cout << "-";
+//			}
+
+			for (size_t i = 2; i < 80; ++i) {
+				std::cout << "-";
 			}
+
+
+			std::cout << "#";
+			std::cout << std::endl;
 			std::cout << std::endl;
 		}
 	}

@@ -17,6 +17,7 @@ local.properties
 .settings/
 .loadpath
 projekt-compiler/Debug/
+projekt-compiler/io
 projekt-compiler/.project
 projekt-compiler/.cproject
 
@@ -249,6 +250,8 @@ rail-interpreter/
 abrt_checker_*.log
 
 # xTesting
-testresults.sqlite
-xTesting.jar
 xTesting/run.sh
+xTesting/*.ll
+
+
+

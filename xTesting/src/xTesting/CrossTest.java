@@ -37,7 +37,7 @@ public class CrossTest {
 		
 		// Find all test files
 		
-		System.out.print("looking up test files... ");
+		System.out.print("indexing test files... ");
 		for(String s : testPaths) {
 			dispatchPath(s);
 		}

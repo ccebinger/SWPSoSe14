@@ -39,6 +39,8 @@ void Lambda_classfile_writer::WriteConstantPool() {
 }
 
 void Lambda_classfile_writer::WriteAccessFlags() {
+  //TODO
+  //flags: ACC_FINAL, ACC_SUPER
   ClassfileWriter::WriteAccessFlags();
 }
 
@@ -63,7 +65,22 @@ void Lambda_classfile_writer::WriteMethods() {
 
   //TODO
   //CLOSURE METHOD
-
+  /*public void closure();
+      flags: ACC_PUBLIC
+      Code:
+        stack=2, locals=1, args_size=1
+           0: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
+           3: ldc           #3                  // String Hello
+           5: invokevirtual #4                  // Method java/io/PrintStream.print:(Ljava/lang/String;)V
+           8: return
+        LineNumberTable:
+          line 40: 0
+          line 41: 8
+        LocalVariableTable:
+          Start  Length  Slot  Name   Signature
+                 0       9     0  this   LLambdaBytecode$1;
+        org.netbeans.SourceLevelAnnotations: length = 0x6
+         00 01 00 13 00 00 */
   //===============================================================
 
 
@@ -77,5 +94,10 @@ void Lambda_classfile_writer::WriteInitMethod() {
 }
 
 void Lambda_classfile_writer::WriteAttributes(const std::string &key) {
+  //TODO
+  /*  EnclosingMethod: #23.#24                // LambdaBytecode.main
+  InnerClasses:
+       static #5; //class LambdaBytecode$1
+       */
   ClassfileWriter::WriteAttributes(key);
 }

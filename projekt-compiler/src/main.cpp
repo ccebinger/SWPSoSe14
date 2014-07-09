@@ -12,6 +12,16 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
+	if(Env::verbose()) {
+		std::cout << std::endl;
+		std::cout << "          __      _ __          " << std::endl;
+		std::cout << "         / /___ _(_) / __    __ " << std::endl;
+		std::cout << "    __  / / __ `/ / /_/ /___/ /_" << std::endl;
+		std::cout << "   / /_/ / /_/ / / /_  __/_  __/" << std::endl;
+		std::cout << "   \\____/\\__,_/_/_/ /_/   /_/   " << std::endl;
+		std::cout << std::endl;
+	}
+
 	Env::initTimer();
 
 	try {

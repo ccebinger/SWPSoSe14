@@ -424,13 +424,15 @@ int Point::get_I_Direction(){
     if(directions > 1) return 0;
     switch (sign) {
     case '$':
-        direction = 1;
+        direction = 8;
         break;
     case '-':
-        direction = (16 + 8) & ~iStart;
+        if(iStart & (128+16+4))direction = 8;
+        else if(iStart & (1+8+32))direction = 16;
         break;
     case '|':
-        direction = (64 + 2) & ~iStart;
+        if(iStart & (1+2+4))direction = 64;
+        else if(iStart & (32+64+128))direction = 2;
         break;
     case '<':
         if(iStart & 16)direction = 1;
