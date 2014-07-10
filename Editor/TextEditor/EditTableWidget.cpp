@@ -452,22 +452,57 @@ void EditTableWidget::applyStyleChanges(Stack *stack)
 
 void EditTableWidget::setSignStyle(int row, int col, int byteMask)
 {
-    // int: 00000000 00000000 00000000 00000000
-    //      rrrrrrrr gggggggg bbbbbbbb aaaaaaaa (rgb alpha)
-    //                                       ib
-    // We ignore alpha and use the bits of the least significant byte as style flags
+    bool unconnected = byteMask & ApplicationConstants::UNCONNECTED_OBJECT;
+    bool connectedRail = byteMask & ApplicationConstants::CONNECTED_RAIL;
+    bool functionName = byteMask & ApplicationConstants::FUNCTION_NAME;
+    bool functionCall = byteMask & ApplicationConstants::FUNCTION_CALL;
+    bool systemFunction = byteMask & ApplicationConstants::SYSTEM_FUNCTION;
+    bool string = byteMask & ApplicationConstants::STRING;
+    bool variable = byteMask & ApplicationConstants::VARIABLE;
+    bool grab = byteMask & ApplicationConstants::GRAB;
 
-    bool bold = byteMask & 1;
-    bool italic = byteMask & 2;
+    bool bold = false;
 
-    int red = (byteMask & 0xFF000000) >> 24;
-    int green = (byteMask & 0x00FF0000) >> 16;
-    int blue = (byteMask & 0x0000FF00) >> 8;
+    QColor color;
 
-    QColor color = QColor(red, green, blue);
+    if(grab)
+    {
+        color = ApplicationPreferences::grabColor;
+    }
+    else if(unconnected)
+    {
+        color = ApplicationPreferences::unconnectedRailsColor;
+    }
+    else if(functionName)
+    {
+        color = ApplicationPreferences::functionNamesColor;
+    }
+    else if(string)
+    {
+        color = ApplicationPreferences::stringsColor;
+        bold = variable || functionCall || systemFunction || connectedRail;
+    }
+    else if(variable)
+    {
+        color = ApplicationPreferences::variablesColor;
+        bold = functionCall || systemFunction || connectedRail;
+    }
+    else if(functionCall)
+    {
+        color = ApplicationPreferences::functionCallsColor;
+        bold = systemFunction || connectedRail;
+    }
+    else if(systemFunction)
+    {
+        color = ApplicationPreferences::systemFunctionColor;
+    }
+    else if(connectedRail)
+    {
+        color = ApplicationPreferences::connectedRailsColor;
+    }
+
     QString colorName = color.name();
     QString boldName = bold ? "bold" : "normal";
-    QString italicName = italic ? "italic" : "normal";
 
     QWidget *w = this->cellWidget(row, col);
 
@@ -476,7 +511,7 @@ void EditTableWidget::setSignStyle(int row, int col, int byteMask)
     {
         l = dynamic_cast<QLabel *>(w);
         assert(l);
-        l->setStyleSheet("QLabel { color: " + colorName + "; font-weight: " + boldName + "; font-style: " + italicName + ";};");
+        l->setStyleSheet("QLabel { color: " + colorName + "; font-weight: " + boldName + ";};");
     }
 }
 
@@ -766,6 +801,7 @@ void EditTableWidget::updateTextStyle()
                 setSign(row, col, whiteSpace, true);
             }
             // TODO: get sign style from graph interface
+            setSignStyle(row, col, m_graph.get_Point_Type(col, row));
         }
     }
 }
@@ -928,7 +964,7 @@ void EditTableWidget::setForegroundText(int row, int col)
         {
             QChar c = m_currentGrabbedText.text().at(i++);
             setDisplaySign(tmpRow, tmpCol, c);
-            setSignStyle(tmpRow, tmpCol, 0x20FFFF00);
+            setSignStyle(tmpRow, tmpCol, ApplicationConstants::GRAB);
         }
     }
     setSelection(row, col, m_currentGrabbedText.height(), m_currentGrabbedText.width());
@@ -946,6 +982,7 @@ void EditTableWidget::restoreBackgroundText(int row, int col, int height, int wi
                 c = QChar(m_graph.getSign(tmpCol, tmpRow));
             }
             setDisplaySign(tmpRow, tmpCol, c);
+            setSignStyle(row, col, m_graph.get_Point_Type(col, row));
         }
     }
 }
