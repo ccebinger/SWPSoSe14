@@ -38,7 +38,6 @@ std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
 };
 
 const unsigned char ClassfileWriter::inner_class_flag[] = {'\x00', '\x08'};
-const std::string ClassfileWriter::enclosing_attr = "EnclosingMethod";
 const std::string ClassfileWriter::inner_classes_attr = "InnerClasses";
 
 /*!
@@ -52,12 +51,13 @@ ClassfileWriter::ClassfileWriter(ClassfileVersion version,
                                  ConstantPool* constantPool,
                                  Graphs& graphs,
                                  const std::map<std::string, codegen::Bytecode&> codeFunctions,
-                                 std::ostream* out) : graphs_(graphs),
+                                 std::ostream* out) : inner_classes_count(0),
+                                                      graphs_(graphs),
                                                       writer(out),
                                                       out_(out),
                                                       version_(version),
-                                                      code_functions_(codeFunctions),
-                                                      inner_classes_count(0) {
+                                                      code_functions_(codeFunctions)
+                                                       {
   constant_pool_ = std::make_shared<ConstantPool>(*constantPool);
 }
 
@@ -65,12 +65,13 @@ ClassfileWriter::ClassfileWriter(ClassfileVersion version,
 ClassfileWriter::ClassfileWriter(ClassfileVersion version, ConstantPool* constantPool,
                 Graphs& graphs,
                 const std::map<std::string, codegen::Bytecode&> codeFunctions,
-                std::ostream* out, uint16_t inner_classes) : graphs_(graphs),
+                std::ostream* out, uint16_t inner_classes) :
+                                                      inner_classes_count(inner_classes),
+                                                      graphs_(graphs),
                                                       writer(out),
                                                       out_(out),
                                                       version_(version),
-                                                      code_functions_(codeFunctions),
-                                                      inner_classes_count(inner_classes) {
+                                                      code_functions_(codeFunctions) {
   constant_pool_ = std::make_shared<ConstantPool>(*constantPool);
 }
 

@@ -74,10 +74,11 @@ class Backend {
    * Nur statische Methoden.
    */
   Backend();
-
-  static uint16_t write_lambda_classes(Graphs& graphs, ConstantPool& constantPool);
-  static void write_lambda_interface(Graphs& graphs);
-  static uint16_t write_lambda_anonymous_classes(Graphs& graphs, ConstantPool& constantPool);
+  static std::string get_lambda_class_name(const std::string& name, bool anonymous);
+  //static void write_lambda_classes(Graphs::Graph_ptr graph, ConstantPool& constantPool);
+  static void write_lambda_interface();
+  static void write_lambda_anonymous_classes(Graphs& graphs, ConstantPool& constantPool, codegen::Bytecode* code);
+  static void write_lambda_anonymous_class(Graphs::Graph_ptr graph, ConstantPool& constantPool, std::string& name);
   static void add_entries_to_constantpool(ConstantPool& constantPool);
   static void add_functions_to_constantpool(ConstantPool& constantPool, std::vector<std::string>& keyset);
   static void write_lambda_default_constantpool(ConstantPool& constant_pool, const std::string& lambda_class_name);
