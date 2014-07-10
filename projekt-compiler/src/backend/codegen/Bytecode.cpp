@@ -53,6 +53,7 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
       state.current_code = this;
       state.current_node = current_node;
       f(state);
+      proccessedList.push_back(current_node);
     }
     // end Program after junction, because junction resolve recursivly and after
     // both successor's path are build there is nothing to do
@@ -68,7 +69,10 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
   return this;
 }
 
-codegen::Bytecode* codegen::Bytecode::build(Graphs::Node_ptr current_node) {
+codegen::Bytecode* codegen::Bytecode::build(Graphs::Node_ptr current_node,
+                                            std::vector<Graphs::Node_ptr> *_proccessedList) {
+  proccessedList.insert(proccessedList.begin(), _proccessedList->begin(),
+                        _proccessedList->end());
   while (current_node && current_node->command.type != Command::Type::FINISH) {
     func_ptr f = func_map.at(current_node->command.type);
     if (f) {
@@ -76,9 +80,15 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Node_ptr current_node) {
       state.current_code = this;
       state.current_node = current_node;
       f(state);
+      proccessedList.push_back(current_node);
     }
     current_node = current_node->successor1;
   }
+  std:: cout << "proccessedList: ";
+  for (auto c : proccessedList) {
+    std::cout << c->id << ", ";
+  }
+  std::cout << std::endl;
   return this;
 }
 
@@ -757,9 +767,9 @@ void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
   Graphs::Node_ptr store_node = state.current_node->successor2;
 
   Bytecode successor1(state.current_code->get_constant_pool());
-  successor1.build(state.current_node->successor1);
+  successor1.build(state.current_node->successor1, &(code->proccessedList));
   Bytecode successor2(state.current_code->get_constant_pool());
-  successor2.build(store_node);
+  successor2.build(store_node, &(code->proccessedList));
 
   code->globalstack_pop()
       ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST,
