@@ -166,6 +166,12 @@ class Bytecode {
    * @return         the Bytecode class object
    */
   Bytecode* build(Graphs::Graph_ptr graph);
+  /**
+   * The build method to build/create the Java Bytecode for the corresponding Graph (Rail-function).
+   * This function get called recursivly to generate the bytecode inside the junction
+   * @param current_node the Node_ptr which points on the Graph for which the bytecode will be created
+   * @return             the Bytecode class object
+   */
   Bytecode* build(Graphs::Node_ptr current_node);
 
   //GETTER
