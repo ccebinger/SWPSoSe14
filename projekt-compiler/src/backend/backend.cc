@@ -306,11 +306,12 @@ void Backend::write_lambda_anonymous_classes(Graphs& graphs, ConstantPool& pool,
 	for (codegen::Bytecode::STRINGS::iterator lam_it = lambdas.begin(); lam_it != lambdas.end(); lam_it++) {
 		std::string graph_name = *lam_it;
 		graph_name = graph_name.replace(0, 1, "&");
-		write_lambda_anonymous_class(graphs.find(graph_name), pool, *lam_it);
+		LocalVariableStash locals = code->get_lambda_locals(*lam_it);
+		write_lambda_anonymous_class(graphs.find(graph_name), pool, *lam_it, locals);
 	}
 }
 
-void Backend::write_lambda_anonymous_class(Graphs::Graph_ptr graph, ConstantPool& pool, std::string& name)
+void Backend::write_lambda_anonymous_class(Graphs::Graph_ptr graph, ConstantPool& pool, std::string& name, LocalVariableStash& locals)
 {
 	std::stringstream class_name_ss;
 	class_name_ss << Env::getDstClassName() << name;
@@ -324,7 +325,7 @@ void Backend::write_lambda_anonymous_class(Graphs::Graph_ptr graph, ConstantPool
 	code->build(graph);
 	codeMap.insert(std::pair<std::string, codegen::Bytecode&>(Lambda_interface_writer::method_name, *code));
 	Graphs graphs;
-	Lambda_classfile_writer clwriter(cls_name, ClassfileWriter::JAVA_7, &pool, graphs, codeMap, &outFile);
+	Lambda_classfile_writer clwriter(cls_name, locals, ClassfileWriter::JAVA_7, &pool, graphs, codeMap, &outFile);
 	clwriter.WriteClassfile();
 	delete code;
 }

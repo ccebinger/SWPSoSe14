@@ -20,11 +20,11 @@
 const unsigned char Lambda_classfile_writer::anonymous_class_access_flags[] = {'\x00', '\x30'};
 
 
-Lambda_classfile_writer::Lambda_classfile_writer(std::string& class_name, ClassfileVersion version,
+Lambda_classfile_writer::Lambda_classfile_writer(std::string& class_name, LocalVariableStash locals, ClassfileVersion version,
                                  ConstantPool* constantPool,
                                  Graphs& graphs,
                                  const std::map<std::string, codegen::Bytecode&> codeFunctions,
-                                 std::ostream* out) : Lambda_interface_writer(version, constantPool, graphs, codeFunctions, out),  class_name(class_name)  {
+                                 std::ostream* out) : Lambda_interface_writer(version, constantPool, graphs, codeFunctions, out),  class_name(class_name), fields(locals)  {
 
 }
 

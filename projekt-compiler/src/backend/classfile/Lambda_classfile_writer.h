@@ -41,13 +41,14 @@ public:
    * @param codeFunctions       The mapping of the function and appropriate bytecode.
    * @param out                 The stream we write on.
    */
-  Lambda_classfile_writer(std::string& class_name, ClassfileVersion version, ConstantPool* constantPool,
+  Lambda_classfile_writer(std::string& class_name, LocalVariableStash locals, ClassfileVersion version, ConstantPool* constantPool,
                     Graphs& graphs,
                     const std::map<std::string, codegen::Bytecode&> codeFunctions,
                     std::ostream* out);
   virtual ~Lambda_classfile_writer();
 protected:
   std::string class_name;
+  LocalVariableStash fields;
   static const unsigned char anonymous_class_access_flags[];
 
   /**
