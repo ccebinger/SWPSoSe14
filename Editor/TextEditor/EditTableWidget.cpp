@@ -790,7 +790,6 @@ void EditTableWidget::setSelection(int row, int col, int height, int width)
 
 void EditTableWidget::updateTextStyle()
 {
-    QChar whiteSpace = ApplicationPreferences::showWhiteSpaces ? visibleWhiteSpace : ' ';
     for(int row = 0; row < this->rowCount(); row++)
     {
         for(int col = 0; col < this->columnCount(); col++)
@@ -798,9 +797,8 @@ void EditTableWidget::updateTextStyle()
             QChar c = getDisplaySign(row, col);
             if(c == ' ' || c == visibleWhiteSpace)
             {
-                setSign(row, col, whiteSpace, true);
+                setDisplaySign(row, col, c);
             }
-            // TODO: get sign style from graph interface
             setSignStyle(row, col, m_graph.get_Point_Type(col, row));
         }
     }

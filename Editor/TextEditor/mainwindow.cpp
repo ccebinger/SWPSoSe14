@@ -885,7 +885,7 @@ void MainWindow::writeSettings() const
     settings.setValue("colors/functionCalls", ApplicationPreferences::functionCallsColor);
     settings.setValue("colors/strings", ApplicationPreferences::stringsColor);
     settings.setValue("colors/variables", ApplicationPreferences::variablesColor);
-    settings.setValue("colors/variables", ApplicationPreferences::grabColor);
+    settings.setValue("colors/grab", ApplicationPreferences::grabColor);
 
     settings.setValue("common/recentFiles", shortenendRecent);
     settings.setValue("editor/showLineNumbers", ApplicationPreferences::showLineNumbers);
