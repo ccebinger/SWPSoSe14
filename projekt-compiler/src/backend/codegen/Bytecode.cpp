@@ -120,6 +120,9 @@ bool codegen::Bytecode::find_lambda(std::string& name) {
   return pos != lambdas.end();
 }
 
+LocalVariableStash codegen::Bytecode::get_lambda_locals(std::string& name) {
+  return lamda_variables.at(name);
+}
 //================================================================================
 //==================================SETTER========================================
 //================================================================================
@@ -331,6 +334,7 @@ codegen::Bytecode* codegen::Bytecode::add_lambda_declaration(Graphs::Node_ptr cu
   ss << Env::getDstClassName() << anonymous_class_idx;
   std::string anonymous_class_name = ss.str();
   lambdas.push_back(anonymous_class_idx);
+  lamda_variables.insert(std::pair<std::string, LocalVariableStash> (anonymous_class_idx, locals)); //add locals which are exists on the time on which lambda is declared
 
   size_t anonym_str_idx = pool.addString(anonymous_class_name);
   size_t anonym_class_idx = pool.addClassRef(anonym_str_idx);

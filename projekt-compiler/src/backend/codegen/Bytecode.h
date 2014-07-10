@@ -154,6 +154,11 @@ class Bytecode {
   * The typedef for the std::vector which should contain std::strings.
   */
   typedef std::vector<std::string> STRINGS;
+
+  /**
+  * The typedef for the std::map which should contain for a key std::string an LocalVariableStash object.
+  */
+  typedef std::map<std::string, LocalVariableStash> VARIABLE_MAP;
   //UTIL
   /**
    * The ctor to create a Bytecode class object.
@@ -231,6 +236,13 @@ class Bytecode {
   * @return            true if the bytecode is created for a lambda closure method false otherwise
   */
   bool is_lambda_code();
+
+  /**
+  * Returns for the given lambda name the local variable stash which are exists at the declaration time.
+  * @param lambda       the name which indicates the lambda
+  * @return             the variables which are exists at this time on which the lambda was declared
+  */
+  LocalVariableStash get_lambda_locals(std::string& lambda);
 
   //SETTER
   /*
@@ -547,6 +559,11 @@ class Bytecode {
   * Indicates whether the bytecode is created for a lambda method or not.
   */
   bool lambda_code;
+
+  /**
+  * Stores for the lambda name the local variables which was declared.
+  */
+  VARIABLE_MAP lamda_variables;
 };
 
 /**

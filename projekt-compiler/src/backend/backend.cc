@@ -72,7 +72,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
 			code->build(graphs.find(*it));
 			codeMap.insert(std::pair<std::string, codegen::Bytecode&>(*it, *code));
 			codegen::Bytecode::STRINGS lambdas = code->get_lambdas();
-			write_lambda_anonymous_classes(graphs, constantPool, lambdas, code->get_locals());
+			write_lambda_anonymous_classes(graphs, constantPool, code);
 			lambda_count += lambdas.size();
 		}
 	}
@@ -300,8 +300,9 @@ std::string Backend::get_lambda_class_name(const std::string& name, bool anonymo
 	return ss.str();
 }
 
-void Backend::write_lambda_anonymous_classes(Graphs& graphs, ConstantPool& pool, codegen::Bytecode::STRINGS& lambdas, LocalVariableStash& variables)
+void Backend::write_lambda_anonymous_classes(Graphs& graphs, ConstantPool& pool, codegen::Bytecode* code)
 {
+  codegen::Bytecode::STRINGS lambdas = code->get_lambdas();
 	for (codegen::Bytecode::STRINGS::iterator lam_it = lambdas.begin(); lam_it != lambdas.end(); lam_it++) {
 		std::string graph_name = *lam_it;
 		graph_name = graph_name.replace(0, 1, "&");
