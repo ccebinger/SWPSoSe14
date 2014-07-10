@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <algorithm>
 
 #include <backend/classfile/constant_pool.h>
 #include <backend/codegen/local_variable_stash.h>
@@ -148,12 +149,17 @@ class Bytecode {
    * The typedef for the std::vector which should contain the Java Bytecode.
    */
   typedef std::vector<unsigned char> Code;
+
+  /**
+  * The typedef for the std::vector which should contain std::strings.
+  */
+  typedef std::vector<std::string> STRINGS;
   //UTIL
   /**
    * The ctor to create a Bytecode class object.
    * @param pool     the constantpool which will be used to reference to the method and classes in the bytecode
    */
-  Bytecode(ConstantPool& pool);
+  Bytecode(ConstantPool& pool, bool is_lambda_code = false);
 
   /**
    * The destructor to clean up the Bytecode class object.
@@ -205,6 +211,27 @@ class Bytecode {
   * @return          the closure method index
   */
   uint16_t get_lambda_closure_idx();
+
+  /**
+  * Returns the anonymous class names/indexes ($count) which are created in the bytecode.
+  * @return           the created lambdas in the code
+  */
+  STRINGS get_lambdas();
+
+  /**
+  * Checks if the given anonymous class named exists or was created by the bytecode.
+  *
+  * @param name        the name which are searched
+  * @return            true if the lambda was created by the code false otherwise
+  */
+  bool find_lambda(std::string& name);
+
+  /**
+  * Returns true if the code is created for a lambda closure method.
+  * @return            true if the bytecode is created for a lambda closure method false otherwise
+  */
+  bool is_lambda_code();
+
   //SETTER
   /*
    *
@@ -510,6 +537,16 @@ class Bytecode {
   * If the idx is 0 then no lambda object was declared before or the declaration was in another method.
   */
   uint16_t lambda_closure_idx = 0;
+
+  /**
+  * Contains the names of the created lambda objects (anonymous classes) by the bytecode.
+  */
+  STRINGS lambdas;
+
+  /**
+  * Indicates whether the bytecode is created for a lambda method or not.
+  */
+  bool lambda_code;
 };
 
 /**
