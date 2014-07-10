@@ -535,7 +535,6 @@ void codegen::list_push_ByteCode(Bytecode::Current_state state) {
   conditional_body.push_back(ALOAD_1);
   code->add_opcode_with_idx(MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.add_idx, conditional_body);
   conditional_body.push_back(MNEMONIC::POP); // discard add() return value
-  conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
 
   code->globalstack_pop()
       ->add_opcode(codegen::MNEMONIC::ASTORE_2)
@@ -545,6 +544,7 @@ void codegen::list_push_ByteCode(Bytecode::Current_state state) {
       ->add_opcode(MNEMONIC::DUP)
       ->add_opcode_with_idx(codegen::MNEMONIC::INSTANCE_OF, pool.list_idx.class_idx)
       ->add_conditional_with_instruction(codegen::MNEMONIC::IFNE, conditional_body)
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1)
       ->add_opcode(codegen::MNEMONIC::ALOAD_1)
       ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.list_idx.class_idx)
       ->add_opcode(codegen::MNEMONIC::DUP)
