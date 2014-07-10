@@ -38,7 +38,6 @@ std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
 };
 
 const unsigned char ClassfileWriter::inner_class_flag[] = {'\x00', '\x08'};
-const std::string ClassfileWriter::enclosing_attr = "EnclosingMethod";
 const std::string ClassfileWriter::inner_classes_attr = "InnerClasses";
 
 /*!
