@@ -841,6 +841,10 @@ void MainWindow::readSettings()
     colorVariant = settings.value("colors/variables", colorDefaultVariant);
     ApplicationPreferences::variablesColor = colorVariant.value<QColor>();
 
+    colorDefaultVariant = ApplicationDefaultValues::grabColor;
+    colorVariant = settings.value("colors/grab", colorDefaultVariant);
+    ApplicationPreferences::grabColor = colorVariant.value<QColor>();
+
     ApplicationPreferences::recentFiles = settings.value("common/recentFiles", ApplicationDefaultValues::recentFiles).toStringList();
     ApplicationPreferences::showLineNumbers = settings.value("editor/showLineNumbers", ApplicationDefaultValues::showLineNumbers).toBool();
     ApplicationPreferences::showWhiteSpaces = settings.value("editor/showWhiteSpaces", ApplicationDefaultValues::showWhiteSpaces).toBool();
@@ -881,6 +885,7 @@ void MainWindow::writeSettings() const
     settings.setValue("colors/functionCalls", ApplicationPreferences::functionCallsColor);
     settings.setValue("colors/strings", ApplicationPreferences::stringsColor);
     settings.setValue("colors/variables", ApplicationPreferences::variablesColor);
+    settings.setValue("colors/grab", ApplicationPreferences::grabColor);
 
     settings.setValue("common/recentFiles", shortenendRecent);
     settings.setValue("editor/showLineNumbers", ApplicationPreferences::showLineNumbers);

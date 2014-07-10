@@ -132,7 +132,9 @@ int Graph_Interface::get_I_Pointer_Direction(Point* to_Direction){
 }
 int Graph_Interface::get_Point_Type(int colm, int row){
     InternStack *change = new InternStack();
-    Point *temp = *tmp = getPoint(colm,row,change);
+    Point *tmp;
+    Point *temp;
+    temp = tmp = getPoint(colm,row,change);
     do{
         temp->make_Node_Changes(change);
         check->add(temp);

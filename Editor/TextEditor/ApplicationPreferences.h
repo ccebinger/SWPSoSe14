@@ -29,7 +29,8 @@ namespace ApplicationConstants
         FUNCTION_CALL       = 1 << 3,
         SYSTEM_FUNCTION     = 1 << 4,
         STRING              = 1 << 5,
-        VARIABLE            = 1 << 6
+        VARIABLE            = 1 << 6,
+        GRAB                = 1 << 7
     };
 
     enum CursorMode
@@ -54,6 +55,7 @@ namespace ApplicationDefaultValues
     extern const QColor functionCallsColor;
     extern const QColor stringsColor;
     extern const QColor variablesColor;
+    extern const QColor grabColor;
 
     extern const QStringList recentFiles;
     extern const bool showLineNumbers;
@@ -77,6 +79,7 @@ namespace ApplicationPreferences
     extern QColor functionCallsColor;
     extern QColor stringsColor;
     extern QColor variablesColor;
+    extern QColor grabColor;
 
     extern QStringList recentFiles;
     extern bool showLineNumbers;
