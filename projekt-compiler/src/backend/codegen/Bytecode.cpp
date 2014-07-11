@@ -708,12 +708,17 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
   std::vector<unsigned char> first_conditional_body;
   std::vector<unsigned char> second_conditional_body;
   std::vector<unsigned char> third_conditional_body;
+  std::vector<unsigned char> fourth_conditional_body;
+  std::vector<unsigned char> else_branch;
 
   code->add_ldc_string("string", first_conditional_body);
   first_conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
 
   code->add_ldc_string("nil", third_conditional_body);
   third_conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
+
+  code->add_ldc_string("lambda", fourth_conditional_body);
+  fourth_conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
 
   second_conditional_body.push_back(codegen::MNEMONIC::ALOAD_2);
   code->add_ldc_string("list", second_conditional_body);
@@ -744,6 +749,10 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
       ->add_ldc_string("class java.util.arraylist")
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.equals)
       ->add_conditional_with_instruction(codegen::MNEMONIC::IFEQ, second_conditional_body)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
+      ->add_ldc_string("class main")
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.startsWith_idx)
+      ->add_conditional_with_instruction(codegen::MNEMONIC::IFEQ, fourth_conditional_body)
       ->add_opcode(codegen::MNEMONIC::ALOAD_1)
       ->globalstack_push();
 }

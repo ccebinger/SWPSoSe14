@@ -161,9 +161,13 @@ void Backend::add_entries_to_constantpool(ConstantPool& constantPool)
   uint16_t toLowerCase_name_idx = constantPool.addString("toLowerCase");
   uint16_t isEmpty_str_idx = constantPool.addString("isEmpty");
   uint16_t bool_type_idx = constantPool.addString("()Z");
+  uint16_t startsWith_type_idx = constantPool.addString("(Ljava/lang/String;)Z");
+  uint16_t startsWith_name_idx = constantPool.addString("startsWith");
+
   uint16_t remove_type_idx = constantPool.addString("(I)Ljava/lang/Object;");
   constantPool.addString("");
   constantPool.addString("class java.lang.");
+  constantPool.addString("class main");
   constantPool.addString("integer");
   constantPool.addString("string");
   constantPool.addString("list");
@@ -216,6 +220,7 @@ void Backend::add_entries_to_constantpool(ConstantPool& constantPool)
   uint16_t replace_name_type_idx = constantPool.addNameAndType(replace_name_idx, replace_type_idx);
   uint16_t toLowerCase_name_type_idx = constantPool.addNameAndType(toLowerCase_name_idx, toString_type_idx);
   uint16_t isEmpty_name_type_idx = constantPool.addNameAndType(isEmpty_str_idx, bool_type_idx);
+  uint16_t startsWith_name_type_idx = constantPool.addNameAndType(startsWith_name_idx, startsWith_type_idx);
 
   ///  Add method refs
   constantPool.obj_idx.getClass = constantPool.addMethRef(constantPool.obj_idx.class_idx , object_name_type_idx);
@@ -237,6 +242,7 @@ void Backend::add_entries_to_constantpool(ConstantPool& constantPool)
   constantPool.str_idx.length_idx = constantPool.addMethRef(constantPool.str_idx.class_idx, length_name_type_idx);
   constantPool.str_idx.replace = constantPool.addMethRef(constantPool.str_idx.class_idx, replace_name_type_idx);
   constantPool.str_idx.toLowerCase = constantPool.addMethRef(constantPool.str_idx.class_idx, toLowerCase_name_type_idx);
+  constantPool.str_idx.startsWith_idx = constantPool.addMethRef(constantPool.str_idx.class_idx, startsWith_name_type_idx);
   constantPool.str_builder_idx.append_idx = constantPool.addMethRef(constantPool.str_builder_idx.class_idx, append_name_type_idx);
   constantPool.str_builder_idx.init_idx = constantPool.addMethRef(constantPool.str_builder_idx.class_idx, init_builder_name_type_idx);
   constantPool.arr_idx.init_idx = constantPool.addMethRef(constantPool.arr_idx.class_idx, object_name_type_idx);
