@@ -127,7 +127,7 @@ void Backend::add_entries_to_constantpool(ConstantPool& constantPool)
   uint16_t system_in_str_idx = constantPool.addString("in");
   uint16_t system_type_idx = constantPool.addString("Ljava/io/PrintStream;");
   uint16_t system_in_type_str_idx = constantPool.addString("Ljava/io/InputStream;");
-  uint16_t print_name_idx = constantPool.addString("println");
+  uint16_t print_name_idx = constantPool.addString("print");
   uint16_t system_in_avail_str_idx = constantPool.addString("available");
   uint16_t system_in_read_str_idx = constantPool.addString("read");
   uint16_t valueOf_name_idx = constantPool.addString("valueOf");

@@ -384,7 +384,6 @@ void codegen::output_ByteCode(Bytecode::Current_state state) {
       ->globalstack_pop()
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.stream_idx.print_idx);
-      //->inc_local_count(1);
 }
 
 void codegen::push_ByteCode(Bytecode::Current_state state) {
