@@ -33,11 +33,12 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
  * \returns Generated class-file
  */
 Backend::Status Backend::Generate(const std::string& graphIn,
-                                  std::ostream* codeOut) {
-  Graphs graphs;
-  graphs.unmarshall(graphIn, ';');
-  Backend::Status ret = Backend::Generate(graphs, codeOut);
-  return ret;
+                                  std::ostream* codeOut)
+{
+	Graphs graphs;
+	graphs.unmarshall(graphIn, ';');
+	Backend::Status ret = Backend::Generate(graphs, codeOut);
+	return ret;
 }
 /*!
  * \brief Generates target code from a graph
@@ -51,37 +52,41 @@ Backend::Status Backend::Generate(const std::string& graphIn,
  * \returns Status of the created file
  */
 Backend::Status Backend::Generate(Graphs& graphs,
-                                  std::ostream* codeOut) {
-  std::string entryFunctionName("main");
-  Graphs::Graph_ptr mainFunction = graphs.find(entryFunctionName);
-  ConstantPool constantPool;
+                                  std::ostream* codeOut)
+{
+	std::string entryFunctionName("main");
+	Graphs::Graph_ptr mainFunction = graphs.find(entryFunctionName);
+	ConstantPool constantPool;
 
-  add_entries_to_constantpool(constantPool);
-  std::vector<std::string> keyset = graphs.keyset();
-  add_functions_to_constantpool(constantPool, keyset);
+	add_entries_to_constantpool(constantPool);
+	std::vector<std::string> keyset = graphs.keyset();
+	add_functions_to_constantpool(constantPool, keyset);
 
-  //Create code for each function
-   std::map<std::string, codegen::Bytecode&> codeMap;
-   for (std::vector<std::string>::iterator it = keyset.begin(); it != keyset.end(); it++) {
-      if ((*it)[0] != '&') { //create only code for not lambda functions
-        codegen::Bytecode* code = new codegen::Bytecode(constantPool);
-        code->build(graphs.find(*it));
-        codeMap.insert(std::pair<std::string, codegen::Bytecode&>(*it, *code));
-      }
-   }
+	//Create code for each function
+	std::map<std::string, codegen::Bytecode&> codeMap;
 
+	uint16_t lambda_count = 0;
+	for (std::vector<std::string>::iterator it = keyset.begin(); it != keyset.end(); it++) {
+		if ((*it)[0] != '&') { //create only code for not lambda functions
+			codegen::Bytecode* code = new codegen::Bytecode(constantPool);
+			code->build(graphs.find(*it));
+			codeMap.insert(std::pair<std::string, codegen::Bytecode&>(*it, *code));
+			codegen::Bytecode::STRINGS lambdas = code->get_lambdas();
+			write_lambda_anonymous_classes(graphs, constantPool, code);
+			lambda_count += lambdas.size();
+		}
+	}
 
+	if (lambda_count > 0)
+		write_lambda_interface();
 
-  uint16_t lambda_count = write_lambda_classes(graphs, constantPool); // before main class is writen to add other stuff to constant pool
+	ClassfileWriter writer(ClassfileWriter::JAVA_7, &constantPool, graphs, codeMap, codeOut, lambda_count);
+	writer.WriteClassfile();
 
-
-  ClassfileWriter writer(ClassfileWriter::JAVA_7, &constantPool, graphs, codeMap, codeOut, lambda_count);
-  writer.WriteClassfile();
-
-  for (std::map<std::string, codegen::Bytecode&>::iterator it = codeMap.begin(); it != codeMap.end(); it++) {
-    delete &it->second;
-  }
-  return Backend::Status::SUCCESS;
+	for (std::map<std::string, codegen::Bytecode&>::iterator it = codeMap.begin(); it != codeMap.end(); it++) {
+		delete &it->second;
+	}
+	return Backend::Status::SUCCESS;
 }
 
 /*!
@@ -90,20 +95,20 @@ Backend::Status Backend::Generate(Graphs& graphs,
  *
  * \returns nothing (TODO)
  */
-std::string Backend::ErrorMessage(Backend::Status status) {
-  switch (status) {
-    case Backend::Status::SUCCESS:
-      return "";
-      break;
-      // TODO handle other cases
-    default:
-      return "";
-  }
+std::string Backend::ErrorMessage(Backend::Status status)
+{
+	switch (status) {
+	case Backend::Status::SUCCESS:
+		return "";
+		break;
+	// TODO handle other cases
+	default:
+		return "";
+	}
 }
 
 void Backend::add_entries_to_constantpool(ConstantPool& constantPool)
 {
-
 
   /// Add strings
   uint16_t obj_cls_idx = constantPool.addString("java/lang/Object");
@@ -269,81 +274,75 @@ void Backend::add_entries_to_constantpool(ConstantPool& constantPool)
 
 void Backend::add_functions_to_constantpool(ConstantPool& constantPool, std::vector<std::string>& keyset)
 {
-  ///  Add Rail-Functionnames as Strings
-   for (auto it = keyset.begin(); it != keyset.end(); it++) {
-     constantPool.addString(*it);
-   }
-}
-
-uint16_t Backend::write_lambda_classes(Graphs& graphs, ConstantPool& pool)
-{
-  write_lambda_interface(graphs);
-  return write_lambda_anonymous_classes(graphs, pool);
+	///  Add Rail-Functionnames as Strings
+	for (auto it = keyset.begin(); it != keyset.end(); it++) {
+		constantPool.addString(*it);
+	}
 }
 
 
-void Backend::write_lambda_interface(Graphs& graphs)
+void Backend::write_lambda_interface()
 {
-  std::map<std::string, codegen::Bytecode&> codeMap;
-  std::string file = Env::getDstClassfile();
-  size_t pos = file.find_last_of("\\/") + 1;
-  file = file.substr(0, pos);
-  file.append(Lambda_interface_writer::lambda_class_name);
-  file.append(".class");
-  std::ofstream outFile(file, std::ofstream::binary);
-  ConstantPool pool;
-  write_lambda_default_constantpool(pool, Lambda_interface_writer::lambda_class_name);
-  Lambda_interface_writer lwriter(ClassfileWriter::JAVA_7, &pool, graphs, codeMap, &outFile);
-  lwriter.WriteClassfile();
+	std::map<std::string, codegen::Bytecode&> codeMap;
+	std::ofstream outFile(get_lambda_class_name(Lambda_interface_writer::lambda_class_name, false), std::ofstream::binary);
+	ConstantPool pool;
+	write_lambda_default_constantpool(pool, Lambda_interface_writer::lambda_class_name);
+	Graphs graphs;
+	Lambda_interface_writer lwriter(ClassfileWriter::JAVA_7, &pool, graphs, codeMap, &outFile);
+	lwriter.WriteClassfile();
 }
 
-uint16_t Backend::write_lambda_anonymous_classes(Graphs& graphs, ConstantPool& pool)
+std::string Backend::get_lambda_class_name(const std::string& name, bool anonymous)
 {
+	std::stringstream ss;
+	std::string file = Env::getDstClassfile();
+	size_t pos = file.find_last_of("\\/") + 1;
+	file = file.substr(0, pos);
+	ss << file;
+	if (anonymous)
+    ss << Env::getDstClassName();
+  ss << name << ".class";
+	return ss.str();
+}
 
-  std::vector<std::string> keyset = graphs.keyset();
-  std::stringstream ss;
-  std::string file = Env::getDstClassfile();
-  size_t pos = file.find_last_of("\\/") + 1;
-  file = file.substr(0, pos);
-  ss << file << Env::getDstClassName();
+void Backend::write_lambda_anonymous_classes(Graphs& graphs, ConstantPool& pool, codegen::Bytecode* code)
+{
+  codegen::Bytecode::STRINGS lambdas = code->get_lambdas();
+	for (codegen::Bytecode::STRINGS::iterator lam_it = lambdas.begin(); lam_it != lambdas.end(); lam_it++) {
+		std::string graph_name = *lam_it;
+		graph_name = graph_name.replace(0, 1, "&");
+		LocalVariableStash locals = code->get_lambda_locals(*lam_it);
+		write_lambda_anonymous_class(graphs.find(graph_name), pool, *lam_it, locals);
+	}
+}
 
+void Backend::write_lambda_anonymous_class(Graphs::Graph_ptr graph, ConstantPool& pool, std::string& name, LocalVariableStash& locals)
+{
+	std::stringstream class_name_ss;
+	class_name_ss << Env::getDstClassName() << name;
+	std::string cls_name = class_name_ss.str();
 
-  uint16_t lambda_count = 0;
-  std::map<std::string, codegen::Bytecode&> codeMap;
-  for (std::vector<std::string>::iterator it = keyset.begin(); it != keyset.end(); it++)
-  {
-    if ((*it)[0] == '&')
-    {
-      std::string name = (*it);
-      name = name.replace(0, 1, "$");
+	write_lambda_default_constantpool(pool, cls_name);
 
-      std::stringstream class_name_ss;
-      class_name_ss << Env::getDstClassName() << name;
-      std::string cls_name = class_name_ss.str();
-      write_lambda_default_constantpool(pool, cls_name);
-      std::stringstream file_name_ss;
-      file_name_ss << ss.rdbuf() << name << ".class";
-      std::ofstream outFile(file_name_ss.str(), std::ofstream::binary);
-      codegen::Bytecode* code = new codegen::Bytecode(pool);
-      code->build(graphs.find(*it));
-      codeMap.insert(std::pair<std::string, codegen::Bytecode&>(Lambda_interface_writer::method_name, *code));
-      Lambda_classfile_writer clwriter(cls_name, ClassfileWriter::JAVA_7, &pool, graphs, codeMap, &outFile);
-      clwriter.WriteClassfile();
-      delete code;
-      lambda_count++;
-    }
-  }
-  return lambda_count;
+	std::map<std::string, codegen::Bytecode&> codeMap;
+	std::ofstream outFile(get_lambda_class_name(name, true), std::ofstream::binary);
+	codegen::Bytecode* code = new codegen::Bytecode(pool, true);
+	code->build(graph);
+	codeMap.insert(std::pair<std::string, codegen::Bytecode&>(Lambda_interface_writer::method_name, *code));
+	Graphs graphs;
+	Lambda_classfile_writer clwriter(cls_name, locals, ClassfileWriter::JAVA_7, &pool, graphs, codeMap, &outFile);
+	clwriter.WriteClassfile();
+	delete code;
 }
 
 void Backend::write_lambda_default_constantpool(ConstantPool& constant_pool, const std::string& lambda_class_name)
 {
-  constant_pool.obj_idx.class_idx = constant_pool.addString("java/lang/Object");
-  size_t idx = constant_pool.addString(lambda_class_name);
-  constant_pool.addString(lambda_class_name + ".java");
-  constant_pool.addString(Lambda_interface_writer::method_descriptor);
-  constant_pool.addString(Lambda_interface_writer::method_name);
-  constant_pool.addString(Lambda_classfile_writer::inner_classes_attr);
-  constant_pool.addClassRef(idx); //Lambda class
-  constant_pool.addClassRef(constant_pool.obj_idx.class_idx);
+	constant_pool.obj_idx.class_idx = constant_pool.addString("java/lang/Object");
+	size_t idx = constant_pool.addString(lambda_class_name);
+	constant_pool.addString(lambda_class_name + ".java");
+	constant_pool.addString(Lambda_interface_writer::method_descriptor);
+	constant_pool.addString(Lambda_interface_writer::method_name);
+	constant_pool.addString(Lambda_classfile_writer::inner_classes_attr);
+	constant_pool.addClassRef(idx); //Lambda class
+	constant_pool.addClassRef(constant_pool.obj_idx.class_idx);
 }

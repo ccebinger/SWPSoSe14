@@ -39,7 +39,7 @@ codegen::Bytecode::func_map= {
   {Command::Type::VAR_PUSH, &push_Variable}
 };
 
-codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), /*local_count(4),*/ locals(4) {}
+codegen::Bytecode::Bytecode(ConstantPool& p, bool is_lambda_code) : pool(p), /*local_count(4),*/ locals(4), lambda_code(is_lambda_code) {}
 
 codegen::Bytecode::~Bytecode() {}
 
@@ -109,6 +109,19 @@ LocalVariableStash& codegen::Bytecode::get_locals() {
 
 uint16_t codegen::Bytecode::get_lambda_closure_idx() {
   return lambda_closure_idx;
+}
+
+codegen::Bytecode::STRINGS codegen::Bytecode::get_lambdas() {
+  return lambdas;
+}
+
+bool codegen::Bytecode::find_lambda(std::string& name) {
+  STRINGS::iterator pos = std::find(lambdas.begin(), lambdas.end(), name);
+  return pos != lambdas.end();
+}
+
+LocalVariableStash codegen::Bytecode::get_lambda_locals(std::string& name) {
+  return lamda_variables.at(name);
 }
 //================================================================================
 //==================================SETTER========================================
@@ -317,8 +330,12 @@ codegen::Bytecode* codegen::Bytecode::add_lambda_declaration(Graphs::Node_ptr cu
   //add Lambda anonymous class to pool
   //$anonymous class
   std::stringstream ss;
-  ss << Env::getDstClassName() << current_node->command.arg.replace(0,1, "$"); //replace & with $
+  std::string anonymous_class_idx = current_node->command.arg.replace(0,1, "$"); //replace & with $
+  ss << Env::getDstClassName() << anonymous_class_idx;
   std::string anonymous_class_name = ss.str();
+  lambdas.push_back(anonymous_class_idx);
+  lamda_variables.insert(std::pair<std::string, LocalVariableStash> (anonymous_class_idx, locals)); //add locals which are exists on the time on which lambda is declared
+
   size_t anonym_str_idx = pool.addString(anonymous_class_name);
   size_t anonym_class_idx = pool.addClassRef(anonym_str_idx);
 
