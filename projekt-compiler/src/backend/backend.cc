@@ -178,11 +178,7 @@ void Backend::add_entries_to_constantpool(ConstantPool& constantPool)
   constantPool.addString("list");
   constantPool.addString("nil");
   constantPool.addString("lambda");
-  constantPool.addString("class java.util.ArrayList");
   constantPool.addString("class java.util.array");
-  constantPool.addString("class java.lang.Integer");
-  constantPool.addString("class java.lang.String");
-  //uint16_t add_type_idx = constantPool.addString("(Ljava/lang/Object)Z")  same like bool equals
 
   ///  Add classes
   constantPool.obj_idx.class_idx = constantPool.addClassRef(obj_cls_idx);
@@ -229,7 +225,6 @@ void Backend::add_entries_to_constantpool(ConstantPool& constantPool)
 
   ///  Add method refs
   constantPool.obj_idx.getClass = constantPool.addMethRef(constantPool.obj_idx.class_idx , object_name_type_idx);
-  //constantPool.obj_idx.class_idx = constantPool.addMethRef(constantPool.obj_idx.class_idx , object_name_type_idx);
   constantPool.obj_idx.equals = constantPool.addMethRef(constantPool.obj_idx.class_idx, equals_name_type_idx);
   constantPool.obj_idx.getClass = constantPool.addMethRef(constantPool.obj_idx.class_idx , get_class_name_type_idx);
   constantPool.stream_idx.print_idx = constantPool.addMethRef(constantPool.stream_idx.class_out_idx, print_name_type_idx);
