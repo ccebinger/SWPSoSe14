@@ -65,6 +65,8 @@ void Lambda_classfile_writer::WriteInterfaces() {
 void Lambda_classfile_writer::WriteFields()
 {
   //TODO add variables as fields !!!!
+
+
     ClassfileWriter::WriteFields();
 }
 

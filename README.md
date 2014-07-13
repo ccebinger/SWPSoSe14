@@ -65,7 +65,7 @@ You can either user -i or -d, not both
 
 Contribution Guide
 --------------------------------------
-Contribution in any form is (actually) limited to students thar are involved.
+Contribution in any form is (currently) limited to students thar are involved.
 
 
 
