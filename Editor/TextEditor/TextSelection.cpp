@@ -46,31 +46,172 @@ int TextSelection::height() const
 
 TextSelection & TextSelection::rotate90()
 {
-    // TODO: implement
+    QList<QChar> newText;
+    for(int x=0; x<this->width(); x++) {
+        for(int y=this->height()-1; y>=0; y--) {
+            QChar newChar = this->text().at(y*this->width()+x);
+            if(newChar=='-') {
+                newText << '|';
+            } else if(newChar=='|') {
+                newText << '-';
+            } else if(newChar=='/') {
+                newText << '\\';
+            } else if(newChar=='\\') {
+                newText << '/';
+            } else if(newChar=='>') {
+                newText << 'v';
+            } else if(newChar=='<') {
+                newText << '^';
+            } else if(newChar=='v') {
+                newText << '<';
+            } else if(newChar=='^') {
+                newText << '>';
+            } else {
+                newText << newChar;
+            }
+        }
+    }
+    int tmpHeight = this->height();
+    int tmpWidth = this->width();
+    this->m_text = newText;
+    this->m_height = tmpWidth;
+    this->m_width = tmpHeight;
     return *this;
 }
 
 TextSelection & TextSelection::rotate180()
 {
-    // TODO: implement
+    QList<QChar> newText;
+    for(int y=this->height()-1; y>=0; y--) {
+        for(int x=this->width()-1; x>=0; x--) {
+            QChar newChar = this->text().at(y*this->width()+x);
+            if(newChar=='>') {
+                newText << '<';
+            } else if(newChar=='<') {
+                newText << '>';
+            } else if(newChar=='v') {
+                newText << '^';
+            } else if(newChar=='^') {
+                newText << 'v';
+            } else if(newChar==']') {
+                newText << '[';
+            } else if(newChar==']') {
+                newText << '[';
+            } else if(newChar=='[') {
+                newText << ']';
+            } else if(newChar==']') {
+                newText << '[';
+            } else if(newChar=='(') {
+                newText << ')';
+            } else if(newChar==')') {
+                newText << '(';
+            } else if(newChar=='{') {
+                newText << '}';
+            } else if(newChar=='}') {
+                newText << '{';
+            } else {
+                newText << newChar;
+            }
+        }
+    }
+    this->m_text = newText;
     return *this;
 }
 
 TextSelection & TextSelection::rotate270()
 {
-    // TODO: implement
+    QList<QChar> newText;
+    for(int x=this->width()-1; x>=0; x--) {
+        for(int y=0; y<this->height(); y++) {
+            QChar newChar = this->text().at(y*this->width()+x);
+            if(newChar=='-') {
+                newText << '|';
+            } else if(newChar=='|') {
+                newText << '-';
+            } else if(newChar=='/') {
+                newText << '\\';
+            } else if(newChar=='\\') {
+                newText << '/';
+            } else if(newChar=='>') {
+                newText << '^';
+            } else if(newChar=='<') {
+                newText << 'v';
+            } else if(newChar=='v') {
+                newText << '>';
+            } else if(newChar=='^') {
+                newText << '<';
+            } else {
+                newText << newChar;
+            }
+        }
+    }
+    int tmpHeight = this->height();
+    int tmpWidth = this->width();
+    this->m_text = newText;
+    this->m_height = tmpWidth;
+    this->m_width = tmpHeight;
     return *this;
 }
 
-TextSelection & TextSelection::mirrorX()
+TextSelection & TextSelection::mirrorHorizontal()
 {
-    // TODO: implement
+    QList<QChar> newText;
+    for(int y=0; y<this->height(); y++) {
+        for(int x=this->width()-1; x>=0; x--) {
+            QChar newChar = this->text().at(y*this->width()+x);
+            if(newChar=='/') {
+                newText << '\\';
+            } else if(newChar=='\\') {
+                newText << '/';
+            } else if(newChar=='>') {
+                newText << '<';
+            } else if(newChar=='<') {
+                newText << '>';
+            } else if(newChar==']') {
+                newText << '[';
+            } else if(newChar==']') {
+                newText << '[';
+            } else if(newChar=='[') {
+                newText << ']';
+            } else if(newChar==']') {
+                newText << '[';
+            } else if(newChar=='(') {
+                newText << ')';
+            } else if(newChar==')') {
+                newText << '(';
+            } else if(newChar=='{') {
+                newText << '}';
+            } else if(newChar=='}') {
+                newText << '{';
+            } else {
+                newText << newChar;
+            }
+        }
+    }
+    this->m_text = newText;
     return *this;
 }
 
-TextSelection & TextSelection::mirrorY()
+TextSelection & TextSelection::mirrorVertical()
 {
-    // TODO: implement
+    QList<QChar> newText;
+    for(int y=this->height()-1; y>=0; y--) {
+        for(int x=0; x<this->width(); x++) {
+            QChar newChar = this->text().at(y*this->width()+x);
+            if(newChar=='/') {
+                newText << '\\';
+            } else if(newChar=='\\') {
+                newText << '/';
+            } else if(newChar=='^') {
+                newText << 'v';
+            } else if(newChar=='v') {
+                newText << '^';
+            } else {
+                newText << newChar;
+            }
+        }
+    }
+    this->m_text = newText;
     return *this;
 }
 

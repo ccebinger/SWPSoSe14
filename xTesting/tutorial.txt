@@ -1,0 +1,37 @@
+1. Java Eclipse Projekt erstellen in diesem Ordner
+
+
+2. Rail-Interpreter kompilieren
+	- Im Ordner die compile.sh ausführen
+
+
+3. Haskell zum Laufen kriegen (unter archlinux np, alle anderen müssten basteln oder verzichten)
+	- cabal-install installieren
+	- ins haskell git
+
+
+4. xTesting ausführen
+	- run.sh anlegen + ausführbar machen
+	- in etwa so....
+
+		#!/bin/sh
+		java -jar xTesting.jar \
+		--interpreter ../rail-interpreter/rail \		<-- Binary vom rail-interpreter
+		--jail ../projekt-compiler/Debug/jail \			<-- Binary von uns
+		-- haskell devNull \					<-- Ordner vom Haskell-Repo
+		--tempDir tmp/ \					<-- so lassen
+		-- no-colors \						<-- je nach konsole
+		-- no-clean \						<-- so lassen
+		--no-db \						<-- db aufsetzen oder drin lassen
+		-- err-only \						<-- geschmack
+		--verbose \						<-- geschmack
+		- d ../projekt-compiler/test/ \				<-- Ordner mit Testfiles (subdirs inklusive)
+		- d ../projekt-compiler/test/builtInCommand/ \
+		-d ../projekt-compiler/test/builtInCommand/conditional/ \
+		- d ../../swpHaskell/integration-tests/ \
+		- d ../../swpHaskell/integration-tests/future/ \
+
+	- ausführbar machen
+	- ausführen
+	- Anmerkung: auf Leerzeichen wie "- d" achten -> 'auskommentiert'
+

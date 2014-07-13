@@ -72,13 +72,13 @@ bool Item::operator==(const Item& i)const {
       return i.intVal == intVal;
     }
     case FIELD:
+    case IMETHOD:
     case METHOD:
       return class_idx == i.class_idx && name_type_idx == i.name_type_idx;
     case CLASS:
       return name_idx == i.name_idx;
     case NAME_AND_TYPE:
       return i.descriptor_idx == descriptor_idx && method_idx == i.method_idx;
-      // case IMETHOD:
     default:
       return i.strVal1 == strVal1;
   }
@@ -314,6 +314,29 @@ size_t ConstantPool::addMethRef(uint16_t class_idx, uint16_t name_type_idx) {
   return index;
 }
 
+
+////////////////////////////////////////////////////////////////////////
+/// method to put a string into the pool
+/// \param class_idx value to add to pool
+/// \param name_type_idx value to add to pool
+/// \return index of the string in pool
+////////////////////////////////////////////////////////////////////////
+size_t ConstantPool::addInterfaceMethodRef(uint16_t class_idx, uint16_t name_type_idx) {
+  Item i;
+  size_t index = 0;
+  i.set(IMETHOD, class_idx, name_type_idx);
+  if (!check(i)) {
+    putByte(IMETHOD);
+    putShort(class_idx);
+    putShort(name_type_idx);
+    index = put(&i);
+  } else {
+    index = get(i).index;
+  }
+  return index;
+}
+
+
 ////////////////////////////////////////////////////////////////////////
 /// method to count numbers of items with specified type
 /// \param type type that be counted
@@ -409,7 +432,7 @@ void ConstantPool::putUTF8(std::string s) {
   pool.push_back((uint8_t) s.size());
   for (size_t pos = 0; pos < s.size(); pos++) {
     // check if ASCII code is between 1 and 127 -> 1 byte utf8
-    if ((s[pos] >= 0x01) && (s[pos] <= 0xB1)) {
+    if ((s[pos] >= 0x01) && (((unsigned char)s[pos]) <= 0xB1)) {
       pool.push_back((uint8_t) s[pos]);
     } else {
       encodeUTF8(s, pos);
@@ -426,7 +449,6 @@ void ConstantPool::putUTF8(std::string s) {
 /// \param i the index of the first character to encode. The previous
 ///          characters are supposed to have already been encoded, using
 ///          only one byte per character.
-/// \return this byte vector.
 ////////////////////////////////////////////////////////////////////////
 void ConstantPool::encodeUTF8(std::string s, uint32_t pos) {
   // calculcate utf8 string size
@@ -434,7 +456,7 @@ void ConstantPool::encodeUTF8(std::string s, uint32_t pos) {
   size_t byteLength = 0;
   for (; i != s.end(); i++) {
     // check if ASCII code is between 1 and 127 -> 1 byte utf8
-    if (*i >= 0x01 && *i <= 0xB1) {
+    if (*i >= 0x01 && ((unsigned char)*i) <= 0xB1) {
       byteLength++;
       // bigger then 2047 -> 3 byte utf8
     } else if (*i > 0x7FF) {
@@ -454,7 +476,7 @@ void ConstantPool::encodeUTF8(std::string s, uint32_t pos) {
     c = *it;
     if (c >= 0x01 && c <= 0xB1) {
       pool.push_back((uint8_t) c);
-    } else if (c > 0x7FF) {
+    } else if (*it > 0x7FF) {
       pool.push_back((uint8_t) (((0xE0 | c) >> 12) & 0xF));
       pool.push_back((uint8_t) (((0x80 | c) >> 6)  & 0x3F));
       pool.push_back((uint8_t) ((0x80  | c) & 0x3F));

@@ -14,6 +14,8 @@ ApplicationPreferencesDialog::ApplicationPreferencesDialog(QWidget *parent) :
     ui(new Ui::ApplicationPreferencesDialog)
 {
     ui->setupUi(this);
+    ui->ui_functionNamesToolButton->hide();
+    ui->ui_functionNamesLabel->hide();
     QPushButton const* okButton = ui->ui_buttonBox->button(QDialogButtonBox::Ok);
     QPushButton const* restoreButton = ui->ui_buttonBox->button(QDialogButtonBox::RestoreDefaults);
     connect(okButton, SIGNAL(clicked()), this, SLOT(okClick()));
@@ -23,8 +25,10 @@ ApplicationPreferencesDialog::ApplicationPreferencesDialog(QWidget *parent) :
     connect(ui->ui_connectedRailsToolButton, SIGNAL(clicked()), this, SLOT(colorToolButtonClicked()));
     connect(ui->ui_functionNamesToolButton, SIGNAL(clicked()), this, SLOT(colorToolButtonClicked()));
     connect(ui->ui_functionCallsToolButton, SIGNAL(clicked()), this, SLOT(colorToolButtonClicked()));
+    connect(ui->ui_systemFunctionToolButton, SIGNAL(clicked()), this, SLOT(colorToolButtonClicked()));
     connect(ui->ui_stringsToolButton, SIGNAL(clicked()), this, SLOT(colorToolButtonClicked()));
     connect(ui->ui_variablesToolButton, SIGNAL(clicked()), this, SLOT(colorToolButtonClicked()));
+    connect(ui->ui_grabbedTextToolButton, SIGNAL(clicked()), this, SLOT(colorToolButtonClicked()));
 
     init();
 }
@@ -46,6 +50,7 @@ void ApplicationPreferencesDialog::init()
 
     ui->ui_showLineNumbersCheckBox->setChecked(ApplicationPreferences::showLineNumbers);
     ui->ui_showWhiteSpacesCheckBox->setChecked(ApplicationPreferences::showWhiteSpaces);
+    ui->ui_showEditorLinesCheckBox->setChecked(ApplicationPreferences::showEditorLines);
 
     QPixmap pixmap(20, 20);
     pixmap.fill(ApplicationPreferences::unconnectedRailsColor);
@@ -55,6 +60,10 @@ void ApplicationPreferencesDialog::init()
     pixmap.fill(ApplicationPreferences::connectedRailsColor);
     ui->ui_connectedRailsToolButton->setIcon(pixmap);
     m_connectedRailsColor = ApplicationPreferences::connectedRailsColor;
+
+    pixmap.fill(ApplicationPreferences::systemFunctionColor);
+    ui->ui_systemFunctionToolButton->setIcon(pixmap);
+    m_systemFunctionColor = ApplicationPreferences::systemFunctionColor;
 
     pixmap.fill(ApplicationPreferences::functionNamesColor);
     ui->ui_functionNamesToolButton->setIcon(pixmap);
@@ -71,6 +80,10 @@ void ApplicationPreferencesDialog::init()
     pixmap.fill(ApplicationPreferences::variablesColor);
     ui->ui_variablesToolButton->setIcon(pixmap);
     m_variablesColor = ApplicationPreferences::variablesColor;
+
+    pixmap.fill(ApplicationPreferences::grabColor);
+    ui->ui_grabbedTextToolButton->setIcon(pixmap);
+    m_grabbedTextColor = ApplicationPreferences::grabColor;
 }
 
 void ApplicationPreferencesDialog::colorToolButtonClicked()
@@ -94,6 +107,10 @@ void ApplicationPreferencesDialog::colorToolButtonClicked()
         {
             m_connectedRailsColor = selectedColor;
         }
+        else if(toolButton == ui->ui_systemFunctionToolButton)
+        {
+            m_systemFunctionColor = selectedColor;
+        }
         else if(toolButton == ui->ui_functionNamesToolButton)
         {
             m_functionNamesColor = selectedColor;
@@ -110,6 +127,10 @@ void ApplicationPreferencesDialog::colorToolButtonClicked()
         {
             m_variablesColor = selectedColor;
         }
+        else if(toolButton == ui->ui_grabbedTextToolButton)
+        {
+            m_grabbedTextColor = selectedColor;
+        }
     }
 }
 
@@ -123,18 +144,22 @@ void ApplicationPreferencesDialog::okClick()
 
     ApplicationPreferences::showLineNumbers = ui->ui_showLineNumbersCheckBox->isChecked();
     ApplicationPreferences::showWhiteSpaces = ui->ui_showWhiteSpacesCheckBox->isChecked();
+    ApplicationPreferences::showEditorLines = ui->ui_showEditorLinesCheckBox->isChecked();
     ApplicationPreferences::unconnectedRailsColor = m_unconnectedRailsColor;
     ApplicationPreferences::connectedRailsColor = m_connectedRailsColor;
+    ApplicationPreferences::systemFunctionColor = m_systemFunctionColor;
     ApplicationPreferences::functionNamesColor = m_functionNamesColor;
     ApplicationPreferences::functionCallsColor = m_functionCallsColor;
     ApplicationPreferences::stringsColor = m_stringsColor;
     ApplicationPreferences::variablesColor = m_variablesColor;
+    ApplicationPreferences::grabColor = m_grabbedTextColor;
     this->accept();
 }
 
 void ApplicationPreferencesDialog::restoreDefaultsClick()
 {
-    if(ui->ui_tabWidget->currentIndex() == ui->ui_tabWidget->indexOf(ui->ui_pathsTab))
+    int currentIndex = ui->ui_tabWidget->currentIndex();
+    if(currentIndex == ui->ui_tabWidget->indexOf(ui->ui_pathsTab))
     {
         ApplicationPreferences::interpreterLocation = ApplicationDefaultValues::interpreterLocation;
         ApplicationPreferences::compilerLocation = ApplicationDefaultValues::compilerLocation;
@@ -142,16 +167,22 @@ void ApplicationPreferencesDialog::restoreDefaultsClick()
         ApplicationPreferences::createGraphVizFiles = ApplicationDefaultValues::createGraphVizFiles;
         ApplicationPreferences::quietCompilerOutput = ApplicationDefaultValues::quietCompilerOutput;
     }
-    else if(ui->ui_tabWidget->currentIndex() == ui->ui_tabWidget->indexOf(ui->ui_editorTab))
+    else if(currentIndex == ui->ui_tabWidget->indexOf(ui->ui_editorTab))
     {
         ApplicationPreferences::showLineNumbers = ApplicationDefaultValues::showLineNumbers;
         ApplicationPreferences::showWhiteSpaces = ApplicationDefaultValues::showWhiteSpaces;
+        ApplicationPreferences::showEditorLines = ApplicationDefaultValues::showEditorLines;
+    }
+    else if(currentIndex == ui->ui_tabWidget->indexOf(ui->ui_colorsTab))
+    {
         ApplicationPreferences::unconnectedRailsColor = ApplicationDefaultValues::unconnectedRailsColor;
         ApplicationPreferences::connectedRailsColor = ApplicationDefaultValues::connectedRailsColor;
+        ApplicationPreferences::systemFunctionColor = ApplicationDefaultValues::systemFunctionColor;
         ApplicationPreferences::functionNamesColor = ApplicationDefaultValues::functionNamesColor;
         ApplicationPreferences::functionCallsColor = ApplicationDefaultValues::functionCallsColor;
         ApplicationPreferences::stringsColor = ApplicationDefaultValues::stringsColor;
         ApplicationPreferences::variablesColor = ApplicationDefaultValues::variablesColor;
+        ApplicationPreferences::grabColor = ApplicationDefaultValues::grabColor;
     }
 
     init();

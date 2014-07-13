@@ -58,6 +58,9 @@ struct StringIndexes {
   uint16_t substring_idx = 0;
   uint16_t length_idx = 0;
   uint16_t value_of_idx = 0;
+  uint16_t replace = 0;
+  uint16_t toLowerCase = 0;
+  uint16_t startsWith_idx = 0;
 };
 
 struct StringBuilderIndexes{
@@ -88,6 +91,7 @@ struct ListIndexes {
   uint16_t add_idx = 0;
   uint16_t remove_idx = 0;
   uint16_t init_idx = 0;
+  uint16_t isEmpty_idx = 0;
 };
 
 struct SystemIndexes {
@@ -165,6 +169,7 @@ class ConstantPool {
   size_t addClassRef(uint16_t name_idx);
   size_t addFieldRef(uint16_t class_idx, uint16_t name_type_idx);
   size_t addMethRef(uint16_t class_idx, uint16_t name_type_idx);
+  size_t addInterfaceMethodRef(uint16_t class_idx, uint16_t name_type_idx);
 
   std::vector<uint8_t> getByteArray();
   bool check(const Item& i) const;   //!< check if item in list

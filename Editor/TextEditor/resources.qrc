@@ -27,5 +27,10 @@
         <file>icons/Buttons/Start Grab.png</file>
         <file>icons/Buttons/Finish Grab.png</file>
         <file>icons/Buttons/Cancel Grab.png</file>
+        <file>icons/Buttons/Rotate90.png</file>
+        <file>icons/Buttons/Rotate270.png</file>
+        <file>icons/Buttons/Rotate180.png</file>
+        <file>icons/Buttons/MirrorHorizontal.png</file>
+        <file>icons/Buttons/MirrorVertical.png</file>
     </qresource>
 </RCC>

@@ -22,10 +22,7 @@ codegen::Bytecode::func_map= {
   {Command::Type::GREATER, &greater_ByteCode},
   {Command::Type::EQUAL, &equal_ByteCode},
   {Command::Type::TRUE, &true_ByteCode},
-  //Command::Type::REFLECTOR
-  //Command::Type::START
-  //Command::Type::FINISH
-  //Command::Type::LAMBDA
+  {Command::Type::LAMBDA, &lambda_Bytecode},
   {Command::Type::BOOM, &boom_ByteCode},
   {Command::Type::EOF_CHECK, &eof_ByteCode},
   {Command::Type::INPUT, &input_ByteCode},
@@ -39,7 +36,7 @@ codegen::Bytecode::func_map= {
   {Command::Type::VAR_PUSH, &push_Variable}
 };
 
-codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), local_count(1), locals(4) {}
+codegen::Bytecode::Bytecode(ConstantPool& p, bool is_lambda_code) : pool(p), /*local_count(4),*/ locals(4), lambda_code(is_lambda_code) {}
 
 codegen::Bytecode::~Bytecode() {}
 
@@ -54,9 +51,31 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
       state.current_node = current_node;
       f(state);
     }
+    // end Program after junction, because junction resolve recursivly and after
+    // both successor's path are build there is nothing to do
+    if((current_node->command.type == Command::Type::EASTJUNC) ||
+       (current_node->command.type == Command::Type::WESTJUNC) ||
+       (current_node->command.type == Command::Type::NORTHJUNC) ||
+       (current_node->command.type == Command::Type::SOUTHJUNC)){
+      break;
+    }
     current_node = current_node->successor1;
   }
   bytecode.push_back(codegen::MNEMONIC::RETURN);
+  return this;
+}
+
+codegen::Bytecode* codegen::Bytecode::build(Graphs::Node_ptr current_node) {
+  while (current_node && current_node->command.type != Command::Type::FINISH) {
+    func_ptr f = func_map.at(current_node->command.type);
+    if (f) {
+      Current_state state;
+      state.current_code = this;
+      state.current_node = current_node;
+      f(state);
+    }
+    current_node = current_node->successor1;
+  }
   return this;
 }
 
@@ -69,7 +88,7 @@ size_t codegen::Bytecode::length() {
 }
 
 int codegen::Bytecode::get_local_count() {
-  return local_count + locals.current_var_count();
+  return /*local_count*/ locals.reserved_var_count() + locals.current_var_count();
 }
 
 ConstantPool& codegen::Bytecode::get_constant_pool() {
@@ -84,18 +103,38 @@ LocalVariableStash& codegen::Bytecode::get_locals() {
   return locals;
 }
 
+
+uint16_t codegen::Bytecode::get_lambda_closure_idx() {
+  return lambda_closure_idx;
+}
+
+codegen::Bytecode::STRINGS codegen::Bytecode::get_lambdas() {
+  return lambdas;
+}
+
+bool codegen::Bytecode::find_lambda(std::string& name) {
+  STRINGS::iterator pos = std::find(lambdas.begin(), lambdas.end(), name);
+  return pos != lambdas.end();
+}
+
+LocalVariableStash codegen::Bytecode::get_lambda_locals(std::string& name) {
+  return lamda_variables.at(name);
+}
 //================================================================================
 //==================================SETTER========================================
 //================================================================================
+/*
 void codegen::Bytecode::inc_local_count(int inc)
 {
   local_count += inc;
 }
-
+*/
+/*
 void codegen::Bytecode::set_local_count(int count)
 {
   local_count = count;
 }
+*/
 
 //================================================================================
 //==================================INDICIES======================================
@@ -125,7 +164,6 @@ uint16_t codegen::Bytecode::get_field_idx(const std::string& class_name,
                           get_name_type_idx(member_name, descriptor));
 }
 
-
 uint16_t  codegen::Bytecode::get_stack_method_idx(const std::string& method,
                                                   const std::string& descriptor) {
   return get_method_idx("java/util/ArrayDeque", method, descriptor);
@@ -135,7 +173,6 @@ uint16_t codegen::Bytecode::get_stack_field_idx() {
   return get_field_idx(Env::getDstClassName(), "stack",
                        "Ljava/util/ArrayDeque;");
 }
-
 //================================================================================
 //==================================CODE ADD======================================
 //================================================================================
@@ -157,10 +194,21 @@ codegen::Bytecode* codegen::Bytecode::add_index(uint16_t indexInPool,
 codegen::Bytecode* codegen::Bytecode::add_conditional_with_instruction(unsigned char conditional_stmt,
                                                                        std::vector<unsigned char> conditional_body) {
   int length = conditional_body.size();
-  uint16_t length_plus_branch = length + 2;
+  uint16_t length_plus_branch = length + 3;
   bytecode.push_back(conditional_stmt);
   add_index(length_plus_branch);
   bytecode.insert(bytecode.end(), conditional_body.begin(), conditional_body.end());
+  return this;
+}
+
+codegen::Bytecode* codegen::Bytecode::add_conditional_with_instruction(unsigned char conditional_stmt,
+                                                                       std::vector<unsigned char> conditional_body,
+                                                                       std::vector<unsigned char>& code) {
+  int length = conditional_body.size();
+  uint16_t length_plus_branch = length + 3;
+  code.push_back(conditional_stmt);
+  add_index(length_plus_branch, code);
+  code.insert(code.end(), conditional_body.begin(), conditional_body.end());
   return this;
 }
 
@@ -175,7 +223,7 @@ codegen::Bytecode* codegen::Bytecode::add_conditional_with_else_branch(unsigned 
   uint16_t branch_idx = else_length + 3; //+1 to jump over the last else stmt
   if_body.push_back(codegen::MNEMONIC::GOTO);
   add_index(branch_idx, if_body);
-  branch_idx = if_body.size() + 2 + else_length; //+ 2 for branch idx
+  branch_idx = if_body.size() + 3 ; //+ 3 jump over goto + branch idx
 
   bytecode.push_back(conditional_stmt);
   add_index(branch_idx); /// TODO: CHECK IF BRANCH IS CORRECT should be after goto!!
@@ -221,7 +269,7 @@ codegen::Bytecode* codegen::Bytecode::add_integer_calculation(MNEMONIC calculati
   bytecode.push_back(calculation);
   add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx);
   globalstack_push();
-  inc_local_count(2);
+  //inc_local_count(2);
   return this;
 }
 
@@ -259,10 +307,55 @@ codegen::Bytecode* codegen::Bytecode::add_two_int_compare(codegen::MNEMONIC comp
   return this;
 }
 
+codegen::Bytecode* codegen::Bytecode::add_ldc_string(const std::string& constant){
+  bytecode.push_back(codegen::MNEMONIC::LDC);
+  uint16_t string_idx = pool.addString(constant);
+  uint16_t const_idx = pool.addConstString(string_idx);
+  bytecode.push_back((uint8_t) const_idx);
+  return this;
+}
+
+codegen::Bytecode* codegen::Bytecode::add_ldc_string(const std::string& constant, std::vector<unsigned char>& code){
+  code.push_back(codegen::MNEMONIC::LDC);
+  uint16_t string_idx = pool.addString(constant);
+  uint16_t const_idx = pool.addConstString(string_idx);
+  code.push_back((uint8_t) const_idx);
+  return this;
+}
+
+codegen::Bytecode* codegen::Bytecode::add_lambda_declaration(Graphs::Node_ptr current_node) {
+  //add Lambda anonymous class to pool
+  //$anonymous class
+  std::stringstream ss;
+  std::string anonymous_class_idx = current_node->command.arg.replace(0,1, "$"); //replace & with $
+  ss << Env::getDstClassName() << anonymous_class_idx;
+  std::string anonymous_class_name = ss.str();
+  lambdas.push_back(anonymous_class_idx);
+  lamda_variables.insert(std::pair<std::string, LocalVariableStash> (anonymous_class_idx, locals)); //add locals which are exists on the time on which lambda is declared
+
+  size_t anonym_str_idx = pool.addString(anonymous_class_name);
+  size_t anonym_class_idx = pool.addClassRef(anonym_str_idx);
+
+  //$anonymous class <init> method
+  size_t init_str_idx = pool.addString("<init>");
+  size_t void_descriptor = pool.addString("()V");
+  size_t anonym_init_idx = pool.addMethRef(anonym_class_idx, pool.addNameAndType(init_str_idx, void_descriptor));
+
+  //$anonymous class closure method
+  size_t closure_str_idx = pool.addString("closure");
+  size_t lambda_str_idx = pool.addString("Lambda");
+  size_t lambda_cls_idx = pool.addClassRef(lambda_str_idx);
+  lambda_closure_idx = pool.addInterfaceMethodRef(lambda_cls_idx, pool.addNameAndType(closure_str_idx, void_descriptor));
+  //CODE
+  add_opcode_with_idx(codegen::MNEMONIC::NEW, anonym_class_idx);
+  add_opcode(codegen::MNEMONIC::DUP);
+  add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, anonym_init_idx);
+  globalstack_push();
+  return this;
+}
 //================================================================================
 //=================================GLOBAL STACK===================================
 //================================================================================
-
 
 codegen::Bytecode* codegen::Bytecode::globalstack_pop() {
   return add_static_field_method_call(pool.arr_idx.field_idx,
@@ -290,19 +383,22 @@ void codegen::output_ByteCode(Bytecode::Current_state state) {
   code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.system_idx.out_idx)
       ->globalstack_pop()
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
-      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.stream_idx.print_idx)
-      ->inc_local_count(1);
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.stream_idx.print_idx);
 }
 
 void codegen::push_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
 
-  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
-      ->add_opcode(codegen::MNEMONIC::LDC);
+  code->add_opcode(codegen::MNEMONIC::LDC);
+
   std::string value = state.current_node->command.extractAstCommandString();
   try {
-    int int_val = std::stoi(value);
+    std::size_t end_parse;
+    int int_val = std::stoi(value, &end_parse);
+    if (end_parse != value.size()) {
+      throw std::invalid_argument("Parsing int didn't reach end of string");
+    }
     code->add_index((uint8_t) pool.addInt(int_val))
         ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx);
   }
@@ -361,8 +457,7 @@ void codegen::cut_ByteCode(Bytecode::Current_state state) {
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
       ->add_opcode(codegen::MNEMONIC::ILOAD_1)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.substring_idx)
-      ->globalstack_push()
-      ->inc_local_count(2);
+      ->globalstack_push();
 }
 
 void codegen::append_ByteCode(Bytecode::Current_state state) {
@@ -381,8 +476,7 @@ void codegen::append_ByteCode(Bytecode::Current_state state) {
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_builder_idx.append_idx)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
-      ->globalstack_push()
-      ->inc_local_count(2);
+      ->globalstack_push();
 }
 
 void codegen::size_ByteCode(Bytecode::Current_state state) {
@@ -401,10 +495,24 @@ void codegen::size_ByteCode(Bytecode::Current_state state) {
 //CALL
 void codegen::call_ByteCode(Bytecode::Current_state state) {
 	Bytecode* code = state.current_code;
-	// ConstantPool& pool = code->get_constant_pool(); // comment out when pool is needed
+	ConstantPool& pool = code->get_constant_pool();
 	std::string value = state.current_node->command.extractAstCommandString();
 
-	code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, code->get_method_idx("Main", value, "()V"));
+  if (value.empty()) {
+    uint16_t idx = code->get_lambda_closure_idx();
+
+    if (!idx)
+      idx = pool.addInterfaceMethodRef(code->get_class_idx("Lambda"),
+                                 code->get_name_type_idx("closure", "()V"));
+
+    code->globalstack_pop()
+        ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_INTERFACE, idx)
+        ->add_byte(1) // 1 stands for the object which will be used for the call, more than 1 are the arguments which are popped from the stack
+        ->add_byte(0); // 0 is the sign for the end of arguments
+
+  } else {
+    code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, code->get_method_idx(Env::getDstClassName(), value, "()V"));
+  }
 }
 
 // LIST OPERATIONS
@@ -416,31 +524,47 @@ void codegen::null_ByteCode(Bytecode::Current_state state) {
       ->add_opcode_with_idx(codegen::MNEMONIC::NEW, pool.list_idx.class_idx)
       ->add_opcode(codegen::MNEMONIC::DUP)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, pool.list_idx.init_idx)
-      ->globalstack_push()
-      ->inc_local_count(1);
+      ->globalstack_push();
 }
 
 void codegen::list_push_ByteCode(Bytecode::Current_state state) {
   codegen::Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
 
-  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
+  std::vector<unsigned char> conditional_body;
+
+  // fill conditional branch
+  conditional_body.push_back(MNEMONIC::POP);
+  code->add_opcode_with_idx(codegen::MNEMONIC::NEW, pool.list_idx.class_idx, conditional_body);
+  conditional_body.push_back(codegen::MNEMONIC::DUP);
+  code->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, pool.list_idx.init_idx, conditional_body);
+  // use variable 1 as first element of the list
+  conditional_body.push_back(MNEMONIC::DUP);
+  conditional_body.push_back(ALOAD_1);
+  code->add_opcode_with_idx(MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.add_idx, conditional_body);
+  conditional_body.push_back(MNEMONIC::POP); // discard add() return value
+
+  code->globalstack_pop()
+      ->add_opcode(codegen::MNEMONIC::ASTORE_2)
       ->globalstack_pop()
-      ->add_opcode(codegen::MNEMONIC::ASTORE_1) // pop VALUE
-      ->globalstack_pop()
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
+      ->add_opcode(MNEMONIC::DUP)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INSTANCE_OF, pool.list_idx.class_idx)
+      ->add_conditional_with_instruction(codegen::MNEMONIC::IFNE, conditional_body)
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
       ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.list_idx.class_idx)
       ->add_opcode(codegen::MNEMONIC::DUP)
-      ->add_opcode(codegen::MNEMONIC::ALOAD_1) // push value before list
+      ->add_opcode(codegen::MNEMONIC::ALOAD_2)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.add_idx)
-      ->add_opcode(codegen::MNEMONIC::POP)
-      ->globalstack_push()
-      ->inc_local_count(1);
+      ->add_opcode(MNEMONIC::POP) // discard add() return value
+      ->globalstack_push();
 }
 
 void codegen::list_pop_ByteCode(Bytecode::Current_state state) {
   codegen::Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
-
 
   code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
       ->add_opcode(codegen::MNEMONIC::DUP)
@@ -452,8 +576,7 @@ void codegen::list_pop_ByteCode(Bytecode::Current_state state) {
       ->add_opcode(codegen::MNEMONIC::ASTORE_1) //remove obj
       ->globalstack_push()
       ->add_opcode(codegen::MNEMONIC::ALOAD_1) //get saved obj
-      ->globalstack_push()
-      ->inc_local_count(1);
+      ->globalstack_push();
 
 }
 
@@ -468,8 +591,8 @@ void codegen::greater_ByteCode(Bytecode::Current_state state) {
 
   code->add_two_int_compare(codegen::MNEMONIC::IF_ICMPGE)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
-      ->globalstack_push()
-      ->inc_local_count(3);
+      ->globalstack_push();
+      //->inc_local_count(3);
 }
 
 void codegen::equal_ByteCode(Bytecode::Current_state state) {
@@ -484,8 +607,7 @@ void codegen::equal_ByteCode(Bytecode::Current_state state) {
       ->add_opcode(codegen::MNEMONIC::ALOAD_2)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.equals)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
-      ->globalstack_push()
-      ->inc_local_count(3);
+      ->globalstack_push();
 }
 
 void codegen::true_ByteCode(Bytecode::Current_state state) {
@@ -558,7 +680,6 @@ void codegen::input_ByteCode(Bytecode::Current_state state) {
    // PUUSH
    code->globalstack_push();
 
-   code->inc_local_count(2);
 }
 
 void codegen::underflow_ByteCode(Bytecode::Current_state state) {
@@ -569,16 +690,85 @@ void codegen::underflow_ByteCode(Bytecode::Current_state state) {
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.arr_idx.size)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
       ->globalstack_push();
-
 }
 
 void codegen::type_ByteCode(Bytecode::Current_state state) {
-  (void) state.current_code;
+  Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
+
+  std::vector<unsigned char> first_conditional_body;
+  std::vector<unsigned char> second_conditional_body;
+  std::vector<unsigned char> third_conditional_body;
+  std::vector<unsigned char> fourth_conditional_body;
+  std::vector<unsigned char> else_branch;
+
+  code->add_ldc_string("string", first_conditional_body);
+  first_conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
+
+  code->add_ldc_string("nil", third_conditional_body);
+  third_conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
+
+  code->add_ldc_string("lambda", fourth_conditional_body);
+  fourth_conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
+
+  second_conditional_body.push_back(codegen::MNEMONIC::ALOAD_2);
+  code->add_ldc_string("list", second_conditional_body);
+  second_conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
+  code->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.list_idx.class_idx, second_conditional_body)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.isEmpty_idx, second_conditional_body)
+      ->add_conditional_with_instruction(codegen::MNEMONIC::IFEQ, third_conditional_body, second_conditional_body);
+
+  code->globalstack_pop()
+      ->add_opcode(codegen::MNEMONIC::ASTORE_2)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_2)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.getClass)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
+      // load string we want to replace
+      ->add_ldc_string("class java.lang.")
+      // load replacement string
+      ->add_ldc_string("")
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.replace)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.toLowerCase)
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
+      ->add_ldc_string("integer")
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.equals)
+      ->add_conditional_with_instruction(codegen::MNEMONIC::IFEQ, first_conditional_body)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
+      ->add_ldc_string("class java.util.arraylist")
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.equals)
+      ->add_conditional_with_instruction(codegen::MNEMONIC::IFEQ, second_conditional_body)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
+      ->add_ldc_string("class main")
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.startsWith_idx)
+      ->add_conditional_with_instruction(codegen::MNEMONIC::IFEQ, fourth_conditional_body)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
+      ->globalstack_push();
 }
 
 //CONTROL STRUCTURE
 void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
-  (void) state.current_code;
+  Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
+  // store node because traversing successor1 end with last
+  // node of successor1
+  Graphs::Node_ptr store_node = state.current_node->successor2;
+
+  Bytecode successor1(state.current_code->get_constant_pool());
+  successor1.build(state.current_node->successor1);
+  Bytecode successor2(state.current_code->get_constant_pool());
+  successor2.build(store_node);
+
+  code->globalstack_pop()
+      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST,
+                            pool.int_idx.class_idx)
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL,
+                            pool.int_idx.int_value_idx)
+      ->add_conditional_with_else_branch(codegen::MNEMONIC::IFEQ,
+                                         successor1.get_bytecode(),
+                                         successor2.get_bytecode());
 }
 
 //VARIABLES
@@ -598,4 +788,10 @@ void codegen::push_Variable(Bytecode::Current_state state) {
   code->globalstack_pop()
       ->add_opcode(codegen::ASTORE)
       ->add_index(var_index);
+}
+
+//LAMBDA
+
+void codegen::lambda_Bytecode(Bytecode::Current_state state) {
+  state.current_code->add_lambda_declaration(state.current_node);
 }

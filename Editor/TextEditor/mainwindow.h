@@ -36,6 +36,7 @@ private:
     void writeSettings() const;
     void updateRecentFiles();
     void openFile(QString const& filePath);
+    void setCursorMode();
 
     bool m_modified;
     QString m_currentFilePath;
@@ -84,27 +85,23 @@ private slots:
     void buildFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void buildOutputReady();
     void buildErrorReady();
-    void buildProcessError(QProcess::ProcessError error);
 
     void javaStarted();
     void javaFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void javaOutputReady();
     void javaErrorReady();
-    void javaProcessError(QProcess::ProcessError error);
 
     void consoleLineEntered(QString line);
 
     void issueDoubleClicked(QListWidgetItem *item);
 
     void startGrab();
+    void modifyGrab();
     void cancelGrab();
     void finishGrab();
-    void rotateGrab90();
-    void rotateGrab180();
-    void rotateGrab270();
-    void mirrorGrabX();
-    void mirrorGrabY();
     void grabModeChanged(bool inGrab);
+
+    void cursorModeChanged(bool state);
 };
 
 #endif // MAINWINDOW_H

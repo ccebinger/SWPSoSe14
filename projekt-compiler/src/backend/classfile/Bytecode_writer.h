@@ -28,7 +28,8 @@ class Bytecode_writer {
     void writeU16(uint16_t value);
     void writeU32(uint32_t value);
     void writeVector(std::vector<unsigned char> values);
-
+    void write_array(size_t len, const unsigned char arr[]);
+    void write_array(size_t len, const char arr[]);
  protected:
     std::ostream& filestream;
     void write(int value, uint8_t size);

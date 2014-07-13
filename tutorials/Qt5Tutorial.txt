@@ -1,0 +1,69 @@
+Follow the instructions from here, but ignore the convenience package.
+
+	http://qt-project.org/wiki/Building_Qt_5_from_Git
+
+
+The following steps are for Ubuntu
+
+System Requirements
+
+	Git (>= 1.6.x)
+	Perl (>=5.14)
+	Python (>=2.6.x)
+	A working compiler
+
+Build essentials
+
+	sudo apt-get install build-essential perl python git
+
+Libxcb
+
+Libxcb [xcb.freedesktop.org] is now the default window-system backend for platforms based on X11/Xorg, and you should therefore install libxcb and its accompanying packages. Qt5 should build with whatever libxcb version is available in your distro’s packages (but you may optionally wish to use v1.8 or higher to have threaded rendering support). src/plugins/platforms/xcb/README [qt.gitorious.org] lists the required packages.
+
+	sudo apt-get install "^libxcb.*" libx11-xcb-dev libglu1-mesa-dev libxrender-dev
+
+
+
+## Getting the source code ##
+
+First clone the top-level Qt 5 git repository:
+
+	git clone git://gitorious.org/qt/qt5.git qt5
+
+or (if you’re behind a firewall and want to use the https protocol):
+
+	git clone https://git.gitorious.org/qt/qt5.git qt5
+
+Then check out the target branch (see Branch Guidelines):
+
+	cd qt5
+	git checkout stable
+
+	cd qt5
+	perl init-repository
+
+
+## Configuring and building ##
+
+The Qt5 build system should be fairly resilient against any “outside distractions” – it shouldn’t matter whether you have other Qt versions in PATH, and QTDIR is entirely ignored. However, make sure that you have no qmake-specific environment variables like QMAKEPATH or QMAKEFEATURES set, and the qmake -query output does not refer to any other Qt versions ($HOME/.config/Trolltech/QMake.conf should be empty).
+
+Configure the build (from top level dir). Disabling tests and examples will greatly speed up compilation:
+
+	./configure -developer-build -opensource -nomake examples -nomake tests
+     
+
+Now trigger the build by running:
+
+	make -j4 all
+
+
+## Installing ##
+Note: Installation is only needed if you haven’t used the configure options -developer-build or -prefix “PWD/qtbase”. Otherwise you can just use Qt from the build directory.
+
+To install, run
+
+	make install
+
+
+
+

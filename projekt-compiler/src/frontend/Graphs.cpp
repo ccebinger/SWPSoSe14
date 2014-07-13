@@ -173,7 +173,7 @@ bool Graphs::containsFunctionName(str line)
 
 void Graphs::skip_empty_lines(std::ifstream& infile, std::string& line)
 {
-  while (std::getline(infile, line) && line.empty()) ;
+  while (line.empty() && std::getline(infile, line)) ;
 }
 
 Graphs::Graph_ptr Graphs::unmarshall_Function(std::ifstream& infile, std::string& line, char delimiter)
@@ -217,6 +217,10 @@ Graphs::Node_ptr Graphs::unmarshall_line(Graphs::Graph_ptr adj, std::string& lin
   }
 
   n->successor1 = findNode(adj, cell);
+  if(n->successor1->id == 0 && n->command.type != Command::FINISH)
+  {
+	  throw EnvException(ASG_DESERIALIZE, "Invalid ASG node has no successor");
+  }
   if (std::getline(lineStream, cell, delimiter))
   {
     n->successor2 = findNode(adj, cell);
@@ -257,6 +261,9 @@ Command Graphs::getCommand(std::string& cmd)
 
     cmd.erase(0,1);
     cmd.erase(cmd.length()-1, 1);
+  }
+  else if(cmd[0]=='&'){
+	  c.type = Command::Type::LAMBDA;
   }
   else
     c.type = Command::Type::OUTPUT;

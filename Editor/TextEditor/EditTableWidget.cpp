@@ -79,7 +79,7 @@ void EditTableWidget::calculateCellFromPos(QPoint pos, int *row, int *column) co
     *column = std::max(0, cellCol);
 }
 
-void EditTableWidget::recalculateMaximumValues()
+void EditTableWidget::findContentMaxValues()
 {
     // find the max column
     bool newMaxFound = false;
@@ -163,7 +163,8 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
     keyEvent->accept();
     int key = keyEvent->key();
 
-    if(!keyEvent->text().isEmpty())
+
+    if(!keyEvent->text().isEmpty() || key == Qt::Key_Dead_Circumflex)
     {
         if(key == Qt::Key_Enter || key == Qt::Key_Return)
         {
@@ -172,7 +173,15 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
                 finishGrab();
                 return;
             }
-            setPosition(m_cursorRowPos + 1, 0);
+            if((ApplicationPreferences::cursorMode == ApplicationConstants::SMART)
+                    && (getDisplaySign(m_cursorRowPos, 0) == '$'))
+            {
+                setPosition(m_cursorRowPos + 1, 1);
+            }
+            else
+            {
+                setPosition(m_cursorRowPos + 1, 0);
+            }
         }
         else if(key == Qt::Key_Backspace)
         {
@@ -197,7 +206,7 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
             {
                 return;
             }
-            cut(true, true);
+            cut(true, false);
         }
         else if(key != Qt::Key_Escape)
         {
@@ -205,8 +214,16 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
             {
                 return;
             }
-            setSign(m_cursorRowPos, m_cursorColPos, keyEvent->text().at(0));
-            setPosition(m_cursorRowPos, m_cursorColPos + 1);
+            if(key == Qt::Key_Dead_Circumflex)
+            {
+                setSign(m_cursorRowPos, m_cursorColPos, '^');
+            }
+            else
+            {
+                setSign(m_cursorRowPos, m_cursorColPos, keyEvent->text().at(0));
+            }
+            // next position is calculated by the internal graph
+            // hence we don't set the next position here
         }
         else if(key == Qt::Key_Escape && m_isInGrabMode)
         {
@@ -244,15 +261,6 @@ void EditTableWidget::keyPressEvent(QKeyEvent *keyEvent)
             setForegroundText(m_cursorRowPos, m_cursorColPos);
         }
     }
-}
-
-void EditTableWidget::inputMethodEvent(QInputMethodEvent *event)
-{
-    if(event->commitString() == "^" )
-    {
-        keyPressEvent(new QKeyEvent(QEvent::KeyPress, Qt::Key_Dead_Circumflex, Qt::NoModifier, "^"));
-    }
-    event->accept();
 }
 
 void EditTableWidget::setPosition(int row, int col, bool extendSelection)
@@ -294,8 +302,7 @@ void EditTableWidget::setSign(int row, int col, QChar c, bool suppressUndoRedoCr
         removeSign(row, col, suppressUndoRedoCreation);
         return;
     }
-
-    QChar pre = getSign(row, col);
+    QChar pre = getDisplaySign(row, col);
     setDisplaySign(row, col, c);
 
     // generate undo/redo-element
@@ -309,6 +316,15 @@ void EditTableWidget::setSign(int row, int col, QChar c, bool suppressUndoRedoCr
     m_textMaxCol = std::max(m_textMaxCol, col);
 
     Stack *stack = m_graph.setSign(col, row, c.toLatin1());
+    // The first element is the next position of the cursor
+    // the direction is coded in the color value
+    Stack *tmp = stack->pop();
+    int deltaX = 0, deltaY = 0;
+    ApplicationConstants::Direction direction = static_cast<ApplicationConstants::Direction>(tmp->getColor());
+    //qDebug() << "direction:" << direction;
+    m_graph.directionToDelta(&deltaX, &deltaY, direction);
+    setPosition(std::max(0, m_cursorRowPos + deltaY), std::max(0, m_cursorColPos + deltaX));
+    delete tmp;
     applyStyleChanges(stack);
     if(stack != NULL)
     {
@@ -322,11 +338,20 @@ void EditTableWidget::setSign(int row, int col, QChar c, bool suppressUndoRedoCr
 
 void EditTableWidget::setDisplaySign(int row, int col, QChar c)
 {
-    if(c == QChar() || c == '\0')
+    if(c == QChar())// || c == '\0')
     {
         removeDisplaySign(row, col);
         return;
     }
+    if(row >= this->rowCount())
+    {
+        this->setRowCount(row+1);
+    }
+    if(col >= this->columnCount())
+    {
+        this->setColumnCount(col+1);
+    }
+
     QChar symbol = c;
     if(c == ' ' && ApplicationPreferences::showWhiteSpaces)
     {
@@ -335,7 +360,6 @@ void EditTableWidget::setDisplaySign(int row, int col, QChar c)
 
     QWidget *w = this->cellWidget(row, col);
     QLabel *l;
-    QChar pre;
     if(w == NULL)
     {
         QFont f("unexistent");
@@ -350,7 +374,6 @@ void EditTableWidget::setDisplaySign(int row, int col, QChar c)
     {
         l = dynamic_cast<QLabel *>(w);
         assert(l);
-        pre = l->text().at(0);
         l->setText(symbol);
     }
 }
@@ -363,11 +386,7 @@ void EditTableWidget::removeSign(int row, int col, bool suppressUndoRedoCreation
         // generate undo/redo-element
         if(!suppressUndoRedoCreation && !this->signalsBlocked())
         {
-            QChar pre = getSign(row, col);
-            if(pre == visibleWhiteSpace)
-            {
-                pre = ' ';
-            }
+            QChar pre = getDisplaySign(row, col);
             UndoRedoTypeCharacter *undoRedoElement = new UndoRedoTypeCharacter(row, col, pre, QChar());
             emit undoRedoElementCreated(undoRedoElement);
         }
@@ -375,7 +394,7 @@ void EditTableWidget::removeSign(int row, int col, bool suppressUndoRedoCreation
 
         if((col == m_textMaxCol) || (row == m_textMaxRow))
         {
-            recalculateMaximumValues();
+            findContentMaxValues();
         }
         Stack *stack = m_graph.deleteSign(col, row);
         applyStyleChanges(stack);
@@ -400,14 +419,19 @@ void EditTableWidget::removeDisplaySign(int row, int col)
     }
 }
 
-QChar EditTableWidget::getSign(int row, int col) const
+QChar EditTableWidget::getDisplaySign(int row, int col) const
 {
     QWidget *w = this->cellWidget(row, col);
     if(w != NULL)
     {
         QLabel *l = dynamic_cast<QLabel *>(w);
         assert(l);
-        return l->text().at(0);
+        QChar c = l->text().at(0);
+        if(c == visibleWhiteSpace)
+        {
+            c = ' ';
+        }
+        return c;
     }
     else
     {
@@ -428,22 +452,57 @@ void EditTableWidget::applyStyleChanges(Stack *stack)
 
 void EditTableWidget::setSignStyle(int row, int col, int byteMask)
 {
-    // int: 00000000 00000000 00000000 00000000
-    //      rrrrrrrr gggggggg bbbbbbbb aaaaaaaa (rgb alpha)
-    //                                       ib
-    // We ignore alpha and use the bits of the least significant byte as style flags
+    bool unconnected = byteMask & ApplicationConstants::UNCONNECTED_OBJECT;
+    bool connectedRail = byteMask & ApplicationConstants::CONNECTED_RAIL;
+    bool functionName = byteMask & ApplicationConstants::FUNCTION_NAME;
+    bool functionCall = byteMask & ApplicationConstants::FUNCTION_CALL;
+    bool systemFunction = byteMask & ApplicationConstants::SYSTEM_FUNCTION;
+    bool string = byteMask & ApplicationConstants::STRING;
+    bool variable = byteMask & ApplicationConstants::VARIABLE;
+    bool grab = byteMask & ApplicationConstants::GRAB;
 
-    bool bold = byteMask & 1;
-    bool italic = byteMask & 2;
+    bool bold = false;
 
-    int red = (byteMask & 0xFF000000) >> 24;
-    int green = (byteMask & 0x00FF0000) >> 16;
-    int blue = (byteMask & 0x0000FF00) >> 8;
+    QColor color;
 
-    QColor color = QColor(red, green, blue);
+    if(grab)
+    {
+        color = ApplicationPreferences::grabColor;
+    }
+    else if(unconnected)
+    {
+        color = ApplicationPreferences::unconnectedRailsColor;
+    }
+    else if(functionName)
+    {
+        color = ApplicationPreferences::functionNamesColor;
+    }
+    else if(string)
+    {
+        color = ApplicationPreferences::stringsColor;
+        bold = variable || functionCall || systemFunction || connectedRail;
+    }
+    else if(variable)
+    {
+        color = ApplicationPreferences::variablesColor;
+        bold = functionCall || systemFunction || connectedRail;
+    }
+    else if(functionCall)
+    {
+        color = ApplicationPreferences::functionCallsColor;
+        bold = systemFunction || connectedRail;
+    }
+    else if(systemFunction)
+    {
+        color = ApplicationPreferences::systemFunctionColor;
+    }
+    else if(connectedRail)
+    {
+        color = ApplicationPreferences::connectedRailsColor;
+    }
+
     QString colorName = color.name();
     QString boldName = bold ? "bold" : "normal";
-    QString italicName = italic ? "italic" : "normal";
 
     QWidget *w = this->cellWidget(row, col);
 
@@ -452,7 +511,7 @@ void EditTableWidget::setSignStyle(int row, int col, int byteMask)
     {
         l = dynamic_cast<QLabel *>(w);
         assert(l);
-        l->setStyleSheet("QLabel { color: " + colorName + "; font-weight: " + boldName + "; font-style: " + italicName + ";};");
+        l->setStyleSheet("QLabel { color: " + colorName + "; font-weight: " + boldName + ";};");
     }
 }
 
@@ -463,8 +522,8 @@ QString EditTableWidget::toPlainText() const
     {
         for(int col = 0; col < this->columnCount(); col++)
         {
-            QChar sign = getSign(row, col);
-            if(sign == QChar() || sign == visibleWhiteSpace)
+            QChar sign = getDisplaySign(row, col);
+            if(sign == QChar())
             {
                 text.append(' ');
             }
@@ -494,6 +553,8 @@ void EditTableWidget::setPlainText(QString text)
 {
     this->blockSignals(true);
     clear();
+    ApplicationConstants::CursorMode tmpCursorMode = ApplicationPreferences::cursorMode;
+    ApplicationPreferences::cursorMode = ApplicationConstants::NORMAL;
     for(int i = 0; i < text.size(); i++)
     {
         QChar c = text.at(i);
@@ -506,13 +567,13 @@ void EditTableWidget::setPlainText(QString text)
         else
         {
             setSign(m_cursorRowPos, m_cursorColPos, c);
-            setPosition(m_cursorRowPos, m_cursorColPos + 1);
         }
     }
     this->blockSignals(false);
-    this->setPosition(0, 0);
     // Somehow the very first letter is cleared, hence we set it here again manually
     setSign(0, 0, text.at(0));
+    this->setPosition(0, 0);
+    ApplicationPreferences::cursorMode = tmpCursorMode;
 }
 
 void EditTableWidget::undo(UndoRedoElement *e)
@@ -537,10 +598,7 @@ void EditTableWidget::undo(UndoRedoElement *e)
     {
         TextSelection tmpClipboard(m_clipboard);
 
-        int width = cutPasteUndo->getRight() - cutPasteUndo->getLeft();
-        int height = cutPasteUndo->getBottom() - cutPasteUndo->getTop();
-        m_clipboard = TextSelection(cutPasteUndo->getPre(), width, height);
-
+        m_clipboard = cutPasteUndo->getPre();
         setPosition(cutPasteUndo->getTop(), cutPasteUndo->getLeft());
         paste(true);
 
@@ -586,9 +644,7 @@ void EditTableWidget::redo(UndoRedoElement *e)
     {
         TextSelection tmpClipboard(m_clipboard);
 
-        int width = cutPasteRedo->getRight() - cutPasteRedo->getLeft();
-        int height = cutPasteRedo->getBottom() - cutPasteRedo->getTop();
-        m_clipboard = TextSelection(cutPasteRedo->getPost(), width, height);
+        m_clipboard = cutPasteRedo->getPost();
         setPosition(cutPasteRedo->getTop(), cutPasteRedo->getLeft());
         paste(true);
 
@@ -620,34 +676,37 @@ void EditTableWidget::cut()
 void EditTableWidget::cut(bool isDelete, bool suppressUndoRedoCreation)
 {
     QTableWidgetSelectionRange selection = this->selectedRanges().first();
-    QList<QChar> pre, post;
+    QList<QChar> preCharList, postCharList;
     for(int row = selection.topRow(); row <= selection.bottomRow(); row++)
     {
         for(int col = selection.leftColumn(); col <= selection.rightColumn(); col++)
         {
-            pre << getSign(row, col);
+            QChar c = getDisplaySign(row, col);
+            preCharList << c;
             removeSign(row, col, true);
-            post << QChar();
+            postCharList << QChar();
         }
     }
 
+    int width = selection.rightColumn() - selection.leftColumn() + 1;
+    int height = selection.bottomRow() - selection.topRow() + 1;
     if(!isDelete)
     {
-        int width = selection.rightColumn() - selection.leftColumn();
-        int height = selection.bottomRow() - selection.topRow();
-        m_clipboard = TextSelection(pre, width, height);
+        m_clipboard = TextSelection(preCharList, width, height);
     }
 
     // generate undo/redo-element
     if(!this->signalsBlocked() && !suppressUndoRedoCreation)
     {
         QString display = isDelete ? "Delete" : "Cut";
-        UndoRedoCutPaste *undoRedoElement = new UndoRedoCutPaste(selection.topRow(), selection.leftColumn(), selection.bottomRow(), selection.rightColumn(), pre, post, display);
+        TextSelection pre(preCharList, width, height);
+        TextSelection post(postCharList, width, height);
+        UndoRedoCutPaste *undoRedoElement = new UndoRedoCutPaste(selection.topRow(), selection.leftColumn(), pre, post, display);
         emit undoRedoElementCreated(undoRedoElement);
         emit textChanged();
     }
     // shouldn't be necessary, because removeSign() already calls it
-    recalculateMaximumValues();
+    findContentMaxValues();
 }
 
 void EditTableWidget::copy()
@@ -658,12 +717,13 @@ void EditTableWidget::copy()
     {
         for(int col = selection.leftColumn(); col <= selection.rightColumn(); col++)
         {
-            pre << getSign(row, col);
+            QChar c = getDisplaySign(row, col);
+            pre << c;
         }
     }
 
-    int width = selection.rightColumn() - selection.leftColumn();
-    int height = selection.bottomRow() - selection.topRow();
+    int width = selection.rightColumn() - selection.leftColumn() + 1;
+    int height = selection.bottomRow() - selection.topRow() + 1;
     m_clipboard = TextSelection(pre, width, height);
 }
 
@@ -675,21 +735,23 @@ void EditTableWidget::paste()
 void EditTableWidget::paste(bool suppressUndoRedoCreation)
 {
     // extend the table, if necessary
-    int maxRow = std::max(this->rowCount(), m_cursorRowPos + m_clipboard.height()+1);
-    int maxCol = std::max(this->columnCount(), m_cursorColPos + m_clipboard.width()+1);
+    int maxRow = std::max(this->rowCount(), m_cursorRowPos + m_clipboard.height());
+    int maxCol = std::max(this->columnCount(), m_cursorColPos + m_clipboard.width());
 
     this->setRowCount(maxRow);
     this->setColumnCount(maxCol);
 
-    QList<QChar> pre, post;
+    QList<QChar> preCharList, postCharList;
     int i = 0;
-    for(int row = m_cursorRowPos; row <= m_cursorRowPos + m_clipboard.height(); row++)
+    int startRow = m_cursorRowPos;
+    int startCol = m_cursorColPos;
+    for(int row = startRow; row < startRow + m_clipboard.height(); row++)
     {
-        for(int col = m_cursorColPos; col <= m_cursorColPos + m_clipboard.width(); col++)
+        for(int col = startCol; col < startCol + m_clipboard.width(); col++)
         {
             QChar c = m_clipboard.text().at(i++);
 
-            pre << getSign(row, col);
+            preCharList << getDisplaySign(row, col);
             if(c == QChar())
             {
                 removeSign(row, col, true);
@@ -698,16 +760,18 @@ void EditTableWidget::paste(bool suppressUndoRedoCreation)
             {
                 setSign(row, col, c, true);
             }
-            post << c;
+            postCharList << c;
         }
     }
-    setSelection(m_cursorRowPos, m_cursorColPos, m_clipboard.height(), m_clipboard.width());
-    recalculateMaximumValues();
+    setSelection(startRow, startCol, m_clipboard.height(), m_clipboard.width());
+    findContentMaxValues();
 
     // generate undo/redo-element
     if(!suppressUndoRedoCreation && !this->signalsBlocked())
     {
-        UndoRedoCutPaste *undoRedoElement = new UndoRedoCutPaste(m_cursorRowPos, m_cursorColPos, m_cursorRowPos+m_clipboard.height(), m_cursorColPos+m_clipboard.width(), pre, post, "Paste");
+        TextSelection pre(preCharList, m_clipboard.width(), m_clipboard.height());
+        TextSelection post(m_clipboard);
+        UndoRedoCutPaste *undoRedoElement = new UndoRedoCutPaste(m_cursorRowPos, m_cursorColPos, pre, post, "Paste");
         emit undoRedoElementCreated(undoRedoElement);
         emit textChanged();
     }
@@ -720,23 +784,22 @@ void EditTableWidget::goToPostion(int row, int column)
 
 void EditTableWidget::setSelection(int row, int col, int height, int width)
 {
-    setPosition(row + height, col + width, false);
+    setPosition(row + height - 1, col + width - 1, false);
     setPosition(row, col, true);
 }
 
 void EditTableWidget::updateTextStyle()
 {
-    QChar whiteSpace = ApplicationPreferences::showWhiteSpaces ? visibleWhiteSpace : ' ';
     for(int row = 0; row < this->rowCount(); row++)
     {
         for(int col = 0; col < this->columnCount(); col++)
         {
-            QChar c = getSign(row, col);
+            QChar c = getDisplaySign(row, col);
             if(c == ' ' || c == visibleWhiteSpace)
             {
-                setSign(row, col, whiteSpace, true);
+                setDisplaySign(row, col, c);
             }
-            // TODO: get sign style from graph interface
+            setSignStyle(row, col, m_graph.get_Point_Type(col, row));
         }
     }
 }
@@ -808,8 +871,8 @@ void EditTableWidget::finishGrab()
             postSrcList << QChar();
         }
     }
-    int width = selection.rightColumn() - selection.leftColumn();
-    int height = selection.bottomRow() - selection.topRow();
+    int width = selection.rightColumn() - selection.leftColumn() + 1;
+    int height = selection.bottomRow() - selection.topRow() + 1;
 
     TextSelection preSrcText(m_originalGrabbedText);
     TextSelection preDstText(preDstList, width, height);
@@ -836,39 +899,70 @@ void EditTableWidget::finishGrab()
 
 void EditTableWidget::rotateGrab90()
 {
-    // TODO: implement
+    if(!m_isInGrabMode)
+    {
+        return;
+    }
+    restoreBackgroundText(m_cursorRowPos, m_cursorColPos, m_currentGrabbedText.height(), m_currentGrabbedText.width());
+    m_currentGrabbedText.rotate90();
+    setForegroundText(m_cursorRowPos, m_cursorColPos);
 }
 
 void EditTableWidget::rotateGrab180()
 {
-    // TODO: implement
+    if(!m_isInGrabMode)
+    {
+        return;
+    }
+    restoreBackgroundText(m_cursorRowPos, m_cursorColPos, m_currentGrabbedText.height(), m_currentGrabbedText.width());
+    m_currentGrabbedText.rotate180();
+    setForegroundText(m_cursorRowPos, m_cursorColPos);
 }
 
 void EditTableWidget::rotateGrab270()
 {
-    // TODO: implement
+    if(!m_isInGrabMode)
+    {
+        return;
+    }
+    restoreBackgroundText(m_cursorRowPos, m_cursorColPos, m_currentGrabbedText.height(), m_currentGrabbedText.width());
+    m_currentGrabbedText.rotate270();
+    setForegroundText(m_cursorRowPos, m_cursorColPos);
 }
 
-void EditTableWidget::mirrorGrabX()
+void EditTableWidget::mirrorGrabHorizontal()
 {
-    // TODO: implement
+    if(!m_isInGrabMode)
+    {
+        return;
+    }
+    restoreBackgroundText(m_cursorRowPos, m_cursorColPos, m_currentGrabbedText.height(), m_currentGrabbedText.width());
+    m_currentGrabbedText.mirrorHorizontal();
+    setForegroundText(m_cursorRowPos, m_cursorColPos);
 }
 
-void EditTableWidget::mirrorGrabY()
+void EditTableWidget::mirrorGrabVertical()
 {
-    // TODO: implement
+    if(!m_isInGrabMode)
+    {
+        return;
+    }
+    restoreBackgroundText(m_cursorRowPos, m_cursorColPos, m_currentGrabbedText.height(), m_currentGrabbedText.width());
+    m_currentGrabbedText.mirrorVertical();
+    setForegroundText(m_cursorRowPos, m_cursorColPos);
 }
 
 void EditTableWidget::setForegroundText(int row, int col)
 {
+    setSelection(row, col, m_currentGrabbedText.height(), m_currentGrabbedText.width());
     int i = 0;
-    for(int tmpRow = row; tmpRow <= row + m_currentGrabbedText.height(); tmpRow++)
+    for(int tmpRow = row; tmpRow < row + m_currentGrabbedText.height(); tmpRow++)
     {
-        for(int tmpCol = col; tmpCol <= col + m_currentGrabbedText.width(); tmpCol++)
+        for(int tmpCol = col; tmpCol < col + m_currentGrabbedText.width(); tmpCol++)
         {
             QChar c = m_currentGrabbedText.text().at(i++);
             setDisplaySign(tmpRow, tmpCol, c);
-            setSignStyle(tmpRow, tmpCol, 0x20FFFF00);
+            setSignStyle(tmpRow, tmpCol, ApplicationConstants::GRAB);
         }
     }
     setSelection(row, col, m_currentGrabbedText.height(), m_currentGrabbedText.width());
@@ -876,9 +970,9 @@ void EditTableWidget::setForegroundText(int row, int col)
 
 void EditTableWidget::restoreBackgroundText(int row, int col, int height, int width)
 {
-    for(int tmpRow = row; tmpRow <= row + height; tmpRow++)
+    for(int tmpRow = row; tmpRow < row + height; tmpRow++)
     {
-        for(int tmpCol = col; tmpCol <= col + width; tmpCol++)
+        for(int tmpCol = col; tmpCol < col + width; tmpCol++)
         {
             QChar c;
             if(tmpRow <= m_textMaxRow && tmpCol <= m_textMaxCol)
@@ -886,6 +980,7 @@ void EditTableWidget::restoreBackgroundText(int row, int col, int height, int wi
                 c = QChar(m_graph.getSign(tmpCol, tmpRow));
             }
             setDisplaySign(tmpRow, tmpCol, c);
+            setSignStyle(row, col, m_graph.get_Point_Type(col, row));
         }
     }
 }

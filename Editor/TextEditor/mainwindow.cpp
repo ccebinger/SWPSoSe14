@@ -84,6 +84,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->ui_startGrabAction, SIGNAL(triggered()), this, SLOT(startGrab()));
     connect(ui->ui_finishGrabAction, SIGNAL(triggered()), this, SLOT(finishGrab()));
     connect(ui->ui_cancelGrabAction, SIGNAL(triggered()), this, SLOT(cancelGrab()));
+    connect(ui->ui_rotate90Action, SIGNAL(triggered()), this, SLOT(modifyGrab()));
+    connect(ui->ui_rotate180Action, SIGNAL(triggered()), this, SLOT(modifyGrab()));
+    connect(ui->ui_rotate270Action, SIGNAL(triggered()), this, SLOT(modifyGrab()));
+    connect(ui->ui_mirrorHorizontalAction, SIGNAL(triggered()), this, SLOT(modifyGrab()));
+    connect(ui->ui_mirrorVerticalAction, SIGNAL(triggered()), this, SLOT(modifyGrab()));
+
     connect(ui->ui_sourceEditTableWidget, SIGNAL(grabModeChanged(bool)), this, SLOT(grabModeChanged(bool)));
 
     connect(ui->ui_setInterpreterAction, SIGNAL(triggered()), this, SLOT(setInterpreter()));
@@ -107,20 +113,24 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_buildProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(buildOutputReady()));
     connect(m_buildProcess, SIGNAL(readyReadStandardError()), this, SLOT(buildErrorReady()));
     connect(m_buildProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(buildFinished(int,QProcess::ExitStatus)));
-    connect(m_buildProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(buildProcessError(QProcess::ProcessError)));
 
     connect(m_javaProcess, SIGNAL(started()), this, SLOT(javaStarted()));
     connect(m_javaProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(javaOutputReady()));
     connect(m_javaProcess, SIGNAL(readyReadStandardError()), this, SLOT(javaErrorReady()));
     connect(m_javaProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(javaFinished(int,QProcess::ExitStatus)));
-    connect(m_javaProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(javaProcessError(QProcess::ProcessError)));
 
     connect(ui->ui_issuesListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(issueDoubleClicked(QListWidgetItem*)));
     connect(ui->ui_preferencesAction, SIGNAL(triggered()), this, SLOT(showApplicationPreferences()));
 
     readSettings();
-    ui->ui_sourceEditTableWidget->verticalHeader()->setVisible(ApplicationPreferences::showLineNumbers);
     updateRecentFiles();
+    setCursorMode();
+
+    connect(ui->ui_smartDirectionRadioButton, SIGNAL(toggled(bool)), this, SLOT(cursorModeChanged(bool)));
+    connect(ui->ui_horizontalDirectionRadioButton, SIGNAL(toggled(bool)), this, SLOT(cursorModeChanged(bool)));
+
+    ui->ui_sourceEditTableWidget->verticalHeader()->setVisible(ApplicationPreferences::showLineNumbers);
+    ui->ui_sourceEditTableWidget->setShowGrid(ApplicationPreferences::showEditorLines);
 }
 
 MainWindow::~MainWindow()
@@ -136,7 +146,7 @@ MainWindow::~MainWindow()
 
     delete m_undoRedoStack;
 
-    QString prefixBase = "temp";
+    QString prefixBase = ".temp";
     QString prefix = prefixBase + QString::number(m_tempFilesIndex);
     QFile source(prefix + "_source.rail");
     QFile input(prefix +"_input.txt");
@@ -151,7 +161,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::createTempFiles()
 {
-    QString prefixBase = "temp";
+    QString prefixBase = ".temp";
     for(int i = 0;; i++)
     {
         QString prefix = prefixBase + QString::number(i);
@@ -317,6 +327,11 @@ bool MainWindow::save(QString filePath)
     setModified(false);
     setCurrentPath(filePath);
     m_undoRedoStack->setSaved();
+
+    ApplicationPreferences::recentFiles.removeAll(filePath);
+    ApplicationPreferences::recentFiles.prepend(filePath);
+    updateRecentFiles();
+
     return true;
 }
 
@@ -445,7 +460,7 @@ void MainWindow::runInterpreter()
         return;
     }
 
-    QString prefixBase = "temp";
+    QString prefixBase = ".temp";
     QString prefix = prefixBase + QString::number(m_tempFilesIndex);
     QFile source(prefix + "_source.rail");
     QFile input(prefix +"_input.txt");
@@ -506,7 +521,7 @@ void MainWindow::interpreterFinished(int exitCode, QProcess::ExitStatus exitStat
     ui->ui_runInterpreterAction->setEnabled(true);
 
     // print the results
-    QString prefixBase = "temp";
+    QString prefixBase = ".temp";
     QString prefix = prefixBase + QString::number(m_tempFilesIndex);
     QFile output(prefix + "_output.txt");
     QString line;
@@ -639,12 +654,6 @@ void MainWindow::buildErrorReady()
     }
 }
 
-void MainWindow::buildProcessError(QProcess::ProcessError error)
-{
-    //QMessageBox::warning(this, "Compiler error.", "Compiler process error: " + QString::number(error));
-}
-
-
 // ------------------------------------------------------------------------------------------------- Java Process
 
 void MainWindow::runJava()
@@ -678,7 +687,8 @@ void MainWindow::runJava()
     QFileInfo classFile(classFilePath);
     QString directory(classFile.absoluteDir().path());
     QString className(classFile.completeBaseName());
-    m_javaProcess->start("java", QStringList() << "-cp" << directory << className << "-XX:-UseSplitVerifier");
+    m_javaProcess->start("java", QStringList() << "-XX:-UseSplitVerifier" << "-cp" << directory << className);
+    //qDebug() << m_javaProcess->arguments();
 }
 
 void MainWindow::javaStarted()
@@ -718,13 +728,6 @@ void MainWindow::javaErrorReady()
     QString stdError = m_javaProcess->readAllStandardError();
     ui->ui_consolePlainTextEdit->appendHtml("<font color=red>" + stdError + "</font><br>");
 }
-
-void MainWindow::javaProcessError(QProcess::ProcessError error)
-{
-    qDebug() << "java error: " << error;
-    QMessageBox::warning(this, "Java error.", "Java process error: " + QString::number(error));
-}
-
 
 // -------------------------------------------------------------------------------------- others again^^
 void MainWindow::consoleLineEntered(QString line)
@@ -795,6 +798,7 @@ void MainWindow::showApplicationPreferences()
     ApplicationPreferencesDialog dlg;
     dlg.exec();    
     ui->ui_sourceEditTableWidget->verticalHeader()->setVisible(ApplicationPreferences::showLineNumbers);
+    ui->ui_sourceEditTableWidget->setShowGrid(ApplicationPreferences::showEditorLines);
     ui->ui_sourceEditTableWidget->updateTextStyle();
 }
 
@@ -817,6 +821,10 @@ void MainWindow::readSettings()
     colorVariant = settings.value("colors/connectedRails", colorDefaultVariant);
     ApplicationPreferences::connectedRailsColor = colorVariant.value<QColor>();
 
+    colorDefaultVariant = ApplicationDefaultValues::systemFunctionColor;
+    colorVariant = settings.value("colors/systemFunctions", colorDefaultVariant);
+    ApplicationPreferences::systemFunctionColor = colorVariant.value<QColor>();
+
     colorDefaultVariant = ApplicationDefaultValues::functionNamesColor;
     colorVariant = settings.value("colors/functionNames", colorDefaultVariant);
     ApplicationPreferences::functionNamesColor = colorVariant.value<QColor>();
@@ -833,9 +841,15 @@ void MainWindow::readSettings()
     colorVariant = settings.value("colors/variables", colorDefaultVariant);
     ApplicationPreferences::variablesColor = colorVariant.value<QColor>();
 
+    colorDefaultVariant = ApplicationDefaultValues::grabColor;
+    colorVariant = settings.value("colors/grab", colorDefaultVariant);
+    ApplicationPreferences::grabColor = colorVariant.value<QColor>();
+
     ApplicationPreferences::recentFiles = settings.value("common/recentFiles", ApplicationDefaultValues::recentFiles).toStringList();
-    ApplicationPreferences::showLineNumbers = settings.value("common/showLineNumbers", ApplicationDefaultValues::showLineNumbers).toBool();
-    ApplicationPreferences::showWhiteSpaces = settings.value("common/showWhiteSpaces", ApplicationDefaultValues::showWhiteSpaces).toBool();
+    ApplicationPreferences::showLineNumbers = settings.value("editor/showLineNumbers", ApplicationDefaultValues::showLineNumbers).toBool();
+    ApplicationPreferences::showWhiteSpaces = settings.value("editor/showWhiteSpaces", ApplicationDefaultValues::showWhiteSpaces).toBool();
+    ApplicationPreferences::showEditorLines = settings.value("editor/showEditorLines", ApplicationDefaultValues::showEditorLines).toBool();
+    ApplicationPreferences::cursorMode = (ApplicationConstants::CursorMode)(settings.value("editor/cursorMode", ApplicationDefaultValues::cursorMode).toInt());
 
     ApplicationPreferences::createASGFiles = settings.value("build/createASG", ApplicationDefaultValues::createASGFiles).toBool();
     ApplicationPreferences::createGraphVizFiles = settings.value("build/createGraphViz", ApplicationDefaultValues::createGraphVizFiles).toBool();
@@ -866,14 +880,18 @@ void MainWindow::writeSettings() const
 
     settings.setValue("colors/unconnectedRails", ApplicationPreferences::unconnectedRailsColor);
     settings.setValue("colors/connectedRails", ApplicationPreferences::connectedRailsColor);
+    settings.setValue("colors/systemFunctions", ApplicationPreferences::systemFunctionColor);
     settings.setValue("colors/functionNames", ApplicationPreferences::functionNamesColor);
     settings.setValue("colors/functionCalls", ApplicationPreferences::functionCallsColor);
     settings.setValue("colors/strings", ApplicationPreferences::stringsColor);
     settings.setValue("colors/variables", ApplicationPreferences::variablesColor);
+    settings.setValue("colors/grab", ApplicationPreferences::grabColor);
 
     settings.setValue("common/recentFiles", shortenendRecent);
-    settings.setValue("common/showLineNumbers", ApplicationPreferences::showLineNumbers);
-    settings.setValue("common/showWhiteSpaces", ApplicationPreferences::showWhiteSpaces);
+    settings.setValue("editor/showLineNumbers", ApplicationPreferences::showLineNumbers);
+    settings.setValue("editor/showWhiteSpaces", ApplicationPreferences::showWhiteSpaces);
+    settings.setValue("editor/showEditorLines", ApplicationPreferences::showEditorLines);
+    settings.setValue("editor/cursorMode", ApplicationPreferences::cursorMode);
 
     settings.setValue("build/createASG", ApplicationPreferences::createASGFiles);
     settings.setValue("build/createGraphViz", ApplicationPreferences::createGraphVizFiles);
@@ -942,29 +960,43 @@ void MainWindow::finishGrab()
     ui->ui_sourceEditTableWidget->finishGrab();
 }
 
-void MainWindow::rotateGrab90()
+void MainWindow::modifyGrab()
 {
+    // HACK: Maybe have get-Function in SourceEditTableWidget instead
+    bool isInGrab = !ui->ui_startGrabAction->isEnabled();
+    if(!isInGrab)
+    {
+        ui->ui_sourceEditTableWidget->startGrab();
+    }
 
-}
+    QAction *action = dynamic_cast<QAction *>(sender());
+    assert(action);
 
-void MainWindow::rotateGrab180()
-{
+    if(action == ui->ui_rotate90Action)
+    {
+        ui->ui_sourceEditTableWidget->rotateGrab90();
+    }
+    else if(action == ui->ui_rotate180Action)
+    {
+        ui->ui_sourceEditTableWidget->rotateGrab180();
+    }
+    else if(action == ui->ui_rotate270Action)
+    {
+        ui->ui_sourceEditTableWidget->rotateGrab270();
+    }
+    else if(action == ui->ui_mirrorHorizontalAction)
+    {
+        ui->ui_sourceEditTableWidget->mirrorGrabHorizontal();
+    }
+    else if(action == ui->ui_mirrorVerticalAction)
+    {
+        ui->ui_sourceEditTableWidget->mirrorGrabVertical();
+    }
 
-}
-
-void MainWindow::rotateGrab270()
-{
-
-}
-
-void MainWindow::mirrorGrabX()
-{
-
-}
-
-void MainWindow::mirrorGrabY()
-{
-
+    if(!isInGrab)
+    {
+        ui->ui_sourceEditTableWidget->finishGrab();
+    }
 }
 
 void MainWindow::grabModeChanged(bool inGrab)
@@ -972,4 +1004,35 @@ void MainWindow::grabModeChanged(bool inGrab)
     ui->ui_startGrabAction->setEnabled(!inGrab);
     ui->ui_finishGrabAction->setEnabled(inGrab);
     ui->ui_cancelGrabAction->setEnabled(inGrab);
+}
+
+void MainWindow::setCursorMode()
+{
+    if(ApplicationPreferences::cursorMode == ApplicationConstants::NORMAL)
+    {
+        ui->ui_horizontalDirectionRadioButton->setChecked(true);
+    }
+    else
+    {
+        ui->ui_smartDirectionRadioButton->setChecked(true);
+    }
+}
+
+void MainWindow::cursorModeChanged(bool state)
+{
+    if(!state)
+    {
+        return;
+    }
+
+    QRadioButton *button = dynamic_cast<QRadioButton *>(sender());
+    assert(button);
+    if(button == ui->ui_horizontalDirectionRadioButton)
+    {
+        ApplicationPreferences::cursorMode = ApplicationConstants::NORMAL;
+    }
+    else
+    {
+        ApplicationPreferences::cursorMode = ApplicationConstants::SMART;
+    }
 }

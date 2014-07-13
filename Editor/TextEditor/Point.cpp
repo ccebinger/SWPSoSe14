@@ -69,43 +69,46 @@ int Point::get_Node_Font( void ){
     legal_Start |= iStart & (64+16+8+2);
     switch (type) {
     case Start:
+        font = ApplicationConstants::SYSTEM_FUNCTION;
+        break;
     case End:
-        if( legal_Start ) font = 0x00FF0000;
+        if( legal_Start ) font = ApplicationConstants::SYSTEM_FUNCTION;
+        else font = ApplicationConstants::UNCONNECTED_OBJECT;
+        break;
     case Lambda:
     case Reflector:
     case Function:
-        if( legal_Start && !(iString) && !(iFunctions) && !(iVariables) ) font = 0x00FF0000;
-        else if ( mask && iString && (iFunctions || iVariables || (legal_Start & ~ iString)) ) font = 0x0000FF01;
-        else if ( mask && iString && !iFunctions && !iVariables ) font = 0x0000FF00;
-        else if ( mask && !iString && (iFunctions || iVariables) ) font = 0x00FF0000;
-        else if (type == Start ) font = 0x00FF0000;
-        else font = 0xFF000000;
-        break;
     case Rail_Junk:
+        if( legal_Start ) font = ApplicationConstants::SYSTEM_FUNCTION;
+        if( iString ) font |= ApplicationConstants::STRING;
+        if( iVariables ) font |= ApplicationConstants::VARIABLE;
+        if( iFunctions ) font |= ApplicationConstants::FUNCTION_CALL;
+        if( !font ) font = ApplicationConstants::UNCONNECTED_OBJECT;
+        break;
     case Rail_Line:
     case Rail_Slash:
     case Rail_Corss:
-        if( mask ) font = 0;
-        else font = 0xFF000000;
+        if( mask ) font = ApplicationConstants::CONNECTED_RAIL;
+        else font = ApplicationConstants::UNCONNECTED_OBJECT;
         break;
     case String_Symble:
-        if( mask ) font = 0x0000FF00;
-        else font = 0xFF000000;
+        if( mask ) font = ApplicationConstants::CONNECTED_RAIL;
+        else font = ApplicationConstants::UNCONNECTED_OBJECT;
         break;
     case Variable_Symbol:
-        if( mask ) font = 0x00FF0000;
-        else font = 0xFF000000;
+        if( mask ) font = ApplicationConstants::CONNECTED_RAIL;
+        else font = ApplicationConstants::UNCONNECTED_OBJECT;
         break;
     case Funktion_Symble:
-        if( mask ) font = 0x00FF0000;
-        else font = 0xFF000000;
+        if( mask ) font = ApplicationConstants::CONNECTED_RAIL;
+        else font = ApplicationConstants::UNCONNECTED_OBJECT;
         break;
     default:
-        if( mask && iString && (iFunctions || iVariables || (legal_Start & ~iString))) font = 0x0000FF01;
-        else if( mask && iString) font = 0x0000FF00;
-        else if( mask && iFunctions) font = 0x00FF0000;
-        else if( mask && iVariables) font = 0x00FF0000;
-        else font = 0xFF000000;
+        if( mask ) font = ApplicationConstants::CONNECTED_RAIL;
+        if( iString ) font |= ApplicationConstants::STRING;
+        if( iVariables ) font |= ApplicationConstants::VARIABLE;
+        if( iFunctions ) font |= ApplicationConstants::FUNCTION_CALL;
+        if( !font ) font = ApplicationConstants::UNCONNECTED_OBJECT;
         break;
     }
     return font;
@@ -424,13 +427,15 @@ int Point::get_I_Direction(){
     if(directions > 1) return 0;
     switch (sign) {
     case '$':
-        direction = 1;
+        direction = 8;
         break;
     case '-':
-        direction = (16 + 8) & ~iStart;
+        if(iStart & (128+16+4))direction = 8;
+        else if(iStart & (1+8+32))direction = 16;
         break;
     case '|':
-        direction = (64 + 2) & ~iStart;
+        if(iStart & (1+2+4))direction = 64;
+        else if(iStart & (32+64+128))direction = 2;
         break;
     case '<':
         if(iStart & 16)direction = 1;

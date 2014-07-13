@@ -15,8 +15,8 @@ public:
     TextSelection & rotate90();
     TextSelection & rotate180();
     TextSelection & rotate270();
-    TextSelection & mirrorX();
-    TextSelection & mirrorY();
+    TextSelection & mirrorHorizontal();
+    TextSelection & mirrorVertical();
 
     QList<QChar> text() const;
     int width() const;

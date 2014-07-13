@@ -4,6 +4,7 @@
 
 *.pydevproject
 .project
+.cproject
 .metadata
 bin/
 tmp/
@@ -15,7 +16,12 @@ local.properties
 .classpath
 .settings/
 .loadpath
+projekt-compiler/Debug/
+projekt-compiler/io
+projekt-compiler/.project
+projekt-compiler/.cproject
 
+Debug/
 # External tool builders
 .externalToolBuilders/
 
@@ -237,3 +243,46 @@ Editor/build-TextEditor-Desktop-Debug/*
 ## Rail Interpreter
 rail-interpreter/
 
+
+
+
+# Java exception logs
+abrt_checker_*.log
+
+# xTesting
+xTesting/run.sh
+xTesting/*.ll
+
+
+
+
+
+
+
+## Latex
+Milestone*/*.aux
+Milestone*/*.glo
+Milestone*/*.idx
+Milestone*/*.log
+Milestone*/*.toc
+Milestone*/*.ist
+Milestone*/*.acn
+Milestone*/*.acr
+Milestone*/*.alg
+Milestone*/*.bbl
+Milestone*/*.blg
+Milestone*/*.dvi
+Milestone*/*.glg
+Milestone*/*.gls
+Milestone*/*.ilg
+Milestone*/*.ind
+Milestone*/*.lof
+Milestone*/*.lot
+Milestone*/*.maf
+Milestone*/*.mtc
+Milestone*/*.mtc1
+Milestone*/*.out
+Milestone*/*.nav
+Milestone*/*.synctex.gz
+Milestone*/*.snm
+Milestone*/*.vrb

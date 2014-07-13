@@ -27,6 +27,7 @@ const char ClassfileWriter::kMagicNumber[] { '\xCA', '\xFE','\xBA', '\xBE' };
 const char ClassfileWriter::kNotRequired[] { '\x00', '\x00' };
 const char ClassfileWriter::kPublicAccessFlag[] { '\x00', '\x01'};
 const char ClassfileWriter::kPublicStaticAccessFlag[] {'\x00', '\x09'};
+const unsigned char ClassfileWriter::kPublicSuperAccessFlag[] {'\x00', '\x21'};
 
 const uint16_t ClassfileWriter::kMaxStack = 20;
 
@@ -35,6 +36,9 @@ std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
   {ClassfileWriter::ClassfileVersion::JAVA_7,
         std::array<char, 4>{'\x00', '\x00', '\x00', '\x33'}}
 };
+
+const unsigned char ClassfileWriter::inner_class_flag[] = {'\x00', '\x08'};
+const std::string ClassfileWriter::inner_classes_attr = "InnerClasses";
 
 /*!
  * \brief Constructor for ClassfileWriter
@@ -47,7 +51,23 @@ ClassfileWriter::ClassfileWriter(ClassfileVersion version,
                                  ConstantPool* constantPool,
                                  Graphs& graphs,
                                  const std::map<std::string, codegen::Bytecode&> codeFunctions,
-                                 std::ostream* out) : graphs_(graphs),
+                                 std::ostream* out) : inner_classes_count(0),
+                                                      graphs_(graphs),
+                                                      writer(out),
+                                                      out_(out),
+                                                      version_(version),
+                                                      code_functions_(codeFunctions)
+                                                       {
+  constant_pool_ = std::make_shared<ConstantPool>(*constantPool);
+}
+
+
+ClassfileWriter::ClassfileWriter(ClassfileVersion version, ConstantPool* constantPool,
+                Graphs& graphs,
+                const std::map<std::string, codegen::Bytecode&> codeFunctions,
+                std::ostream* out, uint16_t inner_classes) :
+                                                      inner_classes_count(inner_classes),
+                                                      graphs_(graphs),
                                                       writer(out),
                                                       out_(out),
                                                       version_(version),
@@ -107,8 +127,7 @@ void ClassfileWriter::WriteConstantPool() {
  * \brief Write the access flag (e.g. 0x00000001 for public)
  */
 void ClassfileWriter::WriteAccessFlags() {
-  out_->write(kPublicAccessFlag,
-              (sizeof(kPublicAccessFlag)/sizeof(kPublicAccessFlag[0])));
+  writer.write_array(2, kPublicSuperAccessFlag);
 }
 
 /*!
@@ -162,35 +181,54 @@ void ClassfileWriter::WriteFields() {
 void ClassfileWriter::WriteMethods() {
   std::vector<std::string> keys = this->graphs_.keyset();
   // plus 1 for the init method and +1 for stack init method
-  size_t size = keys.size();
+  size_t size = keys.size() - inner_classes_count;
   writer.writeU16(size+2);
   WriteInitMethod();
   WriteClInitMethod();
 
   for (std::vector<std::string>::size_type i = 0; i != keys.size(); i++) {
-    if (keys[i].compare("main") != 0) {
+    if (keys[i][0] != '&') {
+      if (keys[i].compare("main") != 0) {
 
-      out_->write(kPublicStaticAccessFlag,
-    	                    (sizeof(kPublicStaticAccessFlag)/sizeof(kPublicStaticAccessFlag[0])));
-      writer.writeU16(constant_pool_->addString(keys[i]));
-      writer.writeU16(constant_pool_->addString("()V"));
+        out_->write(kPublicStaticAccessFlag,
+                            (sizeof(kPublicStaticAccessFlag)/sizeof(kPublicStaticAccessFlag[0])));
+        writer.writeU16(constant_pool_->addString(keys[i]));
+        writer.writeU16(constant_pool_->addString("()V"));
 
-    } else {
+      } else {
 
-      out_->write(kPublicStaticAccessFlag,
-                    (sizeof(kPublicStaticAccessFlag)/sizeof(kPublicStaticAccessFlag[0])));
-      writer.writeU16(constant_pool_->addString(keys[i]));
-      writer.writeU16(constant_pool_->addString("([Ljava/lang/String;)V"));
+        out_->write(kPublicStaticAccessFlag,
+                      (sizeof(kPublicStaticAccessFlag)/sizeof(kPublicStaticAccessFlag[0])));
+        writer.writeU16(constant_pool_->addString(keys[i]));
+        writer.writeU16(constant_pool_->addString("([Ljava/lang/String;)V"));
+      }
+
+      WriteAttributes(keys[i]);
+
     }
-
-    WriteAttributes(keys[i]);
   }
   // file attributes_count
-    out_->write(kNotRequired, sizeof kNotRequired);
+  //  out_->write(kNotRequired, sizeof kNotRequired);
+  if (inner_classes_count > 0)
+  {
+    writer.writeU16(1);//attr count
+    //INNER CLASSES
+    writer.writeU16(constant_pool_->addString(inner_classes_attr)); //innerclass
+    writer.writeU32(2 + (inner_classes_count * 8)); //0000 000a attr length
+    writer.writeU16(inner_classes_count); //0001 nr of classes
+    for (uint16_t i = 0; i < inner_classes_count; i++)
+    {
+      std::stringstream ss;
+      ss << Env::getDstClassName() << "$" << (i+1);
+      writer.writeU16(get_class_ref(ss.str()));
+      writer.writeU16(0); //0000 outer class info idx
+      writer.writeU16(0); //inner name idx
+      writer.write_array(2, inner_class_flag);
+    }
+  }
+  else
+    writer.writeU16(0);
 
-  // std::vector<char> func = code_functions_.at("main");
-  // out_.write((char*)func.data(),
-  //          func.size());
 }
 /*!
  * \brief Writes the <init> in class-file
@@ -216,10 +254,10 @@ void ClassfileWriter::WriteInitMethod() {
   // code_length=5
   writer.writeU32(5);
   //code source
-  writer.writeU8(42);
-  writer.writeU8(183);
+  writer.writeU8(codegen::MNEMONIC::ALOAD_0);
+  writer.writeU8(codegen::MNEMONIC::INVOKE_SPECIAL);
   writer.writeU16(constant_pool_->addMethRef(constant_pool_->addClassRef(init_idx), init_name_type_idx));
-  writer.writeU8(177);
+  writer.writeU8(codegen::RETURN);
   // exception_table_length=0
   out_->write(kNotRequired, sizeof(kNotRequired));
   // attributes_count
@@ -246,14 +284,14 @@ void ClassfileWriter::WriteClInitMethod() {
   // code_length=5
   writer.writeU32(11);
   //code source
-  writer.writeU8(187);
+  writer.writeU8(codegen::MNEMONIC::NEW);
   writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("java/util/ArrayDeque")));
-  writer.writeU8(89);
-  writer.writeU8(183);
+  writer.writeU8(codegen::MNEMONIC::DUP);
+  writer.writeU8(codegen::MNEMONIC::INVOKE_SPECIAL);
   writer.writeU16(constant_pool_->addMethRef(constant_pool_->addClassRef(constant_pool_->addString("java/util/ArrayDeque")),constant_pool_->addNameAndType(constant_pool_->addString("<init>"), constant_pool_->addString("()V"))));
-  writer.writeU8(179);
+  writer.writeU8(codegen::MNEMONIC::PUTSTATIC);
   writer.writeU16(constant_pool_->addFieldRef(constant_pool_->addClassRef(constant_pool_->addString(Env::getDstClassName())),constant_pool_->addNameAndType(constant_pool_->addString("stack"), constant_pool_->addString("Ljava/util/ArrayDeque;"))));
-  writer.writeU8(177);
+  writer.writeU8(codegen::MNEMONIC::RETURN);
   // exception_table_length=0
   out_->write(kNotRequired, sizeof(kNotRequired) / sizeof(kNotRequired[0]));
   // attributes_count
@@ -298,4 +336,12 @@ void ClassfileWriter::WriteAttributes(const std::string &key) {
   out_->write(kNotRequired, sizeof(kNotRequired)  / sizeof(kNotRequired[0]));
   // attributes_count
   out_->write(kNotRequired, sizeof(kNotRequired)  / sizeof(kNotRequired[0]));
+}
+
+
+
+
+size_t ClassfileWriter::get_class_ref(const std::string& _class)
+{
+  return constant_pool_->addClassRef(constant_pool_->addString(_class));
 }

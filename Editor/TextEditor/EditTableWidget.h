@@ -36,23 +36,23 @@ public:
     void rotateGrab90();
     void rotateGrab180();
     void rotateGrab270();
-    void mirrorGrabX();
-    void mirrorGrabY();
+    void mirrorGrabHorizontal();
+    void mirrorGrabVertical();
 
 private:
     void mousePressEvent(QMouseEvent *mouseEvent);
     void mouseMoveEvent(QMouseEvent *mouseEvent);
     void keyPressEvent(QKeyEvent *keyEvent);
-    void inputMethodEvent(QInputMethodEvent *event);
 
     void calculateCellFromPos(QPoint pos, int *row, int *column) const;
-    void recalculateMaximumValues();
+    void findContentMaxValues();
+
     void setPosition(int row, int col, bool extendSelection = false);
     void setSign(int row, int col, QChar c, bool suppressUndoRedoCreation = false);
     void setDisplaySign(int row, int col, QChar c);
     void removeSign(int row, int col, bool suppressUndoRedoCreation = false);
     void removeDisplaySign(int row, int col);
-    QChar getSign(int row, int col) const;
+    QChar getDisplaySign(int row, int col) const;
     void cut(bool isDelete, bool suppressUndoRedoCreation);
     void paste(bool suppressUndoRedoCreation);
 

@@ -33,7 +33,7 @@
 #include <vector>
 #include <frontend/Graphs.h>
 #include <backend/codegen/Bytecode.h>
-#include "constant_pool.h"
+#include <backend/classfile/constant_pool.h>
 
 /**
  * This class is the result of the compiling pipeline.
@@ -69,6 +69,20 @@ class ClassfileWriter {
                     Graphs& graphs,
                     const std::map<std::string, codegen::Bytecode&> codeFunctions,
                     std::ostream* out);
+  /**
+   * The constructor of the classfile_writer.
+   *
+   * @param version             The Java version.
+   * @param constant pool       The current constant pool of the classfile.
+   * @param graphs              The graph we extract the rail commands from.
+   * @param codeFunctions       The mapping of the function and appropriate bytecode.
+   * @param out                 The stream we write on.
+   * @param count               The inner_classes count
+   */
+  ClassfileWriter(ClassfileVersion version, ConstantPool* constantPool,
+                    Graphs& graphs,
+                    const std::map<std::string, codegen::Bytecode&> codeFunctions,
+                    std::ostream* out, uint16_t inner_classes);
 
   /**
    * The deconstructor of the classfile_writer
@@ -82,8 +96,11 @@ class ClassfileWriter {
    * @return void
    */
   void WriteClassfile();
-
+  static const std::string inner_classes_attr;
  protected:
+  uint16_t inner_classes_count;
+  static const unsigned char inner_class_flag[];
+  static const unsigned char kPublicSuperAccessFlag[];
 
   /**
    * An instance of the graph given by the frontend.
@@ -241,5 +258,7 @@ class ClassfileWriter {
    * @return void
    */
   virtual void WriteAttributes(const std::string &key);
+
+  size_t get_class_ref(const std::string& _class);
 };
 #endif /* CLASSFILE_WRITER_H_ */

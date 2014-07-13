@@ -24,10 +24,12 @@ private:
 
     QColor m_unconnectedRailsColor;
     QColor m_connectedRailsColor;
+    QColor m_systemFunctionColor;
     QColor m_functionNamesColor;
     QColor m_functionCallsColor;
     QColor m_stringsColor;
     QColor m_variablesColor;
+    QColor m_grabbedTextColor;
 
     bool m_colorChanged;
 

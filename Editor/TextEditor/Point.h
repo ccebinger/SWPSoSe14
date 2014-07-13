@@ -3,6 +3,7 @@
 
 #include "InterStack.h"
 #include "Stack.h"
+#include "ApplicationPreferences.h"
 
 class Point{
 private:

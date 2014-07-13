@@ -169,7 +169,6 @@ void Parser::move() {
 		//check for other symbols that are allowed
 		bool didGoStraight = checkForValidCommandsInStraightDir(straightRow, straightCol);
 		if(didGoStraight) {
-			moveCount=0;
 			return;
 		}
 	}
@@ -414,6 +413,7 @@ void Parser::parseLambda(NodeIdentifier id){
 	Direction preDir = dir;
 	bool preParsingNotFinished = parsingNotFinished;
 	std::shared_ptr<Adjacency_list> preASG = currentAbstractSyntaxGraph;
+	std::shared_ptr<Node> preCurrentNode = currentNode;
 	//parse lambda function
 	parseLambdaFunction(lambdaName,posRow,posCol,dir);
 	//reset status after parsing lambda function:
@@ -421,12 +421,13 @@ void Parser::parseLambda(NodeIdentifier id){
 	posCol = prePosCol;
 	dir = preDir;
 	currentAbstractSyntaxGraph = preASG;
+	currentNode = preCurrentNode;
 	parsingNotFinished = preParsingNotFinished;
 	reverseDirection();
 }
 
 string Parser::findUnusedFunctionName(){
-	int count = 0;
+	int count = 1;
 	string name;
 	while(true){
 		std::ostringstream s;
@@ -539,10 +540,9 @@ bool Parser::addToAbstractSyntaxGraph(string commandName, Command::Type type, No
 		if(currentAbstractSyntaxGraph == NULL) {
 			//this is the first node that we meet, create a new one
 			node->id = 1;
-			lastUsedId = 1;
 			currentAbstractSyntaxGraph.reset(new Adjacency_list(board->getName(), node));
 		} else {
-			node->id = ++lastUsedId;
+			node->id = currentNode->id+1;
 			currentAbstractSyntaxGraph->addNode(node);
 			currentAbstractSyntaxGraph->addEdge(currentNode, node, addNextNodeAsTruePathOfPreviousNode);
 		}

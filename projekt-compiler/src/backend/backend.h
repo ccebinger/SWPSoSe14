@@ -22,7 +22,6 @@ program; if not, see <http://www.gnu.org/licenses/>.*/
 #include <string>
 
 #include <frontend/Graphs.h>
-#include <backend/classfile/classfile_writer.h>
 #include <backend/classfile/constant_pool.h>
 #include <backend/codegen/Bytecode.h>
 #include <backend/classfile/Lambda_classfile_writer.h>
@@ -75,6 +74,14 @@ class Backend {
    * Nur statische Methoden.
    */
   Backend();
+  static std::string get_lambda_class_name(const std::string& name, bool anonymous);
+  //static void write_lambda_classes(Graphs::Graph_ptr graph, ConstantPool& constantPool);
+  static void write_lambda_interface();
+  static void write_lambda_anonymous_classes(Graphs& graphs, ConstantPool& constantPool, codegen::Bytecode* code);
+  static void write_lambda_anonymous_class(Graphs::Graph_ptr graph, ConstantPool& constantPool, std::string& name, LocalVariableStash& locals);
+  static void add_entries_to_constantpool(ConstantPool& constantPool);
+  static void add_functions_to_constantpool(ConstantPool& constantPool, std::vector<std::string>& keyset);
+  static void write_lambda_default_constantpool(ConstantPool& constant_pool, const std::string& lambda_class_name);
 };
 
 #endif  // PROJEKT_COMPILER_SRC_BACKEND_BACKEND_H_

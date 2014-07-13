@@ -265,8 +265,8 @@
     <addaction name="ui_rotate90Action"/>
     <addaction name="ui_rotate180Action"/>
     <addaction name="ui_rotate270Action"/>
-    <addaction name="ui_flipHorizontalAction"/>
-    <addaction name="ui_flipVerticalAction"/>
+    <addaction name="ui_mirrorHorizontalAction"/>
+    <addaction name="ui_mirrorVerticalAction"/>
    </widget>
    <widget class="QMenu" name="ui_compileMenu">
     <property name="title">
@@ -463,6 +463,11 @@
    <addaction name="ui_startGrabAction"/>
    <addaction name="ui_finishGrabAction"/>
    <addaction name="ui_cancelGrabAction"/>
+   <addaction name="ui_rotate90Action"/>
+   <addaction name="ui_rotate180Action"/>
+   <addaction name="ui_rotate270Action"/>
+   <addaction name="ui_mirrorHorizontalAction"/>
+   <addaction name="ui_mirrorVerticalAction"/>
   </widget>
   <action name="ui_newFileAction">
    <property name="icon">
@@ -772,6 +777,13 @@
    </property>
   </action>
   <action name="ui_rotate90Action">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/Rotate90.png</normaloff>:/icons/Buttons/Rotate90.png</iconset>
+   </property>
    <property name="text">
     <string>Rotate 90°</string>
    </property>
@@ -779,10 +791,14 @@
     <enum>Qt::ApplicationShortcut</enum>
    </property>
    <property name="visible">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
   </action>
   <action name="ui_rotate180Action">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/Rotate180.png</normaloff>:/icons/Buttons/Rotate180.png</iconset>
+   </property>
    <property name="text">
     <string>Rotate 180°</string>
    </property>
@@ -790,10 +806,14 @@
     <enum>Qt::ApplicationShortcut</enum>
    </property>
    <property name="visible">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
   </action>
   <action name="ui_rotate270Action">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/Rotate270.png</normaloff>:/icons/Buttons/Rotate270.png</iconset>
+   </property>
    <property name="text">
     <string>Rotate 270°</string>
    </property>
@@ -801,29 +821,37 @@
     <enum>Qt::ApplicationShortcut</enum>
    </property>
    <property name="visible">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
   </action>
-  <action name="ui_flipHorizontalAction">
+  <action name="ui_mirrorHorizontalAction">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/MirrorHorizontal.png</normaloff>:/icons/Buttons/MirrorHorizontal.png</iconset>
+   </property>
    <property name="text">
-    <string>Flip Horizontal</string>
+    <string>Mirror Horizontal</string>
    </property>
    <property name="shortcutContext">
     <enum>Qt::ApplicationShortcut</enum>
    </property>
    <property name="visible">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
   </action>
-  <action name="ui_flipVerticalAction">
+  <action name="ui_mirrorVerticalAction">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/Buttons/MirrorVertical.png</normaloff>:/icons/Buttons/MirrorVertical.png</iconset>
+   </property>
    <property name="text">
-    <string>Flip Vertical</string>
+    <string>Mirror Vertical</string>
    </property>
    <property name="shortcutContext">
     <enum>Qt::ApplicationShortcut</enum>
    </property>
    <property name="visible">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
   </action>
  </widget>
