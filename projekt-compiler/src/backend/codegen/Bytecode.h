@@ -73,7 +73,8 @@ namespace codegen {
     ATHROW = '\xbf',
     IFEQ = '\x99',
     IFNE = '\x9a',
-    POP = '\x57'
+    POP = '\x57',
+    PUTSTATIC = '\xb3'
   };
 
 

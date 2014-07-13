@@ -254,10 +254,10 @@ void ClassfileWriter::WriteInitMethod() {
   // code_length=5
   writer.writeU32(5);
   //code source
-  writer.writeU8(42);
-  writer.writeU8(183);
+  writer.writeU8(codegen::MNEMONIC::ALOAD_0);
+  writer.writeU8(codegen::MNEMONIC::INVOKE_SPECIAL);
   writer.writeU16(constant_pool_->addMethRef(constant_pool_->addClassRef(init_idx), init_name_type_idx));
-  writer.writeU8(177);
+  writer.writeU8(codegen::RETURN);
   // exception_table_length=0
   out_->write(kNotRequired, sizeof(kNotRequired));
   // attributes_count
@@ -284,14 +284,14 @@ void ClassfileWriter::WriteClInitMethod() {
   // code_length=5
   writer.writeU32(11);
   //code source
-  writer.writeU8(187);
+  writer.writeU8(codegen::MNEMONIC::NEW);
   writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("java/util/ArrayDeque")));
-  writer.writeU8(89);
-  writer.writeU8(183);
+  writer.writeU8(codegen::MNEMONIC::DUP);
+  writer.writeU8(codegen::MNEMONIC::INVOKE_SPECIAL);
   writer.writeU16(constant_pool_->addMethRef(constant_pool_->addClassRef(constant_pool_->addString("java/util/ArrayDeque")),constant_pool_->addNameAndType(constant_pool_->addString("<init>"), constant_pool_->addString("()V"))));
-  writer.writeU8(179);
+  writer.writeU8(codegen::MNEMONIC::PUTSTATIC);
   writer.writeU16(constant_pool_->addFieldRef(constant_pool_->addClassRef(constant_pool_->addString(Env::getDstClassName())),constant_pool_->addNameAndType(constant_pool_->addString("stack"), constant_pool_->addString("Ljava/util/ArrayDeque;"))));
-  writer.writeU8(177);
+  writer.writeU8(codegen::MNEMONIC::RETURN);
   // exception_table_length=0
   out_->write(kNotRequired, sizeof(kNotRequired) / sizeof(kNotRequired[0]));
   // attributes_count
