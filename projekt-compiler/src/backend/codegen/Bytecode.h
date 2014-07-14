@@ -74,7 +74,8 @@ namespace codegen {
     IFEQ = '\x99',
     IFNE = '\x9a',
     POP = '\x57',
-    PUTSTATIC = '\xb3'
+    PUTSTATIC = '\xb3',
+    PUTFIELD = '\xb5'
   };
 
 

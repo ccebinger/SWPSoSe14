@@ -96,7 +96,53 @@ void Lambda_classfile_writer::WriteMethods() {
 }
 
 void Lambda_classfile_writer::WriteInitMethod() {
-  ClassfileWriter::WriteInitMethod();
+  writer.writeU16(1);
+  uint16_t obj_idx = constant_pool_->obj_idx.class_idx;
+  uint16_t init_name_type_idx = constant_pool_->addNameAndType(constant_pool_->addString("<init>"), constant_pool_->addString("()V"));
+  writer.writeU16(constant_pool_->addString("<init>"));
+  writer.writeU16(constant_pool_->addString("()V"));
+  /* WriteAttributes */
+  // attribute_count=1
+  writer.writeU16(1);
+  writer.writeU16(constant_pool_->addString("Code"));
+  uint32_t code_len = 5;
+
+  if (fields.current_var_count() > 0)
+    code_len += 5 * fields.current_var_count() + 1;
+  //attribute length
+  writer.writeU32(12 + code_len);
+  // max_stack=1
+  writer.writeU16(1);
+  // max_locals=1
+  writer.writeU16(1);
+  // code_length=5
+  writer.writeU32(code_len);
+  //code source
+
+  //TODO add fields from local variable stash
+  //alods until field size
+  std::map<std::string, uint8_t> map = fields.get_variable_to_index_map();
+  if (map.size() > 0) {
+    writer.writeU8(codegen::MNEMONIC::ALOAD_0);
+    uint8_t idx = 1;
+    for (std::map<std::string, uint8_t>::iterator it = map.begin(); it != map.end(); it++) {
+      uint16_t field_name_idx = constant_pool_->addString(it->first);
+      uint16_t field_idx = constant_pool_->addNameAndType(obj_idx, field_name_idx);
+      writer.writeU8(codegen::MNEMONIC::ALOAD);
+      writer.writeU8(idx++);
+      writer.writeU8(codegen::MNEMONIC::PUTFIELD);
+      writer.writeU16(field_idx);
+    }
+  }
+  //
+  writer.writeU8(codegen::MNEMONIC::ALOAD_0);
+  writer.writeU8(codegen::MNEMONIC::INVOKE_SPECIAL);
+  writer.writeU16(constant_pool_->addMethRef(constant_pool_->addClassRef(obj_idx), init_name_type_idx));
+  writer.writeU8(codegen::RETURN);
+  // exception_table_length=0
+  writer.writeU16(0);
+  // attributes_count
+  writer.writeU16(0);
 }
 
 void Lambda_classfile_writer::WriteClInitMethod() {

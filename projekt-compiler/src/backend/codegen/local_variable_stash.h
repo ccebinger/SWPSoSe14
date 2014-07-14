@@ -25,6 +25,8 @@ class LocalVariableStash
 
     uint8_t reserved_var_count();
 
+    std::map<std::string, uint8_t> get_variable_to_index_map();
+
   protected:
 
   private:

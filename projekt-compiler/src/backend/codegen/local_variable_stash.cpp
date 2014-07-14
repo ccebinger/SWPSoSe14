@@ -49,3 +49,10 @@ uint8_t LocalVariableStash::getIndexForVar(std::string variable) {
   }
   return variable_to_index_map_[variable];
 }
+
+
+
+std::map<std::string, uint8_t> LocalVariableStash::get_variable_to_index_map()
+{
+  return variable_to_index_map_;
+}
