@@ -103,7 +103,7 @@ $(function () {
 			<div id="strapline">
 				<div id="welcome_slogan">
 					<h3>
-						<span>X-Testing Auswertung</span>
+						<span>X-Testing</span>
 					</h3>
 				</div>
 				<!--close welcome_slogan-->
@@ -168,7 +168,7 @@ $(function () {
 	        yAxis: {
 	            min: 0,
 	            title: {
-	                text: 'Anzahl X-testing Tests'
+	                text: '% Testfälle'
 	            },
 	            stackLabels: {
 	                enabled: false,

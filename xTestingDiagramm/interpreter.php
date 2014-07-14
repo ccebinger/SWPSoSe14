@@ -44,7 +44,7 @@ $IntColumn  = new diagramm($sql,5,$idRun);
 			<div id="strapline">
 				<div id="welcome_slogan">
 					<h3>
-						<span>X-Testing Auswertungstool</span>
+						<span>X-Testing</span>
 					</h3>
 				</div>
 				<!--close welcome_slogan-->
