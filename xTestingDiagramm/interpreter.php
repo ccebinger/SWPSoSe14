@@ -3,14 +3,17 @@ include 'db_connect.php';
 include 'query_auswertung.php';
 include 'diagramm.php';
 
-$idRun = $_GET["idrun"] ; // wenn null wird einfach der letzte run ausgewertet
 
+// Das ist ein Sicherheisproblem (mysql injection) ...
+#$idRun = $_GET["idrun"] ; // wenn null wird einfach der letzte run ausgewertet
 
 
 
 $sql = new mysql("localhost","xtStats","123","xtStats");
 
 
+$qlastrunid = $sql->query("SELECT idRun FROM run order by date desc LIMIT 1;");
+$idRun = $sql->result(0,'idRun',$qlastrunid);
 
 
 
@@ -93,7 +96,7 @@ $IntColumn  = new diagramm($sql,5,$idRun);
 	            text: 'Stacked column chart'
 	        },
 	        xAxis: {
-	            categories: ['C++','Interpreter', 'Hasckel']
+	            categories: ['C++','Interpreter', 'Haskell']
 	        },
 	        yAxis: {
 	            min: 0,

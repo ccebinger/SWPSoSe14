@@ -3,7 +3,6 @@ include 'db_connect.php';
 include 'query_auswertung.php';
 include 'diagramm.php';
 
-$idRun = 0; // wenn null wird einfach der letzte run ausgewertet
 $path="";
 
 $type_1=4;
@@ -13,10 +12,8 @@ $type_2=6;
 $sql = new mysql("localhost","xtStats","123","xtStats");
 
 
-if ($idRun == 0){
-	$qlastrunid = $sql->query("SELECT idRun   FROM run order by date desc LIMIT 1;");
-	$idRun = $sql->result(0,'idRun',$qlastrunid);
-}
+$qlastrunid = $sql->query("SELECT idRun FROM run order by date desc LIMIT 1;");
+$idRun = $sql->result(0,'idRun',$qlastrunid);
 
 
 $CppToHaColumn  = new diagramm($sql,4,$idRun);
@@ -106,7 +103,7 @@ $(function () {
 			<div id="strapline">
 				<div id="welcome_slogan">
 					<h3>
-						<span>X-Testing Auswertungstool</span>
+						<span>X-Testing Auswertung</span>
 					</h3>
 				</div>
 				<!--close welcome_slogan-->
@@ -166,7 +163,7 @@ $(function () {
 	            text: 'Stacked column chart'
 	        },
 	        xAxis: {
-	            categories: ['C++ zu Hasckel', 'Hasckel zu c++']
+	            categories: ['C++ zu Haskell', 'Haskell zu C++']
 	        },
 	        yAxis: {
 	            min: 0,
@@ -220,9 +217,9 @@ $(function () {
 	});
   
    chart('#container2','C++',<?php echo( $CppPie->Failed)?>,<?php echo( $CppPie->Valid)?> );
-   chart('#container3','C++AstC++',<?php echo( $CppAstCppPie->Failed)?>,<?php echo( $CppAstCppPie->Valid)?> );
-   chart('#container4','Haskel',<?php echo( $HasPie->Failed)?>,<?php echo( $HasPie->Valid)?> );
-   chart('#container5','HaskelAstHaskel',<?php echo( $HasToAstAstpie->Failed)?>,<?php echo( $HasToAstAstpie->Valid)?> );
+   chart('#container3','C++ -&gt; Ast -&gt; C++',<?php echo( $CppAstCppPie->Failed)?>,<?php echo( $CppAstCppPie->Valid)?> );
+   chart('#container4','Haskell',<?php echo( $HasPie->Failed)?>,<?php echo( $HasPie->Valid)?> );
+   chart('#container5','Haskell -&gt; Ast -&gt; Haskel',<?php echo( $HasToAstAstpie->Failed)?>,<?php echo( $HasToAstAstpie->Valid)?> );
 </script>
 </body>
 </html>

@@ -21,12 +21,12 @@
 	            text: 'Stacked column chart'
 	        },
 	        xAxis: {
-	            categories: ['C++ zu Hasckel', 'Hasckel zu c++']
+	            categories: ['C++ zu Haskell', 'Haskell zu C++']
 	        },
 	        yAxis: {
 	            min: 0,
 	            title: {
-	                text: 'Anzahl X-testing Tests'
+	                text: 'Anzahl Tests'
 	            },
 	            stackLabels: {
 	                enabled: false,
@@ -68,7 +68,7 @@
 	            name: 'Fehlgeschlagene Test',
 	            data: [<?php echo( $CppToHaColumn->Failed.",".$HaToCppColumn->Failed )?>]
 	        }, {
-	            name: 'Erfolgreichen Tests ',
+	            name: 'Erfolgreiche Tests ',
 	            data: [<?php echo( $CppToHaColumn->Valid.",".$HaToCppColumn->Valid) ?>]
 	        }]
 	    });
@@ -97,12 +97,12 @@
 	            text: 'Stacked column chart'
 	        },
 	        xAxis: {
-	            categories: ['C++ zu Hasckel', 'Hasckel zu c++']
+	            categories: ['C++ zu Haskell', 'Haskell zu C++']
 	        },
 	        yAxis: {
 	            min: 0,
 	            title: {
-	                text: 'Anzahl X-testing Tests'
+	                text: 'Anzahl Tests'
 	            },
 	            stackLabels: {
 	                enabled: false,
@@ -144,7 +144,7 @@
 	            name: 'Fehlgeschlagene Test',
 	            data: [<?php echo( $CppToHaColumn->Failed.",".$HaToCppColumn->Failed )?>]
 	        }, {
-	            name: 'Erfolgreichen Tests ',
+	            name: 'Erfolgreiche Tests ',
 	            data: [<?php echo( $CppToHaColumn->Valid.",".$HaToCppColumn->Valid) ?>]
 	        }]
 	    });
