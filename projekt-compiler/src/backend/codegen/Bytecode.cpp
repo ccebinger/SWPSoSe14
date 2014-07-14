@@ -771,6 +771,14 @@ void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
   // store node because traversing successor1 end with last
   // node of successor1
   Graphs::Node_ptr store_node = state.current_node->successor2;
+  // Code that will be executed if we encounter a non-bool value
+  std::vector<unsigned char> crash_code;
+  uint16_t exc_idx = code->get_method_idx("java/lang/RuntimeException", "<init>", "()V");
+
+  code->add_opcode_with_idx(MNEMONIC::NEW, code->get_class_idx("java/lang/RuntimeException"), crash_code);
+  crash_code.push_back(MNEMONIC::DUP);
+  code->add_opcode_with_idx(MNEMONIC::INVOKE_SPECIAL, exc_idx, crash_code);
+  crash_code.push_back(MNEMONIC::ATHROW);
 
   Bytecode successor1(state.current_code->get_constant_pool());
   successor1.build(state.current_node->successor1, &(code->proccessedList));
@@ -782,6 +790,16 @@ void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
                             pool.int_idx.class_idx)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL,
                             pool.int_idx.int_value_idx)
+      // test if we are really dealing with a bool
+      ->add_opcode(MNEMONIC::DUP)
+      ->add_opcode(MNEMONIC::DUP)
+      // < 0? throw!
+      ->add_opcode(MNEMONIC::ICONST_0)
+      ->add_conditional_with_instruction(MNEMONIC::IF_ICMPGE, crash_code)
+      // > 1? throw!
+      ->add_opcode(MNEMONIC::ICONST_1)
+      ->add_conditional_with_instruction(MNEMONIC::IF_ICMPLE, crash_code)
+      // This is the real branch
       ->add_conditional_with_else_branch(codegen::MNEMONIC::IFEQ,
                                          successor1.get_bytecode(),
                                          successor2.get_bytecode());
