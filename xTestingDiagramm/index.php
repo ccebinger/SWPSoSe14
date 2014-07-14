@@ -103,7 +103,7 @@ $(function () {
 			<div id="strapline">
 				<div id="welcome_slogan">
 					<h3>
-						<span>X-Testing</span>
+						<span>Cross-Testing</span>
 					</h3>
 				</div>
 				<!--close welcome_slogan-->
@@ -207,10 +207,10 @@ $(function () {
 	            }
 	        },
 	        series: [{
-	            name: 'Fehlgeschlagene Test',
+	            name: 'Fehlgeschlagene Tests',
 	            data: [<?php echo( $CppToHaColumn->Failed.",".$HaToCppColumn->Failed )?>]
 	        }, {
-	            name: 'Erfolgreichen Tests ',
+	            name: 'Erfolgreiche Tests ',
 	            data: [<?php echo( $CppToHaColumn->Valid.",".$HaToCppColumn->Valid) ?>]
 	        }]
 	    });
@@ -219,7 +219,7 @@ $(function () {
    chart('#container2','C++',<?php echo( $CppPie->Failed)?>,<?php echo( $CppPie->Valid)?> );
    chart('#container3','C++ -&gt; Ast -&gt; C++',<?php echo( $CppAstCppPie->Failed)?>,<?php echo( $CppAstCppPie->Valid)?> );
    chart('#container4','Haskell',<?php echo( $HasPie->Failed)?>,<?php echo( $HasPie->Valid)?> );
-   chart('#container5','Haskell -&gt; Ast -&gt; Haskel',<?php echo( $HasToAstAstpie->Failed)?>,<?php echo( $HasToAstAstpie->Valid)?> );
+   chart('#container5','Haskell -&gt; Ast -&gt; Haskell',<?php echo( $HasToAstAstpie->Failed)?>,<?php echo( $HasToAstAstpie->Valid)?> );
 </script>
 </body>
 </html>

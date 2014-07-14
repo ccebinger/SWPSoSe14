@@ -28,7 +28,7 @@ $IntColumn  = new diagramm($sql,5,$idRun);
 <html>
 
 <head>
-<title>xtesting</title>
+<title>Cross Testing</title>
 
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" type="text/css" href="css/style.css" />
@@ -44,7 +44,7 @@ $IntColumn  = new diagramm($sql,5,$idRun);
 			<div id="strapline">
 				<div id="welcome_slogan">
 					<h3>
-						<span>X-Testing</span>
+						<span>Cross-Testing</span>
 					</h3>
 				</div>
 				<!--close welcome_slogan-->
@@ -140,10 +140,10 @@ $IntColumn  = new diagramm($sql,5,$idRun);
 	            }
 	        },
 	        series: [{
-	            name: 'Fehlgeschlagene Test',
+	            name: 'Fehlgeschlagene Tests',
 	            data: [<?php echo( $CppColumn->Failed.",".$IntColumn->Failed.",".$HaColumn->Failed )?>]
 	        }, {
-	            name: 'Erfolgreichen Tests ',
+	            name: 'Erfolgreiche Tests ',
 	            data: [<?php echo( $CppColumn->Valid.",".$IntColumn->Valid.",".$HaColumn->Valid )?>]
 	        }]
 	    });
