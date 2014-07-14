@@ -20,11 +20,11 @@
 const unsigned char Lambda_classfile_writer::anonymous_class_access_flags[] = {'\x00', '\x30'};
 
 
-Lambda_classfile_writer::Lambda_classfile_writer(std::string& class_name, ClassfileVersion version,
+Lambda_classfile_writer::Lambda_classfile_writer(std::string& class_name, LocalVariableStash locals, ClassfileVersion version,
                                  ConstantPool* constantPool,
                                  Graphs& graphs,
                                  const std::map<std::string, codegen::Bytecode&> codeFunctions,
-                                 std::ostream* out) : Lambda_interface_writer(version, constantPool, graphs, codeFunctions, out),  class_name(class_name)  {
+                                 std::ostream* out) : Lambda_interface_writer(version, constantPool, graphs, codeFunctions, out),  class_name(class_name), fields(locals)  {
 
 }
 
@@ -36,7 +36,6 @@ Lambda_classfile_writer::~Lambda_classfile_writer() {
 void Lambda_classfile_writer::WriteConstantPool() {
   uint16_t idx = constant_pool_->addString(Lambda_interface_writer::lambda_class_name);
   constant_pool_->addClassRef(idx);
-  constant_pool_->addString(enclosing_attr); //optional
 
   uint16_t main_idx = constant_pool_->addString("main");
   uint16_t main_descr_idx = constant_pool_->addString("([Ljava/lang/String;)V");
@@ -65,6 +64,9 @@ void Lambda_classfile_writer::WriteInterfaces() {
 
 void Lambda_classfile_writer::WriteFields()
 {
+  //TODO add variables as fields !!!!
+
+
     ClassfileWriter::WriteFields();
 }
 
@@ -77,40 +79,12 @@ void Lambda_classfile_writer::WriteMethods() {
   writer.writeU16(1); //public
   writer.writeU16(constant_pool_->addString(Lambda_interface_writer::method_name)); //closure name idx
   writer.writeU16(constant_pool_->addString(Lambda_interface_writer::method_descriptor));//()V idx
-
-  //TODO CODE ATTRIBUTE
+  //CODE ATTRIBUTE
   WriteAttributes(Lambda_interface_writer::method_name);
-
-  /*public void closure();
-      flags: ACC_PUBLIC
-      Code:
-        stack=2, locals=1, args_size=1
-           0: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
-           3: ldc           #3                  // String Hello
-           5: invokevirtual #4                  // Method java/io/PrintStream.print:(Ljava/lang/String;)V
-           8: return
-        LineNumberTable:
-          line 40: 0
-          line 41: 8
-        LocalVariableTable:
-          Start  Length  Slot  Name   Signature
-                 0       9     0  this   LLambdaBytecode$1;
-        org.netbeans.SourceLevelAnnotations: length = 0x6
-         00 01 00 13 00 00 */
   //===============================================================
 
   // file attributes_count
-
-  writer.writeU16(2);
-  //ENCLOSING METHOD
-  writer.writeU16(constant_pool_->addString(enclosing_attr));//Enclosing Method
-  writer.writeU32(4);//Attr len
-  std::string class_ = Env::getDstClassName();
-  writer.writeU16(ClassfileWriter::get_class_ref(class_));
-  //TODO SHOULD BE CHECKED FOR THE RIGHT METHOD!!!!!!!!
-  uint16_t main_idx = constant_pool_->addString("main");
-  uint16_t main_descr_idx = constant_pool_->addString("([Ljava/lang/String;)V");
-  writer.writeU16(constant_pool_->addNameAndType(main_idx, main_descr_idx)); //ref in which method the lambda was created
+  writer.writeU16(1);
   //INNER CLASSES
   writer.writeU16(constant_pool_->addString(inner_classes_attr)); //innerclass
   writer.writeU32(10); //0000 000a attr length

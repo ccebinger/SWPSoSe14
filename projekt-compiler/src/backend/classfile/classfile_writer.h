@@ -97,7 +97,6 @@ class ClassfileWriter {
    */
   void WriteClassfile();
   static const std::string inner_classes_attr;
-  static const std::string enclosing_attr;
  protected:
   uint16_t inner_classes_count;
   static const unsigned char inner_class_flag[];

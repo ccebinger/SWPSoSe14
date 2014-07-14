@@ -50,7 +50,7 @@ public:
     Node* add(Point* p,Node* n){
         if(p==h){return NULL;}
         else if(p>h){ if(right == NULL)right=new Node(p,n);return right;}
-        else if(p<h){ if(left == NULL)left=new Node(p,n);return left;}
+        else /*if(p<h)*/{ if(left == NULL)left=new Node(p,n);return left;}
     }
     Node* getLast(void){
         if(left != NULL) return left;

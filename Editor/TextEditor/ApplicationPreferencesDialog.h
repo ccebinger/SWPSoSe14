@@ -29,6 +29,7 @@ private:
     QColor m_functionCallsColor;
     QColor m_stringsColor;
     QColor m_variablesColor;
+    QColor m_grabbedTextColor;
 
     bool m_colorChanged;
 

@@ -22,9 +22,6 @@ codegen::Bytecode::func_map= {
   {Command::Type::GREATER, &greater_ByteCode},
   {Command::Type::EQUAL, &equal_ByteCode},
   {Command::Type::TRUE, &true_ByteCode},
-  //Command::Type::REFLECTOR
-  //Command::Type::START
-  //Command::Type::FINISH
   {Command::Type::LAMBDA, &lambda_Bytecode},
   {Command::Type::BOOM, &boom_ByteCode},
   {Command::Type::EOF_CHECK, &eof_ByteCode},
@@ -39,7 +36,7 @@ codegen::Bytecode::func_map= {
   {Command::Type::VAR_PUSH, &push_Variable}
 };
 
-codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), /*local_count(4),*/ locals(4) {}
+codegen::Bytecode::Bytecode(ConstantPool& p, bool is_lambda_code) : pool(p), /*local_count(4),*/ locals(4), lambda_code(is_lambda_code) {}
 
 codegen::Bytecode::~Bytecode() {}
 
@@ -109,6 +106,19 @@ LocalVariableStash& codegen::Bytecode::get_locals() {
 
 uint16_t codegen::Bytecode::get_lambda_closure_idx() {
   return lambda_closure_idx;
+}
+
+codegen::Bytecode::STRINGS codegen::Bytecode::get_lambdas() {
+  return lambdas;
+}
+
+bool codegen::Bytecode::find_lambda(std::string& name) {
+  STRINGS::iterator pos = std::find(lambdas.begin(), lambdas.end(), name);
+  return pos != lambdas.end();
+}
+
+LocalVariableStash codegen::Bytecode::get_lambda_locals(std::string& name) {
+  return lamda_variables.at(name);
 }
 //================================================================================
 //==================================SETTER========================================
@@ -317,8 +327,12 @@ codegen::Bytecode* codegen::Bytecode::add_lambda_declaration(Graphs::Node_ptr cu
   //add Lambda anonymous class to pool
   //$anonymous class
   std::stringstream ss;
-  ss << Env::getDstClassName() << current_node->command.arg.replace(0,1, "$"); //replace & with $
+  std::string anonymous_class_idx = current_node->command.arg.replace(0,1, "$"); //replace & with $
+  ss << Env::getDstClassName() << anonymous_class_idx;
   std::string anonymous_class_name = ss.str();
+  lambdas.push_back(anonymous_class_idx);
+  lamda_variables.insert(std::pair<std::string, LocalVariableStash> (anonymous_class_idx, locals)); //add locals which are exists on the time on which lambda is declared
+
   size_t anonym_str_idx = pool.addString(anonymous_class_name);
   size_t anonym_class_idx = pool.addClassRef(anonym_str_idx);
 
@@ -342,7 +356,6 @@ codegen::Bytecode* codegen::Bytecode::add_lambda_declaration(Graphs::Node_ptr cu
 //================================================================================
 //=================================GLOBAL STACK===================================
 //================================================================================
-
 
 codegen::Bytecode* codegen::Bytecode::globalstack_pop() {
   return add_static_field_method_call(pool.arr_idx.field_idx,
@@ -371,14 +384,12 @@ void codegen::output_ByteCode(Bytecode::Current_state state) {
       ->globalstack_pop()
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.stream_idx.print_idx);
-      //->inc_local_count(1);
 }
 
 void codegen::push_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
 
-  //->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
   code->add_opcode(codegen::MNEMONIC::LDC);
 
   std::string value = state.current_node->command.extractAstCommandString();
@@ -447,7 +458,6 @@ void codegen::cut_ByteCode(Bytecode::Current_state state) {
       ->add_opcode(codegen::MNEMONIC::ILOAD_1)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.substring_idx)
       ->globalstack_push();
-      //->inc_local_count(2);
 }
 
 void codegen::append_ByteCode(Bytecode::Current_state state) {
@@ -467,7 +477,6 @@ void codegen::append_ByteCode(Bytecode::Current_state state) {
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_builder_idx.append_idx)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.toString)
       ->globalstack_push();
-      //->inc_local_count(2);
 }
 
 void codegen::size_ByteCode(Bytecode::Current_state state) {
@@ -516,7 +525,6 @@ void codegen::null_ByteCode(Bytecode::Current_state state) {
       ->add_opcode(codegen::MNEMONIC::DUP)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, pool.list_idx.init_idx)
       ->globalstack_push();
-      //->inc_local_count(1);
 }
 
 void codegen::list_push_ByteCode(Bytecode::Current_state state) {
@@ -535,7 +543,6 @@ void codegen::list_push_ByteCode(Bytecode::Current_state state) {
   conditional_body.push_back(ALOAD_1);
   code->add_opcode_with_idx(MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.add_idx, conditional_body);
   conditional_body.push_back(MNEMONIC::POP); // discard add() return value
-  conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
 
   code->globalstack_pop()
       ->add_opcode(codegen::MNEMONIC::ASTORE_2)
@@ -545,32 +552,19 @@ void codegen::list_push_ByteCode(Bytecode::Current_state state) {
       ->add_opcode(MNEMONIC::DUP)
       ->add_opcode_with_idx(codegen::MNEMONIC::INSTANCE_OF, pool.list_idx.class_idx)
       ->add_conditional_with_instruction(codegen::MNEMONIC::IFNE, conditional_body)
+      ->add_opcode(codegen::MNEMONIC::ASTORE_1)
       ->add_opcode(codegen::MNEMONIC::ALOAD_1)
       ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.list_idx.class_idx)
       ->add_opcode(codegen::MNEMONIC::DUP)
       ->add_opcode(codegen::MNEMONIC::ALOAD_2)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.add_idx)
       ->add_opcode(MNEMONIC::POP) // discard add() return value
-      //->add_opcode(codegen::MNEMONIC::POP)
       ->globalstack_push();
-
-//  code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
-//      ->globalstack_pop()
-//      ->add_opcode(codegen::MNEMONIC::ASTORE_1) // pop VALUE
-//      ->globalstack_pop()
-//      ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST, pool.list_idx.class_idx)
-//      ->add_opcode(codegen::MNEMONIC::DUP)
-//      ->add_opcode(codegen::MNEMONIC::ALOAD_1) // push value before list
-//      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.list_idx.add_idx)
-//      ->add_opcode(codegen::MNEMONIC::POP)
-//      ->globalstack_push()
-      //->inc_local_count(3);
 }
 
 void codegen::list_pop_ByteCode(Bytecode::Current_state state) {
   codegen::Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
-
 
   code->add_opcode_with_idx(codegen::MNEMONIC::GET_STATIC, pool.arr_idx.field_idx)
       ->add_opcode(codegen::MNEMONIC::DUP)
@@ -583,7 +577,6 @@ void codegen::list_pop_ByteCode(Bytecode::Current_state state) {
       ->globalstack_push()
       ->add_opcode(codegen::MNEMONIC::ALOAD_1) //get saved obj
       ->globalstack_push();
-      //->inc_local_count(1);
 
 }
 
@@ -615,7 +608,6 @@ void codegen::equal_ByteCode(Bytecode::Current_state state) {
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.equals)
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_STATIC, pool.int_idx.value_of_idx)
       ->globalstack_push();
-      //->inc_local_count(3);
 }
 
 void codegen::true_ByteCode(Bytecode::Current_state state) {
@@ -688,7 +680,6 @@ void codegen::input_ByteCode(Bytecode::Current_state state) {
    // PUUSH
    code->globalstack_push();
 
-   //code->inc_local_count(2);
 }
 
 void codegen::underflow_ByteCode(Bytecode::Current_state state) {
@@ -708,12 +699,17 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
   std::vector<unsigned char> first_conditional_body;
   std::vector<unsigned char> second_conditional_body;
   std::vector<unsigned char> third_conditional_body;
+  std::vector<unsigned char> fourth_conditional_body;
+  std::vector<unsigned char> else_branch;
 
   code->add_ldc_string("string", first_conditional_body);
   first_conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
 
   code->add_ldc_string("nil", third_conditional_body);
   third_conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
+
+  code->add_ldc_string("lambda", fourth_conditional_body);
+  fourth_conditional_body.push_back(codegen::MNEMONIC::ASTORE_1);
 
   second_conditional_body.push_back(codegen::MNEMONIC::ALOAD_2);
   code->add_ldc_string("list", second_conditional_body);
@@ -744,6 +740,10 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
       ->add_ldc_string("class java.util.arraylist")
       ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.obj_idx.equals)
       ->add_conditional_with_instruction(codegen::MNEMONIC::IFEQ, second_conditional_body)
+      ->add_opcode(codegen::MNEMONIC::ALOAD_1)
+      ->add_ldc_string("class main")
+      ->add_opcode_with_idx(codegen::MNEMONIC::INVOKE_VIRTUAL, pool.str_idx.startsWith_idx)
+      ->add_conditional_with_instruction(codegen::MNEMONIC::IFEQ, fourth_conditional_body)
       ->add_opcode(codegen::MNEMONIC::ALOAD_1)
       ->globalstack_push();
 }

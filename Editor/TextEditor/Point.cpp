@@ -73,21 +73,22 @@ int Point::get_Node_Font( void ){
         break;
     case End:
         if( legal_Start ) font = ApplicationConstants::SYSTEM_FUNCTION;
+        else font = ApplicationConstants::UNCONNECTED_OBJECT;
         break;
     case Lambda:
     case Reflector:
     case Function:
+    case Rail_Junk:
         if( legal_Start ) font = ApplicationConstants::SYSTEM_FUNCTION;
         if( iString ) font |= ApplicationConstants::STRING;
         if( iVariables ) font |= ApplicationConstants::VARIABLE;
         if( iFunctions ) font |= ApplicationConstants::FUNCTION_CALL;
         if( !font ) font = ApplicationConstants::UNCONNECTED_OBJECT;
         break;
-    case Rail_Junk:
     case Rail_Line:
     case Rail_Slash:
     case Rail_Corss:
-        if( mask ) font = 0;
+        if( mask ) font = ApplicationConstants::CONNECTED_RAIL;
         else font = ApplicationConstants::UNCONNECTED_OBJECT;
         break;
     case String_Symble:
@@ -117,54 +118,54 @@ void Point::make_Node_Changes(InternStack *changes){
     mask = make_Node_Connection_Mask();
     switch (type) {
     case Start:
-        if(b_Cons_to_Nodes & 128)cons_to_Nodes[0]->change_Connections(128 & mask ,iString & 1 && 128 & mask & ~iString,iFunctions & 1 && 128 & mask & ~iFunctions,iVariables & 1 && 128 &  mask & ~iVariables, 1, changes);
-        if(b_Cons_to_Nodes & 64)cons_to_Nodes[1]->change_Connections(64 & mask ,iString & 2 && 64 & mask & ~iString,iFunctions & 2 && 64 & mask & ~iFunctions,iVariables & 2 && 64 &  mask & ~iVariables, 2, changes);
-        if(b_Cons_to_Nodes & 32)cons_to_Nodes[2]->change_Connections(32 & mask ,iString & 4 && 32 & mask & ~iString,iFunctions & 4 && 32 & mask & ~iFunctions,iVariables & 4 && 32 &  mask & ~iVariables, 4, changes);
-        if(b_Cons_to_Nodes & 16)cons_to_Nodes[3]->change_Connections(16 & mask ,iString & 8 && 16 & mask & ~iString,iFunctions & 8 && 16 & mask & ~iFunctions,iVariables & 8 && 16 &  mask & ~iVariables, 8, changes);
-        if(b_Cons_to_Nodes & 8)cons_to_Nodes[4]->change_Connections(8 & mask ,iString & 16 && 8 & mask & ~iString,iFunctions & 16 && 8 & mask & ~iFunctions,iVariables & 16 && 8 &  mask & ~iVariables, 16, changes);
-        if(b_Cons_to_Nodes & 4)cons_to_Nodes[5]->change_Connections(4 & mask ,iString & 32 && 4 & mask & ~iString,iFunctions & 32 && 4 & mask & ~iFunctions,iVariables & 32 && 4 &  mask & ~iVariables, 32, changes);
-        if(b_Cons_to_Nodes & 2)cons_to_Nodes[6]->change_Connections(2 & mask ,iString & 64 && 2 & mask & ~iString,iFunctions & 64 && 2 & mask & ~iFunctions,iVariables & 64 && 2 &  mask & ~iVariables, 64, changes);
-        if(b_Cons_to_Nodes & 1)cons_to_Nodes[7]->change_Connections(true,iString & 128 && 1 & mask & ~iString,iFunctions & 128 && 1 & mask & ~iFunctions,iVariables & 128 && 1 &  mask & ~iVariables, 128, changes);
+        if(b_Cons_to_Nodes & 128)cons_to_Nodes[0]->change_Connections(128 & mask ,iString & 1 && 128 & mask & ~iString,iFunctions & 1 && 128 & mask & ~iFunctions,iVariables & 1 && 128 & mask & ~iVariables, 1, changes);
+        if(b_Cons_to_Nodes & 64)cons_to_Nodes[1]->change_Connections(64 & mask ,iString & 2 && 64 & mask & ~iString,iFunctions & 2 && 64 & mask & ~iFunctions,iVariables & 2 && 64 & mask & ~iVariables, 2, changes);
+        if(b_Cons_to_Nodes & 32)cons_to_Nodes[2]->change_Connections(32 & mask ,iString & 4 && 32 & mask & ~iString,iFunctions & 4 && 32 & mask & ~iFunctions,iVariables & 4 && 32 & mask & ~iVariables, 4, changes);
+        if(b_Cons_to_Nodes & 16)cons_to_Nodes[3]->change_Connections(16 & mask ,iString & 8 && 16 & mask & ~iString,iFunctions & 8 && 16 & mask & ~iFunctions,iVariables & 8 && 16 & mask & ~iVariables, 8, changes);
+        if(b_Cons_to_Nodes & 8)cons_to_Nodes[4]->change_Connections(8 & mask ,iString & 16 && 8 & mask & ~iString,iFunctions & 16 && 8 & mask & ~iFunctions,iVariables & 16 && 8 & mask & ~iVariables, 16, changes);
+        if(b_Cons_to_Nodes & 4)cons_to_Nodes[5]->change_Connections(4 & mask ,iString & 32 && 4 & mask & ~iString,iFunctions & 32 && 4 & mask & ~iFunctions,iVariables & 32 && 4 & mask & ~iVariables, 32, changes);
+        if(b_Cons_to_Nodes & 2)cons_to_Nodes[6]->change_Connections(2 & mask ,iString & 64 && 2 & mask & ~iString,iFunctions & 64 && 2 & mask & ~iFunctions,iVariables & 64 && 2 & mask & ~iVariables, 64, changes);
+        if(b_Cons_to_Nodes & 1)cons_to_Nodes[7]->change_Connections(true,iString & 128 && 1 & mask & ~iString,iFunctions & 128 && 1 & mask & ~iFunctions,iVariables & 128 && 1 & mask & ~iVariables, 128, changes);
         break;
     case Lambda:
-        if(b_Cons_to_Nodes & 128)cons_to_Nodes[0]->change_Connections(128 & mask & ~iString ,iString & 1 && 128 & mask & ~iString,iFunctions & 1 && 128 & mask & ~iFunctions,iVariables & 1 && 128 &  mask & ~iVariables, 1, changes);
-        if(b_Cons_to_Nodes & 64)cons_to_Nodes[1]->change_Connections(64 & mask & ~iString ,iString & 2 && 64 & mask & ~iString,iFunctions & 2 && 64 & mask & ~iFunctions,iVariables & 2 && 64 &  mask & ~iVariables, 2, changes);
-        if(b_Cons_to_Nodes & 32)cons_to_Nodes[2]->change_Connections(32 & mask & ~iString ,iString & 4 && 32 & mask & ~iString,iFunctions & 4 && 32 & mask & ~iFunctions,iVariables & 4 && 32 &  mask & ~iVariables, 4, changes);
-        if(b_Cons_to_Nodes & 16)cons_to_Nodes[3]->change_Connections(16 & mask & ~iString ,iString & 8 && 16 & mask & ~iString,iFunctions & 8 && 16 & mask & ~iFunctions,iVariables & 8 && 16 &  mask & ~iVariables, 8, changes);
-        if(b_Cons_to_Nodes & 8)cons_to_Nodes[4]->change_Connections(8 & mask & ~iString ,iString & 16 && 8 & mask & ~iString,iFunctions & 16 && 8 & mask & ~iFunctions,iVariables & 16 && 8 &  mask & ~iVariables, 16, changes);
-        if(b_Cons_to_Nodes & 4)cons_to_Nodes[5]->change_Connections(4 & mask & ~iString ,iString & 32 && 4 & mask & ~iString,iFunctions & 32 && 4 & mask & ~iFunctions,iVariables & 32 && 4 &  mask & ~iVariables, 32, changes);
-        if(b_Cons_to_Nodes & 2)cons_to_Nodes[6]->change_Connections(2 & mask & ~iString ,iString & 64 && 2 & mask & ~iString,iFunctions & 64 && 2 & mask & ~iFunctions,iVariables & 64 && 2 &  mask & ~iVariables, 64, changes);
-        if(b_Cons_to_Nodes & 1)cons_to_Nodes[7]->change_Connections(1 & mask & ~iString,iString & 128 && 1 & mask & ~iString,iFunctions & 128 && 1 & mask & ~iFunctions,iVariables & 128 && 1 &  mask & ~iVariables, 128, changes);
+        if(b_Cons_to_Nodes & 128)cons_to_Nodes[0]->change_Connections(128 & mask & ~iString ,iString & 1 && 128 & mask & ~iString,iFunctions & 1 && 128 & mask & ~iFunctions,iVariables & 1 && 128 & mask & ~iVariables, 1, changes);
+        if(b_Cons_to_Nodes & 64)cons_to_Nodes[1]->change_Connections(64 & mask & ~iString ,iString & 2 && 64 & mask & ~iString,iFunctions & 2 && 64 & mask & ~iFunctions,iVariables & 2 && 64 & mask & ~iVariables, 2, changes);
+        if(b_Cons_to_Nodes & 32)cons_to_Nodes[2]->change_Connections(32 & mask & ~iString ,iString & 4 && 32 & mask & ~iString,iFunctions & 4 && 32 & mask & ~iFunctions,iVariables & 4 && 32 & mask & ~iVariables, 4, changes);
+        if(b_Cons_to_Nodes & 16)cons_to_Nodes[3]->change_Connections(16 & mask & ~iString ,iString & 8 && 16 & mask & ~iString,iFunctions & 8 && 16 & mask & ~iFunctions,iVariables & 8 && 16 & mask & ~iVariables, 8, changes);
+        if(b_Cons_to_Nodes & 8)cons_to_Nodes[4]->change_Connections(8 & mask & ~iString ,iString & 16 && 8 & mask & ~iString,iFunctions & 16 && 8 & mask & ~iFunctions,iVariables & 16 && 8 & mask & ~iVariables, 16, changes);
+        if(b_Cons_to_Nodes & 4)cons_to_Nodes[5]->change_Connections(4 & mask & ~iString ,iString & 32 && 4 & mask & ~iString,iFunctions & 32 && 4 & mask & ~iFunctions,iVariables & 32 && 4 & mask & ~iVariables, 32, changes);
+        if(b_Cons_to_Nodes & 2)cons_to_Nodes[6]->change_Connections(2 & mask & ~iString ,iString & 64 && 2 & mask & ~iString,iFunctions & 64 && 2 & mask & ~iFunctions,iVariables & 64 && 2 & mask & ~iVariables, 64, changes);
+        if(b_Cons_to_Nodes & 1)cons_to_Nodes[7]->change_Connections(1 & mask & ~iString,iString & 128 && 1 & mask & ~iString,iFunctions & 128 && 1 & mask & ~iFunctions,iVariables & 128 && 1 & mask & ~iVariables, 128, changes);
         break;
     case Reflector:
-        if(b_Cons_to_Nodes & 128)cons_to_Nodes[0]->change_Connections(128 & mask & ~iString ,iString & 1 && 128 & mask & ~iString,iFunctions & 1 && 128 & mask & ~iFunctions,iVariables & 1 && 128 &  mask & ~iVariables, 1, changes);
-        if(b_Cons_to_Nodes & 64)cons_to_Nodes[1]->change_Connections(64 & mask & ~iString ,iString & 2 && 64 & mask & ~iString,iFunctions & 2 && 64 & mask & ~iFunctions,iVariables & 2 && 64 &  mask & ~iVariables, 2, changes);
-        if(b_Cons_to_Nodes & 32)cons_to_Nodes[2]->change_Connections(32 & mask & ~iString ,iString & 4 && 32 & mask & ~iString,iFunctions & 4 && 32 & mask & ~iFunctions,iVariables & 4 && 32 &  mask & ~iVariables, 4, changes);
-        if(b_Cons_to_Nodes & 16)cons_to_Nodes[3]->change_Connections(16 & mask & ~iString ,iString & 8 && 16 & mask & ~iString,iFunctions & 8 && 16 & mask & ~iFunctions,iVariables & 8 && 16 &  mask & ~iVariables, 8, changes);
-        if(b_Cons_to_Nodes & 8)cons_to_Nodes[4]->change_Connections(8 & mask & ~iString ,iString & 16 && 8 & mask & ~iString,iFunctions & 16 && 8 & mask & ~iFunctions,iVariables & 16 && 8 &  mask & ~iVariables, 16, changes);
-        if(b_Cons_to_Nodes & 4)cons_to_Nodes[5]->change_Connections(4 & mask & ~iString ,iString & 32 && 4 & mask & ~iString,iFunctions & 32 && 4 & mask & ~iFunctions,iVariables & 32 && 4 &  mask & ~iVariables, 32, changes);
-        if(b_Cons_to_Nodes & 2)cons_to_Nodes[6]->change_Connections(2 & mask & ~iString ,iString & 64 && 2 & mask & ~iString,iFunctions & 64 && 2 & mask & ~iFunctions,iVariables & 64 && 2 &  mask & ~iVariables, 64, changes);
-        if(b_Cons_to_Nodes & 1)cons_to_Nodes[7]->change_Connections(1 & mask & ~iString,iString & 128 && 1 & mask & ~iString,iFunctions & 128 && 1 & mask & ~iFunctions,iVariables & 128 && 1 &  mask & ~iVariables, 128, changes);
+        if(b_Cons_to_Nodes & 128)cons_to_Nodes[0]->change_Connections(128 & mask & ~iString ,iString & 1 && 128 & mask & ~iString,iFunctions & 1 && 128 & mask & ~iFunctions,iVariables & 1 && 128 & mask & ~iVariables, 1, changes);
+        if(b_Cons_to_Nodes & 64)cons_to_Nodes[1]->change_Connections(64 & mask & ~iString ,iString & 2 && 64 & mask & ~iString,iFunctions & 2 && 64 & mask & ~iFunctions,iVariables & 2 && 64 & mask & ~iVariables, 2, changes);
+        if(b_Cons_to_Nodes & 32)cons_to_Nodes[2]->change_Connections(32 & mask & ~iString ,iString & 4 && 32 & mask & ~iString,iFunctions & 4 && 32 & mask & ~iFunctions,iVariables & 4 && 32 & mask & ~iVariables, 4, changes);
+        if(b_Cons_to_Nodes & 16)cons_to_Nodes[3]->change_Connections(16 & mask & ~iString ,iString & 8 && 16 & mask & ~iString,iFunctions & 8 && 16 & mask & ~iFunctions,iVariables & 8 && 16 & mask & ~iVariables, 8, changes);
+        if(b_Cons_to_Nodes & 8)cons_to_Nodes[4]->change_Connections(8 & mask & ~iString ,iString & 16 && 8 & mask & ~iString,iFunctions & 16 && 8 & mask & ~iFunctions,iVariables & 16 && 8 & mask & ~iVariables, 16, changes);
+        if(b_Cons_to_Nodes & 4)cons_to_Nodes[5]->change_Connections(4 & mask & ~iString ,iString & 32 && 4 & mask & ~iString,iFunctions & 32 && 4 & mask & ~iFunctions,iVariables & 32 && 4 & mask & ~iVariables, 32, changes);
+        if(b_Cons_to_Nodes & 2)cons_to_Nodes[6]->change_Connections(2 & mask & ~iString ,iString & 64 && 2 & mask & ~iString,iFunctions & 64 && 2 & mask & ~iFunctions,iVariables & 64 && 2 & mask & ~iVariables, 64, changes);
+        if(b_Cons_to_Nodes & 1)cons_to_Nodes[7]->change_Connections(1 & mask & ~iString,iString & 128 && 1 & mask & ~iString,iFunctions & 128 && 1 & mask & ~iFunctions,iVariables & 128 && 1 & mask & ~iVariables, 128, changes);
         break;
     case String_Symble:
-        if(b_Cons_to_Nodes & 128)cons_to_Nodes[0]->change_Connections(128 & mask,128 & mask && !(1 & iStart & iString),iFunctions & 1 && 128 & mask & ~iFunctions,iVariables & 1 && 128 &  mask & ~iVariables, 1, changes);
-        if(b_Cons_to_Nodes & 64)cons_to_Nodes[1]->change_Connections(64 & mask,64 & mask && !(2 & iStart & iString),iFunctions & 2 && 64 & mask & ~iFunctions,iVariables & 2 && 64 &  mask & ~iVariables, 2, changes);
-        if(b_Cons_to_Nodes & 32)cons_to_Nodes[2]->change_Connections(32 & mask,32 & mask && !(4 & iStart & iString),iFunctions & 4 && 32 & mask & ~iFunctions,iVariables & 4 && 32 &  mask & ~iVariables, 4, changes);
-        if(b_Cons_to_Nodes & 16)cons_to_Nodes[3]->change_Connections(16 & mask,16 & mask && !(8 & iStart & iString),iFunctions & 8 && 16 & mask & ~iFunctions,iVariables & 8 && 16 &  mask & ~iVariables, 8, changes);
-        if(b_Cons_to_Nodes & 8)cons_to_Nodes[4]->change_Connections(8 & mask,8 & mask && !(16 & iStart & iString),iFunctions & 16 && 8 & mask & ~iFunctions,iVariables & 16 && 8 &  mask & ~iVariables, 16, changes);
-        if(b_Cons_to_Nodes & 4)cons_to_Nodes[5]->change_Connections(4 & mask,4 & mask && !(32 & iStart & iString),iFunctions & 32 && 4 & mask & ~iFunctions,iVariables & 32 && 4 &  mask & ~iVariables, 32, changes);
-        if(b_Cons_to_Nodes & 2)cons_to_Nodes[6]->change_Connections(2 & mask,2 & mask && !(64 & iStart & iString),iFunctions & 64 && 2 & mask & ~iFunctions,iVariables & 64 && 2 &  mask & ~iVariables, 64, changes);
-        if(b_Cons_to_Nodes & 1)cons_to_Nodes[7]->change_Connections(1 & mask,1 & mask && !(128 & iStart & iString),iFunctions & 128 && 1 & mask & ~iFunctions,iVariables & 128 && 1 &  mask & ~iVariables, 128, changes);
+        if(b_Cons_to_Nodes & 128)cons_to_Nodes[0]->change_Connections(128 & mask,128 & mask && !(1 & iStart & iString),iFunctions & 1 && 128 & mask & ~iFunctions,iVariables & 1 && 128 & mask & ~iVariables, 1, changes);
+        if(b_Cons_to_Nodes & 64)cons_to_Nodes[1]->change_Connections(64 & mask,64 & mask && !(2 & iStart & iString),iFunctions & 2 && 64 & mask & ~iFunctions,iVariables & 2 && 64 & mask & ~iVariables, 2, changes);
+        if(b_Cons_to_Nodes & 32)cons_to_Nodes[2]->change_Connections(32 & mask,32 & mask && !(4 & iStart & iString),iFunctions & 4 && 32 & mask & ~iFunctions,iVariables & 4 && 32 & mask & ~iVariables, 4, changes);
+        if(b_Cons_to_Nodes & 16)cons_to_Nodes[3]->change_Connections(16 & mask,16 & mask && !(8 & iStart & iString),iFunctions & 8 && 16 & mask & ~iFunctions,iVariables & 8 && 16 & mask & ~iVariables, 8, changes);
+        if(b_Cons_to_Nodes & 8)cons_to_Nodes[4]->change_Connections(8 & mask,8 & mask && !(16 & iStart & iString),iFunctions & 16 && 8 & mask & ~iFunctions,iVariables & 16 && 8 & mask & ~iVariables, 16, changes);
+        if(b_Cons_to_Nodes & 4)cons_to_Nodes[5]->change_Connections(4 & mask,4 & mask && !(32 & iStart & iString),iFunctions & 32 && 4 & mask & ~iFunctions,iVariables & 32 && 4 & mask & ~iVariables, 32, changes);
+        if(b_Cons_to_Nodes & 2)cons_to_Nodes[6]->change_Connections(2 & mask,2 & mask && !(64 & iStart & iString),iFunctions & 64 && 2 & mask & ~iFunctions,iVariables & 64 && 2 & mask & ~iVariables, 64, changes);
+        if(b_Cons_to_Nodes & 1)cons_to_Nodes[7]->change_Connections(1 & mask,1 & mask && !(128 & iStart & iString),iFunctions & 128 && 1 & mask & ~iFunctions,iVariables & 128 && 1 & mask & ~iVariables, 128, changes);
         break;
     case Funktion_Symble:
-        if(b_Cons_to_Nodes & 128)cons_to_Nodes[0]->change_Connections(128 & mask ,iString & 1 && 128 & mask & ~iString,128 & mask && !(1 & iStart & iFunctions),iVariables & 1 && 128 &  mask & ~iVariables, 1, changes);
-        if(b_Cons_to_Nodes & 64)cons_to_Nodes[1]->change_Connections(64 & mask ,iString & 2 && 64 & mask & ~iString,64 & mask && !(2 & iStart & iFunctions),iVariables & 2 && 64 &  mask & ~iVariables, 2, changes);
-        if(b_Cons_to_Nodes & 32)cons_to_Nodes[2]->change_Connections(32 & mask ,iString & 4 && 32 & mask & ~iString,32 & mask && !(4 & iStart & iFunctions),iVariables & 4 && 32 &  mask & ~iVariables, 4, changes);
-        if(b_Cons_to_Nodes & 16)cons_to_Nodes[3]->change_Connections(16 & mask ,iString & 8 && 16 & mask & ~iString,16 & mask && !(8 & iStart & iFunctions),iVariables & 8 && 16 &  mask & ~iVariables, 8, changes);
-        if(b_Cons_to_Nodes & 8)cons_to_Nodes[4]->change_Connections(8 & mask ,iString & 16 && 8 & mask & ~iString,8 & mask && !(16 & iStart & iFunctions),iVariables & 16 && 8 &  mask & ~iVariables, 16, changes);
-        if(b_Cons_to_Nodes & 4)cons_to_Nodes[5]->change_Connections(4 & mask ,iString & 32 && 4 & mask & ~iString,4 & mask && !(32 & iStart & iFunctions),iVariables & 32 && 4 &  mask & ~iVariables, 32, changes);
-        if(b_Cons_to_Nodes & 2)cons_to_Nodes[6]->change_Connections(2 & mask ,iString & 64 && 2 & mask & ~iString,2 & mask && !(64 & iStart & iFunctions),iVariables & 64 && 2 &  mask & ~iVariables, 64, changes);
-        if(b_Cons_to_Nodes & 1)cons_to_Nodes[7]->change_Connections(1 & mask ,iString & 128 && 1 & mask & ~iString,1 & mask && !(128 & iStart & iFunctions),iVariables & 128 && 1 &  mask & ~iVariables, 128, changes);
+        if(b_Cons_to_Nodes & 128)cons_to_Nodes[0]->change_Connections(128 & mask ,iString & 1 && 128 & mask & ~iString,128 & mask && !(1 & iStart & iFunctions),iVariables & 1 && 128 & mask & ~iVariables, 1, changes);
+        if(b_Cons_to_Nodes & 64)cons_to_Nodes[1]->change_Connections(64 & mask ,iString & 2 && 64 & mask & ~iString,64 & mask && !(2 & iStart & iFunctions),iVariables & 2 && 64 & mask & ~iVariables, 2, changes);
+        if(b_Cons_to_Nodes & 32)cons_to_Nodes[2]->change_Connections(32 & mask ,iString & 4 && 32 & mask & ~iString,32 & mask && !(4 & iStart & iFunctions),iVariables & 4 && 32 & mask & ~iVariables, 4, changes);
+        if(b_Cons_to_Nodes & 16)cons_to_Nodes[3]->change_Connections(16 & mask ,iString & 8 && 16 & mask & ~iString,16 & mask && !(8 & iStart & iFunctions),iVariables & 8 && 16 & mask & ~iVariables, 8, changes);
+        if(b_Cons_to_Nodes & 8)cons_to_Nodes[4]->change_Connections(8 & mask ,iString & 16 && 8 & mask & ~iString,8 & mask && !(16 & iStart & iFunctions),iVariables & 16 && 8 & mask & ~iVariables, 16, changes);
+        if(b_Cons_to_Nodes & 4)cons_to_Nodes[5]->change_Connections(4 & mask ,iString & 32 && 4 & mask & ~iString,4 & mask && !(32 & iStart & iFunctions),iVariables & 32 && 4 & mask & ~iVariables, 32, changes);
+        if(b_Cons_to_Nodes & 2)cons_to_Nodes[6]->change_Connections(2 & mask ,iString & 64 && 2 & mask & ~iString,2 & mask && !(64 & iStart & iFunctions),iVariables & 64 && 2 & mask & ~iVariables, 64, changes);
+        if(b_Cons_to_Nodes & 1)cons_to_Nodes[7]->change_Connections(1 & mask ,iString & 128 && 1 & mask & ~iString,1 & mask && !(128 & iStart & iFunctions),iVariables & 128 && 1 & mask & ~iVariables, 128, changes);
         break;
     case Variable_Symbol:
         if(b_Cons_to_Nodes & 128)cons_to_Nodes[0]->change_Connections(128 & mask ,iString & 1 && 128 & mask & ~iString,iFunctions & 1 && 128 & mask & ~iFunctions,128 & mask && !(1 & iStart & iVariables), 1, changes);
@@ -177,14 +178,14 @@ void Point::make_Node_Changes(InternStack *changes){
         if(b_Cons_to_Nodes & 1)cons_to_Nodes[7]->change_Connections(1 & mask ,iString & 128 && 1 & mask & ~iString,iFunctions & 128 && 1 & mask & ~iFunctions,1 & mask && !(128 & iStart & iVariables), 128, changes);
         break;
     default:
-        if(b_Cons_to_Nodes & 128)cons_to_Nodes[0]->change_Connections(128 & mask ,iString & 1 && 128 & mask & ~iString,iFunctions & 1 && 128 & mask & ~iFunctions,iVariables & 1 && 128 &  mask & ~iVariables, 1, changes);
-        if(b_Cons_to_Nodes & 64)cons_to_Nodes[1]->change_Connections(64 & mask ,iString & 2 && 64 & mask & ~iString,iFunctions & 2 && 64 & mask & ~iFunctions,iVariables & 2 && 64 &  mask & ~iVariables, 2, changes);
-        if(b_Cons_to_Nodes & 32)cons_to_Nodes[2]->change_Connections(32 & mask ,iString & 4 && 32 & mask & ~iString,iFunctions & 4 && 32 & mask & ~iFunctions,iVariables & 4 && 32 &  mask & ~iVariables, 4, changes);
-        if(b_Cons_to_Nodes & 16)cons_to_Nodes[3]->change_Connections(16 & mask ,iString & 8 && 16 & mask & ~iString,iFunctions & 8 && 16 & mask & ~iFunctions,iVariables & 8 && 16 &  mask & ~iVariables, 8, changes);
-        if(b_Cons_to_Nodes & 8)cons_to_Nodes[4]->change_Connections(8 & mask ,iString & 16 && 8 & mask & ~iString,iFunctions & 16 && 8 & mask & ~iFunctions,iVariables & 16 && 8 &  mask & ~iVariables, 16, changes);
-        if(b_Cons_to_Nodes & 4)cons_to_Nodes[5]->change_Connections(4 & mask ,iString & 32 && 4 & mask & ~iString,iFunctions & 32 && 4 & mask & ~iFunctions,iVariables & 32 && 4 &  mask & ~iVariables, 32, changes);
-        if(b_Cons_to_Nodes & 2)cons_to_Nodes[6]->change_Connections(2 & mask ,iString & 64 && 2 & mask & ~iString,iFunctions & 64 && 2 & mask & ~iFunctions,iVariables & 64 && 2 &  mask & ~iVariables, 64, changes);
-        if(b_Cons_to_Nodes & 1)cons_to_Nodes[7]->change_Connections(1 & mask ,iString & 128 && 1 & mask & ~iString,iFunctions & 128 && 1 & mask & ~iFunctions,iVariables & 128 && 1 &  mask & ~iVariables, 128, changes);
+        if(b_Cons_to_Nodes & 128)cons_to_Nodes[0]->change_Connections(128 & mask ,iString & 1 && 128 & mask & ~iString,iFunctions & 1 && 128 & mask & ~iFunctions,iVariables & 1 && 128 & mask & ~iVariables, 1, changes);
+        if(b_Cons_to_Nodes & 64)cons_to_Nodes[1]->change_Connections(64 & mask ,iString & 2 && 64 & mask & ~iString,iFunctions & 2 && 64 & mask & ~iFunctions,iVariables & 2 && 64 & mask & ~iVariables, 2, changes);
+        if(b_Cons_to_Nodes & 32)cons_to_Nodes[2]->change_Connections(32 & mask ,iString & 4 && 32 & mask & ~iString,iFunctions & 4 && 32 & mask & ~iFunctions,iVariables & 4 && 32 & mask & ~iVariables, 4, changes);
+        if(b_Cons_to_Nodes & 16)cons_to_Nodes[3]->change_Connections(16 & mask ,iString & 8 && 16 & mask & ~iString,iFunctions & 8 && 16 & mask & ~iFunctions,iVariables & 8 && 16 & mask & ~iVariables, 8, changes);
+        if(b_Cons_to_Nodes & 8)cons_to_Nodes[4]->change_Connections(8 & mask ,iString & 16 && 8 & mask & ~iString,iFunctions & 16 && 8 & mask & ~iFunctions,iVariables & 16 && 8 & mask & ~iVariables, 16, changes);
+        if(b_Cons_to_Nodes & 4)cons_to_Nodes[5]->change_Connections(4 & mask ,iString & 32 && 4 & mask & ~iString,iFunctions & 32 && 4 & mask & ~iFunctions,iVariables & 32 && 4 & mask & ~iVariables, 32, changes);
+        if(b_Cons_to_Nodes & 2)cons_to_Nodes[6]->change_Connections(2 & mask ,iString & 64 && 2 & mask & ~iString,iFunctions & 64 && 2 & mask & ~iFunctions,iVariables & 64 && 2 & mask & ~iVariables, 64, changes);
+        if(b_Cons_to_Nodes & 1)cons_to_Nodes[7]->change_Connections(1 & mask ,iString & 128 && 1 & mask & ~iString,iFunctions & 128 && 1 & mask & ~iFunctions,iVariables & 128 && 1 & mask & ~iVariables, 128, changes);
         break;
     }
 }
@@ -292,8 +293,8 @@ int Point::make_Node_Connection_Mask( void ){
         break;
     case Rail_Slash:
         if(sign == '\\'){
-            if(iStart & 128 || (iStart & 64 && cons_to_Nodes[1]->get_Node_Type() != Rail_Slash) || (iStart & 16 && cons_to_Nodes[3]->get_Node_Type() != Rail_Slash))  mask |= 1+2+8;
-            if(iStart & 1 || (iStart & 2 && cons_to_Nodes[6]->get_Node_Type() != Rail_Slash) || (iStart & 8 && cons_to_Nodes[4]->get_Node_Type() != Rail_Slash))  mask |= 16+128+64;
+            if(iStart & 128 || (iStart & 64 && cons_to_Nodes[1]->get_Node_Type() != Rail_Slash) || (iStart & 16 && cons_to_Nodes[3]->get_Node_Type() != Rail_Slash)) mask |= 1+2+8;
+            if(iStart & 1 || (iStart & 2 && cons_to_Nodes[6]->get_Node_Type() != Rail_Slash) || (iStart & 8 && cons_to_Nodes[4]->get_Node_Type() != Rail_Slash)) mask |= 16+128+64;
         }else if(sign == '/'){
             if((iStart & 64 && cons_to_Nodes[1]->get_Node_Type() != Rail_Slash) || iStart & 32 || (iStart & 8 && cons_to_Nodes[4]->get_Node_Type() != Rail_Slash)) mask |= 16+4+2;
             if((iStart & 2 && cons_to_Nodes[6]->get_Node_Type() != Rail_Slash) || iStart & 4 || (iStart & 16 && cons_to_Nodes[3]->get_Node_Type() != Rail_Slash)) mask |= 64+32+8;
@@ -326,7 +327,7 @@ int Point::make_Node_Connection_Mask( void ){
             if(iStart & 128) mask |= 2+32;
             if(iStart & 32) mask |= 128+2;
         }break;
-    case  Rail_Corss:
+    case Rail_Corss:
         if(sign == '+'){
             if(iStart & 64) mask |= 2;
             if(iStart & 16) mask |= 8;

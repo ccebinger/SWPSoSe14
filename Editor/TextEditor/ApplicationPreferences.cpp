@@ -15,6 +15,7 @@ namespace ApplicationDefaultValues
     const QColor functionCallsColor = QColor(0, 255, 0);
     const QColor stringsColor = QColor(0, 0, 255);
     const QColor variablesColor = QColor(255, 255, 0);
+    const QColor grabColor = QColor(30, 255, 255);
 
     const QStringList recentFiles = QStringList();
     const bool showLineNumbers = false;
@@ -38,6 +39,7 @@ namespace ApplicationPreferences
     QColor functionCallsColor;
     QColor stringsColor;
     QColor variablesColor;
+    QColor grabColor;
 
     QStringList recentFiles;
     bool showLineNumbers;

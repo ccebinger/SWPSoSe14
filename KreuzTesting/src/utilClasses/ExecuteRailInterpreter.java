@@ -11,45 +11,41 @@ public class ExecuteRailInterpreter {
 	
 	
 
-	private Path Filepath;
+	
 	private Path CompilerPath;
 	
 	
-	public ExecuteRailInterpreter(Path path, Path compilerPath){
+	public ExecuteRailInterpreter(Path compilerPath){
 		
-		this.Filepath = path;
+		
 		this.CompilerPath  = compilerPath;
 		
 	}
 	
-	public  BufferedReader compile() throws IOException, InterruptedException{
+	public  StreamCollection compile(Path Filepath) throws IOException, InterruptedException{
+		
 		BufferedReader br = null;
+		StreamCollection scr = new StreamCollection();
 		
-		if (this.Filepath.toString().toLowerCase().endsWith(".rail")) {
+		if (Filepath.toString().toLowerCase().endsWith(".rail")) {
 		
-			System.out.print("Compile Rail Interpreter " + this.Filepath.getFileName()+ "\n");
+			System.out.print("Compile Rail Interpreter " + Filepath.getFileName()+ "\n");
 			String param = new String(CompilerPath.toString() 
-					
+					+ " "
+					+Filepath.toString()
 					+ " --output="
-					+ this.Filepath.toString().replaceFirst("[.][^.]+$", "")
-					+ ".io2");
+					+ Filepath.toString().replaceFirst("[.][^.]+$", "")
+					+ ".output");
 				System.out.println("\n"+param+"\n");
 			
 			Process p = Runtime.getRuntime().exec(param);
-			InputStream stdin = p.getInputStream();
-			InputStreamReader isr = new InputStreamReader(stdin);
-			 br = new BufferedReader(isr);
-
-			String line = null;
-
-			while ((line = br.readLine()) != null) {
-				System.out.println(line);
-
-			}
+			scr.setStreams(p.getInputStream(), p.getErrorStream(),
+					p.getOutputStream());
+			
 			p.waitFor();
 			
 			
 		}
-		return br;
+		return scr;
 	}
 }
