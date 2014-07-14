@@ -28,7 +28,11 @@ void Adjacency_list::addNode(std::shared_ptr<Node> node)
   else
     n = node;
 }
-
+/*@brief function to add the edge represenation in the adjacency list
+ *@param1 shared pointer to the source node
+ *@param2 shared pointer to the destination node
+ *@param3 boolean value to decide the right path to the next node
+ */
 void Adjacency_list::addEdge(std::shared_ptr<Node> source, std::shared_ptr<Node> dist, bool path) {
   for (size_t i = 0; i < nodes.size(); i++) {
     if ((*nodes.at(i)) == (*source))
@@ -45,7 +49,9 @@ void Adjacency_list::addEdge(std::shared_ptr<Node> source, std::shared_ptr<Node>
   }
 }
 
-
+/*@brief find the node by its id
+ *@param1 the id , which we look for the opposite node
+ */
 std::shared_ptr<Node> Adjacency_list::find(int id) const
 {
   std::shared_ptr<Node> node;
@@ -81,7 +87,10 @@ std::shared_ptr<Node> Adjacency_list::start()
   else
     throw EnvException(ASG, "unknown");
 }
-
+/*@brief add a variable to the symbol table
+ *@param1 identifier
+ *@param2 the type of the variable
+ */
 void Adjacency_list::putVariable(const std::string& identifier)
 {
   putVariable(identifier, Graph::Variable_Type::STRING);
