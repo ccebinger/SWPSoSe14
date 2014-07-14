@@ -63,6 +63,12 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
     current_node = current_node->successor1;
   }
   bytecode.push_back(codegen::MNEMONIC::RETURN);
+  std:: cout << "main build proccessedList: ";
+  for (auto c : proccessedList) {
+    std::cout << c->id << ", ";
+  }
+  std::cout << std::endl;
+
   return this;
 }
 
