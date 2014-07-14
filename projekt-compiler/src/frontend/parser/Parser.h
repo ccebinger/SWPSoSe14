@@ -256,6 +256,7 @@ class Parser {
 		int32_t moveCount = 0;
 		int32_t posRow = 0;
 		int32_t posCol = 0;
+		int curId = 0;
 		Direction dir = SE;
 		shared_ptr<RailFunction> board;
 		map<string,shared_ptr<RailFunction>> lexedFunctions;
