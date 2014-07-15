@@ -54,8 +54,9 @@ $IntColumn  = new diagramm($sql,5,$idRun);
 				<div id="menubar">
 					<ul id="nav">
 						<li><a href="index.php">Home</a></li>
-						<li  class="current" ><a href="interpreter.php">Interpreter</a></li>
-
+						<li class="current" ><a href="interpreter.php">Interpreter</a></li>
+						<li><a href="interface.php">Interface</a></li>
+						<li><a href="performance.php">Performance</a></li>
 					</ul>
 				</div>
 				<!--close menubar-->
@@ -66,7 +67,9 @@ $IntColumn  = new diagramm($sql,5,$idRun);
 
 		
 
-			<div id="container" style="width: 100%; height: 400px;"></div>
+			<div id="container">
+				<div id="container1"></div>
+			</div>
 		
 		<!--close main-->
 	</div>
@@ -76,7 +79,7 @@ $IntColumn  = new diagramm($sql,5,$idRun);
   
    $(function () {
 	  
-	    $('#container').highcharts({
+	    $('#container1').highcharts({
 	        
 	        chart: {
 	            type: 'column'

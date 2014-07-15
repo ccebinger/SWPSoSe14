@@ -6,7 +6,7 @@ import java.nio.file.Path;
 
 public class Env {
 	
-	public static final long ExecTimeout = 2000;
+	public static final long ExecTimeout = 10000;
 	
 	
 	
@@ -22,7 +22,7 @@ public class Env {
 		
 		
 		public final int id;
-		public final String front, back, ast, target;
+		public final String front, ast, back, target;
 		
 		private Mode(int id, String front, String ast, String back, String target) {
 			this.id = id;
