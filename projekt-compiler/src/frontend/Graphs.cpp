@@ -14,13 +14,20 @@ Graphs::~Graphs()
   //dtor
 }
 
-
+/*@brief Function to set the graph-key and pointer
+ *@param1 graph key
+ *@param2 graph pointer
+ *@return true if they are set .
+ */
 
 bool Graphs::put(Graphs::str key, Graphs::Graph_ptr graph) {
   graphs.insert(std::pair<std::string, Graphs::Graph_ptr>(key, graph));
   return true;
 }
-
+/*@brief find the iteration of the graph by its key
+ *@param1 the key of the graph
+ *@return next iteration
+ */
 Graphs::Graph_ptr Graphs::find(Graphs::str key)
 {
   Graph_map::iterator it = graphs.find(key);
@@ -29,22 +36,30 @@ Graphs::Graph_ptr Graphs::find(Graphs::str key)
   else
     return nullptr;
 }
-
+/*@brief Graph size function
+ *@return the size of the graph , specifically
+ *@return the number of nodes in the graph
+ */
 size_t Graphs::size()
 {
   return graphs.size();
 }
-
+/*@brief find the start of the graph
+ */
 Graphs::Graph_map::iterator Graphs::begin()
 {
   return graphs.begin();
 }
-
+/*@brief find the end of the graph
+ */
 Graphs::Graph_map::iterator Graphs::end()
 {
   return graphs.end();
 }
-
+/*@brief graph serialization function,which convert the input file to csv file
+ *@param1 the specific file
+ *@param2 the char ,which deleted in each iteration
+ */
 void Graphs::marshall(Graphs::str file, char delimiter) {
 
 	// [function name]
@@ -123,7 +138,10 @@ void Graphs::marshall(Graphs::str file, char delimiter) {
 
 
 }
-
+/*@brief deserialization function ,which convert the csv file to a dotted graph
+ *@param1 the resulted file from serialization function
+ *@param2 the char , that should deleted in each iteration
+ */
 void Graphs::unmarshall(Graphs::str file, char delimiter) {
 	if(Env::verbose()) {
 		std::cout << "Deserializing " << file << std::endl;
@@ -160,7 +178,10 @@ void Graphs::unmarshall(Graphs::str file, char delimiter) {
 	  std::cout << "done..." << std::endl;
   }
 }
-
+/*@brief fuction to test if exists a function name in the serialized file .
+ *@param1 a line of that file as string
+ *@return true if the function name is found
+ */
 bool Graphs::containsFunctionName(str line)
 {
   if (line.find_first_of("[") == 0)
@@ -170,7 +191,11 @@ bool Graphs::containsFunctionName(str line)
   }
   return false;
 }
-
+/*@brief delete the empty line from the file
+ *@param1 pointer to the specific input file
+ *@param2 pointer to the tested line
+ *@param3 the char , that deleted in each iteration
+ */
 void Graphs::skip_empty_lines(std::ifstream& infile, std::string& line)
 {
   while (line.empty() && std::getline(infile, line)) ;
@@ -229,7 +254,9 @@ Graphs::Node_ptr Graphs::unmarshall_line(Graphs::Graph_ptr adj, std::string& lin
   printNode(n);
   return n;
 }
-
+/*@brief take a command and characterize it
+ *@param1 pointer to the spicific commend
+ */
 Command Graphs::getCommand(std::string& cmd)
 {
   Command c;
@@ -271,7 +298,12 @@ Command Graphs::getCommand(std::string& cmd)
   c.arg = cmd;
   return c;
 }
-
+/*@brief tests if the command within the suitable brackets
+ *@param1 pointer to the specific command
+ *@param2 the start symbol
+ *@param3 the end symbol
+ *@return true if the command truly within the right symbol"brackets"
+ */
 bool Graphs::containsBeginAndEndChar(std::string& cmd, char begin, char end)
 {
   return cmd.find_first_of(begin) == 0 && cmd.find_last_of(end) == cmd.length() - 1;
@@ -289,7 +321,9 @@ std::shared_ptr<Node> Graphs::findNode(Graphs::Graph_ptr adj, std::string id)
   return n;
 }
 
-
+/*@brief function, which draw the graph
+ *@param1 the serilized file after editing
+ */
 void Graphs::writeGraphViz(Graphs::str file) {
 	if(Env::verbose()) {
 		std::cout << "Creating dot-file" << std::endl;
@@ -377,7 +411,9 @@ std::vector<std::string> Graphs::keyset()
   }
   return keyset;
 }
-
+/*@brief make node style
+ *@param1 shared pointer to the node
+ */
 std::string Graphs::gvGetNodeStyles(std::shared_ptr<Node> node) const {
 
 
@@ -465,7 +501,9 @@ std::string Graphs::gvGetNodeStyles(std::shared_ptr<Node> node) const {
 }
 
 
-
+/*@brief print the node
+ *@param1 shared pointer of node
+ */
 
 void printNode(std::shared_ptr<Node> n) {
 	if(Env::verbose()) {

@@ -63,7 +63,7 @@ h5, h6
   padding-bottom: 15px;}
   
 span
-{ color: #B1521A;
+{ color: #FFFFFF;
   text-shadow: none;}
 
 a, a:hover
@@ -94,10 +94,14 @@ ol li
   
 header
 { height: 150px;
+  /*
   background: #1D1D1D;
   background: -moz-linear-gradient(#535353, #000);
   background: -o-linear-gradient(#535353, #000);
-  background: -webkit-linear-gradient(#535353, #000);}
+  background: -webkit-linear-gradient(#535353, #000);
+  */
+  background: #003366;
+}
  
 nav
 { height: 60px;}  

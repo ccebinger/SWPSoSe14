@@ -411,6 +411,7 @@ void Parser::parseLambda(NodeIdentifier id){
 	int prePosRow = posRow;
 	int prePosCol = posCol;
 	Direction preDir = dir;
+	int preCurId = curId;
 	bool preParsingNotFinished = parsingNotFinished;
 	std::shared_ptr<Adjacency_list> preASG = currentAbstractSyntaxGraph;
 	std::shared_ptr<Node> preCurrentNode = currentNode;
@@ -420,6 +421,7 @@ void Parser::parseLambda(NodeIdentifier id){
 	posRow = prePosRow;
 	posCol = prePosCol;
 	dir = preDir;
+	curId = preCurId;
 	currentAbstractSyntaxGraph = preASG;
 	currentNode = preCurrentNode;
 	parsingNotFinished = preParsingNotFinished;
@@ -539,10 +541,11 @@ bool Parser::addToAbstractSyntaxGraph(string commandName, Command::Type type, No
 		//TODO:an Graph Schnittstelle anpassen
 		if(currentAbstractSyntaxGraph == NULL) {
 			//this is the first node that we meet, create a new one
-			node->id = 1;
+			curId = 1;
+			node->id = curId;
 			currentAbstractSyntaxGraph.reset(new Adjacency_list(board->getName(), node));
 		} else {
-			node->id = currentNode->id+1;
+			node->id = ++curId;
 			currentAbstractSyntaxGraph->addNode(node);
 			currentAbstractSyntaxGraph->addEdge(currentNode, node, addNextNodeAsTruePathOfPreviousNode);
 		}
