@@ -36,7 +36,14 @@ codegen::Bytecode::func_map= {
   {Command::Type::VAR_PUSH, &push_Variable}
 };
 
-codegen::Bytecode::Bytecode(ConstantPool& p, bool is_lambda_code) : pool(p), /*local_count(4),*/ locals(4), lambda_code(is_lambda_code) {}
+codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), locals(4), lambda_code(false)
+{
+}
+
+codegen::Bytecode::Bytecode(ConstantPool& p, std::string& name, bool is_lambda_code) : pool(p),
+                                                                                       locals(4),
+                                                                                       lambda_code(is_lambda_code),
+                                                                                       class_name(name) {}
 
 codegen::Bytecode::~Bytecode() {}
 
@@ -128,6 +135,10 @@ codegen::Bytecode::STRINGS codegen::Bytecode::get_lambdas() {
   return lambdas;
 }
 
+bool codegen::Bytecode::is_lambda_code() {
+  return lambda_code;
+}
+
 bool codegen::Bytecode::find_lambda(std::string& name) {
   STRINGS::iterator pos = std::find(lambdas.begin(), lambdas.end(), name);
   return pos != lambdas.end();
@@ -136,21 +147,13 @@ bool codegen::Bytecode::find_lambda(std::string& name) {
 LocalVariableStash codegen::Bytecode::get_lambda_locals(std::string& name) {
   return lamda_variables.at(name);
 }
+
+std::string codegen::Bytecode::get_class_name() {
+  return class_name;
+}
 //================================================================================
 //==================================SETTER========================================
 //================================================================================
-/*
-void codegen::Bytecode::inc_local_count(int inc)
-{
-  local_count += inc;
-}
-*/
-/*
-void codegen::Bytecode::set_local_count(int count)
-{
-  local_count = count;
-}
-*/
 
 //================================================================================
 //==================================INDICIES======================================
@@ -354,8 +357,13 @@ codegen::Bytecode* codegen::Bytecode::add_lambda_declaration(Graphs::Node_ptr cu
 
   //$anonymous class <init> method
   size_t init_str_idx = pool.addString("<init>");
+
+  size_t count = locals.current_var_count();
+  size_t init_descriptor = pool.addString(create_object_descriptor(count));
+
+
   size_t void_descriptor = pool.addString("()V");
-  size_t anonym_init_idx = pool.addMethRef(anonym_class_idx, pool.addNameAndType(init_str_idx, void_descriptor));
+  size_t anonym_init_idx = pool.addMethRef(anonym_class_idx, pool.addNameAndType(init_str_idx, init_descriptor));
 
   //$anonymous class closure method
   size_t closure_str_idx = pool.addString("closure");
@@ -365,9 +373,23 @@ codegen::Bytecode* codegen::Bytecode::add_lambda_declaration(Graphs::Node_ptr cu
   //CODE
   add_opcode_with_idx(codegen::MNEMONIC::NEW, anonym_class_idx);
   add_opcode(codegen::MNEMONIC::DUP);
+
+  if (count > 0) {
+    std::map<std::string, uint8_t> local_map = locals.get_variable_to_index_map();
+    for (std::map<std::string, uint8_t>::iterator it = local_map.begin(); it != local_map.end(); it++) {
+      add_opcode(codegen::MNEMONIC::ALOAD);
+      add_byte(it->second);
+    }
+  }
   add_opcode_with_idx(codegen::MNEMONIC::INVOKE_SPECIAL, anonym_init_idx);
   globalstack_push();
   return this;
+}
+
+codegen::Bytecode* codegen::Bytecode::add_pop_variable_code(std::string& var_name) {
+  uint8_t var_index =  locals.getIndexForVar(var_name);
+  add_opcode(codegen::MNEMONIC::ALOAD);
+  add_byte(var_index);
 }
 //================================================================================
 //=================================GLOBAL STACK===================================
@@ -386,6 +408,20 @@ codegen::Bytecode* codegen::Bytecode::globalstack_push() {
   return this;
 }
 
+std::string codegen::Bytecode::create_object_descriptor(size_t len) {
+  std::stringstream ss;
+  ss << "(";
+  if (len > 0) {
+    ss << "Ljava/lang/Object";
+    for (size_t i = 0; i < (len - 1); i++)
+    {
+      ss << ", Ljava/lang/Object";
+    }
+    ss << ";";
+  }
+  ss << ")V";
+  return ss.str();
+}
 //================================================================================
 //==================================FUNCTORS======================================
 //================================================================================
@@ -808,11 +844,24 @@ void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
 //VARIABLES
 void codegen::pop_Variable(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
+  ConstantPool& pool = code->get_constant_pool();
   std::string var_name = state.current_node->command.extractAstCommandString();
-  uint8_t var_index =  code->get_locals().getIndexForVar(var_name);
-  code->add_opcode(codegen::MNEMONIC::ALOAD)
-      ->add_index(var_index)
-      ->globalstack_push();
+  if (code->is_lambda_code()) {
+    LocalVariableStash& locals = code->get_locals();
+    if (locals.current_var_count() > 0 && locals.exists(var_name)) {
+      code->add_pop_variable_code(var_name);
+    }
+    else {
+      std::stringstream ss;
+      ss << "var$" << var_name;
+      uint16_t field_idx = code->get_field_idx(code->get_class_name(), ss.str(), "Ljava/lang/Object;");
+      code->add_opcode(codegen::MNEMONIC::ALOAD_0)
+          ->add_opcode_with_idx(codegen::MNEMONIC::GETFIELD, field_idx);
+    }
+  } else {
+    code->add_pop_variable_code(var_name);
+  }
+  code->globalstack_push();
 }
 
 void codegen::push_Variable(Bytecode::Current_state state) {

@@ -46,11 +46,16 @@ public:
                     const std::map<std::string, codegen::Bytecode&> codeFunctions,
                     std::ostream* out);
   virtual ~Lambda_classfile_writer();
+
+  typedef std::map<std::string, uint16_t> MAP;
+private:
+  MAP add_locals_as_fields_to_constantpool();
 protected:
+  MAP field_map;
   std::string class_name;
   LocalVariableStash fields;
   static const unsigned char anonymous_class_access_flags[];
-
+  static const unsigned char synthetic_final_field_access_flags[];
   /**
    * Method to write the constant pool that was generated in @see constant_pool.cc
    *
