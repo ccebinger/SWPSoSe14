@@ -46,7 +46,13 @@ public:
                     const std::map<std::string, codegen::Bytecode&> codeFunctions,
                     std::ostream* out);
   virtual ~Lambda_classfile_writer();
+
+  typedef std::map<std::string, uint16_t> MAP;
+private:
+  std::string create_object_descriptor(size_t len);
+  MAP add_locals_as_fields_to_constantpool();
 protected:
+  MAP field_map;
   std::string class_name;
   LocalVariableStash fields;
   static const unsigned char anonymous_class_access_flags[];

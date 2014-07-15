@@ -26,6 +26,8 @@ Lambda_classfile_writer::Lambda_classfile_writer(std::string& class_name, LocalV
                                  const std::map<std::string, codegen::Bytecode&> codeFunctions,
                                  std::ostream* out) : Lambda_interface_writer(version, constantPool, graphs, codeFunctions, out),  class_name(class_name), fields(locals)  {
 
+  constant_pool_->addString(create_object_descriptor(fields.current_var_count()));
+  field_map = add_locals_as_fields_to_constantpool();
 }
 
 Lambda_classfile_writer::~Lambda_classfile_writer() {
@@ -100,15 +102,17 @@ void Lambda_classfile_writer::WriteInitMethod() {
   uint16_t obj_idx = constant_pool_->obj_idx.class_idx;
   uint16_t init_name_type_idx = constant_pool_->addNameAndType(constant_pool_->addString("<init>"), constant_pool_->addString("()V"));
   writer.writeU16(constant_pool_->addString("<init>"));
-  writer.writeU16(constant_pool_->addString("()V"));
+
+  //TODO ADD PARAMS
+  writer.writeU16(constant_pool_->addString(create_object_descriptor(field_map.size())));
   /* WriteAttributes */
   // attribute_count=1
   writer.writeU16(1);
   writer.writeU16(constant_pool_->addString("Code"));
   uint32_t code_len = 5;
 
-  if (fields.current_var_count() > 0)
-    code_len += 5 * fields.current_var_count() + 1;
+  if (field_map.size() > 0)
+    code_len += 5 * field_map.size() + 1;
   //attribute length
   writer.writeU32(12 + code_len);
   // max_stack=1
@@ -121,17 +125,15 @@ void Lambda_classfile_writer::WriteInitMethod() {
 
   //TODO add fields from local variable stash
   //alods until field size
-  std::map<std::string, uint8_t> map = fields.get_variable_to_index_map();
-  if (map.size() > 0) {
+
+  if (field_map.size() > 0) {
     writer.writeU8(codegen::MNEMONIC::ALOAD_0);
     uint8_t idx = 1;
-    for (std::map<std::string, uint8_t>::iterator it = map.begin(); it != map.end(); it++) {
-      uint16_t field_name_idx = constant_pool_->addString(it->first);
-      uint16_t field_idx = constant_pool_->addNameAndType(obj_idx, field_name_idx);
+    for (MAP::iterator it = field_map.begin(); it != field_map.end(); it++) {
       writer.writeU8(codegen::MNEMONIC::ALOAD);
       writer.writeU8(idx++);
       writer.writeU8(codegen::MNEMONIC::PUTFIELD);
-      writer.writeU16(field_idx);
+      writer.writeU16(it->second);
     }
   }
   //
@@ -151,4 +153,36 @@ void Lambda_classfile_writer::WriteClInitMethod() {
 
 void Lambda_classfile_writer::WriteAttributes(const std::string &key) {
   ClassfileWriter::WriteAttributes(key);
+}
+
+
+std::string Lambda_classfile_writer::create_object_descriptor(size_t len)
+{
+  std::stringstream ss;
+  ss << "(";
+  if (len > 0) {
+    ss << "Ljava/lang/Object";
+    for (size_t i = 0; i < (len - 1); i++)
+    {
+      ss << ", Ljava/lang/Object";
+    }
+  }
+  ss << ")V";
+  return ss.str();
+}
+
+std::map<std::string, uint16_t> Lambda_classfile_writer::add_locals_as_fields_to_constantpool()
+{
+  std::map<std::string, uint16_t> pool_entries;
+  std::map<std::string, uint8_t> local_vars = fields.get_variable_to_index_map();
+
+  for (std::map<std::string, uint8_t>::iterator it = local_vars.begin(); it != local_vars.end(); it++)
+  {
+    std::stringstream ss;
+    ss << "var$" << it->first;
+    uint16_t field_name_idx = constant_pool_->addNameAndType(constant_pool_->addString(ss.str()), constant_pool_->obj_idx.class_idx);
+    uint16_t field_idx = constant_pool_->addFieldRef(ClassfileWriter::get_class_ref(lambda_class_name),field_name_idx);
+    pool_entries.insert(std::pair<std::string, uint16_t>{ss.str(), field_idx});
+  }
+  return pool_entries;
 }
