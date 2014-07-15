@@ -56,7 +56,7 @@ protected:
   std::string class_name;
   LocalVariableStash fields;
   static const unsigned char anonymous_class_access_flags[];
-
+  static const unsigned char synthetic_final_field_access_flags[];
   /**
    * Method to write the constant pool that was generated in @see constant_pool.cc
    *

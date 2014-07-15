@@ -18,7 +18,7 @@
 
 
 const unsigned char Lambda_classfile_writer::anonymous_class_access_flags[] = {'\x00', '\x30'};
-
+const unsigned char Lambda_classfile_writer::synthetic_final_field_access_flags[] = {'\x10', '\x10'};
 
 Lambda_classfile_writer::Lambda_classfile_writer(std::string& class_name, LocalVariableStash locals, ClassfileVersion version,
                                  ConstantPool* constantPool,
@@ -43,6 +43,8 @@ void Lambda_classfile_writer::WriteConstantPool() {
   uint16_t main_descr_idx = constant_pool_->addString("([Ljava/lang/String;)V");
   constant_pool_->addNameAndType(main_idx, main_descr_idx); //ref in which method the lambda was created
 
+  constant_pool_->addString("Ljava/lang/Object;");
+
   size_t size = constant_pool_->size() + 1;
   writer.writeU16(size);
   writer.writeVector(constant_pool_->getByteArray());
@@ -66,10 +68,30 @@ void Lambda_classfile_writer::WriteInterfaces() {
 
 void Lambda_classfile_writer::WriteFields()
 {
+  size_t len = field_map.size();
   //TODO add variables as fields !!!!
-
-
-    ClassfileWriter::WriteFields();
+  writer.writeU16(1 + len);
+  //=================================================================================
+  //==============================STACK==============================================
+  //=================================================================================
+  // access flag
+  writer.write_array(2, kPublicStaticAccessFlag);
+  // name_index
+  writer.writeU16(constant_pool_->addString("stack"));
+  // descriptor_index
+  writer.writeU16(constant_pool_->addString("Ljava/util/ArrayDeque;"));
+  // attributes_count
+  writer.writeU16(0);
+  //=================================================================================
+  //=============================VARIABLES AS FIELDS=================================
+  //=================================================================================
+  for (MAP::iterator it = field_map.begin(); it != field_map.end(); it++)
+  {
+    writer.write_array(2, synthetic_final_field_access_flags);
+    writer.writeU16(constant_pool_->addString(it->first));
+    writer.writeU16(constant_pool_->addString("Ljava/lang/Object;"));
+    writer.writeU16(0);
+  }
 }
 
 void Lambda_classfile_writer::WriteMethods() {
@@ -123,9 +145,8 @@ void Lambda_classfile_writer::WriteInitMethod() {
   writer.writeU32(code_len);
   //code source
 
-  //TODO add fields from local variable stash
+  //add fields from local variable stash
   //alods until field size
-
   if (field_map.size() > 0) {
     writer.writeU8(codegen::MNEMONIC::ALOAD_0);
     uint8_t idx = 1;
@@ -166,6 +187,7 @@ std::string Lambda_classfile_writer::create_object_descriptor(size_t len)
     {
       ss << ", Ljava/lang/Object";
     }
+    ss << ";";
   }
   ss << ")V";
   return ss.str();
