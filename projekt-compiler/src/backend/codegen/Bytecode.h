@@ -298,7 +298,9 @@ class Bytecode {
    * @param descriptor     the method descriptor like ()V for return void and void param
    * @return               the idx of the method in the constantpool
    */
-  uint16_t get_method_idx(const std::string& class_name, const std::string& member_name, const std::string& descriptor);
+  uint16_t get_method_idx(const std::string& class_name,
+                          const std::string& member_name,
+                          const std::string& descriptor);
 
   /**
    * Checks the constant pool for the given field and returns the idx on the constantpool if the field exists.
@@ -310,7 +312,9 @@ class Bytecode {
    * @param descriptor         the type of the field
    * @return                   the idx of the field in the constantpool
    */
-  uint16_t get_field_idx(const std::string& class_name, const std::string& member_name, const std::string& descriptor);
+  uint16_t get_field_idx(const std::string& class_name,
+                         const std::string& member_name,
+                         const std::string& descriptor);
 
   /**
    * Checks the constant pool for the given method of the stack field (from the own classfile ArrayDeque field)
@@ -321,7 +325,8 @@ class Bytecode {
    * @param descriptor     the method descriptor like ()V for return void and void param
    * @return               the idx of the method in the constantpool
    */
-  uint16_t get_stack_method_idx(const std::string& method, const std::string& descriptor);
+  uint16_t get_stack_method_idx(const std::string& method,
+                                const std::string& descriptor);
 
   /**
    * Checks the constant pool for the stack field (from the own classfile ArrayDeque field)
@@ -340,7 +345,8 @@ class Bytecode {
    * @param conditional_body       the instructions which should be also added after the cond. stmt.
    * @return                       the pointer of the current Bytecode class object
    */
-  Bytecode* add_conditional_with_instruction(unsigned char conditional_stmt, std::vector<unsigned char> conditional_body);
+  Bytecode* add_conditional_with_instruction(unsigned char conditional_stmt,
+                                             std::vector<unsigned char> conditional_body);
 
   /**
    * Adds given conditional and instructions to the current bytecode.
@@ -351,7 +357,8 @@ class Bytecode {
    * @param code                   the vector which should get the bytecode
    * @return                       the pointer of the current Bytecode class object
    */
-  Bytecode* add_conditional_with_instruction(unsigned char conditional_stmt, std::vector<unsigned char> conditional_body,
+  Bytecode* add_conditional_with_instruction(unsigned char conditional_stmt,
+                                             std::vector<unsigned char> conditional_body,
                                              std::vector<unsigned char>& code);
 
   /**
