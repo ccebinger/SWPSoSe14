@@ -49,7 +49,6 @@ public:
 
   typedef std::map<std::string, uint16_t> MAP;
 private:
-  std::string create_object_descriptor(size_t len);
   MAP add_locals_as_fields_to_constantpool();
 protected:
   MAP field_map;

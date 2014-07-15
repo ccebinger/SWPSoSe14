@@ -50,7 +50,9 @@ uint8_t LocalVariableStash::getIndexForVar(std::string variable) {
   return variable_to_index_map_[variable];
 }
 
-
+bool LocalVariableStash::exists(std::string& var) {
+  return variable_to_index_map_.count(var) > 0 ? true : false;
+}
 
 std::map<std::string, uint8_t> LocalVariableStash::get_variable_to_index_map()
 {

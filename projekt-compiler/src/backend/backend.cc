@@ -68,7 +68,7 @@ Backend::Status Backend::Generate(Graphs& graphs,
 	uint16_t lambda_count = 0;
 	for (std::vector<std::string>::iterator it = keyset.begin(); it != keyset.end(); it++) {
 		if ((*it)[0] != '&') { //create only code for not lambda functions
-			codegen::Bytecode* code = new codegen::Bytecode(constantPool);
+			codegen::Bytecode* code = new codegen::Bytecode(constantPool, *it);
 			code->build(graphs.find(*it));
 			codeMap.insert(std::pair<std::string, codegen::Bytecode&>(*it, *code));
 			codegen::Bytecode::STRINGS lambdas = code->get_lambdas();
@@ -321,7 +321,7 @@ void Backend::write_lambda_anonymous_class(Graphs::Graph_ptr graph, ConstantPool
 
 	std::map<std::string, codegen::Bytecode&> codeMap;
 	std::ofstream outFile(get_lambda_class_name(name, true), std::ofstream::binary);
-	codegen::Bytecode* code = new codegen::Bytecode(pool, true);
+	codegen::Bytecode* code = new codegen::Bytecode(pool, cls_name, true);
 	code->build(graph);
 	codeMap.insert(std::pair<std::string, codegen::Bytecode&>(Lambda_interface_writer::method_name, *code));
 	Graphs graphs;
