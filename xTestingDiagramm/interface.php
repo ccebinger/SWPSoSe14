@@ -59,19 +59,19 @@ Danach folgt eine Semikolon-separierte Liste aller Knoten der Funktion inklusive
 
 <pre>
 [Funktionsname 1]
-Id ; Railbefehl ; 1. Adjazenz-Id (,|;) 2. Adjazenz-Id
-Id ; Railbefehl ; 1. Adjazenz-Id (,|;) 2. Adjazenz-Id
+Id ; Railbefehl ; 1. Adjazenz-Id ; 2. Adjazenz-Id
+Id ; Railbefehl ; 1. Adjazenz-Id ; 2. Adjazenz-Id
 ...
 
 [Funktionsname 2]
-Id ; Railbefehl ; 1. Adjazenz-Id (,|;) 2. Adjazenz-Id
-Id ; Railbefehl ; 1. Adjazenz-Id (,|;) 2. Adjazenz-Id
+Id ; Railbefehl ; 1. Adjazenz-Id ; 2. Adjazenz-Id
+Id ; Railbefehl ; 1. Adjazenz-Id ; 2. Adjazenz-Id
 ...
 </pre>
 
 
 <br /><br />			
-<h1>Beispiele</h1>
+<h1>Beispiel</h1>
 <pre>
 [main]
 1;[0];2;0
@@ -84,19 +84,7 @@ Id ; Railbefehl ; 1. Adjazenz-Id (,|;) 2. Adjazenz-Id
 8;o;9;0
 9;#;0;0
 
-</pre><hr><pre>
-
-[main]
-1;5;2,0
-2;[b];3,0
-3;g;4,0
-4;<;5,7
-5;[Equal];6,0
-6;#;0,0
-7;[Not Equal];8,0
-8;#;0,0
 </pre>
-
 			
 			</div>
 		
