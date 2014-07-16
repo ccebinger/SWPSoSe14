@@ -3,7 +3,6 @@ include 'db_connect.php';
 include 'query_auswertung.php';
 include 'diagramm.php';
 
-$idRun = 0; // wenn null wird einfach der letzte run ausgewertet
 $path="";
 
 $type_1=4;
@@ -13,10 +12,8 @@ $type_2=6;
 $sql = new mysql("localhost","xtStats","123","xtStats");
 
 
-if ($idRun == 0){
-	$qlastrunid = $sql->query("SELECT idRun   FROM run order by date desc LIMIT 1;");
-	$idRun = $sql->result(0,'idRun',$qlastrunid);
-}
+$qlastrunid = $sql->query("SELECT idRun FROM run order by date desc LIMIT 1;");
+$idRun = $sql->result(0,'idRun',$qlastrunid);
 
 
 $CppToHaColumn  = new diagramm($sql,4,$idRun);
@@ -60,7 +57,7 @@ $(function () {
 	                text: titel
 	            },
 	            tooltip: {
-	        	    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+	        	    pointFormat: '<b>{point.percentage:.1f}%</b>'
 	            },
 	            plotOptions: {
 	                pie: {
@@ -85,9 +82,6 @@ $(function () {
 	                           y: ValidValue,
 	                           color: '#0BA50B'
 	                       }
-
-
-		   	           
 	                ]
 	            }]
 	        });
@@ -106,7 +100,7 @@ $(function () {
 			<div id="strapline">
 				<div id="welcome_slogan">
 					<h3>
-						<span>X-Testing Auswertungstool</span>
+						<span>Cross-Testing</span>
 					</h3>
 				</div>
 				<!--close welcome_slogan-->
@@ -116,9 +110,10 @@ $(function () {
 				<div id="menubar">
 					<ul id="nav">
 						<li class="current"><a href="index.php">Home</a></li>
-						<li><a href="interpreter.php?idrun=<?php echo($idRun)?>">Interpreter</a>
-						</li>
-
+						<li><a href="interpreter.php">Interpreter</a></li>
+						<li><a href="interface.php">Interface</a></li>
+						<li><a href="performance.php">Performance</a></li>
+						<li><a href="screencast.php">Screencast</a></li>
 					</ul>
 				</div>
 				<!--close menubar-->
@@ -129,12 +124,23 @@ $(function () {
 
 
 
-		<div id="container" style="width: 100%; height: 400px;"></div>
-		<div >
-			<div id="container2" style="float: left;width: 25%; height: 200px;"></div>
-			<div id="container3" style="float: left;width: 25%; height: 200px;"></div>
-			<div id="container4" style="float: left;width: 25%; height: 200px;"></div>
-			<div id="container5" style="float: left;width: 25%; height: 200px;"></div>
+		<div id="container">
+			
+			<div id="container1"></div>
+			
+			<div id="pies">
+				<div id="pieNames">
+					<div>C++</div>
+					<div>C++ -&gt; Ast -&gt; C++</div>
+					<div>Haskell</div>
+					<div>Haskell -&gt; Ast -&gt; Haskell</div>
+				</div>
+				<div id="container2" style="float: left;width: 25%; height: 200px;"></div>
+				<div id="container3" style="float: left;width: 25%; height: 200px;"></div>
+				<div id="container4" style="float: left;width: 25%; height: 200px;"></div>
+				<div id="container5" style="float: left;width: 25%; height: 200px;"></div>
+			</div>
+			
 		</div>
 		<!--close main-->
 	</div>
@@ -146,7 +152,7 @@ $(function () {
 
    $(function () {
 		  
-	    $('#container').highcharts({
+	    $('#container1').highcharts({
 	        
 	        chart: {
 	            type: 'column'
@@ -166,12 +172,12 @@ $(function () {
 	            text: 'Stacked column chart'
 	        },
 	        xAxis: {
-	            categories: ['C++ zu Hasckel', 'Hasckel zu c++']
+	            categories: ['C++ -&gt; AST -&gt; Haskell', 'Haskell -&gt; AST -&gt; C++']
 	        },
 	        yAxis: {
 	            min: 0,
 	            title: {
-	                text: 'Anzahl X-testing Tests'
+	                text: '% Testfälle'
 	            },
 	            stackLabels: {
 	                enabled: false,
@@ -182,8 +188,7 @@ $(function () {
 	            }
 	        },
 	        legend: {
-	          
-	            verticalAlign: 'top',
+	        	verticalAlign: 'top',
 	            y: 0,
 	            floating: true,
 	            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
@@ -193,8 +198,7 @@ $(function () {
 	        },
 	        tooltip: {
 	            formatter: function () {
-	                return '<b>' + this.x + '</b><br/>' + this.series.name + ': ' + this.y + '<br/>' +
-	                    'Total: ' + this.point.stackTotal;
+	                return '<b>' + this.x + '</b><br/>' + this.y + '% ' + this.series.name;
 	            }
 	        },
 	        plotOptions: {
@@ -210,19 +214,19 @@ $(function () {
 	            }
 	        },
 	        series: [{
-	            name: 'Fehlgeschlagene Test',
+	            name: 'fehlgeschlagen',
 	            data: [<?php echo( $CppToHaColumn->Failed.",".$HaToCppColumn->Failed )?>]
 	        }, {
-	            name: 'Erfolgreichen Tests ',
+	            name: 'erfolgreich',
 	            data: [<?php echo( $CppToHaColumn->Valid.",".$HaToCppColumn->Valid) ?>]
 	        }]
 	    });
 	});
   
-   chart('#container2','C++',<?php echo( $CppPie->Failed)?>,<?php echo( $CppPie->Valid)?> );
-   chart('#container3','C++AstC++',<?php echo( $CppAstCppPie->Failed)?>,<?php echo( $CppAstCppPie->Valid)?> );
-   chart('#container4','Haskel',<?php echo( $HasPie->Failed)?>,<?php echo( $HasPie->Valid)?> );
-   chart('#container5','HaskelAstHaskel',<?php echo( $HasToAstAstpie->Failed)?>,<?php echo( $HasToAstAstpie->Valid)?> );
+   chart('#container2','',<?php echo( $CppPie->Failed)?>,<?php echo( $CppPie->Valid)?> );
+   chart('#container3','',<?php echo( $CppAstCppPie->Failed)?>,<?php echo( $CppAstCppPie->Valid)?> );
+   chart('#container4','',<?php echo( $HasPie->Failed)?>,<?php echo( $HasPie->Valid)?> );
+   chart('#container5','',<?php echo( $HasToAstAstpie->Failed)?>,<?php echo( $HasToAstAstpie->Valid)?> );
 </script>
 </body>
 </html>

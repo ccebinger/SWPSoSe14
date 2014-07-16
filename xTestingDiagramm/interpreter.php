@@ -3,20 +3,23 @@ include 'db_connect.php';
 include 'query_auswertung.php';
 include 'diagramm.php';
 
-$idRun = $_GET["idrun"] ; // wenn null wird einfach der letzte run ausgewertet
 
+// Das ist ein Sicherheisproblem (mysql injection) ...
+#$idRun = $_GET["idrun"] ; // wenn null wird einfach der letzte run ausgewertet
 
 
 
 $sql = new mysql("localhost","xtStats","123","xtStats");
 
 
+$qlastrunid = $sql->query("SELECT idRun FROM run order by date desc LIMIT 1;");
+$idRun = $sql->result(0,'idRun',$qlastrunid);
 
 
 
-$CppColumn  = new diagramm($sql,1,$idRun);
-$HaColumn  = new diagramm($sql,2,$idRun);
-$IntColumn  = new diagramm($sql,5,$idRun);
+$CppColumn  = new diagramm($sql,2,$idRun);
+$IntColumn  = new diagramm($sql,1,$idRun);
+$HaColumn  = new diagramm($sql,5,$idRun);
 
 
 ?>
@@ -25,7 +28,7 @@ $IntColumn  = new diagramm($sql,5,$idRun);
 <html>
 
 <head>
-<title>xtesting</title>
+<title>Cross Testing</title>
 
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" type="text/css" href="css/style.css" />
@@ -41,7 +44,7 @@ $IntColumn  = new diagramm($sql,5,$idRun);
 			<div id="strapline">
 				<div id="welcome_slogan">
 					<h3>
-						<span>X-Testing Auswertungstool</span>
+						<span>Cross-Testing</span>
 					</h3>
 				</div>
 				<!--close welcome_slogan-->
@@ -51,8 +54,10 @@ $IntColumn  = new diagramm($sql,5,$idRun);
 				<div id="menubar">
 					<ul id="nav">
 						<li><a href="index.php">Home</a></li>
-						<li  class="current" ><a href="interpreter.php">Interpreter</a></li>
-
+						<li class="current" ><a href="interpreter.php">Interpreter</a></li>
+						<li><a href="interface.php">Interface</a></li>
+						<li><a href="performance.php">Performance</a></li>
+						<li><a href="screencast.php">Screencast</a></li>
 					</ul>
 				</div>
 				<!--close menubar-->
@@ -63,7 +68,9 @@ $IntColumn  = new diagramm($sql,5,$idRun);
 
 		
 
-			<div id="container" style="width: 100%; height: 400px;"></div>
+			<div id="container">
+				<div id="container1"></div>
+			</div>
 		
 		<!--close main-->
 	</div>
@@ -73,7 +80,7 @@ $IntColumn  = new diagramm($sql,5,$idRun);
   
    $(function () {
 	  
-	    $('#container').highcharts({
+	    $('#container1').highcharts({
 	        
 	        chart: {
 	            type: 'column'
@@ -93,7 +100,7 @@ $IntColumn  = new diagramm($sql,5,$idRun);
 	            text: 'Stacked column chart'
 	        },
 	        xAxis: {
-	            categories: ['C++','Interpreter', 'Hasckel']
+	            categories: ['C++','Interpreter', 'Haskell']
 	        },
 	        yAxis: {
 	            min: 0,
@@ -137,10 +144,10 @@ $IntColumn  = new diagramm($sql,5,$idRun);
 	            }
 	        },
 	        series: [{
-	            name: 'Fehlgeschlagene Test',
+	            name: 'Fehlgeschlagene Tests',
 	            data: [<?php echo( $CppColumn->Failed.",".$IntColumn->Failed.",".$HaColumn->Failed )?>]
 	        }, {
-	            name: 'Erfolgreichen Tests ',
+	            name: 'Erfolgreiche Tests ',
 	            data: [<?php echo( $CppColumn->Valid.",".$IntColumn->Valid.",".$HaColumn->Valid )?>]
 	        }]
 	    });

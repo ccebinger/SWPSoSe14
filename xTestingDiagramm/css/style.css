@@ -4,45 +4,58 @@
     src: local("News Cycle"), url('../fonts/NewsCycle-Regular.ttf'); 
 } 
 
-html
-{ height: 100%;}
-
-*
-{ margin: 0;
-  padding: 0;}
-
-body
-{ font: normal 90% Arial, Helvetica, sans-serif;
-  color: #000;
+html {
+	height: 100%;
+	overflow-y: scroll;
 }
-table{
-	
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font: normal 90% Arial, Helvetica, sans-serif;
+	color: #000;
+}
+table {
 	border-width 1px ;
-border-spacing 	 1px ;
-border-style 	solid ;
-border-color 	black ;
-border-collapse collapse;
-	
-	
+	border-spacing 	 1px ;
+	border-style 	solid ;
+	border-color 	black ;
+	border-collapse collapse;
 }
+
+table tr th {
+	text-align: left;
+	font-size: 18px;
+}
+
+table tr * {
+	vertical-align: top;
+	padding: 0 20px 0 20px;
+	font-size: 16px;
+}
+
 /* tell the browser to render HTML 5 elements as block */
 article, aside, figure, footer, header, hgroup, nav, section { 
-  display:block;
+	display:block;
 }
 
-p
-{ padding: 0 0 10px 0;
-  line-height: 1.7em;
-  font-size: 100% }
+p {
+	padding: 0 0 10px 0;
+	line-height: 1.7em;
+	font-size: 100%;
+}
 
-img
-{ border: 0;}
+img { border: 0;}
 
 h1, h2, h3, h4, h5, h6 
-{ font: normal 175% 'News Cycle', Arial, sans-serif;
+{ font: normal 250% 'News Cycle', Arial, sans-serif;
   color: #000;
   letter-spacing: -1px;
-  margin: 0 0 10px 0;}
+  margin: 0 0 10px 0;
+}
 
 h2
 { font: normal 165% 'News Cycle', Arial, sans-serif;}
@@ -63,7 +76,7 @@ h5, h6
   padding-bottom: 15px;}
   
 span
-{ color: #B1521A;
+{ color: #FFFFFF;
   text-shadow: none;}
 
 a, a:hover
@@ -94,10 +107,14 @@ ol li
   
 header
 { height: 150px;
+  /*
   background: #1D1D1D;
   background: -moz-linear-gradient(#535353, #000);
   background: -o-linear-gradient(#535353, #000);
-  background: -webkit-linear-gradient(#535353, #000);}
+  background: -webkit-linear-gradient(#535353, #000);
+  */
+  background: #003366;
+}
  
 nav
 { height: 60px;}  
@@ -290,3 +307,74 @@ ul img {
   border-radius: 7px 7px 7px 7px;
   -moz-border-radius: 7px 7px 7px 7px;
   -webkit-border: 7px 7px 7px 7px;}
+  
+  
+  
+  
+  
+#container {
+	max-width: 1000px;
+	margin: 0 auto 0 auto;
+	padding: 25px 50px 25px 50px;
+	/*width: 100%;*/
+}
+
+
+#container.interface {
+	font-size: 18px;
+}
+
+
+/*
+#chartCompile {
+	width: 800px;
+}
+
+#chartTesttime {
+	width: 800px;
+}
+*/
+
+
+
+.perf {
+	max-width: 1000px;
+	margin: 50px auto 100px auto;
+	border: 1px solid #003366;
+	padding: 50px;
+}
+
+.perf .perfGraph {
+	/*width: 500px;*/
+}
+
+
+
+#container1 {
+	margin-top: 20px;
+	border: 1px solid #003366;
+	padding: 50px;
+}
+
+
+#pies {
+	border: 1px solid #003366;
+	height: 211px;
+    margin: 50px 0;
+    padding: 20px 1px;
+    
+}
+
+
+#pies #pieNames div {
+	float:left;
+	width:25%;
+	text-align: center;
+	font-size: 20px;
+}
+
+
+
+
+
+
