@@ -44,9 +44,9 @@ while($line=mysql_fetch_array($result)) {
 
 $result = $sql->query("
 SELECT
-	AVG(c.durationMs) AS avgCpp,
-	AVG(h.durationMs) AS avgHas,
-	AVG(i.durationMs) AS avgInt,
+	ROUND(AVG(c.durationMs)) AS avgCpp,
+	ROUND(AVG(h.durationMs)) AS avgHas,
+	ROUND(AVG(i.durationMs)) AS avgInt,
 	COUNT(c.id) AS countCpp,
 	COUNT(h.id) AS countHas,
 	COUNT(i.id) AS countInt
