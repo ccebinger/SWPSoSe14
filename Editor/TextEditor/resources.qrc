@@ -32,5 +32,7 @@
         <file>icons/Buttons/Rotate180.png</file>
         <file>icons/Buttons/MirrorHorizontal.png</file>
         <file>icons/Buttons/MirrorVertical.png</file>
+        <file>icons/Logos/project_logo.jpg</file>
+        <file>icons/Logos/company_logo.jpg</file>
     </qresource>
 </RCC>
