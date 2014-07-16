@@ -108,7 +108,7 @@ void Graphs::marshall(Graphs::str file, char delimiter) {
 				// Error state for Haskell-Group
 				ofh << "0";
 			}
-			ofh << ",";
+			ofh << ";";
 			if(node->successor2) {
 				ofh << node->successor2->id;
 			}

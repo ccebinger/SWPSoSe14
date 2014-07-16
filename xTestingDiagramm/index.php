@@ -113,6 +113,7 @@ $(function () {
 						<li><a href="interpreter.php">Interpreter</a></li>
 						<li><a href="interface.php">Interface</a></li>
 						<li><a href="performance.php">Performance</a></li>
+						<li><a href="screencast.php">Screencast</a></li>
 					</ul>
 				</div>
 				<!--close menubar-->
@@ -187,8 +188,7 @@ $(function () {
 	            }
 	        },
 	        legend: {
-	          
-	            verticalAlign: 'top',
+	        	verticalAlign: 'top',
 	            y: 0,
 	            floating: true,
 	            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',

@@ -21,7 +21,6 @@
 		\item Softwaretechnik
 		\pause
 		\item Technische Aspekte
-		\pause
 	\end{itemize}
 
 \end{frame}
@@ -33,7 +32,7 @@
 	
 	\pause
 	\begin{itemize}
-		\item Teammitglieder: 6
+		\item Sechs Teammitglieder
 		\pause
 		\item Austausch mit Haskell-Gruppe: Design der AST-Datei
 		\pause
@@ -67,7 +66,7 @@
 			\pause
 			\item Praktische Umst\"ande verlangen individuelle L\"osungen
 			\pause
-			\item Ein guter Entwurf spart enorm Aufwand
+			\item Ein guter Entwurf spart enormen Aufwand
 		\end{itemize}
 	\end{itemize}
 	
@@ -102,7 +101,7 @@
 
 \begin{frame}{Frontend: Technisches}
 
-Hauptarbeit geschieht im Parser:
+Die Hauptarbeit geschieht im Parser:
 \pause
 \begin{itemize}
 	\item Durchlaufen der Funktion anhand der Schienen
@@ -116,12 +115,14 @@ Hauptarbeit geschieht im Parser:
 		\pause
 		\item Richtung
 		\pause
+		\item Befehl
+		\pause
 	\end{itemize}
-	\item Verkn\"upfung dieser Informationen mit dem Knoten verhindert mehrfachparsen
+	\item Verkn\"upfen dieser Informationen mit dem Knoten verhindert mehrfaches Parsen
 	\pause
 	\item Verzweigungen durch rekursive Selbstaufrufe
 	\pause
-	\item F\"ur anonyme Funktionen(Lambdas) werden neue Funktionsnamen generiert und die Funktionen geparst
+	\item F\"ur anonyme Funktionen (Lambda) werden neue Funktionsnamen generiert und die Funktionen geparst
 	\pause
 	\item Erzeugt f\"ur jede Rail-Funktion einen Graphen
 \end{itemize}

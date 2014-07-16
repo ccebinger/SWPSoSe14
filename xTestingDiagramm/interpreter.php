@@ -17,9 +17,9 @@ $idRun = $sql->result(0,'idRun',$qlastrunid);
 
 
 
-$CppColumn  = new diagramm($sql,1,$idRun);
-$HaColumn  = new diagramm($sql,2,$idRun);
-$IntColumn  = new diagramm($sql,5,$idRun);
+$CppColumn  = new diagramm($sql,2,$idRun);
+$IntColumn  = new diagramm($sql,1,$idRun);
+$HaColumn  = new diagramm($sql,5,$idRun);
 
 
 ?>
@@ -57,6 +57,7 @@ $IntColumn  = new diagramm($sql,5,$idRun);
 						<li class="current" ><a href="interpreter.php">Interpreter</a></li>
 						<li><a href="interface.php">Interface</a></li>
 						<li><a href="performance.php">Performance</a></li>
+						<li><a href="screencast.php">Screencast</a></li>
 					</ul>
 				</div>
 				<!--close menubar-->

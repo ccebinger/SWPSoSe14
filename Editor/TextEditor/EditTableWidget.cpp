@@ -321,7 +321,6 @@ void EditTableWidget::setSign(int row, int col, QChar c, bool suppressUndoRedoCr
     Stack *tmp = stack->pop();
     int deltaX = 0, deltaY = 0;
     ApplicationConstants::Direction direction = static_cast<ApplicationConstants::Direction>(tmp->getColor());
-    //qDebug() << "direction:" << direction;
     m_graph.directionToDelta(&deltaX, &deltaY, direction);
     setPosition(std::max(0, m_cursorRowPos + deltaY), std::max(0, m_cursorColPos + deltaX));
     delete tmp;
@@ -558,8 +557,6 @@ void EditTableWidget::setPlainText(QString text)
     for(int i = 0; i < text.size(); i++)
     {
         QChar c = text.at(i);
-        //qDebug() << "i: " << i << c;
-        //qDebug() << "row: " << m_cursorRowPos << "col: " << m_cursorColPos;
         if(c == '\n')
         {
             setPosition(m_cursorRowPos + 1, 0);
@@ -570,8 +567,6 @@ void EditTableWidget::setPlainText(QString text)
         }
     }
     this->blockSignals(false);
-    // Somehow the very first letter is cleared, hence we set it here again manually
-    setSign(0, 0, text.at(0));
     this->setPosition(0, 0);
     ApplicationPreferences::cursorMode = tmpCursorMode;
 }

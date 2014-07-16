@@ -354,6 +354,8 @@ void MainWindow::openFile()
 
 void MainWindow::openFile(QString const& filePath)
 {
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    QApplication::processEvents();
     QFile file(filePath);
     if(file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -370,6 +372,7 @@ void MainWindow::openFile(QString const& filePath)
         updateRecentFiles();
     }
     file.close();
+    QApplication::restoreOverrideCursor();
 }
 
 void MainWindow::newFile()
@@ -936,7 +939,7 @@ void MainWindow::openRecent()
     assert(action);
     foreach(QAction *recentAction, ui->ui_openRecentMenu->actions())
     {
-        if(recentAction == action)
+        if(recentAction == action && saveChanges())
         {
             QString filePath = recentAction->data().toString();
             openFile(filePath);

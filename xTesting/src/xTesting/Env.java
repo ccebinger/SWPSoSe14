@@ -6,7 +6,7 @@ import java.nio.file.Path;
 
 public class Env {
 	
-	public static final long ExecTimeout = 10000;
+	public static final long ExecTimeout = 1000;
 	
 	
 	
