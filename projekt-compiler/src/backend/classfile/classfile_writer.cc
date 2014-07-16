@@ -38,7 +38,6 @@ std::map<ClassfileWriter::ClassfileVersion, std::array<char, 4>>
 };
 
 const unsigned char ClassfileWriter::inner_class_flag[] = {'\x00', '\x08'};
-const std::string ClassfileWriter::enclosing_attr = "EnclosingMethod";
 const std::string ClassfileWriter::inner_classes_attr = "InnerClasses";
 
 /*!
@@ -52,12 +51,13 @@ ClassfileWriter::ClassfileWriter(ClassfileVersion version,
                                  ConstantPool* constantPool,
                                  Graphs& graphs,
                                  const std::map<std::string, codegen::Bytecode&> codeFunctions,
-                                 std::ostream* out) : graphs_(graphs),
+                                 std::ostream* out) : inner_classes_count(0),
+                                                      graphs_(graphs),
                                                       writer(out),
                                                       out_(out),
                                                       version_(version),
-                                                      code_functions_(codeFunctions),
-                                                      inner_classes_count(0) {
+                                                      code_functions_(codeFunctions)
+                                                       {
   constant_pool_ = std::make_shared<ConstantPool>(*constantPool);
 }
 
@@ -65,12 +65,13 @@ ClassfileWriter::ClassfileWriter(ClassfileVersion version,
 ClassfileWriter::ClassfileWriter(ClassfileVersion version, ConstantPool* constantPool,
                 Graphs& graphs,
                 const std::map<std::string, codegen::Bytecode&> codeFunctions,
-                std::ostream* out, uint16_t inner_classes) : graphs_(graphs),
+                std::ostream* out, uint16_t inner_classes) :
+                                                      inner_classes_count(inner_classes),
+                                                      graphs_(graphs),
                                                       writer(out),
                                                       out_(out),
                                                       version_(version),
-                                                      code_functions_(codeFunctions),
-                                                      inner_classes_count(inner_classes) {
+                                                      code_functions_(codeFunctions) {
   constant_pool_ = std::make_shared<ConstantPool>(*constantPool);
 }
 
@@ -253,10 +254,10 @@ void ClassfileWriter::WriteInitMethod() {
   // code_length=5
   writer.writeU32(5);
   //code source
-  writer.writeU8(42);
-  writer.writeU8(183);
+  writer.writeU8(codegen::MNEMONIC::ALOAD_0);
+  writer.writeU8(codegen::MNEMONIC::INVOKE_SPECIAL);
   writer.writeU16(constant_pool_->addMethRef(constant_pool_->addClassRef(init_idx), init_name_type_idx));
-  writer.writeU8(177);
+  writer.writeU8(codegen::RETURN);
   // exception_table_length=0
   out_->write(kNotRequired, sizeof(kNotRequired));
   // attributes_count
@@ -283,14 +284,14 @@ void ClassfileWriter::WriteClInitMethod() {
   // code_length=5
   writer.writeU32(11);
   //code source
-  writer.writeU8(187);
+  writer.writeU8(codegen::MNEMONIC::NEW);
   writer.writeU16(constant_pool_->addClassRef(constant_pool_->addString("java/util/ArrayDeque")));
-  writer.writeU8(89);
-  writer.writeU8(183);
+  writer.writeU8(codegen::MNEMONIC::DUP);
+  writer.writeU8(codegen::MNEMONIC::INVOKE_SPECIAL);
   writer.writeU16(constant_pool_->addMethRef(constant_pool_->addClassRef(constant_pool_->addString("java/util/ArrayDeque")),constant_pool_->addNameAndType(constant_pool_->addString("<init>"), constant_pool_->addString("()V"))));
-  writer.writeU8(179);
+  writer.writeU8(codegen::MNEMONIC::PUTSTATIC);
   writer.writeU16(constant_pool_->addFieldRef(constant_pool_->addClassRef(constant_pool_->addString(Env::getDstClassName())),constant_pool_->addNameAndType(constant_pool_->addString("stack"), constant_pool_->addString("Ljava/util/ArrayDeque;"))));
-  writer.writeU8(177);
+  writer.writeU8(codegen::MNEMONIC::RETURN);
   // exception_table_length=0
   out_->write(kNotRequired, sizeof(kNotRequired) / sizeof(kNotRequired[0]));
   // attributes_count

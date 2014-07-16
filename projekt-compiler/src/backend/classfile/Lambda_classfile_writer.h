@@ -41,15 +41,21 @@ public:
    * @param codeFunctions       The mapping of the function and appropriate bytecode.
    * @param out                 The stream we write on.
    */
-  Lambda_classfile_writer(std::string& class_name, ClassfileVersion version, ConstantPool* constantPool,
+  Lambda_classfile_writer(std::string& class_name, LocalVariableStash locals, ClassfileVersion version, ConstantPool* constantPool,
                     Graphs& graphs,
                     const std::map<std::string, codegen::Bytecode&> codeFunctions,
                     std::ostream* out);
   virtual ~Lambda_classfile_writer();
-protected:
-  std::string class_name;
-  static const unsigned char anonymous_class_access_flags[];
 
+  typedef std::map<std::string, uint16_t> MAP;
+private:
+  MAP add_locals_as_fields_to_constantpool();
+protected:
+  MAP field_map;
+  std::string class_name;
+  LocalVariableStash fields;
+  static const unsigned char anonymous_class_access_flags[];
+  static const unsigned char synthetic_final_field_access_flags[];
   /**
    * Method to write the constant pool that was generated in @see constant_pool.cc
    *
