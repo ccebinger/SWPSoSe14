@@ -31,6 +31,7 @@
 						<li><a href="interpreter.php">Interpreter</a></li>
 						<li class="current"><a href="interface.php">Interface</a></li>
 						<li><a href="performance.php">Performance</a></li>
+						<li><a href="screencast.php">Screencast</a></li>
 					</ul>
 				</div>
 				<!--close menubar-->

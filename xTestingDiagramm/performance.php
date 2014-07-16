@@ -16,6 +16,33 @@ $qlastrunid = $sql->query("SELECT idRun FROM run order by date desc LIMIT 1;");
 $idRun = $sql->result(0,'idRun',$qlastrunid);
 
 
+
+//FIXME anpassen
+/*
+SELECT
+	AVG(c.durationMs) AS avgCpp,
+	AVG(h.durationMs) AS avgHas,
+	COUNT(c.id) AS countCpp,
+	COUNT(h.id) AS countHas
+
+FROM
+	result AS c
+
+INNER JOIN result AS h ON
+	h.type = 5 AND
+	h.blame = 0 AND
+	h.testcaseId = 0 AND
+	h.idRun = 1 AND
+	h.idTestfile = c.idTestfile
+
+WHERE
+	c.idRun = 1 AND
+	c.testcaseId = 0 AND
+	c.type = 2 AND
+	c.blame = 0
+
+*/
+
 $result = $sql->query("SELECT type, ROUND(AVG(durationMs)) AS avg, COUNT(durationMs) AS count FROM `result` WHERE idRun='".$idRun."' AND blame=0 AND testcaseId=0 AND (type=2 OR type=5) GROUP BY type ORDER BY type ASC;");
 $statsCompile = array();
 while($line=mysql_fetch_array($result)) {
@@ -26,6 +53,9 @@ while($line=mysql_fetch_array($result)) {
 #var_dump($statsCompile[1]['avg'] / ($statsCompile[0]['avg'] + $statsCompile[1]['avg']));
 
 
+
+
+//FIXME anpassen
 
 $result = $sql->query("SELECT type, ROUND(AVG(durationMs)) AS avg, COUNT(durationMs) AS count FROM `result` WHERE idRun='".$idRun."' AND blame=0 AND testcaseId>0 AND (type=1 OR type=2 OR type=5) GROUP BY type ORDER BY type ASC;");
 $statsExec = array();
@@ -73,6 +103,7 @@ while($line=mysql_fetch_array($result)) {
 						<li><a href="interpreter.php">Interpreter</a></li>
 						<li><a href="interface.php">Interface</a></li>
 						<li class="current"><a href="performance.php">Performance</a></li>
+						<li><a href="screencast.php">Screencast</a></li>
 					</ul>
 				</div>
 				<!--close menubar-->
