@@ -16,58 +16,64 @@ $qlastrunid = $sql->query("SELECT idRun FROM run order by date desc LIMIT 1;");
 $idRun = $sql->result(0,'idRun',$qlastrunid);
 
 
-
-//FIXME anpassen
-/*
+$result = $sql->query("
 SELECT
-	AVG(c.durationMs) AS avgCpp,
-	AVG(h.durationMs) AS avgHas,
+	ROUND(AVG(c.durationMs)) AS avgCpp,
+	ROUND(AVG(h.durationMs)) AS avgHas,
 	COUNT(c.id) AS countCpp,
 	COUNT(h.id) AS countHas
-
 FROM
 	result AS c
-
 INNER JOIN result AS h ON
 	h.type = 5 AND
 	h.blame = 0 AND
 	h.testcaseId = 0 AND
-	h.idRun = 1 AND
+	h.idRun = c.idRun AND
 	h.idTestfile = c.idTestfile
-
 WHERE
-	c.idRun = 1 AND
+	c.idRun = '".$idRun."' AND
 	c.testcaseId = 0 AND
 	c.type = 2 AND
 	c.blame = 0
-
-*/
-
-$result = $sql->query("SELECT type, ROUND(AVG(durationMs)) AS avg, COUNT(durationMs) AS count FROM `result` WHERE idRun='".$idRun."' AND blame=0 AND testcaseId=0 AND (type=2 OR type=5) GROUP BY type ORDER BY type ASC;");
+;");
 $statsCompile = array();
 while($line=mysql_fetch_array($result)) {
 	$statsCompile[] = $line;
 }
 
-#var_dump($statsCompile[0]['avg'] / ($statsCompile[0]['avg'] + $statsCompile[1]['avg']));
-#var_dump($statsCompile[1]['avg'] / ($statsCompile[0]['avg'] + $statsCompile[1]['avg']));
 
-
-
-
-//FIXME anpassen
-
-$result = $sql->query("SELECT type, ROUND(AVG(durationMs)) AS avg, COUNT(durationMs) AS count FROM `result` WHERE idRun='".$idRun."' AND blame=0 AND testcaseId>0 AND (type=1 OR type=2 OR type=5) GROUP BY type ORDER BY type ASC;");
+$result = $sql->query("
+SELECT
+	AVG(c.durationMs) AS avgCpp,
+	AVG(h.durationMs) AS avgHas,
+	AVG(i.durationMs) AS avgInt,
+	COUNT(c.id) AS countCpp,
+	COUNT(h.id) AS countHas,
+	COUNT(i.id) AS countInt
+FROM
+	result AS c
+INNER JOIN result AS h ON
+	h.idRun = c.idRun AND
+	h.testcaseId = c.testcaseId AND
+	h.idTestfile = c.idTestfile AND
+	h.type = 5 AND
+	h.blame = 0
+INNER JOIN result AS i ON
+	i.idRun = c.idRun AND
+	i.testcaseId = c.testcaseId AND
+	i.idTestfile = c.idTestfile AND
+	i.type = 1 AND
+	i.blame = 0
+WHERE
+	c.idRun = '".$idRun."' AND
+	c.testcaseId > 0 AND
+	c.type = 2 AND
+	c.blame = 0
+;");
 $statsExec = array();
 while($line=mysql_fetch_array($result)) {
 	$statsExec[] = $line;
 }
-
-
-// var_dump($statsExec[0]['avg']); # Interpreter
-// var_dump($statsExec[1]['avg']); # C++
-// var_dump($statsExec[2]['avg']); # Haskell
-
 
 ?>
 <!DOCTYPE html>
@@ -174,8 +180,8 @@ while($line=mysql_fetch_array($result)) {
 						        series: [{
 						            name: 'ms average',
 						            data: [
-						            	<?php echo $statsCompile[0]['avg'];?>,
-						            	<?php echo $statsCompile[1]['avg'];?>
+						            	<?php echo $statsCompile[0]['avgCpp'];?>,
+						            	<?php echo $statsCompile[0]['avgHas'];?>
 						            ]
 						        }]
 						    });
@@ -197,7 +203,7 @@ while($line=mysql_fetch_array($result)) {
 					           },
 					           colors: ['#A40B0B'],
 						       title: { text: '' },
-						       xAxis: { categories: ['Interpreter', 'C++', 'Haskell'] },
+						       xAxis: { categories: ['C++', 'Interpreter', 'Haskell'] },
 						       yAxis: {
 						            min: 0,
 						            title: {
@@ -240,9 +246,9 @@ while($line=mysql_fetch_array($result)) {
 						        series: [{
 						            name: 'ms average',
 						            data: [
-						            	<?php echo $statsExec[0]['avg']; #Interpreter ?>,
-						            	<?php echo $statsExec[1]['avg']; #C++ ?>,
-						            	<?php echo $statsExec[2]['avg']; #Haskell ?>
+						            	<?php echo $statsExec[0]['avgCpp']; ?>,
+						            	<?php echo $statsExec[0]['avgInt']; ?>,
+						            	<?php echo $statsExec[0]['avgHas']; ?>
 						            ]
 						        }]
 						    });
@@ -256,34 +262,6 @@ while($line=mysql_fetch_array($result)) {
 		
 		<!--close main-->
 	</div>
-
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 </body>
 </html>
 <?php 
