@@ -188,8 +188,7 @@ $(function () {
 	            }
 	        },
 	        legend: {
-	          
-	            verticalAlign: 'top',
+	        	verticalAlign: 'top',
 	            y: 0,
 	            floating: true,
 	            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',

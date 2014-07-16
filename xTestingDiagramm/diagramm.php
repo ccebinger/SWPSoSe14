@@ -15,8 +15,8 @@ class diagramm
 		$ResultValid=$sql->result(0,'countValid',$qResultValid);
 		$ResultFailed=$sql->result(0,'countFailed',$qResultFailed);
 		
-		$this->Valid  = round(($ResultValid/( $ResultValid + $ResultFailed))*100,2);
-		$this->Failed   = round(($ResultFailed/( $ResultValid + $ResultFailed))*100,2);
+		$this->Valid  = round(($ResultValid/( $ResultValid + $ResultFailed))*100);
+		$this->Failed   = round(($ResultFailed/( $ResultValid + $ResultFailed))*100);
 	}
 }
 
