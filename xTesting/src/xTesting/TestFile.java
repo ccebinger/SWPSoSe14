@@ -131,7 +131,16 @@ public class TestFile implements Comparable<TestFile> {
 			else {
 				ExecResult err = null;
 				String msg = "Expect " + (expectCompiling ? "successful" : "errorous") + " compilation: ";
-				if(blameCompile == (Env.BLAME_FRONT | Env.BLAME_BACK)) {
+				
+				if(resFront.isTimeout) {
+					msg += "Frontend Timeout ("+ (Env.ExecTimeout / 1000) +" s) => ";
+					err = resFront;
+				}
+				else if(resBack != null && resBack.isTimeout) {
+					msg += "Backend Timeout ("+ (Env.ExecTimeout / 1000) +" s) => ";
+					err = resBack;
+				}
+				else if(blameCompile == (Env.BLAME_FRONT | Env.BLAME_BACK)) {
 					// both failed (both compiled successfully but unexpected)
 					msg += "Frontend and Backend";
 					err = new ExecResult(

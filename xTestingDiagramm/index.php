@@ -57,7 +57,7 @@ $(function () {
 	                text: titel
 	            },
 	            tooltip: {
-	        	    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+	        	    pointFormat: '<b>{point.percentage:.1f}%</b>'
 	            },
 	            plotOptions: {
 	                pie: {
@@ -82,9 +82,6 @@ $(function () {
 	                           y: ValidValue,
 	                           color: '#0BA50B'
 	                       }
-
-
-		   	           
 	                ]
 	            }]
 	        });
@@ -113,9 +110,10 @@ $(function () {
 				<div id="menubar">
 					<ul id="nav">
 						<li class="current"><a href="index.php">Home</a></li>
-						<li><a href="interpreter.php?idrun=<?php echo($idRun)?>">Interpreter</a>
-						</li>
-
+						<li><a href="interpreter.php">Interpreter</a></li>
+						<li><a href="interface.php">Interface</a></li>
+						<li><a href="performance.php">Performance</a></li>
+						<li><a href="screencast.php">Screencast</a></li>
 					</ul>
 				</div>
 				<!--close menubar-->
@@ -126,12 +124,23 @@ $(function () {
 
 
 
-		<div id="container" style="width: 100%; height: 400px;"></div>
-		<div >
-			<div id="container2" style="float: left;width: 25%; height: 200px;"></div>
-			<div id="container3" style="float: left;width: 25%; height: 200px;"></div>
-			<div id="container4" style="float: left;width: 25%; height: 200px;"></div>
-			<div id="container5" style="float: left;width: 25%; height: 200px;"></div>
+		<div id="container">
+			
+			<div id="container1"></div>
+			
+			<div id="pies">
+				<div id="pieNames">
+					<div>C++</div>
+					<div>C++ -&gt; Ast -&gt; C++</div>
+					<div>Haskell</div>
+					<div>Haskell -&gt; Ast -&gt; Haskell</div>
+				</div>
+				<div id="container2" style="float: left;width: 25%; height: 200px;"></div>
+				<div id="container3" style="float: left;width: 25%; height: 200px;"></div>
+				<div id="container4" style="float: left;width: 25%; height: 200px;"></div>
+				<div id="container5" style="float: left;width: 25%; height: 200px;"></div>
+			</div>
+			
 		</div>
 		<!--close main-->
 	</div>
@@ -143,7 +152,7 @@ $(function () {
 
    $(function () {
 		  
-	    $('#container').highcharts({
+	    $('#container1').highcharts({
 	        
 	        chart: {
 	            type: 'column'
@@ -163,7 +172,7 @@ $(function () {
 	            text: 'Stacked column chart'
 	        },
 	        xAxis: {
-	            categories: ['C++ zu Haskell', 'Haskell zu C++']
+	            categories: ['C++ -&gt; AST -&gt; Haskell', 'Haskell -&gt; AST -&gt; C++']
 	        },
 	        yAxis: {
 	            min: 0,
@@ -190,8 +199,7 @@ $(function () {
 	        },
 	        tooltip: {
 	            formatter: function () {
-	                return '<b>' + this.x + '</b><br/>' + this.series.name + ': ' + this.y + '<br/>' +
-	                    'Total: ' + this.point.stackTotal;
+	                return '<b>' + this.x + '</b><br/>' + this.y + '% ' + this.series.name;
 	            }
 	        },
 	        plotOptions: {
@@ -207,19 +215,19 @@ $(function () {
 	            }
 	        },
 	        series: [{
-	            name: 'Fehlgeschlagene Tests',
+	            name: 'fehlgeschlagen',
 	            data: [<?php echo( $CppToHaColumn->Failed.",".$HaToCppColumn->Failed )?>]
 	        }, {
-	            name: 'Erfolgreiche Tests ',
+	            name: 'erfolgreich',
 	            data: [<?php echo( $CppToHaColumn->Valid.",".$HaToCppColumn->Valid) ?>]
 	        }]
 	    });
 	});
   
-   chart('#container2','C++',<?php echo( $CppPie->Failed)?>,<?php echo( $CppPie->Valid)?> );
-   chart('#container3','C++ -&gt; Ast -&gt; C++',<?php echo( $CppAstCppPie->Failed)?>,<?php echo( $CppAstCppPie->Valid)?> );
-   chart('#container4','Haskell',<?php echo( $HasPie->Failed)?>,<?php echo( $HasPie->Valid)?> );
-   chart('#container5','Haskell -&gt; Ast -&gt; Haskell',<?php echo( $HasToAstAstpie->Failed)?>,<?php echo( $HasToAstAstpie->Valid)?> );
+   chart('#container2','',<?php echo( $CppPie->Failed)?>,<?php echo( $CppPie->Valid)?> );
+   chart('#container3','',<?php echo( $CppAstCppPie->Failed)?>,<?php echo( $CppAstCppPie->Valid)?> );
+   chart('#container4','',<?php echo( $HasPie->Failed)?>,<?php echo( $HasPie->Valid)?> );
+   chart('#container5','',<?php echo( $HasToAstAstpie->Failed)?>,<?php echo( $HasToAstAstpie->Valid)?> );
 </script>
 </body>
 </html>
