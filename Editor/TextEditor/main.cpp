@@ -10,42 +10,44 @@
 #include "UndoRedoTypeCharacter.h"
 
 //remove this later
-#include "QDebug"
+#include <QDebug>
+#include <QSplashScreen>
+#include <QTimer>
+
 
 int main(int argc, char *argv[])
 {
-    //only for testing the text selection!
-/*
-    QList<QChar>* list = new QList<QChar>();
-    list->append('$');
-    list->append(' ');
-    list->append('[');
-    list->append('-');
-    list->append('<');
-    list->append(' ');
-    list->append('}');
-    list->append(' ');
-    list->append(']');
-    TextSelection* t = new TextSelection(*list,3,3);
-    t = &t->mirrorHorizontal();
-    for(int y=0; y<3; y++) {
-        for(int x=0; x<3; x++) {
-            qDebug() << t->text().at(y*3+x);
-        }
-    }
-
-    std::exit(0);
-
-    //end of testing the text selection
-    */
-
     QApplication app(argc, argv);
     app.setOrganizationName("Jail Constructions Ltd.");
     app.setOrganizationDomain("https://github.com/ccebinger/SWPSoSe14");
     app.setApplicationName("Jail++");
 
+
+    QPixmap pixmap(":/icons/Logos/project_logo.jpg");
+    QSplashScreen splash (pixmap);
+    splash.show();
+    QEventLoop loop;
+    QTimer::singleShot(1500, &loop, SLOT(quit()));
+    loop.exec();
+
+    /*splash.showMessage("Getting construction workers", Qt::AlignCenter, QColor("#ffaa00"));
+    qApp->processEvents();
+    QTimer::singleShot(1000, &loop, SLOT(quit()));
+    loop.exec();
+
+    splash.showMessage("Building Rails", Qt::AlignCenter, QColor("#ffaa00"));
+    qApp->processEvents();
+    QTimer::singleShot(1000, &loop, SLOT(quit()));
+    loop.exec();
+
+    splash.showMessage("Putting Train on Rails", Qt::AlignCenter, QColor("#ffaa00"));
+    qApp->processEvents();
+    QTimer::singleShot(1000, &loop, SLOT(quit()));
+    loop.exec();*/
+
     MainWindow mainWindow;
     mainWindow.show();
+    splash.finish(&mainWindow);
 
     return app.exec();
 }
