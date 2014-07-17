@@ -378,6 +378,7 @@ codegen::Bytecode* codegen::Bytecode::add_pop_variable_code(std::string& var_nam
   uint8_t var_index =  locals.getIndexForVar(var_name);
   add_opcode(codegen::MNEMONIC::ALOAD);
   add_byte(var_index);
+  return this;
 }
 //================================================================================
 //=================================GLOBAL STACK===================================
