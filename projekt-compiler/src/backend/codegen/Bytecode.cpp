@@ -28,22 +28,25 @@ codegen::Bytecode::func_map= {
   {Command::Type::INPUT, &input_ByteCode},
   {Command::Type::UNDERFLOW_CHECK, &underflow_ByteCode},
   {Command::Type::TYPE_CHECK, &type_ByteCode},
-  {Command::Type::EASTJUNC, &if_or_while_ByteCode},
-  {Command::Type::WESTJUNC, &if_or_while_ByteCode},
-  {Command::Type::NORTHJUNC, &if_or_while_ByteCode},
-  {Command::Type::SOUTHJUNC, &if_or_while_ByteCode},
+  {Command::Type::EASTJUNC, &if_ByteCode},
+  {Command::Type::WESTJUNC, &if_ByteCode},
+  {Command::Type::NORTHJUNC, &if_ByteCode},
+  {Command::Type::SOUTHJUNC, &if_ByteCode},
   {Command::Type::VAR_POP, &pop_Variable},
   {Command::Type::VAR_PUSH, &push_Variable}
 };
 
-codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), locals(4), lambda_code(false)
-{
+codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p),
+                                               locals(4),
+                                               lambda_code(false){
 }
 
-codegen::Bytecode::Bytecode(ConstantPool& p, std::string& name, bool is_lambda_code) : pool(p),
-                                                                                       locals(4),
-                                                                                       lambda_code(is_lambda_code),
-                                                                                       class_name(name) {}
+codegen::Bytecode::Bytecode(ConstantPool& p,
+                            std::string& name,
+                            bool is_lambda_code) : pool(p),
+                                                   locals(4),
+                                                   lambda_code(is_lambda_code),
+                                                   class_name(name) {}
 
 codegen::Bytecode::~Bytecode() {}
 
@@ -69,6 +72,7 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
     current_node = current_node->successor1;
   }
   bytecode.push_back(codegen::MNEMONIC::RETURN);
+
   return this;
 }
 
@@ -374,6 +378,7 @@ codegen::Bytecode* codegen::Bytecode::add_pop_variable_code(std::string& var_nam
   uint8_t var_index =  locals.getIndexForVar(var_name);
   add_opcode(codegen::MNEMONIC::ALOAD);
   add_byte(var_index);
+  return this;
 }
 //================================================================================
 //=================================GLOBAL STACK===================================
@@ -785,7 +790,7 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
 }
 
 //CONTROL STRUCTURE
-void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
+void codegen::if_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
   // store node because traversing successor1 end with last

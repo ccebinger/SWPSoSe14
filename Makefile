@@ -6,7 +6,7 @@ CC=g++
 CFLAGS=-c -g -Wall -Wextra -Wtype-limits -pedantic -std=c++0x -Iprojekt-compiler/src
 LDFLAGS=-lrt
 
-all: rail jail tests compile compile2 compile3 run run2 run3
+all: rail jail++ tests compile run 
 
 tests: unittest_constantpool unittest_classfile_writer_test
 
@@ -54,7 +54,7 @@ main.o: constant_pool.o classfile_writer.o Graphs.o Bytecode_writer.o Bytecode.o
 	 adjacency_list.o Lexer.o Parser.o backend.o Env.o
 	$(CC) $(CFLAGS) -D STANDALONE_BACKEND projekt-compiler/src/main.cpp
 
-jail: constant_pool.o Lambda_classfile_writer.o Lambda_interface_writer.o classfile_writer.o Graphs.o Bytecode_writer.o Bytecode.o\
+jail++: constant_pool.o Lambda_classfile_writer.o Lambda_interface_writer.o classfile_writer.o Graphs.o Bytecode_writer.o Bytecode.o\
 	 adjacency_list.o Lexer.o Parser.o backend.o Env.o main.o 
 	$(CC) constant_pool.o Lambda_classfile_writer.o Lambda_interface_writer.o classfile_writer.o Graphs.o Bytecode_writer.o local_variable_stash.o Bytecode.o\
 	 adjacency_list.o Lexer.o Parser.o backend.o Env.o main.o $(LDFLAGS) -o jail++
@@ -78,19 +78,22 @@ compile:
 	./jail++ -i projekt-compiler/test/movement/y_junction/junctest.rail -g io/junctest.dot -s io/junctest.csv -o junctest.class
 
 compile2: 
-	./jail++ -i ./fu-rail -i projekt-compiler/test/builtInCommand/conditional/true.rail -g io/true.dot -s io/true.csv -o true.class
+	./jail++ -i projekt-compiler/test/movement/rail/endless_WithRails.rail -g io/endless_WithRails.dot -s io/endless_WithRails.csv -o endless_WithRails.class
 
 compile3: 
-	./jail++ -i ./fu-rail -i projekt-compiler/test/builtInCommand/conditional/false.rail -g io/false.dot -s io/false.csv -o false.class
+	./jail++ -i projekt-compiler/test/movement/rail/endless_WithNodes.rail -g io/endless_WithNodes.dot -s io/endless_WithNodes.csv -o endless_WithNodes.class
 
 run: 
 	java -XX:-UseSplitVerifier junctest
 
 run2: 
-	java -XX:-UseSplitVerifier true
+	java -XX:-UseSplitVerifier endless_WithRails
 
 run3: 
-	java -XX:-UseSplitVerifier false
+	java -XX:-UseSplitVerifier endless_WithNodes
 
 clean:
-	rm *.o jail++ rail unittest_constantpool unittest_classfile_writer_test
+	rm *.class *.o rail jail++ unittest_constantpool unittest_classfile_writer_test
+
+cleanJail:
+	rm *.class *.o jail++ unittest_constantpool unittest_classfile_writer_test
