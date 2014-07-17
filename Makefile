@@ -6,7 +6,7 @@ CC=g++
 CFLAGS=-c -g -Wall -Wextra -Wtype-limits -pedantic -std=c++0x -Iprojekt-compiler/src
 LDFLAGS=-lrt
 
-all: rail jail++ tests compile compile2 compile3 run run2 run3
+all: rail jail++ tests compile run 
 
 tests: unittest_constantpool unittest_classfile_writer_test
 
@@ -93,4 +93,7 @@ run3:
 	java -XX:-UseSplitVerifier endless_WithNodes
 
 clean:
-	rm *.class *.o jail++ rail unittest_constantpool unittest_classfile_writer_test
+	rm *.class *.o rail jail++ unittest_constantpool unittest_classfile_writer_test
+
+cleanJail:
+	rm *.class *.o jail++ unittest_constantpool unittest_classfile_writer_test

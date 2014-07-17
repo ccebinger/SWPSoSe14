@@ -28,22 +28,25 @@ codegen::Bytecode::func_map= {
   {Command::Type::INPUT, &input_ByteCode},
   {Command::Type::UNDERFLOW_CHECK, &underflow_ByteCode},
   {Command::Type::TYPE_CHECK, &type_ByteCode},
-  {Command::Type::EASTJUNC, &if_or_while_ByteCode},
-  {Command::Type::WESTJUNC, &if_or_while_ByteCode},
-  {Command::Type::NORTHJUNC, &if_or_while_ByteCode},
-  {Command::Type::SOUTHJUNC, &if_or_while_ByteCode},
+  {Command::Type::EASTJUNC, &if_ByteCode},
+  {Command::Type::WESTJUNC, &if_ByteCode},
+  {Command::Type::NORTHJUNC, &if_ByteCode},
+  {Command::Type::SOUTHJUNC, &if_ByteCode},
   {Command::Type::VAR_POP, &pop_Variable},
   {Command::Type::VAR_PUSH, &push_Variable}
 };
 
-codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p), locals(4), lambda_code(false)
-{
+codegen::Bytecode::Bytecode(ConstantPool& p) : pool(p),
+                                               locals(4),
+                                               lambda_code(false){
 }
 
-codegen::Bytecode::Bytecode(ConstantPool& p, std::string& name, bool is_lambda_code) : pool(p),
-                                                                                       locals(4),
-                                                                                       lambda_code(is_lambda_code),
-                                                                                       class_name(name) {}
+codegen::Bytecode::Bytecode(ConstantPool& p,
+                            std::string& name,
+                            bool is_lambda_code) : pool(p),
+                                                   locals(4),
+                                                   lambda_code(is_lambda_code),
+                                                   class_name(name) {}
 
 codegen::Bytecode::~Bytecode() {}
 
@@ -57,7 +60,6 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
       state.current_code = this;
       state.current_node = current_node;
       f(state);
-      proccessedList.push_back(current_node);
     }
     // end Program after junction, because junction resolve recursivly and after
     // both successor's path are build there is nothing to do
@@ -70,19 +72,11 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Graph_ptr graph) {
     current_node = current_node->successor1;
   }
   bytecode.push_back(codegen::MNEMONIC::RETURN);
-  std:: cout << "main build proccessedList: ";
-  for (auto c : proccessedList) {
-    std::cout << c->id << ", ";
-  }
-  std::cout << std::endl;
 
   return this;
 }
 
-codegen::Bytecode* codegen::Bytecode::build(Graphs::Node_ptr current_node,
-                                            std::vector<Graphs::Node_ptr> *_proccessedList) {
-  proccessedList.insert(proccessedList.begin(), _proccessedList->begin(),
-                        _proccessedList->end());
+codegen::Bytecode* codegen::Bytecode::build(Graphs::Node_ptr current_node) {
   while (current_node && current_node->command.type != Command::Type::FINISH) {
     func_ptr f = func_map.at(current_node->command.type);
     if (f) {
@@ -90,15 +84,9 @@ codegen::Bytecode* codegen::Bytecode::build(Graphs::Node_ptr current_node,
       state.current_code = this;
       state.current_node = current_node;
       f(state);
-      proccessedList.push_back(current_node);
     }
     current_node = current_node->successor1;
   }
-  std:: cout << "proccessedList: ";
-  for (auto c : proccessedList) {
-    std::cout << c->id << ", ";
-  }
-  std::cout << std::endl;
   return this;
 }
 
@@ -801,7 +789,7 @@ void codegen::type_ByteCode(Bytecode::Current_state state) {
 }
 
 //CONTROL STRUCTURE
-void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
+void codegen::if_ByteCode(Bytecode::Current_state state) {
   Bytecode* code = state.current_code;
   ConstantPool& pool = code->get_constant_pool();
   // store node because traversing successor1 end with last
@@ -817,9 +805,9 @@ void codegen::if_or_while_ByteCode(Bytecode::Current_state state) {
   crash_code.push_back(MNEMONIC::ATHROW);
 
   Bytecode successor1(state.current_code->get_constant_pool());
-  successor1.build(state.current_node->successor1, &(code->proccessedList));
+  successor1.build(state.current_node->successor1);
   Bytecode successor2(state.current_code->get_constant_pool());
-  successor2.build(store_node, &(code->proccessedList));
+  successor2.build(store_node);
 
   code->globalstack_pop()
       ->add_opcode_with_idx(codegen::MNEMONIC::CHECKCAST,
