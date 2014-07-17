@@ -709,7 +709,7 @@ void MainWindow::javaStarted()
 
 void MainWindow::javaFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    ui->ui_consolePlainTextEdit->appendPlainText("Java finished with exit code " + QString::number(exitCode) + "\n\n");
+    ui->ui_consolePlainTextEdit->appendPlainText("\nJava finished with exit code " + QString::number(exitCode) + "\n\n");
     ui->ui_consolePlainTextEdit->setReadOnly(true);
     disconnect(ui->ui_consolePlainTextEdit, SIGNAL(lineEntered(QString)), this, SLOT(consoleLineEntered(QString)));
 

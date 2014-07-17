@@ -124,8 +124,9 @@ int Graph_Interface::get_I_Pointer_Direction(Point* to_Direction){
             last_Direction = direction;
             return direction;
         }else{
-            if(last_Direction) return last_Direction;
-            else return 8;
+            //if(last_Direction) return last_Direction;
+            //else return 8;
+            return 8;
         }
     }
     return 8;
